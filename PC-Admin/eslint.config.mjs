@@ -2,6 +2,7 @@
 import fs from 'fs'
 import path, { dirname } from 'path'
 import { fileURLToPath } from 'url'
+import process from 'process'
 
 // 从 ESLint 插件中导入推荐配置
 import pluginJs from '@eslint/js'
@@ -19,7 +20,11 @@ const autoImportConfig = JSON.parse(
   fs.readFileSync(path.resolve(__dirname, '.auto-import.json'), 'utf-8')
 )
 
-export default [
+// 检查是否使用了 --mcp 标志
+const isMCPMode = process.argv.includes('--mcp')
+
+// 根据 MCP 模式调整配置
+const config = [
   // 指定文件匹配规则
   {
     files: ['**/*.{js,mjs,cjs,ts,vue}']
@@ -79,3 +84,11 @@ export default [
   // prettier 配置
   eslintPluginPrettierRecommended
 ]
+
+// 如果使用 MCP 模式，添加 MCP 特定配置
+if (isMCPMode) {
+  console.log('Running ESLint in MCP mode')
+  // 这里可以添加 MCP 特定的配置
+}
+
+export default config
