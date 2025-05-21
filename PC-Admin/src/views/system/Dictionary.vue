@@ -39,7 +39,12 @@
                       <h3>字典数据列表</h3>
                     </div>
                     <!-- 字典明细表格 -->
-                    <ArtTable :data="getDictDetails(scope.row.dictType)" style="width: 100%">
+                    <ArtTable
+                      :data="getDictDetails(scope.row.dictType)"
+                      :currentPage="1"
+                      :pageSize="20"
+                      :total="500"
+                      style="width: 100%">
                       <template #default>
                         <ElTableColumn v-for="detailCol in detailColumns" :key="detailCol.prop || detailCol.type" v-bind="detailCol" />
                       </template>

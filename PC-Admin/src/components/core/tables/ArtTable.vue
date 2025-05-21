@@ -276,7 +276,6 @@
 <style lang="scss" scoped>
   .art-table {
     border-radius: var(--el-border-radius-base);
-    overflow: hidden;
 
     .table-container {
       height: 100%;
@@ -285,6 +284,7 @@
     .table-pagination {
       display: flex;
       margin-top: 16px;
+      margin-bottom: 10px;
 
       // 分页对齐方式
       &.left {

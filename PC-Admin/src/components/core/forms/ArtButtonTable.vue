@@ -71,10 +71,20 @@
     cursor: pointer;
     background-color: rgba(var(--art-gray-200-rgb), 0.7);
     border-radius: 6px;
+    transition: all 0.2s;
 
     &:hover {
-      color: var(--main-color);
-      background-color: rgba(var(--art-gray-300-rgb), 0.5);
+      color: var(--main-color) !important;
+      background-color: rgba(var(--art-gray-300-rgb), 0.6) !important;
+      
+      .iconfont-sys {
+        transform: scale(1.2);
+      }
+    }
+    
+    .iconfont-sys {
+      display: inline-block;
+      transition: transform 0.3s ease;
     }
   }
 </style>
