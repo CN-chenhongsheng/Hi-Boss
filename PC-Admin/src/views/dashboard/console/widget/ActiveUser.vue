@@ -147,12 +147,12 @@
       height: 220px;
       padding: 20px 0 20px 20px;
       // 跟随系统主色
-      background-image: linear-gradient(
-        90deg,
-        var(--el-color-primary-light-1),
-        var(--el-color-primary-light-3),
-        var(--el-color-primary-light-1)
-      );
+      // background-image: linear-gradient(
+      //   90deg,
+      //   var(--el-color-primary-light-1),
+      //   var(--el-color-primary-light-3),
+      //   var(--el-color-primary-light-1)
+      // );
       border-radius: calc(var(--custom-radius) / 2 + 4px) !important;
     }
 
