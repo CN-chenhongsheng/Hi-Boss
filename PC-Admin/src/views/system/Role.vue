@@ -265,7 +265,7 @@
     {
       prop: 'operation',
       label: '操作',
-      width: '180',
+      width: 180,
       formatter: (row: any) => {
         return h('div', { class: 'operation-btns' }, [
           h(ArtButtonTable, {

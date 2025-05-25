@@ -7,8 +7,8 @@ export interface ColumnOption {
   type?: 'selection' | 'expand' | 'index'
   prop?: string
   label?: string
-  width?: number | string
-  minWidth?: number | string
+  width?: number
+  minWidth?: number
   fixed?: boolean | 'left' | 'right'
   sortable?: boolean
   disabled?: boolean

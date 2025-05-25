@@ -27,36 +27,13 @@
             :total="500"
             :marginTop="10"
             row-key="dictType"
-            :expand-row-keys="expandedRows"
-            @expand-change="handleExpandChange"
           >
             <template #default>
-              <ElTableColumn v-for="col in columns" :key="col.prop || col.type" v-bind="col">
-                <!-- 自定义展开行模板 -->
-                <template #default="scope" v-if="col.type === 'expand'">
-                  <div class="dict-detail-container">
-                    <div class="dict-detail-header">
-                      <h3>字典数据列表</h3>
-                    </div>
-                    <!-- 字典明细表格 -->
-                    <ArtTable
-                      :data="getDictDetails(scope.row.dictType)"
-                      :currentPage="1"
-                      :pageSize="20"
-                      :total="500"
-                      style="width: 100%">
-                      <template #default>
-                        <ElTableColumn v-for="detailCol in detailColumns" :key="detailCol.prop || detailCol.type" v-bind="detailCol" />
-                      </template>
-                    </ArtTable>
-                    
-                    <ElButton @click="addDictDetail(scope.row)" v-ripple class="mt-1" style="width: 100%">新增子字典</ElButton>
-                  </div>
-                </template>
-              </ElTableColumn>
+              <ElTableColumn v-for="col in columns" :key="col.prop || col.type" v-bind="col" />
             </template>
           </ArtTable>
   
+          <!-- 添加/编辑字典弹窗 -->
           <ElDialog
             v-model="dialogVisible"
             :title="dialogType === 'add' ? '添加字典' : '编辑字典'"
@@ -113,6 +90,34 @@
                 <ElButton type="primary" @click="handleDetailSubmit">提交</ElButton>
               </div>
             </template>
+          </ElDialog>
+
+          <!-- 权限弹窗（字典值查看） -->
+          <ElDialog
+            v-model="permissionDialogVisible"
+            title="字典数据列表"
+            width="70%"
+          >
+            <ElCard shadow="never" class="art-table-card">
+              <!-- 表格头部 -->
+              <ArtTableHeader v-model:columns="detailColumnChecks" @refresh="handleDetailRefresh">
+                <template #left>
+                  <ElButton @click="addDictDetail({dictType: currentDictType})" v-ripple>新增子字典</ElButton>
+                </template>
+              </ArtTableHeader>
+
+              <!-- 字典明细表格 -->
+              <ArtTable
+                :data="getDictDetails(currentDictType)"
+                :currentPage="1"
+                :pageSize="20"
+                :total="500"
+                style="width: 100%">
+                <template #default>
+                  <ElTableColumn v-for="detailCol in detailColumns" :key="detailCol.prop || detailCol.type" v-bind="detailCol" />
+                </template>
+              </ArtTable>
+            </ElCard>
           </ElDialog>
         </ElCard>
       </div>
@@ -295,43 +300,37 @@
     const loading = ref(false)
     const tableRef = ref()
     
-    // 控制行展开的状态
-    const expandedRows = ref<string[]>([])
-    
-    // 处理行展开/折叠事件
-    const handleExpandChange = (row: DictionaryItem, expanded: boolean) => {
-      const dictType = row.dictType
-      if (expanded) {
-        // 添加到展开行数组
-        if (!expandedRows.value.includes(dictType)) {
-          expandedRows.value.push(dictType)
-        }
-      } else {
-        // 从展开行数组中移除
-        const index = expandedRows.value.indexOf(dictType)
-        if (index !== -1) {
-          expandedRows.value.splice(index, 1)
-        }
-      }
-    }
-    
-    // 获取行是否应展开的状态
-    const getRowExpanded = (row: DictionaryItem) => {
-      return expandedRows.value.includes(row.dictType)
-    }
-
-    // 字典明细相关变量
+    // 字典明细对话框相关变量
     const detailDialogType = ref('add')
     const detailDialogVisible = ref(false)
+
+    // 权限弹窗相关变量
+    const permissionDialogVisible = ref(false)
     const currentDictType = ref('')
+    const currentDict = reactive({
+      dictName: '',
+      dictType: '',
+      status: 1,
+      remark: ''
+    })
     
     // 获取字典明细数据
     const getDictDetails = (dictType: string) => {
       return DICTIONARY_DETAIL_DATA[dictType] || []
     }
 
+    // 查看权限（展示字典值）
+    const showPermissionDialog = (row: DictionaryItem) :void => {
+      permissionDialogVisible.value = true
+      currentDictType.value = row.dictType
+      currentDict.dictName = row.dictName
+      currentDict.dictType = row.dictType
+      currentDict.status = row.status
+      currentDict.remark = row.remark
+    }
+
     // 添加字典明细
-    const addDictDetail = (row: DictionaryItem) => {
+    const addDictDetail = (row: {dictType: string}) => {
       detailDialogType.value = 'add'
       detailDialogVisible.value = true
       currentDictType.value = row.dictType
@@ -550,7 +549,6 @@
     // 动态列配置
     const { columnChecks, columns } = useCheckedColumns(() => [
       { type: 'selection' }, // 勾选列
-      { type: 'expand', label: '展开', width: 80 }, // 展开列
       { type: 'index', label: '序号', width: 80 }, // 序号列
       { prop: 'dictName', label: '字典名称', minWidth: 150 },
       { prop: 'dictType', label: '字典类型', minWidth: 150 },
@@ -574,9 +572,13 @@
       {
         prop: 'operation',
         label: '操作',
-        width: 150,
+        width: 180,
         formatter: (row: any) => {
           return h('div', [
+            h(ArtButtonTable, {
+              type: 'detail',
+              onClick: () => showPermissionDialog(row)
+            }),
             h(ArtButtonTable, {
               type: 'edit',
               onClick: () => showDialog('edit', row)
@@ -652,6 +654,10 @@
     const handleRefresh = () => {
       getTableData()
     }
+
+    const handleDetailRefresh = () => {
+      getDictDetails(currentDictType.value)
+    }
   
     // 表单验证规则
     const rules = reactive<FormRules>({
@@ -695,21 +701,6 @@
   <style lang="scss" scoped>
     .dictionary-page {
       // 可以添加特定于字典页面的样式
-    }
-
-    .dict-detail-container {
-      padding: 10px;
-    }
-
-    .dict-detail-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 15px;
-
-      h3 {
-        margin: 0;
-      }
     }
 
     .operation-btns {
