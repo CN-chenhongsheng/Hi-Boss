@@ -11,27 +11,6 @@
       "path": "node_modules/cz-git"
     }
   },
-  "lint-staged": {
-    "*.{js,ts}": [
-      "eslint --fix",
-      "prettier --write"
-    ],
-    "*.{cjs,json}": [
-      "prettier --write"
-    ],
-    "*.{vue,html}": [
-      "eslint --fix",
-      "prettier --write",
-      "stylelint --fix --allow-empty-input"
-    ],
-    "*.{scss,css}": [
-      "stylelint --fix --allow-empty-input",
-      "prettier --write"
-    ],
-    "*.md": [
-      "prettier --write"
-    ]
-  },
   "devDependencies": {
     "@commitlint/cli": "^19.4.1",
     "@commitlint/config-conventional": "^19.4.1",
