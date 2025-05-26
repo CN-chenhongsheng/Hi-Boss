@@ -39,7 +39,7 @@ export enum RoutesAlias {
   User = '/system/user/index', // 账户
   Role = '/system/Role', // 角色
   UserCenter = '/system/UserCenter', // 用户中心
-  Menu = '/system/Menu', // 菜单
+  Menu = '/system/menu/index', // 菜单
   Permission = '/system/Permission', // 权限
   Dictionary = '/system/dictionary/index', // 字典管理
   NestedMenu1 = '/system/nested/Menu1', // 嵌套菜单1

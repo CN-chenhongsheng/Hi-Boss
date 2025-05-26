@@ -58,7 +58,6 @@ const rules = reactive<FormRules>({
 
 // 定义对话框是否打开
 const handleOpen = () => {
-  console.log('对话框打开')
   formRef.value?.clearValidate()
 }
 
