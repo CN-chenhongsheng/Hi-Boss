@@ -34,23 +34,23 @@
         </ArtTable>
       </ElCard>
     </div>
+
+    <!-- 添加/编辑字典弹窗 -->
+    <DictForm
+      v-model="dialogVisible"
+      v-model:type="dialogType"
+      v-model:data="formData"
+      @refresh="handleRefresh"
+    />
+
+    <!-- 字典数据列表弹窗 -->
+    <DictDataList
+      v-model="permissionDialogVisible"
+      v-model:dictType="currentDictType"
+      v-model:details="dictionaryDetails"
+      @refresh="handleDetailRefresh"
+    />
   </ArtTableFullScreen>
-
-  <!-- 添加/编辑字典弹窗 -->
-  <DictForm
-    v-model="dialogVisible"
-    v-model:type="dialogType"
-    v-model:data="formData"
-    @refresh="handleRefresh"
-  />
-
-  <!-- 字典数据列表弹窗 -->
-  <DictDataList
-    v-model="permissionDialogVisible"
-    v-model:dictType="currentDictType"
-    v-model:details="dictionaryDetails"
-    @refresh="handleDetailRefresh"
-  />
 </template>
 
 <script setup lang="ts">
@@ -431,10 +431,4 @@ const handleRefresh = () => {
 <style lang="scss" scoped>
 // 可以添加特定于字典页面的样式
 // .dictionary-page {}
-
-.operation-btns {
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-}
 </style>

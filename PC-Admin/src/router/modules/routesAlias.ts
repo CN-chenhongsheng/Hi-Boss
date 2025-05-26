@@ -42,6 +42,7 @@ export enum RoutesAlias {
   Menu = '/system/menu/index', // 菜单
   Permission = '/system/Permission', // 权限
   Dictionary = '/system/dictionary/index', // 字典管理
+  Log = '/system/log/index', // 操作日志
   NestedMenu1 = '/system/nested/Menu1', // 嵌套菜单1
   NestedMenu21 = '/system/nested/menu2/Menu2-1', // 嵌套菜单2-1
   NestedMenu31 = '/system/nested/menu3/Menu3-1', // 嵌套菜单3-1

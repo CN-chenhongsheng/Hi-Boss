@@ -1,6 +1,6 @@
 <template>
   <div class="layout-settings">
-    <el-drawer
+    <ArtDrawer
       size="300px"
       v-model="showDrawer"
       :lock-scroll="false"
@@ -238,7 +238,7 @@
           </div>
         </div>
       </div>
-    </el-drawer>
+    </ArtDrawer>
   </div>
 </template>
 
@@ -251,6 +251,7 @@
   import { useCeremony } from '@/composables/useCeremony'
   import { ContainerWidthEnum } from '@/enums/appEnum'
   import { useI18n } from 'vue-i18n'
+  import ArtDrawer from '@/components/core/others/ArtDrawer.vue'
   const { t } = useI18n()
 
   const { openFestival, cleanup } = useCeremony()
@@ -611,30 +612,14 @@
 </script>
 
 <style lang="scss">
+  /* 移除重复样式，只保留特有样式 */
   .setting-modal {
-    background: transparent !important;
-
-    .el-drawer {
-      // 背景滤镜
-      background: rgba($color: #fff, $alpha: 50%) !important;
-      box-shadow: 0 0 30px rgb(0 0 0 / 10%) !important;
-
-      @include backdropBlur();
-    }
+    /* 样式已迁移到ArtDrawer组件 */
   }
 
-  .dark {
-    .setting-modal {
-      .el-drawer {
-        background: rgba($color: #000, $alpha: 50%) !important;
-      }
-    }
-  }
+  /* 深色模式样式已迁移到ArtDrawer组件 */
 
-  // 去除滚动条
-  .el-drawer__body::-webkit-scrollbar {
-    width: 0 !important;
-  }
+  /* 滚动条样式已迁移到ArtDrawer组件 */
 </style>
 
 <style lang="scss" scoped>

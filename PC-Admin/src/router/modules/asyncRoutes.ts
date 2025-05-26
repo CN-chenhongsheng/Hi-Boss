@@ -425,6 +425,16 @@ export const asyncRoutes: MenuListType[] = [
       },
       {
         id: 47,
+        path: 'log',
+        name: 'Log',
+        component: RoutesAlias.Log,
+        meta: {
+          title: 'menus.system.log',
+          keepAlive: true
+        }
+      },
+      {
+        id: 48,
         path: 'nested',
         name: 'Nested',
         component: '',
