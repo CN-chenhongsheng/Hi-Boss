@@ -4,19 +4,10 @@ English | [简体中文](./README.md)
 
 As a developer, I needed to build admin management systems for multiple projects but found that traditional systems couldn't fully meet the requirements for user experience and visual design. Therefore, I created an open-source admin management solution focused on user experience and rapid development. Based on the ElementPlus design specifications, it has been visually optimized to provide a more beautiful and practical front-end interface, helping you easily build high-quality admin systems.
 
-## Demo Images
+## Technology Stack
 
-### Light Theme
-
-![Light Theme](https://www.qiniu.lingchen.kim/art_design_pro_readme_cover1.png)
-
-![Light Theme](https://www.qiniu.lingchen.kim/art_design_pro_readme_cover2.png)
-
-### Dark Theme
-
-![Dark Theme](https://www.qiniu.lingchen.kim/art_design_pro_readme_cover3.png)
-
-![Dark Theme](https://www.qiniu.lingchen.kim/art_design_pro_readme_cover4.png)
+- Development Framework: Vue3, TypeScript, Vite, Element-Plus
+- Code Standards: Eslint, Prettier, Stylelint, Husky, Lint-staged, cz-git
 
 ## Features
 
@@ -54,6 +45,11 @@ As a developer, I needed to build admin management systems for multiple projects
 
 ## Installation and Running
 
+### Requirements
+
+- Node.js 20.2.0 or higher
+- pnpm (9.11.0 version recommended)
+
 ```bash
 # Install dependencies
 pnpm install
@@ -67,6 +63,20 @@ pnpm dev
 # Build for production
 pnpm build
 ```
+
+## Demo Images
+
+### Light Theme
+
+![Light Theme](https://www.qiniu.lingchen.kim/art_design_pro_readme_cover1.png)
+
+![Light Theme](https://www.qiniu.lingchen.kim/art_design_pro_readme_cover2.png)
+
+### Dark Theme
+
+![Dark Theme](https://www.qiniu.lingchen.kim/art_design_pro_readme_cover3.png)
+
+![Dark Theme](https://www.qiniu.lingchen.kim/art_design_pro_readme_cover4.png)
 
 ## Development Plan
 

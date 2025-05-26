@@ -4,19 +4,10 @@
 
 作为一名开发者，我在多个项目中需要搭建后台管理系统，但发现传统系统在用户体验和视觉设计上不能完全满足需求。因此，我创建了一款专注于用户体验和快速开发的开源后台管理解决方案。基于 ElementPlus 设计规范，进行了视觉上的精心优化，提供更美观、更实用的前端界面，帮助你轻松构建高质量的后台系统。
 
-## 演示图
+## 技术栈
 
-### 浅色主题
-
-![浅色主题](https://www.qiniu.lingchen.kim/art_design_pro_readme_cover1.png)
-
-![浅色主题](https://www.qiniu.lingchen.kim/art_design_pro_readme_cover2.png)
-
-### 暗黑主题
-
-![暗黑主题](https://www.qiniu.lingchen.kim/art_design_pro_readme_cover3.png)
-
-![暗黑主题](https://www.qiniu.lingchen.kim/art_design_pro_readme_cover4.png)
+- 开发框架：Vue3、TypeScript、Vite、Element-Plus
+- 代码规范：Eslint、Prettier、Stylelint、Husky、Lint-staged、cz-git
 
 ## 特点
 
@@ -25,11 +16,6 @@
 - 提供多种主题模式，可以自定义主题
 - 漂亮的 UI设计、极致的用户体验和细节处理
 - 系统全面支持自定义设置，满足您的个性化需求
-
-## 技术栈
-
-- 开发框架：Vue3、TypeScript、Vite、Element-Plus
-- 代码规范：Eslint、Prettier、Stylelint、Husky、Lint-staged、cz-git
 
 ## 功能
 
@@ -59,6 +45,11 @@
 
 ## 安装运行
 
+### 环境要求
+
+- Node.js 20.2.0 或更高版本
+- pnpm 推荐使用 9.11.0 版本
+
 ```bash
 # 安装依赖
 pnpm install
@@ -72,6 +63,20 @@ pnpm dev
 # 生产环境打包
 pnpm build
 ```
+
+## 演示图
+
+### 浅色主题
+
+![浅色主题](https://www.qiniu.lingchen.kim/art_design_pro_readme_cover1.png)
+
+![浅色主题](https://www.qiniu.lingchen.kim/art_design_pro_readme_cover2.png)
+
+### 暗黑主题
+
+![暗黑主题](https://www.qiniu.lingchen.kim/art_design_pro_readme_cover3.png)
+
+![暗黑主题](https://www.qiniu.lingchen.kim/art_design_pro_readme_cover4.png)
 
 ## 开发方案
 
