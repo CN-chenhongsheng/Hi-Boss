@@ -36,7 +36,7 @@ export enum RoutesAlias {
   ArticleDetail = '/article/ArticleDetail', // 文章详情
   Comment = '/article/Comment', // 评论
   ArticlePublish = '/article/ArticlePublish', // 文章发布
-  User = '/system/User', // 账户
+  User = '/system/user/index', // 账户
   Role = '/system/Role', // 角色
   UserCenter = '/system/UserCenter', // 用户中心
   Menu = '/system/Menu', // 菜单

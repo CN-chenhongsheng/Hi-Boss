@@ -37,7 +37,7 @@
   </ArtTableFullScreen>
 
   <!-- 添加/编辑字典弹窗 -->
-  <AddAndEdit
+  <DictForm
     v-model="dialogVisible"
     v-model:type="dialogType"
     v-model:data="formData"
@@ -61,7 +61,7 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import { useCheckedColumns } from '@/composables/useCheckedColumns'
 import ArtButtonTable from '@/components/core/forms/ArtButtonTable.vue'
 import ArtStatusSwitch from '@/components/core/forms/ArtStatusSwitch.vue'
-import AddAndEdit from './components/AddAndEdit.vue'
+import DictForm from './components/DictForm.vue'
 import DictDataList from './components/DictDataList.vue'
 
 // 定义字典明细数据接口
@@ -429,9 +429,8 @@ const handleRefresh = () => {
 </script>
 
 <style lang="scss" scoped>
-.dictionary-page {
-  // 可以添加特定于字典页面的样式
-}
+// 可以添加特定于字典页面的样式
+// .dictionary-page {}
 
 .operation-btns {
   display: flex;
