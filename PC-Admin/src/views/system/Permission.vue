@@ -156,55 +156,55 @@
 </template>
 
 <style lang="scss" scoped>
-  .page-content {
-    .header {
-      h2 {
-        font-size: 28px;
-        font-weight: 500;
-        color: var(--art-text-gray-900) !important;
-      }
-
-      p {
-        margin-top: 5px;
-        font-size: 16px;
-        color: var(--art-text-gray-700);
-      }
+.page-content {
+  .header {
+    h2 {
+      font-size: 28px;
+      font-weight: 500;
+      color: var(--art-text-gray-900) !important;
     }
 
-    .row {
-      margin-top: 50px;
+    p {
+      margin-top: 5px;
+      font-size: 16px;
+      color: var(--art-text-gray-700);
+    }
+  }
 
-      h3 {
-        font-size: 24px;
-        font-weight: 500;
-        color: var(--art-text-gray-900) !important;
-      }
+  .row {
+    margin-top: 50px;
 
-      p {
-        margin: 5px 0 20px;
-        font-size: 16px;
-        color: var(--art-text-gray-700);
-      }
+    h3 {
+      font-size: 24px;
+      font-weight: 500;
+      color: var(--art-text-gray-900) !important;
+    }
 
-      b {
-        display: block;
-        margin-top: 20px;
-        color: var(--art-text-gray-900);
-      }
+    p {
+      margin: 5px 0 20px;
+      font-size: 16px;
+      color: var(--art-text-gray-700);
+    }
 
-      pre {
-        padding: 10px 0 0;
-        margin-top: 20px;
-        background-color: var(--art-bg-color);
-        border: 1px solid var(--art-border-dashed-color);
-        border-radius: 5px;
+    b {
+      display: block;
+      margin-top: 20px;
+      color: var(--art-text-gray-900);
+    }
 
-        code {
-          position: relative;
-          left: -60px;
-          color: var(--art-text-gray-800) !important;
-        }
+    pre {
+      padding: 10px 0 0;
+      margin-top: 20px;
+      background-color: var(--art-bg-color);
+      border: 1px solid var(--art-border-dashed-color);
+      border-radius: 5px;
+
+      code {
+        position: relative;
+        left: -60px;
+        color: var(--art-text-gray-800) !important;
       }
     }
   }
+}
 </style>

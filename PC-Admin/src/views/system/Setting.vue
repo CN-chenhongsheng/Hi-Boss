@@ -50,42 +50,42 @@
 </template>
 
 <script setup lang="ts">
-  import AppConfig from '@/config'
-  import { WEB_LINKS } from '@/utils/links'
+import AppConfig from '@/config'
+import { WEB_LINKS } from '@/utils/links'
 
-  const sys = reactive({
-    name: AppConfig.systemInfo.name,
-    website: WEB_LINKS.BLOG,
-    keepAliveTime: '10',
-    pictureSize: '10'
-  })
-  const checkList = reactive(['.jpg', '.png', '.mp4', '.rm', '.doc', '.docx', '.xls'])
-  const isEdit = ref(false)
+const sys = reactive({
+  name: AppConfig.systemInfo.name,
+  website: WEB_LINKS.BLOG,
+  keepAliveTime: '10',
+  pictureSize: '10'
+})
+const checkList = reactive(['.jpg', '.png', '.mp4', '.rm', '.doc', '.docx', '.xls'])
+const isEdit = ref(false)
 
-  const edit = () => {
-    isEdit.value = !isEdit.value
-  }
+const edit = () => {
+  isEdit.value = !isEdit.value
+}
 </script>
 
 <style lang="scss" scoped>
-  .page-content {
-    width: 100%;
-    height: 100%;
+.page-content {
+  width: 100%;
+  height: 100%;
 
-    .header {
-      padding-bottom: 15px;
-      border-bottom: 1px solid var(--art-border-color);
+  .header {
+    padding-bottom: 15px;
+    border-bottom: 1px solid var(--art-border-color);
 
-      h3 {
-        font-size: 18px;
-        font-weight: 500;
-      }
-    }
-
-    :deep(.el-form) {
-      .el-form-item {
-        max-width: 700px;
-      }
+    h3 {
+      font-size: 18px;
+      font-weight: 500;
     }
   }
+
+  :deep(.el-form) {
+    .el-form-item {
+      max-width: 700px;
+    }
+  }
+}
 </style>
