@@ -18,6 +18,7 @@
               <ElButton
                 v-show="showRecoverButton"
                 @click="handleOperation('recoverSelected')"
+                :disabled="!selectedRows.length"
                 v-ripple
               >
                 恢复数据 ({{ selectedRows.length }})

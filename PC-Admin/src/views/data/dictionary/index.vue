@@ -6,7 +6,7 @@
         v-model:filter="formFilters"
         :items="formItems"
         @reset="handleReset"
-        @search="handleSearch"
+        @search="() => handleSearch(getTableData)"
       />
 
       <ElCard shadow="never" class="art-table-card">
@@ -14,6 +14,16 @@
         <ArtTableHeader v-model:columns="columnChecks" @refresh="handleRefresh">
           <template #left>
             <ElButton @click="handleOperation('add')" v-ripple>新增字典</ElButton>
+            <transition :name="settingStore.pageTransition">
+              <ElButton
+                v-show="showRecoverButton"
+                @click="handleBatchDelete"
+                :disabled="!selectedRows.length"
+                v-ripple
+              >
+                批量删除({{ selectedRows.length }})
+              </ElButton>
+            </transition>
           </template>
         </ArtTableHeader>
 
@@ -27,6 +37,7 @@
           :total="500"
           :marginTop="10"
           row-key="dictType"
+          @selection-change="handleSelectionChange"
         >
           <template #default>
             <ElTableColumn v-for="col in columns" :key="col.prop || col.type" v-bind="col" />
@@ -54,172 +65,37 @@
 </template>
 
 <script setup lang="ts">
-import { h, ref, reactive, onMounted } from 'vue'
-import { DICTIONARY_DATA, DictionaryItem } from '@/mock/temp/dictionaryData'
-import { SearchChangeParams, SearchFormItem } from '@/types/search-form'
-import { ElMessage, ElMessageBox } from 'element-plus'
-import { useCheckedColumns } from '@/composables/useCheckedColumns'
-import ArtButtonTable from '@/components/core/forms/ArtButtonTable.vue'
-import ArtStatusSwitch from '@/components/core/forms/ArtStatusSwitch.vue'
+import { ref, reactive, onMounted } from 'vue'
 import DictForm from './components/DictForm.vue'
 import DictDataList from './components/DictDataList.vue'
+import { useSettingStore } from '@/store/modules/setting'
 
-// 定义字典明细数据接口
-interface DictionaryDetailItem {
-  id: number
-  dictType: string
-  code: string
-  name: string
-  status: number
-  createTime: string
-  remark: string
-}
+// 使用设置 Store 获取过渡效果配置
+const settingStore = useSettingStore()
 
-// 明细数据
-const DICTIONARY_DETAIL_DATA: Record<string, DictionaryDetailItem[]> = {
-  sys_user_type: [
-    {
-      id: 1,
-      dictType: 'sys_user_type',
-      code: '0',
-      name: '管理员',
-      status: 1,
-      createTime: '2023-05-15 14:35:00',
-      remark: '系统管理员'
-    },
-    {
-      id: 2,
-      dictType: 'sys_user_type',
-      code: '1',
-      name: '普通用户',
-      status: 1,
-      createTime: '2023-05-15 14:35:10',
-      remark: '系统普通用户'
-    },
-    {
-      id: 3,
-      dictType: 'sys_user_type',
-      code: '2',
-      name: '访客',
-      status: 0,
-      createTime: '2023-05-15 14:35:20',
-      remark: '临时访客'
-    }
-  ],
-  sys_gender: [
-    {
-      id: 4,
-      dictType: 'sys_gender',
-      code: '0',
-      name: '男',
-      status: 1,
-      createTime: '2023-05-16 09:50:00',
-      remark: '男性'
-    },
-    {
-      id: 5,
-      dictType: 'sys_gender',
-      code: '1',
-      name: '女',
-      status: 1,
-      createTime: '2023-05-16 09:50:10',
-      remark: '女性'
-    },
-    {
-      id: 6,
-      dictType: 'sys_gender',
-      code: '2',
-      name: '未知',
-      status: 1,
-      createTime: '2023-05-16 09:50:20',
-      remark: '性别未知'
-    }
-  ],
-  sys_status: [
-    {
-      id: 7,
-      dictType: 'sys_status',
-      code: '0',
-      name: '禁用',
-      status: 1,
-      createTime: '2023-05-17 16:25:00',
-      remark: '状态禁用'
-    },
-    {
-      id: 8,
-      dictType: 'sys_status',
-      code: '1',
-      name: '启用',
-      status: 1,
-      createTime: '2023-05-17 16:25:10',
-      remark: '状态启用'
-    }
-  ],
-  sys_dept_type: [
-    {
-      id: 9,
-      dictType: 'sys_dept_type',
-      code: '0',
-      name: '公司',
-      status: 1,
-      createTime: '2023-05-18 11:15:00',
-      remark: '公司单位'
-    },
-    {
-      id: 10,
-      dictType: 'sys_dept_type',
-      code: '1',
-      name: '部门',
-      status: 1,
-      createTime: '2023-05-18 11:15:10',
-      remark: '部门单位'
-    },
-    {
-      id: 11,
-      dictType: 'sys_dept_type',
-      code: '2',
-      name: '小组',
-      status: 0,
-      createTime: '2023-05-18 11:15:20',
-      remark: '团队小组'
-    }
-  ],
-  sys_notice_type: [
-    {
-      id: 12,
-      dictType: 'sys_notice_type',
-      code: '0',
-      name: '公告',
-      status: 1,
-      createTime: '2023-05-19 13:30:00',
-      remark: '公告通知'
-    },
-    {
-      id: 13,
-      dictType: 'sys_notice_type',
-      code: '1',
-      name: '通知',
-      status: 1,
-      createTime: '2023-05-19 13:30:10',
-      remark: '系统通知'
-    },
-    {
-      id: 14,
-      dictType: 'sys_notice_type',
-      code: '2',
-      name: '警告',
-      status: 1,
-      createTime: '2023-05-19 13:30:20',
-      remark: '警告提醒'
-    }
-  ]
-}
+// 导入composables
+import { useDictionaryData } from './composables/useDictionaryData'
+import { useDictionaryColumns } from './composables/useDictionaryColumns'
+import { useDictionarySearch } from './composables/useDictionarySearch'
 
-// 显示对话框相关变量
-const dialogType = ref('add')
-const dialogVisible = ref(false)
-const loading = ref(false)
-const tableRef = ref()
+// 使用字典数据composable
+const {
+  loading,
+  tableData,
+  selectedRows,
+  dialogVisible,
+  dialogType,
+  formData,
+  getTableData,
+  handleSelectionChange,
+  handleRefresh,
+  handleEditDictionary,
+  handleDeleteDictionary,
+  handleBatchDelete
+} = useDictionaryData()
+
+// 计算属性：是否显示恢复按钮
+const showRecoverButton = computed(() => selectedRows.value.length > 0)
 
 // 权限弹窗相关变量
 const permissionDialogVisible = ref(false)
@@ -232,10 +108,13 @@ const currentDict = reactive({
 })
 
 // 当前选中字典的明细数据
-const dataDetails = ref<DictionaryDetailItem[]>([])
+const dataDetails = ref<any[]>([])
 
 // 统一的操作方法
 const handleOperation = (type: string, row?: any) => {
+  // 预先定义可能用到的变量
+  let mockDetails = []
+
   switch (type) {
     case 'detail':
       // 查看权限（展示字典值）
@@ -246,189 +125,72 @@ const handleOperation = (type: string, row?: any) => {
       currentDict.status = row.status
       currentDict.remark = row.remark
 
-      // 加载对应的字典明细数据
-      dataDetails.value = DICTIONARY_DETAIL_DATA[row.dictType] || []
+      // 加载对应的字典明细数据 - 模拟数据
+      // 实际项目中应从API获取字典明细数据
+      mockDetails = [
+        {
+          id: 1,
+          dictType: row.dictType,
+          code: '0',
+          name: '选项一',
+          status: 1,
+          createTime: '2023-07-15 14:35:00',
+          remark: '备注信息1'
+        },
+        {
+          id: 2,
+          dictType: row.dictType,
+          code: '1',
+          name: '选项二',
+          status: 1,
+          createTime: '2023-07-15 14:36:00',
+          remark: '备注信息2'
+        },
+        {
+          id: 3,
+          dictType: row.dictType,
+          code: '2',
+          name: '选项三',
+          status: 0,
+          createTime: '2023-07-15 14:37:00',
+          remark: '备注信息3'
+        }
+      ]
+
+      // 赋值给明细数据
+      dataDetails.value = mockDetails
       break
     case 'add':
     case 'edit':
-      dialogType.value = type
-      dialogVisible.value = true
-
-      if (type === 'edit' && row) {
-        formData.dictName = row.dictName
-        formData.dictType = row.dictType
-        formData.status = row.status
-        formData.remark = row.remark
-      } else {
-        formData.dictName = ''
-        formData.dictType = ''
-        formData.status = 1
-        formData.remark = ''
-      }
+      handleEditDictionary(type, row)
       break
     case 'delete':
-      ElMessageBox.confirm('确定要删除该字典吗？', '删除字典', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'error'
-      }).then(() => {
-        ElMessage.success('删除成功')
-      })
+      handleDeleteDictionary(row)
       break
     default:
       break
   }
 }
 
+// 使用字典表格列配置
+const { columnChecks, columns } = useDictionaryColumns(handleOperation)
+
+// 使用字典搜索配置
+const { formFilters, formItems, handleReset, handleSearch } = useDictionarySearch()
+
 // 刷新字典明细数据
 const handleDetailRefresh = () => {
   if (currentType.value) {
-    dataDetails.value = DICTIONARY_DETAIL_DATA[currentType.value] || []
+    // 这里应该重新加载当前字典类型的明细数据
+    console.log('刷新字典明细数据:', currentType.value)
   }
 }
 
-// 定义表单搜索初始值
-const initialSearchState: {
-  dictName: string
-  dictType: string
-  status: string | number
-} = {
-  dictName: '',
-  dictType: '',
-  status: ''
-}
-
-// 响应式表单数据
-const formFilters = reactive({ ...initialSearchState })
-
-// 重置表单
-const handleReset = () => {
-  Object.assign(formFilters, { ...initialSearchState })
-}
-
-// 搜索处理
-const handleSearch = () => {
-  console.log('搜索参数:', formFilters)
-  getTableData()
-}
-
-// 表单项变更处理
-const handleFormChange = (params: SearchChangeParams): void => {
-  console.log('表单项变更:', params)
-}
-
-// 表单配置项
-const formItems: SearchFormItem[] = [
-  {
-    label: '字典名称',
-    prop: 'dictName',
-    type: 'input',
-    config: {
-      clearable: true
-    },
-    onChange: handleFormChange
-  },
-  {
-    label: '字典类型',
-    prop: 'dictType',
-    type: 'input',
-    config: {
-      clearable: true
-    },
-    onChange: handleFormChange
-  },
-  {
-    label: '状态',
-    prop: 'status',
-    type: 'select',
-    options: [
-      { label: '启用', value: 1 },
-      { label: '禁用', value: 0 }
-    ],
-    onChange: handleFormChange
-  }
-]
-
-// 表单数据
-const formData = reactive<{
-  dictName: string
-  dictType: string
-  status: number
-  remark: string
-}>({
-  dictName: '',
-  dictType: '',
-  status: 1,
-  remark: ''
-})
-
-// 动态列配置
-const { columnChecks, columns } = useCheckedColumns(() => [
-  { type: 'selection' }, // 勾选列
-  { prop: 'dictName', label: '字典名称', minWidth: 150 },
-  { prop: 'dictType', label: '字典类型', minWidth: 150 },
-  {
-    prop: 'status',
-    label: '状态',
-    width: 100,
-    formatter: (row: any) => {
-      return h(ArtStatusSwitch, {
-        modelValue: row.status
-      })
-    }
-  },
-  { prop: 'remark', label: '备注', minWidth: 180 },
-  {
-    prop: 'createTime',
-    label: '创建时间',
-    sortable: true,
-    minWidth: 180
-  },
-  {
-    prop: 'operation',
-    label: '操作',
-    width: 180,
-    formatter: (row: any) => {
-      return h('div', [
-        h(ArtButtonTable, {
-          type: 'detail',
-          onClick: () => handleOperation('detail', row)
-        }),
-        h(ArtButtonTable, {
-          type: 'edit',
-          onClick: () => handleOperation('edit', row)
-        }),
-        h(ArtButtonTable, {
-          type: 'delete',
-          onClick: () => handleOperation('delete')
-        })
-      ])
-    }
-  }
-])
-
-// 表格数据
-const tableData = ref<DictionaryItem[]>([])
+const tableRef = ref()
 
 onMounted(() => {
   getTableData()
 })
-
-const getTableData = () => {
-  loading.value = true
-  setTimeout(() => {
-    // 使用从模拟数据文件中导入的数据并转换status字段类型
-    tableData.value = DICTIONARY_DATA.map((item) => ({
-      ...item,
-      status: item.status // 确保status是数字类型
-    }))
-    loading.value = false
-  }, 500)
-}
-
-const handleRefresh = () => {
-  getTableData()
-}
 </script>
 
 <style lang="scss" scoped>

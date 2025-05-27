@@ -5,6 +5,16 @@
       <ArtTableHeader v-model:columns="columnChecks" :fullScreen="false" @refresh="handleRefresh">
         <template #left>
           <ElButton @click="handleOperation('add')" v-ripple>新增数据</ElButton>
+          <transition :name="settingStore.pageTransition">
+            <ElButton
+              v-show="showRecoverButton"
+              @click="handleBatchDelete"
+              :disabled="!selectedRows.length"
+              v-ripple
+            >
+              批量删除 ({{ selectedRows.length }})
+            </ElButton>
+          </transition>
         </template>
       </ArtTableHeader>
 
@@ -15,6 +25,7 @@
         :pageSize="20"
         :total="500"
         style="width: 100%"
+        @selection-change="handleSelectionChange"
       >
         <template #default>
           <ElTableColumn v-for="col in columns" :key="col.prop || col.type" v-bind="col" />
@@ -33,24 +44,17 @@
 </template>
 
 <script setup lang="ts">
-import { useCheckedColumns } from '@/composables/useCheckedColumns'
-import ArtButtonTable from '@/components/core/forms/ArtButtonTable.vue'
-import ArtStatusSwitch from '@/components/core/forms/ArtStatusSwitch.vue'
 import ArtDialog from '@/components/core/others/ArtDialog.vue'
 import DictDetail from './DictDetail.vue'
-import { ref, reactive, h } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { computed } from 'vue'
+import { useSettingStore } from '@/store/modules/setting'
 
-// 字典明细数据接口
-interface DictionaryDetailItem {
-  id: number
-  dictType: string
-  code: string
-  name: string
-  status: number
-  createTime: string
-  remark: string
-}
+// 使用设置 Store 获取过渡效果配置
+const settingStore = useSettingStore()
+
+// 导入composables
+import { useDictDataOperations, DictionaryDetailItem } from '../composables/useDictDataOperations'
+import { useDictDataColumns } from '../composables/useDictionaryColumns'
 
 // 定义对话框是否打开
 const dialogVisible = defineModel<boolean>('modelValue', { required: true })
@@ -59,103 +63,38 @@ const currentDictType = defineModel<string>('dictType', { required: true })
 // 导出DICTIONARY_DETAIL_DATA引用，便于外部调用
 const dictDetails = defineModel<DictionaryDetailItem[]>('details', { required: true })
 
-// 字典明细对话框相关变量
-const dialogType = ref('add')
-const dialogDetailsVisible = ref(false)
+// 使用字典数据操作composable
+const {
+  selectedRows,
+  dialogType,
+  dialogDetailsVisible,
+  detailFormData,
+  handleSelectionChange,
+  handleEditDictData,
+  handleDeleteDictData,
+  handleBatchDelete
+} = useDictDataOperations(currentDictType.value)
 
-// 字典明细表单数据
-const detailFormData = reactive<{
-  id?: number
-  dictType: string
-  code: string
-  name: string
-  status: number
-  remark: string
-}>({
-  dictType: '',
-  code: '',
-  name: '',
-  status: 1,
-  remark: ''
-})
+// 计算属性：是否显示批量删除按钮
+const showRecoverButton = computed(() => selectedRows.value.length > 0)
 
 // 显示对话框
 const handleOperation = (type: string, row?: any) => {
   switch (type) {
     case 'add':
     case 'edit':
-      dialogType.value = type
-      dialogDetailsVisible.value = true
-
-      if (type === 'edit' && row) {
-        detailFormData.id = row.id
-        detailFormData.dictType = currentDictType.value
-        detailFormData.code = row.code
-        detailFormData.name = row.name
-        detailFormData.status = row.status
-        detailFormData.remark = row.remark
-      } else {
-        detailFormData.dictType = currentDictType.value
-        detailFormData.code = ''
-        detailFormData.name = ''
-        detailFormData.status = 1
-        detailFormData.remark = ''
-      }
+      handleEditDictData(type, row)
       break
     case 'delete':
-      ElMessageBox.confirm('确定要删除该字典数据吗？', '删除字典数据', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'error'
-      }).then(() => {
-        // 模拟删除操作，实际项目中应该调用API
-        const index = dictDetails.value.findIndex((item) => item.id === row.id)
-        if (index !== -1) {
-          dictDetails.value.splice(index, 1)
-          ElMessage.success('删除成功')
-        }
-      })
+      handleDeleteDictData(row)
       break
     default:
       break
   }
 }
 
-// 动态子列配置
-const { columnChecks, columns } = useCheckedColumns(() => [
-  { type: 'selection', width: 55 },
-  { prop: 'code', label: '字典编码', width: 150 },
-  { prop: 'name', label: '字典名称', width: 150 },
-  {
-    prop: 'status',
-    label: '状态',
-    width: 100,
-    formatter: (row: any) => {
-      return h(ArtStatusSwitch, {
-        modelValue: row.status
-      })
-    }
-  },
-  { prop: 'createTime', label: '创建时间', sortable: true, width: 180 },
-  { prop: 'remark', label: '备注' },
-  {
-    prop: 'operation',
-    label: '操作',
-    width: 150,
-    formatter: (row: any) => {
-      return h('div', { class: 'operation-btns' }, [
-        h(ArtButtonTable, {
-          type: 'edit',
-          onClick: () => handleOperation('edit', row)
-        }),
-        h(ArtButtonTable, {
-          type: 'delete',
-          onClick: () => handleOperation('delete', row)
-        })
-      ])
-    }
-  }
-])
+// 使用字典数据列配置
+const { columnChecks, columns } = useDictDataColumns(handleOperation)
 
 // 刷新字典明细
 const handleRefresh = () => {
@@ -164,6 +103,7 @@ const handleRefresh = () => {
 
 const handleOpen = () => {
   console.log('字典数据列表对话框打开')
+  console.log(dictDetails.value)
 }
 
 const emit = defineEmits(['refresh'])
