@@ -20,11 +20,11 @@
     <template v-if="$slots.header && withHeader" #header>
       <slot name="header"></slot>
     </template>
-    
+
     <div class="art-drawer-body">
       <slot></slot>
     </div>
-    
+
     <template v-if="$slots.footer" #footer>
       <div class="art-drawer-footer">
         <slot name="footer"></slot>
@@ -113,7 +113,6 @@ defineExpose({
 </script>
 
 <style lang="scss">
-
 .art-drawer-footer {
   padding: 10px 20px;
   text-align: right;
@@ -122,16 +121,45 @@ defineExpose({
 
 /* 抽屉基础样式设置 */
 .el-drawer {
+  // 右侧弹出的抽屉，左上角和左下角圆角
+  &.rtl, &.right {
+    border-top-left-radius: calc(var(--custom-radius) / 2 + 2px);
+    border-bottom-left-radius: calc(var(--custom-radius) / 2 + 2px);
+  }
+
+  // 左侧弹出的抽屉，右上角和右下角圆角
+  &.ltr, &.left {
+    border-top-right-radius: calc(var(--custom-radius) / 2 + 2px);
+    border-bottom-right-radius: calc(var(--custom-radius) / 2 + 2px);
+  }
+
+  // 顶部弹出的抽屉，左下角和右下角圆角
+  &.ttb, &.top {
+    border-bottom-left-radius: calc(var(--custom-radius) / 2 + 2px);
+    border-bottom-right-radius: calc(var(--custom-radius) / 2 + 2px);
+  }
+
+  // 底部弹出的抽屉，左上角和右上角圆角
+  &.btt, &.bottom {
+    border-top-left-radius: calc(var(--custom-radius) / 2 + 2px);
+    border-top-right-radius: calc(var(--custom-radius) / 2 + 2px);
+  }
+
   --el-drawer-bg-color: var(--el-bg-color);
   --el-drawer-padding-primary: 0;
   background: rgba($color: #fff, $alpha: 95%) !important;
   box-shadow: 0 0 30px #0000001a !important;
-  
+
   /* 增加毛玻璃效果 */
   backdrop-filter: blur(30px);
   --tw-backdrop-blur: blur(30px);
-  -webkit-backdrop-filter: var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);
-    backdrop-filter: var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);
+  -webkit-backdrop-filter: var(--tw-backdrop-blur) var(--tw-backdrop-brightness)
+    var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate)
+    var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate)
+    var(--tw-backdrop-sepia);
+  backdrop-filter: var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast)
+    var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert)
+    var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);
 }
 
 /* 深色模式样式 */

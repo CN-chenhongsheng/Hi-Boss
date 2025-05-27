@@ -213,6 +213,7 @@
 }
 
 .el-message-box {
+  border-radius: calc(var(--custom-radius) / 2 + 2px) !important;
   padding: 25px 20px !important;
 }
 
