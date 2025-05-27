@@ -17,8 +17,8 @@
   // 边框、按钮圆角...
   --el-border-radius-base: calc(var(--custom-radius) / 3 + 2px) !important;
 
-  --el-border-radius-small: 10px !important;
-  --el-messagebox-border-radius: 10px !important;
+  // 弹框统一圆角
+  --el-unity-radius-radius: calc(var(--custom-radius) + 2px) !important;
 
   .region .el-radio-button__original-radio:checked + .el-radio-button__inner {
     color: var(--main-color);
@@ -196,6 +196,11 @@
   font-size: 22px !important;
 }
 
+// 修改 el-dialog 样式
+.el-dialog {
+  border-radius: var(--el-unity-radius-radius) !important;
+}
+
 // 修改 el-message-box 样式
 .el-message-box__headerbtn .el-message-box__close,
 .el-dialog__headerbtn .el-dialog__close {
@@ -213,7 +218,7 @@
 }
 
 .el-message-box {
-  border-radius: calc(var(--custom-radius) / 2 + 2px) !important;
+  border-radius: var(--el-unity-radius-radius) !important;
   padding: 25px 20px !important;
 }
 
