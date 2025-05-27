@@ -37,6 +37,7 @@ export enum RoutesAlias {
   Comment = '/article/Comment', // 评论
   ArticlePublish = '/article/ArticlePublish', // 文章发布
   Dictionary = '/data/dictionary/index', // 字典管理
+  Recycle = '/data/recycle/index', // 回收站
   Log = '/data/log/index', // 操作日志
   User = '/system/user/index', // 账户
   Role = '/system/role/index', // 角色

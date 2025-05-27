@@ -26,6 +26,7 @@
           fontWeight: '500'
         }"
         @row-click="handleRowClick"
+        @selection-change="handleSelectionChange"
       >
         <!-- 序号列 -->
         <el-table-column
@@ -165,7 +166,8 @@ const emit = defineEmits([
   'update:pageSize',
   'row-click',
   'size-change',
-  'current-change'
+  'current-change',
+  'selection-change'
 ])
 
 const tableStore = useTableStore()
@@ -260,6 +262,11 @@ const pageSize = computed({
 // 行点击事件
 const handleRowClick = (row: any, column: any, event: any) => {
   emit('row-click', row, column, event)
+}
+
+// 选择项改变事件
+const handleSelectionChange = (selection: any[]) => {
+  emit('selection-change', selection)
 }
 
 // 每页条数改变

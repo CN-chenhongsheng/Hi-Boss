@@ -339,6 +339,16 @@ export const asyncRoutes: MenuListType[] = [
       },
       {
         id: 47,
+        path: 'recycle',
+        name: 'Recycle',
+        component: RoutesAlias.Recycle,
+        meta: {
+          title: 'menus.data.recycle',
+          keepAlive: true
+        }
+      },
+      {
+        id: 48,
         path: 'log',
         name: 'Log',
         component: RoutesAlias.Log,

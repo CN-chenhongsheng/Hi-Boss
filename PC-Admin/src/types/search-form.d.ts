@@ -1,5 +1,5 @@
 // 搜索组件类型
-export type SearchComponentType = 'input' | 'select' | 'radio'
+export type SearchComponentType = 'input' | 'select' | 'datePicker'
 
 // select选项接口定义
 export interface SearchSelectOption {

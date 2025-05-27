@@ -333,6 +333,7 @@
     "data": {
       "title": "数据管理",
       "dictionary": "字典管理",
+      "recycle": "数据回收",
       "log": "操作日志"
     },
     "system": {

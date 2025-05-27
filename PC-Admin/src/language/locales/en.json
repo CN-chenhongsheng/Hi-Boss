@@ -348,6 +348,7 @@
     "data": {
       "title": "Data Management",
       "dictionary": "Dictionary",
+      "recycle": "Data Recycle",
       "log": "Operation Log"
     },
     "system": {
