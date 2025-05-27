@@ -330,6 +330,11 @@
       "notFound": "404",
       "serverError": "500"
     },
+    "data": {
+      "title": "数据管理",
+      "dictionary": "字典管理",
+      "log": "操作日志"
+    },
     "system": {
       "title": "系统管理",
       "user": "用户管理",
@@ -337,8 +342,6 @@
       "userCenter": "个人中心",
       "menu": "菜单管理",
       "permission": "权限控制",
-      "dictionary": "字典管理",
-      "log": "操作日志",
       "nested": "嵌套菜单",
       "menu1": "菜单1",
       "menu2": "菜单2",

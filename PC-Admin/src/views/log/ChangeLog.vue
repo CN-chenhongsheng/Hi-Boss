@@ -20,32 +20,32 @@
 </template>
 
 <script setup lang="ts">
-  import { upgradeLogList } from '@/mock/upgradeLog'
+import { upgradeLogList } from '@/mock/upgradeLog'
 </script>
 
 <style lang="scss" scoped>
-  .page-content {
-    .table-title {
-      display: flex;
-      align-items: center;
-      padding: 10px 0 15px;
-      padding-bottom: 30px;
-      font-size: 18px;
-      font-weight: 500;
-      border-bottom: 1px solid var(--art-border-color);
+.page-content {
+  .table-title {
+    display: flex;
+    align-items: center;
+    padding: 10px 0 15px;
+    padding-bottom: 30px;
+    font-size: 18px;
+    font-weight: 500;
+    border-bottom: 1px solid var(--art-border-color);
 
-      i {
-        margin-right: 10px;
-        font-size: 24px;
-      }
-    }
-
-    .title {
-      color: var(--art-gray-800);
-    }
-
-    .detail-item {
-      color: var(--art-gray-600);
+    i {
+      margin-right: 10px;
+      font-size: 24px;
     }
   }
+
+  .title {
+    color: var(--art-gray-800);
+  }
+
+  .detail-item {
+    color: var(--art-gray-600);
+  }
+}
 </style>

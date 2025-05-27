@@ -301,6 +301,56 @@ export const asyncRoutes: MenuListType[] = [
   },
   {
     id: 4,
+    path: '/data',
+    name: 'Data',
+    component: RoutesAlias.Home,
+    meta: {
+      title: 'menus.data.title',
+      icon: '&#xe899;',
+      keepAlive: false
+    },
+    children: [
+      {
+        id: 46,
+        path: 'dictionary',
+        name: 'Dictionary',
+        component: RoutesAlias.Dictionary,
+        meta: {
+          title: 'menus.data.dictionary',
+          keepAlive: true,
+          authList: [
+            {
+              id: 461,
+              title: '新增',
+              auth_mark: 'add'
+            },
+            {
+              id: 462,
+              title: '编辑',
+              auth_mark: 'edit'
+            },
+            {
+              id: 463,
+              title: '删除',
+              auth_mark: 'delete'
+            }
+          ]
+        }
+      },
+      {
+        id: 47,
+        path: 'log',
+        name: 'Log',
+        component: RoutesAlias.Log,
+        meta: {
+          title: 'menus.data.log',
+          keepAlive: true
+        }
+      }
+    ]
+  },
+  {
+    id: 5,
     path: '/system',
     name: 'System',
     component: RoutesAlias.Home,
@@ -394,43 +444,6 @@ export const asyncRoutes: MenuListType[] = [
               auth_mark: 'delete'
             }
           ]
-        }
-      },
-      {
-        id: 46,
-        path: 'dictionary',
-        name: 'Dictionary',
-        component: RoutesAlias.Dictionary,
-        meta: {
-          title: 'menus.system.dictionary',
-          keepAlive: true,
-          authList: [
-            {
-              id: 461,
-              title: '新增',
-              auth_mark: 'add'
-            },
-            {
-              id: 462,
-              title: '编辑',
-              auth_mark: 'edit'
-            },
-            {
-              id: 463,
-              title: '删除',
-              auth_mark: 'delete'
-            }
-          ]
-        }
-      },
-      {
-        id: 47,
-        path: 'log',
-        name: 'Log',
-        component: RoutesAlias.Log,
-        meta: {
-          title: 'menus.system.log',
-          keepAlive: true
         }
       },
       {
@@ -531,7 +544,7 @@ export const asyncRoutes: MenuListType[] = [
     ]
   },
   {
-    id: 5,
+    id: 6,
     path: '/article',
     name: 'Article',
     component: RoutesAlias.Home,
@@ -605,7 +618,7 @@ export const asyncRoutes: MenuListType[] = [
     ]
   },
   {
-    id: 6,
+    id: 7,
     path: '/result',
     name: 'Result',
     component: RoutesAlias.Home,
@@ -638,7 +651,7 @@ export const asyncRoutes: MenuListType[] = [
     ]
   },
   {
-    id: 7,
+    id: 8,
     path: '/exception',
     name: 'Exception',
     component: RoutesAlias.Home,
@@ -680,9 +693,8 @@ export const asyncRoutes: MenuListType[] = [
       }
     ]
   },
-
   {
-    id: 8,
+    id: 9,
     path: '/safeguard',
     name: 'Safeguard',
     component: RoutesAlias.Home,
@@ -705,7 +717,7 @@ export const asyncRoutes: MenuListType[] = [
     ]
   },
   {
-    id: 9,
+    id: 10,
     name: '',
     path: '',
     component: RoutesAlias.Home,
@@ -730,7 +742,7 @@ export const asyncRoutes: MenuListType[] = [
   },
   // 一级菜单
   {
-    id: 10,
+    id: 11,
     name: 'ChangeLog',
     path: '/log/changeLog',
     component: '/log/ChangeLog',

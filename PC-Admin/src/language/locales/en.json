@@ -345,6 +345,11 @@
       "notFound": "404",
       "serverError": "500"
     },
+    "data": {
+      "title": "Data Management",
+      "dictionary": "Dictionary",
+      "log": "Operation Log"
+    },
     "system": {
       "title": "System Settings",
       "user": "User Manage",
@@ -352,8 +357,6 @@
       "userCenter": "User Center",
       "menu": "Menu Manage",
       "permission": "Permission",
-      "dictionary": "Dictionary",
-      "log": "Operation Log",
       "nested": "Nested Menu",
       "menu1": "Menu 1",
       "menu2": "Menu 2",

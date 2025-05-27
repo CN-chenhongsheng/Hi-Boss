@@ -36,13 +36,13 @@ export enum RoutesAlias {
   ArticleDetail = '/article/ArticleDetail', // 文章详情
   Comment = '/article/Comment', // 评论
   ArticlePublish = '/article/ArticlePublish', // 文章发布
+  Dictionary = '/data/dictionary/index', // 字典管理
+  Log = '/data/log/index', // 操作日志
   User = '/system/user/index', // 账户
   Role = '/system/role/index', // 角色
   UserCenter = '/system/UserCenter', // 用户中心
   Menu = '/system/menu/index', // 菜单
   Permission = '/system/Permission', // 权限
-  Dictionary = '/system/dictionary/index', // 字典管理
-  Log = '/system/log/index', // 操作日志
   NestedMenu1 = '/system/nested/Menu1', // 嵌套菜单1
   NestedMenu21 = '/system/nested/menu2/Menu2-1', // 嵌套菜单2-1
   NestedMenu31 = '/system/nested/menu3/Menu3-1', // 嵌套菜单3-1

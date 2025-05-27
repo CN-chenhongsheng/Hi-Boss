@@ -2,13 +2,9 @@
   <ArtDialog v-model="dialogVisible" title="字典数据列表" width="70%" :open="handleOpen">
     <ElCard shadow="never" class="art-table-card">
       <!-- 表格头部 -->
-      <ArtTableHeader
-        v-model:columns="detailColumnChecks"
-        :fullScreen="false"
-        @refresh="handleDetailRefresh"
-      >
+      <ArtTableHeader v-model:columns="columnChecks" :fullScreen="false" @refresh="handleRefresh">
         <template #left>
-          <ElButton @click="addDictDetail" v-ripple>新增数据</ElButton>
+          <ElButton @click="showDialog('add')" v-ripple>新增数据</ElButton>
         </template>
       </ArtTableHeader>
 
@@ -21,11 +17,7 @@
         style="width: 100%"
       >
         <template #default>
-          <ElTableColumn
-            v-for="detailCol in detailColumns"
-            :key="detailCol.prop || detailCol.type"
-            v-bind="detailCol"
-          />
+          <ElTableColumn v-for="col in columns" :key="col.prop || col.type" v-bind="col" />
         </template>
       </ArtTable>
     </ElCard>
@@ -33,10 +25,10 @@
 
   <!-- 字典明细对话框 -->
   <DictDetail
-    v-model="detailDialogVisible"
-    v-model:type="detailDialogType"
+    v-model="dialogDetailsVisible"
+    v-model:type="dialogType"
     v-model:data="detailFormData"
-    @refresh="handleDetailRefresh"
+    @refresh="handleRefresh"
   />
 </template>
 
@@ -68,8 +60,8 @@ const currentDictType = defineModel<string>('dictType', { required: true })
 const dictDetails = defineModel<DictionaryDetailItem[]>('details', { required: true })
 
 // 字典明细对话框相关变量
-const detailDialogType = ref('add')
-const detailDialogVisible = ref(false)
+const dialogType = ref('add')
+const dialogDetailsVisible = ref(false)
 
 // 字典明细表单数据
 const detailFormData = reactive<{
@@ -87,35 +79,29 @@ const detailFormData = reactive<{
   remark: ''
 })
 
-// 添加字典明细
-const addDictDetail = () => {
-  detailDialogType.value = 'add'
-  detailDialogVisible.value = true
+// 显示对话框
+const showDialog = (type: string, row?: any) => {
+  dialogType.value = type
+  dialogDetailsVisible.value = true
 
-  // 初始化表单数据
-  detailFormData.dictType = currentDictType.value
-  detailFormData.code = ''
-  detailFormData.name = ''
-  detailFormData.status = 1
-  detailFormData.remark = ''
-}
-
-// 编辑字典明细
-const editDictDetail = (row: DictionaryDetailItem) => {
-  detailDialogType.value = 'edit'
-  detailDialogVisible.value = true
-
-  // 填充表单数据
-  detailFormData.id = row.id
-  detailFormData.dictType = row.dictType
-  detailFormData.code = row.code
-  detailFormData.name = row.name
-  detailFormData.status = row.status
-  detailFormData.remark = row.remark
+  if (type === 'edit' && row) {
+    detailFormData.id = row.id
+    detailFormData.dictType = currentDictType.value
+    detailFormData.code = row.code
+    detailFormData.name = row.name
+    detailFormData.status = row.status
+    detailFormData.remark = row.remark
+  } else {
+    detailFormData.dictType = currentDictType.value
+    detailFormData.code = ''
+    detailFormData.name = ''
+    detailFormData.status = 1
+    detailFormData.remark = ''
+  }
 }
 
 // 删除字典明细
-const deleteDictDetail = (row: DictionaryDetailItem) => {
+const deleteData = (row: DictionaryDetailItem) => {
   ElMessageBox.confirm('确定要删除该字典数据吗？', '删除字典数据', {
     confirmButtonText: '确定',
     cancelButtonText: '取消',
@@ -131,9 +117,8 @@ const deleteDictDetail = (row: DictionaryDetailItem) => {
 }
 
 // 动态子列配置
-const { columnChecks: detailColumnChecks, columns: detailColumns } = useCheckedColumns(() => [
+const { columnChecks, columns } = useCheckedColumns(() => [
   { type: 'selection', width: 55 },
-  { type: 'index', label: '序号', width: 80 },
   { prop: 'code', label: '字典编码', width: 150 },
   { prop: 'name', label: '字典名称', width: 150 },
   {
@@ -156,11 +141,11 @@ const { columnChecks: detailColumnChecks, columns: detailColumns } = useCheckedC
       return h('div', { class: 'operation-btns' }, [
         h(ArtButtonTable, {
           type: 'edit',
-          onClick: () => editDictDetail(row)
+          onClick: () => showDialog('edit', row)
         }),
         h(ArtButtonTable, {
           type: 'delete',
-          onClick: () => deleteDictDetail(row)
+          onClick: () => deleteData(row)
         })
       ])
     }
@@ -168,7 +153,7 @@ const { columnChecks: detailColumnChecks, columns: detailColumns } = useCheckedC
 ])
 
 // 刷新字典明细
-const handleDetailRefresh = () => {
+const handleRefresh = () => {
   emit('refresh')
 }
 

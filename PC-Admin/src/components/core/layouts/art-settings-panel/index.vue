@@ -8,7 +8,6 @@
       :before-close="closeDrawer"
       @open="toggleDrawer(true)"
       @close="toggleDrawer(false)"
-      modal-class="setting-modal"
     >
       <div class="drawer-con">
         <div class="close-wrap">
@@ -243,385 +242,382 @@
 </template>
 
 <script setup lang="ts">
-  import { useSettingStore } from '@/store/modules/setting'
-  import AppConfig from '@/config'
-  import { SystemThemeEnum, MenuThemeEnum, MenuTypeEnum } from '@/enums/appEnum'
-  import mittBus from '@/utils/mittBus'
-  import { useTheme } from '@/composables/useTheme'
-  import { useCeremony } from '@/composables/useCeremony'
-  import { ContainerWidthEnum } from '@/enums/appEnum'
-  import { useI18n } from 'vue-i18n'
-  import ArtDrawer from '@/components/core/others/ArtDrawer.vue'
-  const { t } = useI18n()
+import { useSettingStore } from '@/store/modules/setting'
+import AppConfig from '@/config'
+import { SystemThemeEnum, MenuThemeEnum, MenuTypeEnum } from '@/enums/appEnum'
+import mittBus from '@/utils/mittBus'
+import { useTheme } from '@/composables/useTheme'
+import { useCeremony } from '@/composables/useCeremony'
+import { ContainerWidthEnum } from '@/enums/appEnum'
+import { useI18n } from 'vue-i18n'
+import ArtDrawer from '@/components/core/others/ArtDrawer.vue'
+const { t } = useI18n()
 
-  const { openFestival, cleanup } = useCeremony()
-  const { setSystemTheme, setSystemAutoTheme, switchThemeStyles } = useTheme()
+const { openFestival, cleanup } = useCeremony()
+const { setSystemTheme, setSystemAutoTheme, switchThemeStyles } = useTheme()
 
-  const settingStore = useSettingStore()
+const settingStore = useSettingStore()
 
-  const {
-    isDark,
-    systemThemeType,
-    systemThemeMode,
-    menuThemeType,
-    boxBorderMode,
-    pageTransition,
-    tabStyle,
-    customRadius,
-    menuType,
-    watermarkVisible,
-    menuOpenWidth,
-    containerWidth
-  } = storeToRefs(settingStore)
+const {
+  isDark,
+  systemThemeType,
+  systemThemeMode,
+  menuThemeType,
+  boxBorderMode,
+  pageTransition,
+  tabStyle,
+  customRadius,
+  menuType,
+  watermarkVisible,
+  menuOpenWidth,
+  containerWidth
+} = storeToRefs(settingStore)
 
-  const props = defineProps(['open'])
+const props = defineProps(['open'])
 
-  const showDrawer = ref(false)
+const showDrawer = ref(false)
 
-  const { width } = useWindowSize()
+const { width } = useWindowSize()
 
-  // 记录窗口宽度变化前的菜单类型
-  const beforeMenuType = ref<MenuTypeEnum>()
-  const hasChangedMenu = ref(false) // 添加标记来跟踪是否已经改变过菜单
+// 记录窗口宽度变化前的菜单类型
+const beforeMenuType = ref<MenuTypeEnum>()
+const hasChangedMenu = ref(false) // 添加标记来跟踪是否已经改变过菜单
 
-  watch(width, (newWidth: number) => {
-    if (newWidth < 1000) {
-      if (!hasChangedMenu.value) {
-        beforeMenuType.value = menuType.value
-        switchMenuLayouts(MenuTypeEnum.LEFT)
-        settingStore.setMenuOpen(false)
-        hasChangedMenu.value = true
-      }
-    } else {
-      if (hasChangedMenu.value && beforeMenuType.value) {
-        switchMenuLayouts(beforeMenuType.value)
-        settingStore.setMenuOpen(true)
-        hasChangedMenu.value = false
-      }
+watch(width, (newWidth: number) => {
+  if (newWidth < 1000) {
+    if (!hasChangedMenu.value) {
+      beforeMenuType.value = menuType.value
+      switchMenuLayouts(MenuTypeEnum.LEFT)
+      settingStore.setMenuOpen(false)
+      hasChangedMenu.value = true
     }
-  })
-
-  watch(
-    () => props.open,
-    (val: boolean) => (showDrawer.value = val)
-  )
-
-  const settingThemeList = AppConfig.settingThemeList
-  const menuThemeList = AppConfig.themeList
-  const mainColor = AppConfig.systemMainColor
-
-  const systemThemeColor = computed(
-    () => settingStore.systemThemeColor as (typeof mainColor)[number]
-  )
-
-  const isTopMenu = computed(() => menuType.value === MenuTypeEnum.TOP)
-  const isDualMenu = computed(() => menuType.value === MenuTypeEnum.DUAL_MENU)
-  const uniqueOpened = ref(true)
-  const showMenuButton = ref(true)
-  const autoClose = ref(true)
-  const showRefreshButton = ref(true)
-  const showCrumbs = ref(true)
-  const showWorkTab = ref(true)
-  const showLanguage = ref(true)
-  const showNprogress = ref(true)
-  const colorWeak = ref(false)
-
-  const tabStyleOps = computed(() => [
-    {
-      value: 'tab-default',
-      label: t('setting.tabStyle.default')
-    },
-    {
-      value: 'tab-card',
-      label: t('setting.tabStyle.card')
-    },
-    {
-      value: 'tab-google',
-      label: t('setting.tabStyle.google')
-    }
-  ])
-
-  const pageTransitionOps = computed(() => [
-    {
-      value: '',
-      label: t('setting.transition.list[0]')
-    },
-    {
-      value: 'fade',
-      label: t('setting.transition.list[1]')
-    },
-    {
-      value: 'slide-left',
-      label: t('setting.transition.list[2]')
-    },
-    {
-      value: 'slide-bottom',
-      label: t('setting.transition.list[3]')
-    },
-    {
-      value: 'slide-top',
-      label: t('setting.transition.list[4]')
-    }
-  ])
-
-  const customRadiusOps = [
-    {
-      value: '0',
-      label: '0'
-    },
-    {
-      value: '0.25',
-      label: '0.25'
-    },
-    {
-      value: '0.5',
-      label: '0.5'
-    },
-    {
-      value: '0.75',
-      label: '0.75'
-    },
-    {
-      value: '1',
-      label: '1'
-    }
-  ]
-
-  const containerWidthList = [
-    {
-      value: ContainerWidthEnum.FULL,
-      label: 'setting.container.list[0]',
-      icon: '&#xe694;'
-    },
-    {
-      value: ContainerWidthEnum.BOXED,
-      label: 'setting.container.list[1]',
-      icon: '&#xe6de;'
-    }
-  ]
-
-  watch(
-    () => settingStore.showWorkTab,
-    (e: boolean) => {
-      showWorkTab.value = e
-    }
-  )
-
-  onMounted(() => {
-    mittBus.on('openSetting', openSetting)
-
-    initSystemColor()
-    listenerSystemTheme()
-    initUserSetting()
-    initSystemTheme()
-    openFestival()
-  })
-
-  onUnmounted(() => {
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
-    mediaQuery.removeEventListener('change', initSystemTheme)
-    cleanup()
-  })
-
-  //  如果主题色不在列表中，则设置为列表中的第一个元素
-  const initSystemColor = () => {
-    if (!AppConfig.systemMainColor.includes(systemThemeColor.value)) {
-      setElementTheme(AppConfig.systemMainColor[0])
-    }
-  }
-
-  // 初始化用户设置
-  const initUserSetting = () => {
-    const mapping = {
-      uniqueOpened,
-      showMenuButton,
-      autoClose,
-      showRefreshButton,
-      showCrumbs,
-      showWorkTab,
-      showLanguage,
-      showNprogress,
-      colorWeak
-    }
-
-    Object.entries(mapping).forEach(([key, refVal]) => {
-      refVal.value = (settingStore as any)[key]
-    })
-
-    initColorWeak()
-    setBoxMode(true, settingStore.boxBorderMode ? 'border-mode' : 'shadow-mode')
-  }
-
-  const switchMenuStyles = (theme: MenuThemeEnum) => {
-    if (isDualMenu.value || isTopMenu.value || isDark.value) {
-      return
-    }
-    settingStore.switchMenuStyles(theme)
-    isAutoClose()
-  }
-
-  // 监听系统主题变化
-  const listenerSystemTheme = () => {
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
-    mediaQuery.addEventListener('change', initSystemTheme)
-  }
-
-  // 初始化系统主题
-  const initSystemTheme = () => {
-    if (systemThemeMode.value === SystemThemeEnum.AUTO) {
-      setSystemAutoTheme()
-    } else {
-      setSystemTheme(systemThemeType.value)
-    }
-  }
-
-  const switchMenuLayouts = (type: MenuTypeEnum) => {
-    if (type === MenuTypeEnum.LEFT || type === MenuTypeEnum.TOP_LEFT) settingStore.setMenuOpen(true)
-    settingStore.switchMenuLayouts(type)
-    if (type === MenuTypeEnum.DUAL_MENU) {
-      settingStore.switchMenuStyles(MenuThemeEnum.DESIGN)
+  } else {
+    if (hasChangedMenu.value && beforeMenuType.value) {
+      switchMenuLayouts(beforeMenuType.value)
       settingStore.setMenuOpen(true)
-    }
-    isAutoClose()
-  }
-
-  // 自动关闭
-  const isAutoClose = () => {
-    if (autoClose.value) {
-      closeDrawer()
+      hasChangedMenu.value = false
     }
   }
+})
 
-  // 打开或关闭抽屉
-  const toggleDrawer = (open: boolean) => {
-    let el = document.getElementsByTagName('body')[0]
-    if (open) {
-      setTimeout(() => {
-        el.setAttribute('class', 'theme-change')
-      }, 500)
-    } else {
-      el.removeAttribute('class')
-    }
+watch(
+  () => props.open,
+  (val: boolean) => (showDrawer.value = val)
+)
+
+const settingThemeList = AppConfig.settingThemeList
+const menuThemeList = AppConfig.themeList
+const mainColor = AppConfig.systemMainColor
+
+const systemThemeColor = computed(() => settingStore.systemThemeColor as (typeof mainColor)[number])
+
+const isTopMenu = computed(() => menuType.value === MenuTypeEnum.TOP)
+const isDualMenu = computed(() => menuType.value === MenuTypeEnum.DUAL_MENU)
+const uniqueOpened = ref(true)
+const showMenuButton = ref(true)
+const autoClose = ref(true)
+const showRefreshButton = ref(true)
+const showCrumbs = ref(true)
+const showWorkTab = ref(true)
+const showLanguage = ref(true)
+const showNprogress = ref(true)
+const colorWeak = ref(false)
+
+const tabStyleOps = computed(() => [
+  {
+    value: 'tab-default',
+    label: t('setting.tabStyle.default')
+  },
+  {
+    value: 'tab-card',
+    label: t('setting.tabStyle.card')
+  },
+  {
+    value: 'tab-google',
+    label: t('setting.tabStyle.google')
+  }
+])
+
+const pageTransitionOps = computed(() => [
+  {
+    value: '',
+    label: t('setting.transition.list[0]')
+  },
+  {
+    value: 'fade',
+    label: t('setting.transition.list[1]')
+  },
+  {
+    value: 'slide-left',
+    label: t('setting.transition.list[2]')
+  },
+  {
+    value: 'slide-bottom',
+    label: t('setting.transition.list[3]')
+  },
+  {
+    value: 'slide-top',
+    label: t('setting.transition.list[4]')
+  }
+])
+
+const customRadiusOps = [
+  {
+    value: '0',
+    label: '0'
+  },
+  {
+    value: '0.25',
+    label: '0.25'
+  },
+  {
+    value: '0.5',
+    label: '0.5'
+  },
+  {
+    value: '0.75',
+    label: '0.75'
+  },
+  {
+    value: '1',
+    label: '1'
+  }
+]
+
+const containerWidthList = [
+  {
+    value: ContainerWidthEnum.FULL,
+    label: 'setting.container.list[0]',
+    icon: '&#xe694;'
+  },
+  {
+    value: ContainerWidthEnum.BOXED,
+    label: 'setting.container.list[1]',
+    icon: '&#xe6de;'
+  }
+]
+
+watch(
+  () => settingStore.showWorkTab,
+  (e: boolean) => {
+    showWorkTab.value = e
+  }
+)
+
+onMounted(() => {
+  mittBus.on('openSetting', openSetting)
+
+  initSystemColor()
+  listenerSystemTheme()
+  initUserSetting()
+  initSystemTheme()
+  openFestival()
+})
+
+onUnmounted(() => {
+  const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
+  mediaQuery.removeEventListener('change', initSystemTheme)
+  cleanup()
+})
+
+//  如果主题色不在列表中，则设置为列表中的第一个元素
+const initSystemColor = () => {
+  if (!AppConfig.systemMainColor.includes(systemThemeColor.value)) {
+    setElementTheme(AppConfig.systemMainColor[0])
+  }
+}
+
+// 初始化用户设置
+const initUserSetting = () => {
+  const mapping = {
+    uniqueOpened,
+    showMenuButton,
+    autoClose,
+    showRefreshButton,
+    showCrumbs,
+    showWorkTab,
+    showLanguage,
+    showNprogress,
+    colorWeak
   }
 
-  const openSetting = () => (showDrawer.value = true)
+  Object.entries(mapping).forEach(([key, refVal]) => {
+    refVal.value = (settingStore as any)[key]
+  })
 
-  const closeDrawer = () => (showDrawer.value = false)
+  initColorWeak()
+  setBoxMode(true, settingStore.boxBorderMode ? 'border-mode' : 'shadow-mode')
+}
 
-  const switchBoxMode = (isInit: boolean = false, type: string) => {
-    if (
-      (type === 'shadow-mode' && boxBorderMode.value === false) ||
-      (type === 'border-mode' && boxBorderMode.value === true)
-    ) {
-      return
-    }
-    setBoxMode(isInit, type)
+const switchMenuStyles = (theme: MenuThemeEnum) => {
+  if (isDualMenu.value || isTopMenu.value || isDark.value) {
+    return
   }
+  settingStore.switchMenuStyles(theme)
+  isAutoClose()
+}
 
-  // 设置盒子边框 ｜ 阴影 样式
-  const setBoxMode = (isInit: boolean = false, type: string) => {
+// 监听系统主题变化
+const listenerSystemTheme = () => {
+  const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
+  mediaQuery.addEventListener('change', initSystemTheme)
+}
+
+// 初始化系统主题
+const initSystemTheme = () => {
+  if (systemThemeMode.value === SystemThemeEnum.AUTO) {
+    setSystemAutoTheme()
+  } else {
+    setSystemTheme(systemThemeType.value)
+  }
+}
+
+const switchMenuLayouts = (type: MenuTypeEnum) => {
+  if (type === MenuTypeEnum.LEFT || type === MenuTypeEnum.TOP_LEFT) settingStore.setMenuOpen(true)
+  settingStore.switchMenuLayouts(type)
+  if (type === MenuTypeEnum.DUAL_MENU) {
+    settingStore.switchMenuStyles(MenuThemeEnum.DESIGN)
+    settingStore.setMenuOpen(true)
+  }
+  isAutoClose()
+}
+
+// 自动关闭
+const isAutoClose = () => {
+  if (autoClose.value) {
+    closeDrawer()
+  }
+}
+
+// 打开或关闭抽屉
+const toggleDrawer = (open: boolean) => {
+  let el = document.getElementsByTagName('body')[0]
+  if (open) {
     setTimeout(() => {
-      const el = document.documentElement
-      el.setAttribute('data-box-mode', type)
-
-      if (!isInit) {
-        settingStore.setBorderMode()
-      }
-    }, 50)
+      el.setAttribute('class', 'theme-change')
+    }, 500)
+  } else {
+    el.removeAttribute('class')
   }
+}
 
-  // 高阶函数：封装 store 方法调用后自动关闭抽屉
-  const autoCloseHandler = (
-    storeMethod: (...args: any[]) => void,
-    needReload: boolean = false,
-    ...args: any[]
-  ) => {
-    storeMethod(...args)
-    if (needReload) {
-      settingStore.reload()
+const openSetting = () => (showDrawer.value = true)
+
+const closeDrawer = () => (showDrawer.value = false)
+
+const switchBoxMode = (isInit: boolean = false, type: string) => {
+  if (
+    (type === 'shadow-mode' && boxBorderMode.value === false) ||
+    (type === 'border-mode' && boxBorderMode.value === true)
+  ) {
+    return
+  }
+  setBoxMode(isInit, type)
+}
+
+// 设置盒子边框 ｜ 阴影 样式
+const setBoxMode = (isInit: boolean = false, type: string) => {
+  setTimeout(() => {
+    const el = document.documentElement
+    el.setAttribute('data-box-mode', type)
+
+    if (!isInit) {
+      settingStore.setBorderMode()
     }
-    isAutoClose()
+  }, 50)
+}
+
+// 高阶函数：封装 store 方法调用后自动关闭抽屉
+const autoCloseHandler = (
+  storeMethod: (...args: any[]) => void,
+  needReload: boolean = false,
+  ...args: any[]
+) => {
+  storeMethod(...args)
+  if (needReload) {
+    settingStore.reload()
   }
+  isAutoClose()
+}
 
-  const showWorkTabFunc = () =>
-    autoCloseHandler(settingStore.setWorkTab, false, !settingStore.showWorkTab)
+const showWorkTabFunc = () =>
+  autoCloseHandler(settingStore.setWorkTab, false, !settingStore.showWorkTab)
 
-  const setPageTransition = (transition: string) =>
-    autoCloseHandler(settingStore.setPageTransition, false, transition)
+const setPageTransition = (transition: string) =>
+  autoCloseHandler(settingStore.setPageTransition, false, transition)
 
-  const setTabStyle = (style: string) => autoCloseHandler(settingStore.setTabStyle, false, style)
+const setTabStyle = (style: string) => autoCloseHandler(settingStore.setTabStyle, false, style)
 
-  const setContainerWidth = (type: ContainerWidthEnum) =>
-    autoCloseHandler(settingStore.setContainerWidth, true, type)
+const setContainerWidth = (type: ContainerWidthEnum) =>
+  autoCloseHandler(settingStore.setContainerWidth, true, type)
 
-  const setElementTheme = (theme: string) =>
-    autoCloseHandler(settingStore.setElementTheme, true, theme)
+const setElementTheme = (theme: string) =>
+  autoCloseHandler(settingStore.setElementTheme, true, theme)
 
-  const setCustomRadius = (radius: string) =>
-    autoCloseHandler(settingStore.setCustomRadius, false, radius)
+const setCustomRadius = (radius: string) =>
+  autoCloseHandler(settingStore.setCustomRadius, false, radius)
 
-  const setUniqueOpened = () => autoCloseHandler(settingStore.setUniqueOpened)
+const setUniqueOpened = () => autoCloseHandler(settingStore.setUniqueOpened)
 
-  const setButton = () => autoCloseHandler(settingStore.setButton)
+const setButton = () => autoCloseHandler(settingStore.setButton)
 
-  const setShowRefreshButton = () => autoCloseHandler(settingStore.setShowRefreshButton)
+const setShowRefreshButton = () => autoCloseHandler(settingStore.setShowRefreshButton)
 
-  const setCrumbs = () => autoCloseHandler(settingStore.setCrumbs)
+const setCrumbs = () => autoCloseHandler(settingStore.setCrumbs)
 
-  const setLanguage = () => autoCloseHandler(settingStore.setLanguage)
+const setLanguage = () => autoCloseHandler(settingStore.setLanguage)
 
-  const setNprogress = () => autoCloseHandler(settingStore.setNprogress)
+const setNprogress = () => autoCloseHandler(settingStore.setNprogress)
 
-  const setAutoClose = () => autoCloseHandler(settingStore.setAutoClose)
+const setAutoClose = () => autoCloseHandler(settingStore.setAutoClose)
 
-  const setColorWeak = () => {
+const setColorWeak = () => {
+  let el = document.getElementsByTagName('html')[0]
+
+  if (colorWeak.value) {
+    el.setAttribute('class', 'color-weak')
+  } else {
+    el.removeAttribute('class')
+    setSystemTheme(SystemThemeEnum.LIGHT)
+  }
+  settingStore.setColorWeak()
+  isAutoClose()
+}
+
+const setWatermarkVisible = () =>
+  autoCloseHandler(settingStore.setWatermarkVisible, false, settingStore.watermarkVisible)
+
+const setMenuOpenSize = () =>
+  menuOpenWidth.value && autoCloseHandler(settingStore.setMenuOpenWidth, false, menuOpenWidth.value)
+
+const initColorWeak = () => {
+  if (colorWeak.value) {
     let el = document.getElementsByTagName('html')[0]
-
-    if (colorWeak.value) {
+    setTimeout(() => {
       el.setAttribute('class', 'color-weak')
-    } else {
-      el.removeAttribute('class')
-      setSystemTheme(SystemThemeEnum.LIGHT)
-    }
-    settingStore.setColorWeak()
-    isAutoClose()
+    }, 100)
   }
+}
 
-  const setWatermarkVisible = () =>
-    autoCloseHandler(settingStore.setWatermarkVisible, false, settingStore.watermarkVisible)
-
-  const setMenuOpenSize = () =>
-    menuOpenWidth.value &&
-    autoCloseHandler(settingStore.setMenuOpenWidth, false, menuOpenWidth.value)
-
-  const initColorWeak = () => {
-    if (colorWeak.value) {
-      let el = document.getElementsByTagName('html')[0]
-      setTimeout(() => {
-        el.setAttribute('class', 'color-weak')
-      }, 100)
-    }
+watch(
+  () => settingStore.menuOpenWidth,
+  (newVal) => {
+    menuOpenWidth.value = newVal
   }
-
-  watch(
-    () => settingStore.menuOpenWidth,
-    (newVal) => {
-      menuOpenWidth.value = newVal
-    }
-  )
+)
 </script>
 
 <style lang="scss">
-  /* 移除重复样式，只保留特有样式 */
-  .setting-modal {
-    /* 样式已迁移到ArtDrawer组件 */
-  }
+/* 移除重复样式，只保留特有样式 */
+.setting-modal {
+  /* 样式已迁移到ArtDrawer组件 */
+}
 
-  /* 深色模式样式已迁移到ArtDrawer组件 */
+/* 深色模式样式已迁移到ArtDrawer组件 */
 
-  /* 滚动条样式已迁移到ArtDrawer组件 */
+/* 滚动条样式已迁移到ArtDrawer组件 */
 </style>
 
 <style lang="scss" scoped>
-  @use './style';
+@use './style';
 </style>

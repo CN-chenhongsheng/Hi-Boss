@@ -13,7 +13,7 @@
         <!-- 表格头部 -->
         <ArtTableHeader v-model:columns="columnChecks" @refresh="handleRefresh">
           <template #left>
-            <ElButton @click="showDialog('add')" v-ripple>新增字典</ElButton>
+            <ElButton @click="handleOperation('add')" v-ripple>新增字典</ElButton>
           </template>
         </ArtTableHeader>
 
@@ -46,8 +46,8 @@
     <!-- 字典数据列表弹窗 -->
     <DictDataList
       v-model="permissionDialogVisible"
-      v-model:dictType="currentDictType"
-      v-model:details="dictionaryDetails"
+      v-model:dictType="currentType"
+      v-model:details="dataDetails"
       @refresh="handleDetailRefresh"
     />
   </ArtTableFullScreen>
@@ -223,7 +223,7 @@ const tableRef = ref()
 
 // 权限弹窗相关变量
 const permissionDialogVisible = ref(false)
-const currentDictType = ref('')
+const currentType = ref('')
 const currentDict = reactive({
   dictName: '',
   dictType: '',
@@ -232,25 +232,58 @@ const currentDict = reactive({
 })
 
 // 当前选中字典的明细数据
-const dictionaryDetails = ref<DictionaryDetailItem[]>([])
+const dataDetails = ref<DictionaryDetailItem[]>([])
 
-// 查看权限（展示字典值）
-const showPermissionDialog = (row: DictionaryItem): void => {
-  permissionDialogVisible.value = true
-  currentDictType.value = row.dictType
-  currentDict.dictName = row.dictName
-  currentDict.dictType = row.dictType
-  currentDict.status = row.status
-  currentDict.remark = row.remark
+// 统一的操作方法
+const handleOperation = (type: string, row?: any) => {
+  switch (type) {
+    case 'detail':
+      // 查看权限（展示字典值）
+      permissionDialogVisible.value = true
+      currentType.value = row.dictType
+      currentDict.dictName = row.dictName
+      currentDict.dictType = row.dictType
+      currentDict.status = row.status
+      currentDict.remark = row.remark
 
-  // 加载对应的字典明细数据
-  dictionaryDetails.value = DICTIONARY_DETAIL_DATA[row.dictType] || []
+      // 加载对应的字典明细数据
+      dataDetails.value = DICTIONARY_DETAIL_DATA[row.dictType] || []
+      break
+    case 'add':
+    case 'edit':
+      dialogType.value = type
+      dialogVisible.value = true
+
+      if (type === 'edit' && row) {
+        formData.dictName = row.dictName
+        formData.dictType = row.dictType
+        formData.status = row.status
+        formData.remark = row.remark
+      } else {
+        formData.dictName = ''
+        formData.dictType = ''
+        formData.status = 1
+        formData.remark = ''
+      }
+      break
+    case 'delete':
+      ElMessageBox.confirm('确定要删除该字典吗？', '删除字典', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'error'
+      }).then(() => {
+        ElMessage.success('删除成功')
+      })
+      break
+    default:
+      break
+  }
 }
 
 // 刷新字典明细数据
 const handleDetailRefresh = () => {
-  if (currentDictType.value) {
-    dictionaryDetails.value = DICTIONARY_DETAIL_DATA[currentDictType.value] || []
+  if (currentType.value) {
+    dataDetails.value = DICTIONARY_DETAIL_DATA[currentType.value] || []
   }
 }
 
@@ -316,34 +349,18 @@ const formItems: SearchFormItem[] = [
   }
 ]
 
-// 显示对话框
-const showDialog = (type: string, row?: any) => {
-  dialogType.value = type
-  dialogVisible.value = true
-
-  if (type === 'edit' && row) {
-    formData.dictName = row.dictName
-    formData.dictType = row.dictType
-    formData.status = row.status
-    formData.remark = row.remark
-  } else {
-    formData.dictName = ''
-    formData.dictType = ''
-    formData.status = 1
-    formData.remark = ''
-  }
-}
-
-// 删除字典
-const deleteDictionary = () => {
-  ElMessageBox.confirm('确定要删除该字典吗？', '删除字典', {
-    confirmButtonText: '确定',
-    cancelButtonText: '取消',
-    type: 'error'
-  }).then(() => {
-    ElMessage.success('删除成功')
-  })
-}
+// 表单数据
+const formData = reactive<{
+  dictName: string
+  dictType: string
+  status: number
+  remark: string
+}>({
+  dictName: '',
+  dictType: '',
+  status: 1,
+  remark: ''
+})
 
 // 动态列配置
 const { columnChecks, columns } = useCheckedColumns(() => [
@@ -375,33 +392,20 @@ const { columnChecks, columns } = useCheckedColumns(() => [
       return h('div', [
         h(ArtButtonTable, {
           type: 'detail',
-          onClick: () => showPermissionDialog(row)
+          onClick: () => handleOperation('detail', row)
         }),
         h(ArtButtonTable, {
           type: 'edit',
-          onClick: () => showDialog('edit', row)
+          onClick: () => handleOperation('edit', row)
         }),
         h(ArtButtonTable, {
           type: 'delete',
-          onClick: () => deleteDictionary()
+          onClick: () => handleOperation('delete')
         })
       ])
     }
   }
 ])
-
-// 表单数据
-const formData = reactive<{
-  dictName: string
-  dictType: string
-  status: number
-  remark: string
-}>({
-  dictName: '',
-  dictType: '',
-  status: 1,
-  remark: ''
-})
 
 // 表格数据
 const tableData = ref<DictionaryItem[]>([])
