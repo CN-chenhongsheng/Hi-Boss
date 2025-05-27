@@ -348,7 +348,6 @@ const deleteDictionary = () => {
 // 动态列配置
 const { columnChecks, columns } = useCheckedColumns(() => [
   { type: 'selection' }, // 勾选列
-  { type: 'index', label: '序号', width: 80 }, // 序号列
   { prop: 'dictName', label: '字典名称', minWidth: 150 },
   { prop: 'dictType', label: '字典类型', minWidth: 150 },
   {

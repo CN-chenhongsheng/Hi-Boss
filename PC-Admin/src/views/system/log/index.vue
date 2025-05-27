@@ -21,10 +21,10 @@
         <ArtTable
           ref="tableRef"
           :loading="loading"
-          :data="logList"
+          :data="tableData"
           :currentPage="1"
           :pageSize="20"
-          :total="logList.length"
+          :total="500"
           :marginTop="10"
         >
           <template #default>
@@ -152,7 +152,6 @@ const formItems: SearchFormItem[] = [
 
 // 动态列配置
 const { columnChecks, columns } = useCheckedColumns(() => [
-  { type: 'index', label: '序号', width: 60 }, // 序号列
   { prop: 'username', label: '用户名', minWidth: 100 },
   { prop: 'account', label: '账号', minWidth: 100 },
   { prop: 'operationType', label: '类型', minWidth: 100 },
@@ -178,7 +177,7 @@ const { columnChecks, columns } = useCheckedColumns(() => [
 ])
 
 // 表格数据
-const logList = reactive([
+const tableData = reactive([
   {
     username: '中小鱼',
     account: 'admin',
