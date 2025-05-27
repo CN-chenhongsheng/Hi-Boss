@@ -5,7 +5,6 @@
     direction="rtl"
     size="500px"
     :destroy-on-close="true"
-    modal-class="setting-modal"
   >
     <div class="log-detail-drawer" v-if="logData">
       <el-descriptions :column="1" border>
@@ -64,10 +63,10 @@ const logData = computed(() => props.data)
 <style lang="scss" scoped>
 .log-detail-drawer {
   padding: 10px;
-  
+
   :deep(.el-descriptions__label) {
     width: 120px;
     font-weight: bold;
   }
 }
-</style> 
+</style>

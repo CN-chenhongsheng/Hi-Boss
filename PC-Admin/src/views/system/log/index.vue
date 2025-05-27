@@ -1,44 +1,42 @@
 <template>
-  <div class="log-page-container">
-    <ArtTableFullScreen>
-      <div class="log-page" id="table-full-screen">
-        <!-- 搜索栏 -->
-        <ArtSearchBar
-          v-model:filter="formFilters"
-          :items="formItems"
-          @reset="handleReset"
-          @search="handleSearch"
-        />
+  <ArtTableFullScreen>
+    <div class="log-page" id="table-full-screen">
+      <!-- 搜索栏 -->
+      <ArtSearchBar
+        v-model:filter="formFilters"
+        :items="formItems"
+        @reset="handleReset"
+        @search="handleSearch"
+      />
 
-        <ElCard shadow="never" class="art-table-card">
-          <!-- 表格头部 -->
-          <ArtTableHeader v-model:columns="columnChecks" @refresh="handleRefresh">
-            <template #left>
-              <!-- 如果需要按钮可以在这里添加 -->
-            </template>
-          </ArtTableHeader>
+      <ElCard shadow="never" class="art-table-card">
+        <!-- 表格头部 -->
+        <ArtTableHeader v-model:columns="columnChecks" @refresh="handleRefresh">
+          <template #left>
+            <!-- 如果需要按钮可以在这里添加 -->
+          </template>
+        </ArtTableHeader>
 
-          <!-- 表格 -->
-          <ArtTable
-            ref="tableRef"
-            :loading="loading"
-            :data="logList"
-            :currentPage="1"
-            :pageSize="20"
-            :total="logList.length"
-            :marginTop="10"
-          >
-            <template #default>
-              <ElTableColumn v-for="col in columns" :key="col.prop || col.type" v-bind="col" />
-            </template>
-          </ArtTable>
-        </ElCard>
-      </div>
-    </ArtTableFullScreen>
+        <!-- 表格 -->
+        <ArtTable
+          ref="tableRef"
+          :loading="loading"
+          :data="logList"
+          :currentPage="1"
+          :pageSize="20"
+          :total="logList.length"
+          :marginTop="10"
+        >
+          <template #default>
+            <ElTableColumn v-for="col in columns" :key="col.prop || col.type" v-bind="col" />
+          </template>
+        </ArtTable>
+      </ElCard>
+    </div>
 
     <!-- 引入日志详情抽屉组件 -->
     <LogDetailDrawer v-model="drawerVisible" :data="currentLog" />
-  </div>
+  </ArtTableFullScreen>
 </template>
 
 <script setup lang="ts">
