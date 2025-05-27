@@ -12,3 +12,10 @@ export enum TableSizeEnum {
   SMALL = 'small',
   LARGE = 'large'
 }
+
+// 表格宽度
+export enum TableWidthEnum {
+  default = 180,
+  small = 140,
+  large = 280
+}
