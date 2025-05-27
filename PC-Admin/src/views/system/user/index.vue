@@ -44,270 +44,34 @@
 </template>
 
 <script setup lang="ts">
-import { h } from 'vue'
-import { ACCOUNT_TABLE_DATA } from '@/mock/temp/formData'
-import { SearchChangeParams, SearchFormItem } from '@/types/search-form'
-import { ElTag } from 'element-plus'
-import { ElMessageBox, ElMessage } from 'element-plus'
-import { useCheckedColumns } from '@/composables/useCheckedColumns'
-import ArtButtonTable from '@/components/core/forms/ArtButtonTable.vue'
+import { useUserData } from './composables/useUserData'
+import { useUserSearch } from './composables/useUserSearch'
+import { useUserColumns } from './composables/useUserColumns'
 import UserForm from './components/UserForm.vue'
 
-const dialogType = ref('add')
-const dialogVisible = ref(false)
-const loading = ref(false)
+// 使用用户数据管理composable
+const {
+  loading,
+  dialogType,
+  dialogVisible,
+  tableData,
+  formData,
+  getTableData,
+  handleOperation
+} = useUserData()
 
-// 定义表单搜索初始值
-const initialSearchState = {
-  name: '',
-  gender: '',
-  phone: '',
-  address: '',
-  level: '',
-  email: '',
-  company: ''
-}
+// 使用用户搜索composable
+const { formFilters, formItems, handleSearch, handleReset } = useUserSearch(getTableData)
 
-// 响应式表单数据
-const formFilters = reactive({ ...initialSearchState })
+// 使用用户表格列配置composable
+const { columnChecks, columns } = useUserColumns(handleOperation)
 
-// 重置表单
-const handleReset = () => {
-  Object.assign(formFilters, { ...initialSearchState })
-}
-
-// 搜索处理
-const handleSearch = () => {
-  console.log('搜索参数:', formFilters)
-  getTableData()
-}
-
-// 表单项变更处理
-const handleFormChange = (params: SearchChangeParams): void => {
-  console.log('表单项变更:', params)
-}
-
-// 统一操作方法
-const handleOperation = (type: string, row?: any) => {
-  switch (type) {
-    case 'add':
-    case 'edit':
-      dialogVisible.value = true
-      dialogType.value = type
-
-      if (type === 'edit' && row) {
-        formData.username = row.username
-        formData.phone = row.mobile
-        formData.sex = row.sex === 1 ? '男' : '女'
-        formData.dep = row.dep
-      } else {
-        formData.username = ''
-        formData.phone = ''
-        formData.sex = '男'
-        formData.dep = ''
-      }
-      break
-    case 'delete':
-      ElMessageBox.confirm('确定要注销该用户吗？', '注销用户', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'error'
-      }).then(() => {
-        ElMessage.success('注销成功')
-      })
-      break
-    default:
-      break
-  }
-}
-
-// 表单配置项
-const formItems: SearchFormItem[] = [
-  {
-    label: '用户名',
-    prop: 'name',
-    type: 'input',
-    config: {
-      clearable: true
-    },
-    onChange: handleFormChange
-  },
-
-  {
-    label: '电话',
-    prop: 'phone',
-    type: 'input',
-    config: {
-      clearable: true
-    },
-    onChange: handleFormChange
-  },
-  {
-    label: '用户等级',
-    prop: 'level',
-    type: 'select',
-    config: {
-      clearable: true
-    },
-    options: () => [
-      { label: '普通用户', value: 'normal' },
-      { label: 'VIP用户', value: 'vip' },
-      { label: '高级VIP', value: 'svip' },
-      { label: '企业用户', value: 'enterprise', disabled: true }
-    ],
-    onChange: handleFormChange
-  },
-  {
-    label: '地址',
-    prop: 'address',
-    type: 'input',
-    config: {
-      clearable: true
-    },
-    onChange: handleFormChange
-  },
-  {
-    label: '邮箱',
-    prop: 'email',
-    type: 'input',
-    config: {
-      clearable: true
-    },
-    onChange: handleFormChange
-  },
-  {
-    label: '公司',
-    prop: 'company',
-    type: 'input',
-    config: {
-      placeholder: '请输入公司名称',
-      clearable: true
-    },
-    onChange: handleFormChange
-  },
-  {
-    label: '性别',
-    prop: 'gender',
-    type: 'select',
-    options: [
-      { label: '男', value: 'male' },
-      { label: '女', value: 'female' }
-    ],
-    onChange: handleFormChange
-  }
-]
-
-// 获取标签类型
-// 1: 在线 2: 离线 3: 异常 4: 注销
-const getTagType = (status: string) => {
-  switch (status) {
-    case '1':
-      return 'success'
-    case '2':
-      return 'info'
-    case '3':
-      return 'warning'
-    case '4':
-      return 'danger'
-    default:
-      return 'info'
-  }
-}
-
-// 构建标签文本
-const buildTagText = (status: string) => {
-  let text = ''
-  if (status === '1') {
-    text = '在线'
-  } else if (status === '2') {
-    text = '离线'
-  } else if (status === '3') {
-    text = '异常'
-  } else if (status === '4') {
-    text = '注销'
-  }
-  return text
-}
-
-// 表单数据
-const formData = reactive({
-  username: '',
-  phone: '',
-  sex: '',
-  dep: ''
-})
-
-// 动态列配置
-const { columnChecks, columns } = useCheckedColumns(() => [
-  { type: 'selection' }, // 勾选列
-  {
-    prop: 'avatar',
-    label: '用户名',
-    minWidth: 220,
-    formatter: (row: any) => {
-      return h('div', { class: 'user', style: 'display: flex; align-items: center' }, [
-        h('img', { class: 'avatar', src: row.avatar }),
-        h('div', {}, [
-          h('p', { class: 'user-name' }, row.username),
-          h('p', { class: 'email' }, row.email)
-        ])
-      ])
-    }
-  },
-  { prop: 'mobile', label: '手机号' },
-  {
-    prop: 'sex',
-    label: '性别',
-    sortable: true,
-    formatter: (row) => (row.sex === 1 ? '男' : '女')
-  },
-  { prop: 'dep', label: '部门' },
-  {
-    prop: 'status',
-    label: '状态',
-    formatter: (row) => {
-      return h(ElTag, { type: getTagType(row.status) }, () => buildTagText(row.status))
-    }
-  },
-  {
-    prop: 'create_time',
-    label: '创建日期',
-    sortable: true
-  },
-  {
-    prop: 'operation',
-    label: '操作',
-    width: 150,
-    formatter: (row: any) => {
-      return h('div', [
-        h(ArtButtonTable, {
-          type: 'edit',
-          onClick: () => handleOperation('edit', row)
-        }),
-        h(ArtButtonTable, {
-          type: 'delete',
-          onClick: () => handleOperation('delete')
-        })
-      ])
-    }
-  }
-])
-
-// 表格数据
-const tableData = ref<any[]>([])
-
+// 初始加载
 onMounted(() => {
   getTableData()
 })
 
-const getTableData = () => {
-  loading.value = true
-  setTimeout(() => {
-    tableData.value = ACCOUNT_TABLE_DATA
-    loading.value = false
-  }, 500)
-}
-
+// 处理刷新
 const handleRefresh = () => {
   getTableData()
 }

@@ -22,7 +22,6 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
 import ArtDrawer from '@/components/core/others/ArtDrawer.vue'
 
 // 定义接口

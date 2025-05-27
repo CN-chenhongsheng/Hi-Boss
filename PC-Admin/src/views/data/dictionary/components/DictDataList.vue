@@ -46,7 +46,6 @@
 <script setup lang="ts">
 import ArtDialog from '@/components/core/others/ArtDialog.vue'
 import DictDetail from './DictDetail.vue'
-import { computed } from 'vue'
 import { useSettingStore } from '@/store/modules/setting'
 
 // 使用设置 Store 获取过渡效果配置

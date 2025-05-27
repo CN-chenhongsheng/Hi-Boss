@@ -51,7 +51,6 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
 import { useRecycleData } from './composables/useRecycleData'
 import { useRecycleColumns } from './composables/useRecycleColumns'
 import { useRecycleSearch } from './composables/useRecycleSearch'
@@ -123,9 +122,8 @@ onMounted(() => {
 </script>
 
 <style lang="scss" scoped>
-.recycle-page {
-  // 页面特定样式可以保留在这里
-}
+// 页面特定样式可以保留在这里
+// .recycle-page {}
 
 /* 确保按钮过渡效果样式与系统一致 */
 .el-button {

@@ -51,269 +51,41 @@
 </template>
 
 <script setup lang="ts">
-import { h } from 'vue'
 import { useMenuStore } from '@/store/modules/menu'
-import { ElMessage, ElMessageBox } from 'element-plus'
-import { useCheckedColumns } from '@/composables/useCheckedColumns'
-import { SearchFormItem } from '@/types/search-form'
-import ArtButtonTable from '@/components/core/forms/ArtButtonTable.vue'
-import ArtStatusSwitch from '@/components/core/forms/ArtStatusSwitch.vue'
+import { useRoleData } from './composables/useRoleData'
+import { useRoleSearch } from './composables/useRoleSearch'
+import { useRoleColumns } from './composables/useRoleColumns'
 import RoleForm from './components/RoleForm.vue'
 import RolePermission from './components/RolePermission.vue'
 
-const dialogVisible = ref(false)
-const permissionDialogVisible = ref(false)
 const { menuList } = storeToRefs(useMenuStore())
-const loading = ref(false)
 
-// 定义表单搜索初始值
-const initialSearchState = {
-  name: '',
-  des: ''
-}
+// 使用角色数据管理composable
+const {
+  loading,
+  dialogVisible,
+  permissionDialogVisible,
+  dialogType,
+  form,
+  tableData,
+  getTableData,
+  handleOperation
+} = useRoleData()
 
-// 响应式表单数据
-const formFilters = reactive({ ...initialSearchState })
+// 使用角色搜索composable
+const { formFilters, formItems, handleSearch, handleReset } = useRoleSearch(getTableData)
 
-// 重置表单
-const handleReset = () => {
-  Object.assign(formFilters, { ...initialSearchState })
-}
+// 使用角色表格列配置composable
+const { columnChecks, columns } = useRoleColumns(handleOperation)
 
-// 搜索处理
-const handleSearch = () => {
-  console.log('搜索参数:', formFilters)
+// 初始加载
+onMounted(() => {
   getTableData()
-}
-
-// 统一操作方法
-const handleOperation = (type: string, row?: any) => {
-  switch (type) {
-    case 'add':
-    case 'edit':
-      dialogVisible.value = true
-      dialogType.value = type
-
-      if (type === 'edit' && row) {
-        form.id = row.id
-        form.name = row.name
-        form.des = row.des
-        form.status = row.status
-      } else {
-        form.id = ''
-        form.name = ''
-        form.des = ''
-        form.status = 1
-      }
-      break
-    case 'detail':
-      permissionDialogVisible.value = true
-      break
-    case 'delete':
-      ElMessageBox.confirm('确定删除该角色吗？', '删除确认', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'error'
-      }).then(() => {
-        ElMessage.success('删除成功')
-        getTableData()
-      })
-      break
-    default:
-      break
-  }
-}
-
-// 表单配置项
-const formItems: SearchFormItem[] = [
-  {
-    label: '角色名称',
-    prop: 'name',
-    type: 'input',
-    config: {
-      clearable: true
-    }
-  },
-  {
-    label: '描述',
-    prop: 'des',
-    type: 'input',
-    config: {
-      clearable: true
-    }
-  }
-]
-
-const form = reactive({
-  id: '',
-  name: '',
-  des: '',
-  status: 1
 })
 
-const tableData = reactive([
-  {
-    name: '超级管理员',
-    allow: '全部权限',
-    des: '拥有系统全部权限',
-    date: '2021-01-08 12:30:45',
-    status: 1
-  },
-  {
-    name: '董事会部',
-    allow: '自定义',
-    des: '负责董事会部相关工作的管理者',
-    date: '2021-01-08 12:30:45',
-    status: 1
-  },
-  {
-    name: '监事会部',
-    allow: '自定义',
-    des: '负责监事会部相关工作的管理者',
-    date: '2021-01-08 12:30:45',
-    status: 0
-  },
-  {
-    name: '市场部',
-    allow: '自定义',
-    des: '负责市场部相关工作的管理者',
-    date: '2021-01-08 12:30:45',
-    status: 1
-  },
-  {
-    name: '人力资源部',
-    allow: '自定义',
-    des: '负责人力资源部相关工作的管理者',
-    date: '2021-01-08 12:30:45',
-    status: 1
-  },
-  {
-    name: '财务部',
-    allow: '自定义',
-    des: '负责财务部相关工作的管理者',
-    date: '2021-01-08 12:30:45',
-    status: 1
-  },
-  {
-    name: '公关部',
-    allow: '自定义',
-    des: '负责公关部相关工作的管理者',
-    date: '2021-01-08 12:30:45',
-    status: 0
-  },
-  {
-    name: '广告部',
-    allow: '自定义',
-    des: '负责广告部相关工作的管理者',
-    date: '2021-01-08 12:30:45',
-    status: 1
-  },
-  {
-    name: '营销',
-    allow: '自定义',
-    des: '负责营销相关工作的管理者',
-    date: '2021-01-08 12:30:45',
-    status: 1
-  },
-  {
-    name: '设计部',
-    allow: '自定义',
-    des: '负责设计部相关工作的管理者',
-    date: '2021-01-08 12:30:45',
-    status: 1
-  },
-  {
-    name: '开发部',
-    allow: '自定义',
-    des: '负责开发部相关工作的管理者',
-    date: '2021-01-08 12:30:45',
-    status: 1
-  },
-  {
-    name: '测试部',
-    allow: '自定义',
-    des: '负责测试部相关工作的管理者',
-    date: '2021-01-08 12:30:45',
-    status: 1
-  },
-  {
-    name: '安保部',
-    allow: '自定义',
-    des: '负责安保部相关工作的管理者',
-    date: '2021-01-08 12:30:45',
-    status: 1
-  }
-])
-
+// 处理刷新
 const handleRefresh = () => {
   getTableData()
-}
-
-const dialogType = ref('add')
-
-// 日期格式化函数
-const formatDate = (date: string) => {
-  return new Date(date)
-    .toLocaleString('zh-CN', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit'
-    })
-    .replace(/\//g, '-')
-}
-
-// 动态列配置
-const { columnChecks, columns } = useCheckedColumns(() => [
-  { prop: 'name', label: '角色名称' },
-  { prop: 'des', label: '描述' },
-  {
-    prop: 'status',
-    label: '状态',
-    formatter: (row) => {
-      return h(ArtStatusSwitch, {
-        modelValue: row.status
-      })
-    }
-  },
-  {
-    prop: 'date',
-    label: '创建时间',
-    formatter: (row) => {
-      return formatDate(row.date)
-    }
-  },
-  {
-    prop: 'operation',
-    label: '操作',
-    width: 180,
-    formatter: (row) => {
-      return h('div', { class: 'operation-btns' }, [
-        h(ArtButtonTable, {
-          type: 'detail',
-          onClick: () => handleOperation('detail')
-        }),
-        h(ArtButtonTable, {
-          type: 'edit',
-          onClick: () => handleOperation('edit', row)
-        }),
-        h(ArtButtonTable, {
-          type: 'delete',
-          onClick: () => handleOperation('delete')
-        })
-      ])
-    }
-  }
-])
-
-// 获取表格数据
-const getTableData = () => {
-  loading.value = true
-  setTimeout(() => {
-    loading.value = false
-  }, 500)
 }
 </script>
 

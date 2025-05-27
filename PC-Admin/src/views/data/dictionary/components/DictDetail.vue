@@ -30,7 +30,6 @@
 import ArtDialog from '@/components/core/others/ArtDialog.vue'
 import ArtStatusSwitch from '@/components/core/forms/ArtStatusSwitch.vue'
 import { FormInstance, FormRules } from 'element-plus'
-import { ElMessage } from 'element-plus'
 
 // 字典明细数据接口
 interface DictDetailData {

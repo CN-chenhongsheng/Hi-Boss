@@ -124,7 +124,6 @@
 <script setup lang="ts">
 import { IconTypeEnum } from '@/enums/appEnum'
 import { FormInstance, FormRules } from 'element-plus'
-import { ElMessage } from 'element-plus'
 import ArtIconSelector from '@/components/core/base/ArtIconSelector.vue'
 import ArtDialog from '@/components/core/others/ArtDialog.vue'
 import ArtStatusSwitch from '@/components/core/forms/ArtStatusSwitch.vue'

@@ -1,5 +1,3 @@
-import { ref } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
 import { DICTIONARY_DATA, DictionaryItem } from '@/mock/temp/dictionaryData'
 
 export function useDictionaryData() {

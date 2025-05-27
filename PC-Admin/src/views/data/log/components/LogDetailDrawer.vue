@@ -106,9 +106,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
 import ArtDrawer from '@/components/core/others/ArtDrawer.vue'
-import { ElMessage } from 'element-plus'
 import {
   User,
   Document,

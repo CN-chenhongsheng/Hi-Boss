@@ -65,7 +65,6 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
 import DictForm from './components/DictForm.vue'
 import DictDataList from './components/DictDataList.vue'
 import { useSettingStore } from '@/store/modules/setting'

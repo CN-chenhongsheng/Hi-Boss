@@ -50,7 +50,6 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
 import LogDetailDrawer from './components/LogDetailDrawer.vue'
 import { useSettingStore } from '@/store/modules/setting'
 

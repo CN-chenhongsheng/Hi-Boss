@@ -1,4 +1,3 @@
-import { h } from 'vue'
 import { useCheckedColumns } from '@/composables/useCheckedColumns'
 import ArtButtonTable from '@/components/core/forms/ArtButtonTable.vue'
 import type { LogItem } from './useLogData'

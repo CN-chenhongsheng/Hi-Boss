@@ -23,7 +23,6 @@
 <script setup lang="ts">
 import ArtDialog from '@/components/core/others/ArtDialog.vue'
 import { formatMenuTitle } from '@/utils/menu'
-import { ElMessage } from 'element-plus'
 import { MenuListType } from '@/types/menu'
 
 // 定义对话框是否打开

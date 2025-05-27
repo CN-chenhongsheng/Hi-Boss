@@ -1,6 +1,3 @@
-import { ref } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
-
 // 字典明细数据接口
 export interface DictionaryDetailItem {
   id: number
