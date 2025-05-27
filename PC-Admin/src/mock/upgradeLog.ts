@@ -2,6 +2,11 @@
 
 export const upgradeLogList = ref([
   {
+    version: 'v2.2.73',
+    title: '字典管理页面优化',
+    date: '2025-05-27'
+  },
+  {
     version: 'v2.2.72',
     title: '移动端表格样式优化',
     date: '2025-05-08'
