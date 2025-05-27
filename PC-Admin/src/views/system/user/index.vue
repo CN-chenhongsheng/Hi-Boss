@@ -13,7 +13,7 @@
         <!-- 表格头部 -->
         <ArtTableHeader v-model:columns="columnChecks" @refresh="handleRefresh">
           <template #left>
-            <ElButton @click="showDialog('add')" v-ripple>新增用户</ElButton>
+            <ElButton @click="handleOperation('add')" v-ripple>新增用户</ElButton>
           </template>
         </ArtTableHeader>
 
@@ -85,6 +85,40 @@ const handleSearch = () => {
 // 表单项变更处理
 const handleFormChange = (params: SearchChangeParams): void => {
   console.log('表单项变更:', params)
+}
+
+// 统一操作方法
+const handleOperation = (type: string, row?: any) => {
+  switch (type) {
+    case 'add':
+    case 'edit':
+      dialogVisible.value = true
+      dialogType.value = type
+
+      if (type === 'edit' && row) {
+        formData.username = row.username
+        formData.phone = row.mobile
+        formData.sex = row.sex === 1 ? '男' : '女'
+        formData.dep = row.dep
+      } else {
+        formData.username = ''
+        formData.phone = ''
+        formData.sex = '男'
+        formData.dep = ''
+      }
+      break
+    case 'delete':
+      ElMessageBox.confirm('确定要注销该用户吗？', '注销用户', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'error'
+      }).then(() => {
+        ElMessage.success('注销成功')
+      })
+      break
+    default:
+      break
+  }
 }
 
 // 表单配置项
@@ -203,35 +237,6 @@ const formData = reactive({
   dep: ''
 })
 
-// 显示对话框
-const showDialog = (type: string, row?: any) => {
-  dialogVisible.value = true
-  dialogType.value = type
-
-  if (type === 'edit' && row) {
-    formData.username = row.username
-    formData.phone = row.mobile
-    formData.sex = row.sex === 1 ? '男' : '女'
-    formData.dep = row.dep
-  } else {
-    formData.username = ''
-    formData.phone = ''
-    formData.sex = '男'
-    formData.dep = ''
-  }
-}
-
-// 删除用户
-const deleteUser = () => {
-  ElMessageBox.confirm('确定要注销该用户吗？', '注销用户', {
-    confirmButtonText: '确定',
-    cancelButtonText: '取消',
-    type: 'error'
-  }).then(() => {
-    ElMessage.success('注销成功')
-  })
-}
-
 // 动态列配置
 const { columnChecks, columns } = useCheckedColumns(() => [
   { type: 'selection' }, // 勾选列
@@ -273,17 +278,15 @@ const { columnChecks, columns } = useCheckedColumns(() => [
     prop: 'operation',
     label: '操作',
     width: 150,
-    // fixed: 'right', // 固定在右侧
-    // disabled: true,
     formatter: (row: any) => {
       return h('div', [
         h(ArtButtonTable, {
           type: 'edit',
-          onClick: () => showDialog('edit', row)
+          onClick: () => handleOperation('edit', row)
         }),
         h(ArtButtonTable, {
           type: 'delete',
-          onClick: () => deleteUser()
+          onClick: () => handleOperation('delete')
         })
       ])
     }

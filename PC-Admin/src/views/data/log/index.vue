@@ -80,10 +80,16 @@ const handleFormChange = (params: SearchChangeParams): void => {
   console.log('表单项变更:', params)
 }
 
-// 打开日志详情抽屉
-const showLogDetail = (row: LogItem) => {
-  currentLog.value = row
-  drawerVisible.value = true
+// 统一操作方法
+const handleOperation = (type: string, row?: any) => {
+  switch (type) {
+    case 'detail':
+      currentLog.value = row
+      drawerVisible.value = true
+      break
+    default:
+      break
+  }
 }
 
 // 表单配置项
@@ -169,7 +175,7 @@ const { columnChecks, columns } = useCheckedColumns(() => [
       return h('div', [
         h(ArtButtonTable, {
           type: 'detail',
-          onClick: () => showLogDetail(row)
+          onClick: () => handleOperation('detail', row)
         })
       ])
     }

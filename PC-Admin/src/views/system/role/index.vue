@@ -13,7 +13,7 @@
         <!-- 表格头部 -->
         <ArtTableHeader :showZebra="false" v-model:columns="columnChecks" @refresh="handleRefresh">
           <template #left>
-            <ElButton @click="showDialog('add')" v-ripple>新增角色</ElButton>
+            <ElButton @click="handleOperation('add')" v-ripple>新增角色</ElButton>
           </template>
         </ArtTableHeader>
 
@@ -40,7 +40,11 @@
         />
 
         <!-- 权限设置对话框 -->
-        <RolePermission v-model="permissionDialog" :menuData="menuList" @refresh="handleRefresh" />
+        <RolePermission
+          v-model="permissionDialogVisible"
+          :menuData="menuList"
+          @refresh="handleRefresh"
+        />
       </ElCard>
     </div>
   </ArtTableFullScreen>
@@ -58,7 +62,7 @@ import RoleForm from './components/RoleForm.vue'
 import RolePermission from './components/RolePermission.vue'
 
 const dialogVisible = ref(false)
-const permissionDialog = ref(false)
+const permissionDialogVisible = ref(false)
 const { menuList } = storeToRefs(useMenuStore())
 const loading = ref(false)
 
@@ -80,6 +84,44 @@ const handleReset = () => {
 const handleSearch = () => {
   console.log('搜索参数:', formFilters)
   getTableData()
+}
+
+// 统一操作方法
+const handleOperation = (type: string, row?: any) => {
+  switch (type) {
+    case 'add':
+    case 'edit':
+      dialogVisible.value = true
+      dialogType.value = type
+
+      if (type === 'edit' && row) {
+        form.id = row.id
+        form.name = row.name
+        form.des = row.des
+        form.status = row.status
+      } else {
+        form.id = ''
+        form.name = ''
+        form.des = ''
+        form.status = 1
+      }
+      break
+    case 'detail':
+      permissionDialogVisible.value = true
+      break
+    case 'delete':
+      ElMessageBox.confirm('确定删除该角色吗？', '删除确认', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'error'
+      }).then(() => {
+        ElMessage.success('删除成功')
+        getTableData()
+      })
+      break
+    default:
+      break
+  }
 }
 
 // 表单配置项
@@ -209,38 +251,6 @@ const handleRefresh = () => {
 
 const dialogType = ref('add')
 
-const showDialog = (type: string, row?: any) => {
-  dialogVisible.value = true
-  dialogType.value = type
-
-  if (type === 'edit' && row) {
-    form.id = row.id
-    form.name = row.name
-    form.des = row.des
-    form.status = row.status
-  } else {
-    form.id = ''
-    form.name = ''
-    form.des = ''
-    form.status = 1
-  }
-}
-
-const showPermissionDialog = () => {
-  permissionDialog.value = true
-}
-
-const deleteRole = () => {
-  ElMessageBox.confirm('确定删除该角色吗？', '删除确认', {
-    confirmButtonText: '确定',
-    cancelButtonText: '取消',
-    type: 'error'
-  }).then(() => {
-    ElMessage.success('删除成功')
-    getTableData()
-  })
-}
-
 // 日期格式化函数
 const formatDate = (date: string) => {
   return new Date(date)
@@ -283,15 +293,15 @@ const { columnChecks, columns } = useCheckedColumns(() => [
       return h('div', { class: 'operation-btns' }, [
         h(ArtButtonTable, {
           type: 'detail',
-          onClick: () => showPermissionDialog()
+          onClick: () => handleOperation('detail')
         }),
         h(ArtButtonTable, {
           type: 'edit',
-          onClick: () => showDialog('edit', row)
+          onClick: () => handleOperation('edit', row)
         }),
         h(ArtButtonTable, {
           type: 'delete',
-          onClick: () => deleteRole()
+          onClick: () => handleOperation('delete')
         })
       ])
     }

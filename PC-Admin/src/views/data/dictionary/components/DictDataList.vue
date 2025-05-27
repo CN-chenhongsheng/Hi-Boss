@@ -4,7 +4,7 @@
       <!-- 表格头部 -->
       <ArtTableHeader v-model:columns="columnChecks" :fullScreen="false" @refresh="handleRefresh">
         <template #left>
-          <ElButton @click="showDialog('add')" v-ripple>新增数据</ElButton>
+          <ElButton @click="handleOperation('add')" v-ripple>新增数据</ElButton>
         </template>
       </ArtTableHeader>
 
@@ -80,40 +80,45 @@ const detailFormData = reactive<{
 })
 
 // 显示对话框
-const showDialog = (type: string, row?: any) => {
-  dialogType.value = type
-  dialogDetailsVisible.value = true
+const handleOperation = (type: string, row?: any) => {
+  switch (type) {
+    case 'add':
+    case 'edit':
+      dialogType.value = type
+      dialogDetailsVisible.value = true
 
-  if (type === 'edit' && row) {
-    detailFormData.id = row.id
-    detailFormData.dictType = currentDictType.value
-    detailFormData.code = row.code
-    detailFormData.name = row.name
-    detailFormData.status = row.status
-    detailFormData.remark = row.remark
-  } else {
-    detailFormData.dictType = currentDictType.value
-    detailFormData.code = ''
-    detailFormData.name = ''
-    detailFormData.status = 1
-    detailFormData.remark = ''
+      if (type === 'edit' && row) {
+        detailFormData.id = row.id
+        detailFormData.dictType = currentDictType.value
+        detailFormData.code = row.code
+        detailFormData.name = row.name
+        detailFormData.status = row.status
+        detailFormData.remark = row.remark
+      } else {
+        detailFormData.dictType = currentDictType.value
+        detailFormData.code = ''
+        detailFormData.name = ''
+        detailFormData.status = 1
+        detailFormData.remark = ''
+      }
+      break
+    case 'delete':
+      ElMessageBox.confirm('确定要删除该字典数据吗？', '删除字典数据', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'error'
+      }).then(() => {
+        // 模拟删除操作，实际项目中应该调用API
+        const index = dictDetails.value.findIndex((item) => item.id === row.id)
+        if (index !== -1) {
+          dictDetails.value.splice(index, 1)
+          ElMessage.success('删除成功')
+        }
+      })
+      break
+    default:
+      break
   }
-}
-
-// 删除字典明细
-const deleteData = (row: DictionaryDetailItem) => {
-  ElMessageBox.confirm('确定要删除该字典数据吗？', '删除字典数据', {
-    confirmButtonText: '确定',
-    cancelButtonText: '取消',
-    type: 'error'
-  }).then(() => {
-    // 模拟删除操作，实际项目中应该调用API
-    const index = dictDetails.value.findIndex((item) => item.id === row.id)
-    if (index !== -1) {
-      dictDetails.value.splice(index, 1)
-      ElMessage.success('删除成功')
-    }
-  })
 }
 
 // 动态子列配置
@@ -141,11 +146,11 @@ const { columnChecks, columns } = useCheckedColumns(() => [
       return h('div', { class: 'operation-btns' }, [
         h(ArtButtonTable, {
           type: 'edit',
-          onClick: () => showDialog('edit', row)
+          onClick: () => handleOperation('edit', row)
         }),
         h(ArtButtonTable, {
           type: 'delete',
-          onClick: () => deleteData(row)
+          onClick: () => handleOperation('delete', row)
         })
       ])
     }

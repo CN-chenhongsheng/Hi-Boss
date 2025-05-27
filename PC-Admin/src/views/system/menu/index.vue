@@ -13,7 +13,7 @@
         <!-- 表格头部 -->
         <ArtTableHeader :showZebra="false" v-model:columns="columnChecks" @refresh="handleRefresh">
           <template #left>
-            <ElButton v-auth="'add'" @click="showModel('menu')" v-ripple>添加菜单</ElButton>
+            <ElButton v-auth="'add'" @click="handleOperation('menu')" v-ripple>添加菜单</ElButton>
             <ElButton @click="toggleExpand" v-ripple>{{ isExpanded ? '收起' : '展开' }}</ElButton>
           </template>
         </ArtTableHeader>
@@ -186,7 +186,7 @@ const { columnChecks, columns } = useCheckedColumns(() => [
                     {
                       size: 'small',
                       type: 'primary',
-                      onClick: () => showModel('button', item)
+                      onClick: () => handleOperation('button', item)
                     },
                     { default: () => '编辑' }
                   ),
@@ -195,7 +195,7 @@ const { columnChecks, columns } = useCheckedColumns(() => [
                     {
                       size: 'small',
                       type: 'danger',
-                      onClick: () => deleteAuth()
+                      onClick: () => handleOperation('deleteAuth')
                     },
                     { default: () => '删除' }
                   )
@@ -233,17 +233,17 @@ const { columnChecks, columns } = useCheckedColumns(() => [
         h(ArtButtonTable, {
           type: 'add',
           'v-auth': "'add'",
-          onClick: () => showModel('menu')
+          onClick: () => handleOperation('menu')
         }),
         h(ArtButtonTable, {
           type: 'edit',
           'v-auth': "'edit'",
-          onClick: () => showDialog('edit', row)
+          onClick: () => handleOperation('menu', row, true)
         }),
         h(ArtButtonTable, {
           type: 'delete',
           'v-auth': "'delete'",
-          onClick: () => deleteMenu()
+          onClick: () => handleOperation('deleteMenu')
         })
       ])
     }
@@ -325,74 +325,76 @@ const filteredTableData = computed(() => {
   return searchMenu(tableData.value)
 })
 
-const showModel = (type: string, row?: any, lock: boolean = false) => {
-  dialogVisible.value = true
-  labelPosition.value = type
-  isEdit.value = false
-  lockMenuType.value = lock || false
-  resetForm()
+// 统一操作方法
+const handleOperation = (type: string, row?: any, lock: boolean = false) => {
+  switch (type) {
+    case 'menu':
+    case 'button':
+      dialogVisible.value = true
+      labelPosition.value = type
+      isEdit.value = false
+      lockMenuType.value = lock || false
+      resetForm()
 
-  if (row) {
-    isEdit.value = true
-    nextTick(() => {
-      // 回显数据
-      if (type === 'menu') {
-        // 菜单数据回显
-        form.name = formatMenuTitle(row.meta?.title || '')
-        form.path = row.path || ''
-        form.label = row.name || ''
-        form.icon = row.meta?.icon || ''
-        form.sort = row.meta?.sort || 1
-        form.isMenu = row.meta?.isMenu || true
-        form.keepAlive = row.meta?.keepAlive || true
-        form.isHidden = row.meta?.isHidden || true
-        form.isEnable = row.meta?.isEnable || true
-        form.link = row.meta?.link || ''
-        form.isIframe = row.meta?.isIframe || false
-      } else {
-        // 权限按钮数据回显
-        form.authName = row.title || ''
-        form.authLabel = row.auth_mark || ''
-        form.authIcon = row.icon || ''
-        form.authSort = row.sort || 1
+      if (row) {
+        isEdit.value = true
+        nextTick(() => {
+          // 回显数据
+          if (type === 'menu') {
+            // 菜单数据回显
+            form.name = formatMenuTitle(row.meta?.title || '')
+            form.path = row.path || ''
+            form.label = row.name || ''
+            form.icon = row.meta?.icon || ''
+            form.sort = row.meta?.sort || 1
+            form.isMenu = row.meta?.isMenu || true
+            form.keepAlive = row.meta?.keepAlive || true
+            form.isHidden = row.meta?.isHidden || true
+            form.isEnable = row.meta?.isEnable || true
+            form.link = row.meta?.link || ''
+            form.isIframe = row.meta?.isIframe || false
+          } else {
+            // 权限按钮数据回显
+            form.authName = row.title || ''
+            form.authLabel = row.auth_mark || ''
+            form.authIcon = row.icon || ''
+            form.authSort = row.sort || 1
+          }
+        })
       }
-    })
-  }
-}
-
-const showDialog = (type: string, row: MenuListType) => {
-  showModel('menu', row, true)
-}
-
-const deleteAuth = async () => {
-  try {
-    await ElMessageBox.confirm('确定要删除该权限吗？删除后无法恢复', '提示', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      type: 'warning'
-    })
-
-    ElMessage.success('删除成功')
-  } catch (error) {
-    if (error !== 'cancel') {
-      ElMessage.error('删除失败')
-    }
-  }
-}
-
-const deleteMenu = async () => {
-  try {
-    await ElMessageBox.confirm('确定要删除该菜单吗？删除后无法恢复', '提示', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      type: 'warning'
-    })
-
-    ElMessage.success('删除成功')
-  } catch (error) {
-    if (error !== 'cancel') {
-      ElMessage.error('删除失败')
-    }
+      break
+    case 'deleteAuth':
+      ElMessageBox.confirm('确定要删除该权限吗？删除后无法恢复', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      })
+        .then(() => {
+          ElMessage.success('删除成功')
+        })
+        .catch((error) => {
+          if (error !== 'cancel') {
+            ElMessage.error('删除失败')
+          }
+        })
+      break
+    case 'deleteMenu':
+      ElMessageBox.confirm('确定要删除该菜单吗？删除后无法恢复', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      })
+        .then(() => {
+          ElMessage.success('删除成功')
+        })
+        .catch((error) => {
+          if (error !== 'cancel') {
+            ElMessage.error('删除失败')
+          }
+        })
+      break
+    default:
+      break
   }
 }
 
