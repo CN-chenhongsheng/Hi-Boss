@@ -20,10 +20,12 @@
 
       <!-- 字典明细表格 -->
       <ArtTable
-        :data="dictDetails"
+        :loading="loading"
+        :data="tableData"
         :currentPage="1"
         :pageSize="20"
         :total="500"
+        paginationAlign="right-margin-left"
         style="width: 100%"
         @selection-change="handleSelectionChange"
       >
@@ -60,10 +62,11 @@ const dialogVisible = defineModel<boolean>('modelValue', { required: true })
 const currentDictType = defineModel<string>('dictType', { required: true })
 
 // 导出DICTIONARY_DETAIL_DATA引用，便于外部调用
-const dictDetails = defineModel<DictionaryDetailItem[]>('details', { required: true })
+const tableData = defineModel<DictionaryDetailItem[]>('details', { required: true })
 
 // 使用字典数据操作composable
 const {
+  loading,
   selectedRows,
   dialogType,
   dialogDetailsVisible,
@@ -102,7 +105,7 @@ const handleRefresh = () => {
 
 const handleOpen = () => {
   console.log('字典数据列表对话框打开')
-  console.log(dictDetails.value)
+  console.log(tableData.value)
 }
 
 const emit = defineEmits(['refresh'])

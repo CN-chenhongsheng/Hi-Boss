@@ -103,7 +103,7 @@ export function useCheckedColumns(columnsFactory: () => ColumnOption[]) {
         columnMap.set(key, column)
       }
     })
-    console.log(columnMap)
+
     return columnChecks.value
       .filter((item) => item.checked)
       .map((check) => columnMap.get(check.prop) as ColumnOption)

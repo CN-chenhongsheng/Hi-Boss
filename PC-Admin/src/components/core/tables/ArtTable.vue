@@ -5,7 +5,7 @@
     :class="{ 'header-background': showHeaderBackground }"
     :style="{
       marginTop: marginTop + 'px',
-      height: total ? 'calc(100% - 90px)' : 'calc(100% - 25px)'
+      height: getTableHeight()
     }"
   >
     <div class="table-container">
@@ -60,7 +60,7 @@
         :pager-count="isMobile ? 5 : 7"
         :total="total"
         :background="true"
-        :size="paginationSize"
+        :size="tableSizeComputed"
         :layout="paginationLayoutComputed"
         @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
@@ -111,7 +111,7 @@ interface TableProps {
   /** 只有一页时是否隐藏分页器 */
   hideOnSinglePage?: boolean
   /** 分页器的对齐方式 */
-  paginationAlign?: 'left' | 'center' | 'right'
+  paginationAlign?: 'left' | 'left-margin-right' | 'center' | 'right' | 'right-margin-left'
   /** 分页器的大小 */
   paginationSize?: 'small' | 'default' | 'large'
   /** 分页器的布局 */
@@ -141,7 +141,7 @@ const props = withDefaults(defineProps<TableProps>(), {
   pageSize: 10,
   hideOnSinglePage: true,
   pageSizes: () => [10, 20, 30, 50],
-  paginationAlign: 'center',
+  paginationAlign: 'right',
   paginationSize: 'default',
   paginationLayout: '',
   showHeaderBackground: null,
@@ -278,6 +278,19 @@ const handleSizeChange = (val: number) => {
 const handleCurrentChange = (val: number) => {
   emit('current-change', val)
 }
+
+// 根据表格尺寸计算高度
+const getTableHeight = () => {
+  if (!props.total) return 'calc(100% - 25px)'
+
+  if (tableSizeComputed.value === 'small') {
+    return 'calc(100% - 80px)' // 小尺寸，增加高度
+  } else if (tableSizeComputed.value === 'large') {
+    return 'calc(100% - 100px)' // 大尺寸，减少高度
+  } else {
+    return 'calc(100% - 90px)' // 默认尺寸
+  }
+}
 </script>
 
 <style lang="scss" scoped>
@@ -298,12 +311,22 @@ const handleCurrentChange = (val: number) => {
       justify-content: flex-start;
     }
 
+    &.left-margin-right {
+      justify-content: flex-start;
+      margin-left: 25px;
+    }
+
     &.center {
       justify-content: center;
     }
 
     &.right {
       justify-content: flex-end;
+    }
+
+    &.right-margin-left {
+      justify-content: flex-end;
+      margin-right: 25px;
     }
   }
 

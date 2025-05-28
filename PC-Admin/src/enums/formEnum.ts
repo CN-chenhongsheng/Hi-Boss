@@ -37,8 +37,8 @@ export const TableSmallEnum: Record<number, number> = {
 // 表格默认尺寸
 export const TableDefaultEnum: Record<number, number> = {
   1: 100,
-  2: 140,
-  3: 180
+  2: 130,
+  3: 170
 }
 
 // 表格大尺寸
