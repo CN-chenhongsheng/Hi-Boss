@@ -53,8 +53,7 @@ export function useRecycleColumns(
             onClick: () => onDetail(row)
           }),
           h(ArtButtonTable, {
-            type: 'edit',
-            title: '恢复',
+            type: 'restore',
             onClick: () => onRecover(row)
           }),
           h(ArtButtonTable, {

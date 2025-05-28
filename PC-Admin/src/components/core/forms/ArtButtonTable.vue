@@ -8,36 +8,48 @@
   <div
     v-else-if="tableSize === TableSizeEnum.DEFAULT"
     :class="['btn-text', buttonColor]"
+    :style="buttonStyle"
     @click="handleClick"
+    @mouseenter="handleMouseEnter"
+    @mouseleave="handleMouseLeave"
   >
-    <i v-if="iconContent" class="iconfont-sys" v-html="iconContent" :style="iconStyle" />
+    <i v-if="iconContent" class="iconfont-sys" v-html="currentIconContent" :style="iconStyle" />
   </div>
   <!-- 大尺寸表格：图标+文字 -->
   <div
     v-else-if="tableSize === TableSizeEnum.LARGE"
     :class="['btn-text-large', buttonColor]"
+    :style="buttonStyle"
     @click="handleClick"
+    @mouseenter="handleMouseEnter"
+    @mouseleave="handleMouseLeave"
   >
-    <i v-if="iconContent" class="iconfont-sys" v-html="iconContent" :style="iconStyle" />
+    <i v-if="iconContent" class="iconfont-sys" v-html="currentIconContent" :style="iconStyle" />
     <span class="btn-text-label">{{ buttonText }}</span>
   </div>
 </template>
 
 <script setup lang="ts">
 import { BgColorEnum } from '@/enums/appEnum'
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useTableStore } from '@/store/modules/table'
 import { TableSizeEnum } from '@/enums/formEnum'
+import { getDarkColor } from '@/utils/colors'
+
 const props = withDefaults(
   defineProps<{
     text?: string
-    type?: 'add' | 'edit' | 'delete' | 'more' | 'detail'
+    type?: 'add' | 'edit' | 'delete' | 'more' | 'detail' | 'restore'
     icon?: string // 自定义图标
+    hoverIcon?: string // 自定义悬停时的图标
     iconClass?: BgColorEnum // 自定义按钮背景色、文字颜色
     iconColor?: string // 外部传入的图标文字颜色
     iconBgColor?: string // 外部传入的图标背景色
+    darkLevel?: number // 颜色加深程度，默认0.2
   }>(),
-  {}
+  {
+    darkLevel: 0.2
+  }
 )
 const emit = defineEmits<{
   (e: 'click'): void
@@ -47,16 +59,42 @@ const tableStore = useTableStore()
 const tableSize = computed(() => tableStore.tableSize)
 // 默认按钮配置：type 对应的图标和默认颜色
 const defaultButtons = [
+  {
+    type: 'detail',
+    icon: '&#xe73d;',
+    hoverIcon: '&#xe73c;',
+    color: BgColorEnum.SUCCESS,
+    text: '详情'
+  },
   { type: 'add', icon: '&#xe602;', color: BgColorEnum.PRIMARY, text: '添加' },
+  { type: 'restore', icon: '&#xe6be;', color: BgColorEnum.WARNING, text: '恢复' },
   { type: 'edit', icon: '&#xe642;', color: BgColorEnum.SECONDARY, text: '编辑' },
   { type: 'delete', icon: '&#xe783;', color: BgColorEnum.ERROR, text: '删除' },
-  { type: 'detail', icon: '&#xe73c;', color: BgColorEnum.SUCCESS, text: '详情' },
   { type: 'more', icon: '&#xe6df;', color: '', text: '更多' }
 ] as const
+
+// 鼠标悬停状态
+const isHovered = ref(false)
+
 // 计算最终使用的图标：优先使用外部传入的 icon，否则根据 type 获取默认图标
 const iconContent = computed(() => {
   return props.icon || defaultButtons.find((btn) => btn.type === props.type)?.icon || ''
 })
+
+// 计算悬停时的图标：优先使用外部传入的 hoverIcon，否则查找按钮类型默认的 hoverIcon
+const hoverIconContent = computed(() => {
+  return (
+    props.hoverIcon ||
+    defaultButtons.find((btn) => btn.type === props.type)?.hoverIcon ||
+    iconContent.value
+  ) // 如果没有定义悬停图标，则使用默认图标
+})
+
+// 根据悬停状态确定当前显示的图标
+const currentIconContent = computed(() => {
+  return isHovered.value && props.type === 'detail' ? hoverIconContent.value : iconContent.value
+})
+
 // 计算按钮的背景色：优先使用外部传入的 iconClass，否则根据 type 选默认颜色
 const buttonColor = computed(() => {
   return props.iconClass || defaultButtons.find((btn) => btn.type === props.type)?.color || ''
@@ -72,8 +110,31 @@ const iconStyle = computed(() => {
     ...(props.iconBgColor ? { backgroundColor: props.iconBgColor } : {})
   }
 })
+
+// 计算按钮的CSS变量，用于hover效果
+const buttonStyle = computed(() => {
+  if (!props.iconBgColor) return {}
+
+  // 计算更深的颜色用于hover效果
+  const darkerColor = getDarkColor(props.iconBgColor, props.darkLevel)
+
+  return {
+    '--hover-bg-color': darkerColor
+  }
+})
+
 const handleClick = () => {
   emit('click')
+}
+
+// 鼠标进入事件
+const handleMouseEnter = () => {
+  isHovered.value = true
+}
+
+// 鼠标离开事件
+const handleMouseLeave = () => {
+  isHovered.value = false
 }
 </script>
 
@@ -103,9 +164,6 @@ const handleClick = () => {
   border-radius: 6px;
 
   &:hover {
-    color: var(--main-color) !important;
-    background-color: rgba(var(--art-gray-300-rgb), 0.6) !important;
-
     .iconfont-sys {
       transform: scale(1.2);
     }
@@ -123,9 +181,8 @@ const handleClick = () => {
   display: inline-block;
   margin-right: 12px;
   font-size: 13px;
-  color: #666;
+  color: var(--main-color);
   text-decoration: none;
-  color: var(--main-color) !important;
   transition: transform 0.3s ease;
 
   &:hover {
@@ -148,8 +205,6 @@ const handleClick = () => {
   border-radius: 6px;
 
   &:hover {
-    color: var(--main-color) !important;
-    background-color: rgba(var(--art-gray-300-rgb), 0.6) !important;
     .iconfont-sys {
       transform: scale(1.2);
     }
@@ -166,4 +221,3 @@ const handleClick = () => {
   }
 }
 </style>
-
