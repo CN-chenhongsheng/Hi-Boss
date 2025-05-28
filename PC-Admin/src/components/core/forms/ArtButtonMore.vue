@@ -14,21 +14,21 @@
 </template>
 
 <script setup lang="ts">
-  export interface ButtonMoreItem {
-    key: string | number
-    label: string
-    disabled?: boolean
-  }
+export interface ButtonMoreItem {
+  key: string | number
+  label: string
+  disabled?: boolean
+}
 
-  defineProps<{
-    list: ButtonMoreItem[]
-  }>()
+defineProps<{
+  list: ButtonMoreItem[]
+}>()
 
-  const emit = defineEmits<{
-    (e: 'click', item: ButtonMoreItem): void
-  }>()
+const emit = defineEmits<{
+  (e: 'click', item: ButtonMoreItem): void
+}>()
 
-  const handleClick = (item: ButtonMoreItem) => {
-    emit('click', item)
-  }
+const handleClick = (item: ButtonMoreItem) => {
+  emit('click', item)
+}
 </script>
