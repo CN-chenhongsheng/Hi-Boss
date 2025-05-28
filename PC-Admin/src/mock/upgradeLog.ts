@@ -2,6 +2,11 @@
 
 export const upgradeLogList = ref([
   {
+    version: 'v2.2.76',
+    title: 'ArtButtonTable 按钮增加 hover 效果',
+    date: '2025-05-28'
+  },
+  {
     version: 'v2.2.75',
     title: '回收站页面优化',
     date: '2025-05-28'
