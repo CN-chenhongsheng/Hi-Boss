@@ -50,15 +50,8 @@ import { useUserColumns } from './composables/useUserColumns'
 import UserForm from './components/UserForm.vue'
 
 // 使用用户数据管理composable
-const {
-  loading,
-  dialogType,
-  dialogVisible,
-  tableData,
-  formData,
-  getTableData,
-  handleOperation
-} = useUserData()
+const { loading, dialogType, dialogVisible, tableData, formData, getTableData, handleOperation } =
+  useUserData()
 
 // 使用用户搜索composable
 const { formFilters, formItems, handleSearch, handleReset } = useUserSearch(getTableData)

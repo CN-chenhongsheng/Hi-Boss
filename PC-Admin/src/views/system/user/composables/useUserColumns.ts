@@ -1,5 +1,3 @@
-import { h } from 'vue'
-import { ElTag } from 'element-plus'
 import { useCheckedColumns } from '@/composables/useCheckedColumns'
 import ArtButtonTable from '@/components/core/forms/ArtButtonTable.vue'
 
@@ -76,7 +74,6 @@ export function useUserColumns(handleOperation: (type: string, row?: any) => voi
     {
       prop: 'operation',
       label: '操作',
-      width: 150,
       formatter: (row: any) => {
         return h('div', [
           h(ArtButtonTable, {
@@ -96,4 +93,4 @@ export function useUserColumns(handleOperation: (type: string, row?: any) => voi
     columnChecks,
     columns
   }
-} 
+}

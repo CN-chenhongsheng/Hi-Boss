@@ -46,7 +46,6 @@ export function useRecycleColumns(
     {
       prop: 'operation',
       label: '操作',
-      width: 180,
       formatter: (row: RecycleItem) => {
         return h('div', [
           h(ArtButtonTable, {

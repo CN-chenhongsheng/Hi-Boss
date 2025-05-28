@@ -1,6 +1,6 @@
 // 动态列配置
-
-import { ref, computed } from 'vue'
+import { useTableStore } from '@/store/modules/table'
+import { TableMaxWidthEnum, TableMinWidthEnum, TableSizeMap } from '@/enums/formEnum'
 
 // 定义列配置接口
 export interface ColumnOption {
@@ -27,6 +27,10 @@ export interface ColumnCheck {
 const SELECTION_KEY = '__selection__'
 const EXPAND_KEY = '__expand__'
 const INDEX_KEY = '__index__'
+
+// 获取表格大小设置
+const tableStore = useTableStore()
+const tableSize = computed(() => tableStore.tableSize)
 
 // 工具函数：根据列配置生成列选择状态
 const getColumnChecks = (columns: ColumnOption[]): ColumnCheck[] => {
@@ -72,21 +76,34 @@ export function useCheckedColumns(columnsFactory: () => ColumnOption[]) {
 
   // 当前显示的列
   const columns = computed(() => {
-    const cols = allColumns
     const columnMap = new Map<string, ColumnOption>()
 
-    cols.forEach((column) => {
-      if (column.type === 'selection') {
-        columnMap.set(SELECTION_KEY, column)
-      } else if (column.type === 'expand') {
-        columnMap.set(EXPAND_KEY, column)
-      } else if (column.type === 'index') {
-        columnMap.set(INDEX_KEY, column)
+    allColumns.forEach((column) => {
+      // 使用映射关系确定列的键
+      let key = column.prop as string
+      if (column.type) {
+        const typeKeyMap: Record<string, string> = {
+          selection: SELECTION_KEY,
+          expand: EXPAND_KEY,
+          index: INDEX_KEY
+        }
+        key = typeKeyMap[column.type] || key
+      }
+
+      if (column.prop === 'operation') {
+        const num = (column as any).formatter()?.children?.length
+        // 根据operation列的实际情况设置适当的宽度
+        columnMap.set(key, {
+          ...column,
+          width: TableSizeMap[tableSize.value][num] as number,
+          minWidth: TableMinWidthEnum[tableSize.value] as number,
+          maxWidth: TableMaxWidthEnum[tableSize.value] as number
+        })
       } else {
-        columnMap.set(column.prop as string, column)
+        columnMap.set(key, column)
       }
     })
-
+    console.log(columnMap)
     return columnChecks.value
       .filter((item) => item.checked)
       .map((check) => columnMap.get(check.prop) as ColumnOption)

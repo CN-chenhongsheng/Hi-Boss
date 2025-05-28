@@ -4,9 +4,7 @@ import { MenuListType } from '@/types/menu'
 import ArtButtonTable from '@/components/core/forms/ArtButtonTable.vue'
 import ArtStatusSwitch from '@/components/core/forms/ArtStatusSwitch.vue'
 
-export function useMenuColumns(
-  handleOperation: (type: string, row?: any, lock?: boolean) => void
-) {
+export function useMenuColumns(handleOperation: (type: string, row?: any, lock?: boolean) => void) {
   // 构建菜单类型标签
   const buildMenuTypeTag = (row: MenuListType) => {
     if (row.children && row.children.length > 0) {
@@ -123,7 +121,6 @@ export function useMenuColumns(
     {
       prop: 'operation',
       label: '操作',
-      width: 180,
       formatter: (row: MenuListType) => {
         return h('div', [
           h(ArtButtonTable, {
@@ -150,4 +147,4 @@ export function useMenuColumns(
     columnChecks,
     columns
   }
-} 
+}

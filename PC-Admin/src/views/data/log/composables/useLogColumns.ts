@@ -17,7 +17,6 @@ export function useLogColumns(handleOperation: (type: string, row?: any) => void
     {
       prop: 'operation',
       label: '操作',
-      width: 150,
       formatter: (row: LogItem) => {
         return h('div', [
           h(ArtButtonTable, {

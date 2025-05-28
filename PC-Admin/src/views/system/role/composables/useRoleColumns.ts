@@ -40,7 +40,6 @@ export function useRoleColumns(handleOperation: (type: string, row?: any) => voi
     {
       prop: 'operation',
       label: '操作',
-      width: 180,
       formatter: (row) => {
         return h('div', { class: 'operation-btns' }, [
           h(ArtButtonTable, {
@@ -64,4 +63,4 @@ export function useRoleColumns(handleOperation: (type: string, row?: any) => voi
     columnChecks,
     columns
   }
-} 
+}
