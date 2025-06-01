@@ -40,7 +40,7 @@ import LoginForm from './components/LoginForm.vue'
   margin: auto;
   overflow: hidden;
   background-size: cover;
-  background-color: #ffffffe0;
+  background-color: #ffffff1c;
   filter: drop-shadow(0 0 10px rgba(0, 0, 0, 0.1));
   backdrop-filter: blur(10px);
   border-radius: 10px;

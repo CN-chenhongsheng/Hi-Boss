@@ -11,7 +11,7 @@
   >
     <div
       class="dv_progress_bar"
-      :class="{ goFirst2: isOk }"
+      :class="{ goFirst2: isOk && !value }"
       ref="progressBar"
       :style="progressBarStyle"
     >
@@ -24,7 +24,7 @@
 
     <div
       class="dv_handler dv_handler_bg"
-      :class="{ goFirst: isOk }"
+      :class="{ goFirst: isOk && !value, success: value }"
       @mousedown="dragStart"
       @touchstart="dragStart"
       ref="handler"
@@ -55,7 +55,7 @@ interface PropsType {
 }
 const props = withDefaults(defineProps<PropsType>(), {
   value: false,
-  width: 260,
+  width: 260, // 默认宽度，但会被内部计算的实际宽度覆盖
   height: 38,
   text: '按住滑块拖动',
   successText: 'success',
@@ -86,6 +86,29 @@ const messageRef = ref()
 const handler = ref()
 const progressBar = ref()
 
+// 实际宽度 - 响应式
+const actualWidth = ref(props.width)
+
+// 监听传入的宽度变化
+watch(() => props.width, (newWidth) => {
+  if (newWidth && newWidth > 0) {
+    actualWidth.value = newWidth
+  } else if (dragVerify.value) {
+    // 如果传入宽度无效，则获取容器宽度
+    nextTick(() => updateElementWidth())
+  }
+}, { immediate: true })
+
+// 更新元素宽度
+const updateElementWidth = () => {
+  if (dragVerify.value) {
+    const containerWidth = dragVerify.value.parentElement?.clientWidth
+    if (containerWidth && containerWidth > 0) {
+      actualWidth.value = containerWidth
+    }
+  }
+}
+
 // 禁止横向滑动
 let startX: number, startY: number, moveX: number, moveY: number
 
@@ -108,9 +131,33 @@ document.addEventListener('touchmove', onTouchMove, { passive: false })
 
 onMounted(() => {
   dragVerify.value?.style.setProperty('--textColor', props.textColor)
-  dragVerify.value?.style.setProperty('--width', Math.floor(props.width / 2) + 'px')
-  dragVerify.value?.style.setProperty('--pwidth', -Math.floor(props.width / 2) + 'px')
+  
+  // 组件挂载后获取实际宽度
+  updateElementWidth()
+  
+  // 监听窗口大小变化
+  window.addEventListener('resize', updateElementWidth)
 
+  // 设置CSS变量，使用实际宽度
+  watchEffect(() => {
+    if (dragVerify.value) {
+      dragVerify.value.style.setProperty('--width', Math.floor(actualWidth.value / 2) + 'px')
+      dragVerify.value.style.setProperty('--pwidth', -Math.floor(actualWidth.value / 2) + 'px')
+      
+      // 如果初始状态就是已验证通过，设置正确的样式
+      if (props.value && handler.value && progressBar.value && messageRef.value) {
+        nextTick(() => {
+          handler.value.style.left = actualWidth.value - props.height + 'px'
+          progressBar.value.style.width = '100%'
+          progressBar.value.style.background = props.completedBg
+          messageRef.value.style['-webkit-text-fill-color'] = 'unset'
+          messageRef.value.style.animation = 'slidetounlock2 3s infinite'
+          messageRef.value.style.color = '#fff'
+        })
+      }
+    }
+  })
+  
   document.addEventListener('touchstart', onTouchStart)
   document.addEventListener('touchmove', onTouchMove, { passive: false })
 })
@@ -118,30 +165,37 @@ onMounted(() => {
 onBeforeUnmount(() => {
   document.removeEventListener('touchstart', onTouchStart)
   document.removeEventListener('touchmove', onTouchMove)
+  window.removeEventListener('resize', updateElementWidth)
 })
-const handlerStyle = {
+
+// 计算样式，使用实际宽度
+const handlerStyle = computed(() => ({
   left: '0',
-  width: props.height + 'px',
-  height: props.height + 'px',
+  width: `${props.height}px`,
+  height: `${props.height}px`,
   background: props.handlerBg
-}
-const dragVerifyStyle = {
-  width: props.width + 'px',
-  height: props.height + 'px',
-  lineHeight: props.height + 'px',
+}))
+
+const dragVerifyStyle = computed(() => ({
+  width: `${actualWidth.value}px`,
+  height: `${props.height}px`,
+  lineHeight: `${props.height}px`,
   background: props.background,
   borderRadius: props.circle ? props.height / 2 + 'px' : props.radius
-}
-const progressBarStyle = {
+}))
+
+const progressBarStyle = computed(() => ({
   background: props.progressBarBg,
-  height: props.height + 'px',
+  height: `${props.height}px`,
   borderRadius: props.circle ? props.height / 2 + 'px 0 0 ' + props.height / 2 + 'px' : props.radius
-}
-const textStyle = {
-  height: props.height + 'px',
-  width: props.width + 'px',
+}))
+
+const textStyle = computed(() => ({
+  height: `${props.height}px`,
+  width: `${actualWidth.value}px`,
   fontSize: props.textSize
-}
+}))
+
 const message = computed(() => {
   return props.value ? props.successText : props.text
 })
@@ -158,12 +212,12 @@ const dragStart = (e: any) => {
 const dragMoving = (e: any) => {
   if (state.isMoving && !props.value) {
     let _x = (e.pageX || e.touches[0].pageX) - state.x
-    if (_x > 0 && _x <= props.width - props.height) {
+    if (_x > 0 && _x <= actualWidth.value - props.height) {
       handler.value.style.left = _x + 'px'
       progressBar.value.style.width = _x + props.height / 2 + 'px'
-    } else if (_x > props.width - props.height) {
-      handler.value.style.left = props.width - props.height + 'px'
-      progressBar.value.style.width = props.width - props.height / 2 + 'px'
+    } else if (_x > actualWidth.value - props.height) {
+      handler.value.style.left = actualWidth.value - props.height + 'px'
+      progressBar.value.style.width = actualWidth.value - props.height / 2 + 'px'
       passVerify()
     }
   }
@@ -171,7 +225,7 @@ const dragMoving = (e: any) => {
 const dragFinish = (e: any) => {
   if (state.isMoving && !props.value) {
     let _x = (e.pageX || e.changedTouches[0].pageX) - state.x
-    if (_x < props.width - props.height) {
+    if (_x < actualWidth.value - props.height) {
       state.isOk = true
       handler.value.style.left = '0'
       handler.value.style.transition = 'all 0.2s'
@@ -179,8 +233,8 @@ const dragFinish = (e: any) => {
       state.isOk = false
     } else {
       handler.value.style.transition = 'none'
-      handler.value.style.left = props.width - props.height + 'px'
-      progressBar.value.style.width = props.width - props.height / 2 + 'px'
+      handler.value.style.left = actualWidth.value - props.height + 'px'
+      progressBar.value.style.width = actualWidth.value - props.height / 2 + 'px'
       passVerify()
     }
     state.isMoving = false
@@ -189,10 +243,19 @@ const dragFinish = (e: any) => {
 const passVerify = () => {
   emit('update:value', true)
   state.isMoving = false
+  
+  // 设置进度条样式
   progressBar.value.style.background = props.completedBg
+  progressBar.value.style.width = '100%'
+  
+  // 设置文本样式
   messageRef.value.style['-webkit-text-fill-color'] = 'unset'
   messageRef.value.style.animation = 'slidetounlock2 3s infinite'
   messageRef.value.style.color = '#fff'
+  
+  // 确保滑块停留在右侧
+  handler.value.style.left = actualWidth.value - props.height + 'px'
+  
   emit('passCallback')
 }
 const reset = () => {
@@ -233,6 +296,12 @@ defineExpose({
     .el-icon-circle-check {
       margin-top: 9px;
       color: #6c6;
+    }
+    
+    &.success {
+      // 验证成功时确保滑块在右侧
+      left: auto !important;
+      right: 0 !important;
     }
   }
 

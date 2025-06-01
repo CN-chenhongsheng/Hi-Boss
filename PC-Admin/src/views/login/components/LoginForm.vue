@@ -9,7 +9,13 @@
       @keyup.enter="handleSubmit"
       style="margin-top: 25px"
     >
-      <el-form-item prop="username">
+      <el-form-item>
+        <el-select v-model="formData.tenant" placeholder="请选择租户" style="width: 100%">
+          <el-option label="测试租户一" value="tenant1" />
+          <el-option label="测试租户二" value="tenant2" />
+        </el-select>
+      </el-form-item>
+      <el-form-item prop="username" ref="formItemRef">
         <el-input
           :placeholder="$t('login.placeholder[0]')"
           v-model.trim="formData.username"
@@ -24,12 +30,12 @@
           autocomplete="off"
         />
       </el-form-item>
-      <div class="drag-verify">
+      <div class="drag-verify" ref="dragVerifyContainerRef">
         <div class="drag-verify-content" :class="{ error: !isPassing && isClickPass }">
           <ArtDragVerify
             ref="dragVerify"
             v-model:value="isPassing"
-            :width="width < 500 ? 328 : 438"
+            :width="dragWidth"
             :text="$t('login.sliderText')"
             textColor="var(--art-gray-800)"
             :successText="$t('login.sliderSuccessText')"
@@ -80,6 +86,8 @@ import type { FormInstance, FormRules } from 'element-plus'
 
 const { t } = useI18n()
 const dragVerify = ref()
+const formItemRef = ref()
+const dragVerifyContainerRef = ref()
 const userStore = useUserStore()
 const router = useRouter()
 const isPassing = ref(false)
@@ -90,7 +98,8 @@ const formRef = ref<FormInstance>()
 const formData = reactive({
   username: AppConfig.systemInfo.login.username,
   password: AppConfig.systemInfo.login.password,
-  rememberPassword: true
+  rememberPassword: true,
+  tenant: 'tenant1'
 })
 
 const rules = computed<FormRules>(() => ({
@@ -100,6 +109,60 @@ const rules = computed<FormRules>(() => ({
 
 const loading = ref(false)
 const { width } = useWindowSize()
+// 初始宽度设置为0，组件内部会自动计算实际宽度
+const dragWidth = ref(0)
+
+// 更新滑块宽度
+const updateDragWidth = () => {
+  if (dragVerifyContainerRef.value) {
+    // 直接获取容器宽度，这样更准确
+    const containerWidth = dragVerifyContainerRef.value.clientWidth
+    // 确保宽度有效
+    if (containerWidth > 0) {
+      dragWidth.value = containerWidth
+      // 如果滑块组件实例存在，且有reset方法，重新设置后需要重置一下
+      if (dragVerify.value && typeof dragVerify.value.reset === 'function' && isPassing.value === false) {
+        nextTick(() => {
+          dragVerify.value.reset()
+        })
+      }
+    }
+  }
+}
+
+// 使用ResizeObserver监听元素尺寸变化
+let resizeObserver: ResizeObserver | null = null
+
+onMounted(() => {
+  // 等待DOM更新
+  nextTick(() => {
+    // 首先更新一次
+    updateDragWidth()
+    
+    // 使用ResizeObserver监听容器尺寸变化
+    if (dragVerifyContainerRef.value && window.ResizeObserver) {
+      resizeObserver = new ResizeObserver(() => {
+        updateDragWidth()
+      })
+      resizeObserver.observe(dragVerifyContainerRef.value)
+    }
+  })
+})
+
+// 监听窗口大小变化，作为备用机制
+watch(() => width.value, () => {
+  nextTick(() => {
+    updateDragWidth()
+  })
+}, { immediate: true })
+
+// 组件卸载时清理ResizeObserver
+onBeforeUnmount(() => {
+  if (resizeObserver) {
+    resizeObserver.disconnect()
+    resizeObserver = null
+  }
+})
 
 const onPass = () => {}
 
@@ -200,6 +263,7 @@ const showLoginSuccessNotice = () => {
     position: relative;
     padding-bottom: 20px;
     margin-top: 25px;
+    width: 100%; /* 确保容器占满全宽 */
 
     .drag-verify-content {
       position: relative;
@@ -208,6 +272,7 @@ const showLoginSuccessNotice = () => {
       user-select: none;
       border-radius: 8px;
       transition: all 0.3s;
+      width: 100%; /* 确保内容占满容器宽度 */
 
       &.error {
         border-color: #f56c6c;
