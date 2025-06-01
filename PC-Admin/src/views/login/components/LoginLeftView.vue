@@ -51,7 +51,10 @@ import { computed } from 'vue'
 
 // 获取主题色
 const primaryColor = computed(() => {
-  return getComputedStyle(document.documentElement).getPropertyValue('--el-color-primary').trim() || '#5D87FF'
+  return (
+    getComputedStyle(document.documentElement).getPropertyValue('--el-color-primary').trim() ||
+    '#5D87FF'
+  )
 })
 </script>
 
@@ -61,6 +64,7 @@ const primaryColor = computed(() => {
 
   .bg-wrap {
     height: 100%;
+    background-size: cover;
 
     .filtered-bg {
       height: 100%;

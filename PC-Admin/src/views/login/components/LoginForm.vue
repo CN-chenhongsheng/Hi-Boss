@@ -245,26 +245,85 @@ const showLoginSuccessNotice = () => {
   height: 100%;
   padding: 40px 0;
   width: 100%;
-
+  transform-style: preserve-3d;
+  
+  // 标题和副标题保持3D效果
   .title {
     margin-left: -2px;
     font-size: 34px;
     font-weight: 600;
     color: var(--art-text-gray-900) !important;
+    transform: translateZ(30px);
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.12);
+    transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
 
   .sub-title {
     margin-top: 10px;
     font-size: 14px;
     color: var(--art-text-gray-500) !important;
+    transform: translateZ(20px);
+    transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  
+  // 表单项容器效果
+  :deep(.el-form) {
+    position: relative;
+    z-index: 1;
+  }
+  
+  // 增强表单项浮起效果 - 使用附加的装饰元素
+  :deep(.el-form-item) {
+    position: relative;
+    margin-bottom: 22px;
+    
+    // 使用装饰元素实现3D效果
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: transparent;
+      border-radius: 8px;
+      z-index: -1;
+      transform: translateZ(10px);
+      transition: box-shadow 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), 
+                 transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+      pointer-events: none;
+    }
+    
+    &:hover::before {
+      transform: translateZ(15px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
   }
 
   .drag-verify {
     position: relative;
     padding-bottom: 20px;
     margin-top: 25px;
-    width: 100%; /* 确保容器占满全宽 */
-
+    width: 100%;
+    z-index: 10;
+    
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: -1;
+      transform: translateZ(10px);
+      transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+      pointer-events: none;
+    }
+    
+    &:hover::before {
+      transform: translateZ(15px);
+    }
+    
     .drag-verify-content {
       position: relative;
       z-index: 2;
@@ -272,7 +331,7 @@ const showLoginSuccessNotice = () => {
       user-select: none;
       border-radius: 8px;
       transition: all 0.3s;
-      width: 100%; /* 确保内容占满容器宽度 */
+      width: 100%;
 
       &.error {
         border-color: #f56c6c;
@@ -300,6 +359,25 @@ const showLoginSuccessNotice = () => {
     margin-top: 10px;
     font-size: 14px;
     color: var(--art-text-gray-500);
+    position: relative;
+    z-index: 10;
+    
+    &::before {
+      content: '';
+      position: absolute;
+      top: -5px;
+      left: -10px;
+      right: -10px;
+      bottom: -5px;
+      z-index: -1;
+      transform: translateZ(10px);
+      transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+      pointer-events: none;
+    }
+    
+    &:hover::before {
+      transform: translateZ(15px);
+    }
   }
 
   .login-btn {
@@ -307,6 +385,51 @@ const showLoginSuccessNotice = () => {
     height: 40px !important;
     color: #fff;
     border: 0;
+    position: relative;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+    z-index: 20;
+    
+    // 使用额外元素实现3D效果
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: -1;
+      transform: translateZ(20px);
+      transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), 
+                 box-shadow 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+      pointer-events: none;
+      border-radius: inherit;
+    }
+    
+    &:hover::before {
+      transform: translateZ(25px);
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+    }
+  }
+  
+  // 输入框样式
+  :deep(.el-input__wrapper), :deep(.el-select__wrapper) {
+    box-shadow: none;
+    border-radius: 8px;
+    transition: box-shadow 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+    
+    &:focus-within {
+      box-shadow: 0 0 0 1px var(--el-input-focus-border-color, var(--el-color-primary)) inset, 0 5px 15px rgba(0,0,0,0.05);
+    }
+  }
+  
+  .drag_verify {
+    border: none;
+    transition: box-shadow 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+    &:hover {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
   }
 }
 </style> 

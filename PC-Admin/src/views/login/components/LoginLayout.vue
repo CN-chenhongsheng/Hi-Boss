@@ -151,6 +151,7 @@ defineProps({
       width: 100%;
       overflow: hidden;
       z-index: 0;
+      filter: blur(5px);
     }
   }
 }
@@ -165,6 +166,7 @@ defineProps({
       width: 100%;
       .filtered-bg,
       .svg-container {
+        filter: none;
         bottom: 0;
       }
     }
