@@ -68,7 +68,13 @@ const defaultButtons = [
   },
   { type: 'add', icon: '&#xe602;', color: BgColorEnum.PRIMARY, text: '添加' },
   { type: 'restore', icon: '&#xe6be;', color: BgColorEnum.WARNING, text: '恢复' },
-  { type: 'edit', icon: '&#xe642;', color: BgColorEnum.SECONDARY, text: '编辑' },
+  {
+    type: 'edit',
+    icon: '&#xe642;',
+    hoverIcon: '&#xe65f;',
+    color: BgColorEnum.SECONDARY,
+    text: '编辑'
+  },
   { type: 'delete', icon: '&#xe783;', color: BgColorEnum.ERROR, text: '删除' },
   { type: 'more', icon: '&#xe6df;', color: '', text: '更多' }
 ] as const
@@ -83,16 +89,17 @@ const iconContent = computed(() => {
 
 // 计算悬停时的图标：优先使用外部传入的 hoverIcon，否则查找按钮类型默认的 hoverIcon
 const hoverIconContent = computed(() => {
+  const foundButton = defaultButtons.find((btn) => btn.type === props.type)
   return (
     props.hoverIcon ||
-    defaultButtons.find((btn) => btn.type === props.type)?.hoverIcon ||
+    (foundButton && 'hoverIcon' in foundButton ? foundButton.hoverIcon : null) ||
     iconContent.value
   ) // 如果没有定义悬停图标，则使用默认图标
 })
 
 // 根据悬停状态确定当前显示的图标
 const currentIconContent = computed(() => {
-  return isHovered.value && props.type === 'detail' ? hoverIconContent.value : iconContent.value
+  return isHovered.value && hoverIconContent.value ? hoverIconContent.value : iconContent.value
 })
 
 // 计算按钮的背景色：优先使用外部传入的 iconClass，否则根据 type 选默认颜色

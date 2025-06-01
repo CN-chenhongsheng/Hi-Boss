@@ -51,5 +51,6 @@ export const getIframeRoutes = () => {
  * @returns 格式化后的菜单标题
  */
 export const formatMenuTitle = (title: string) => {
+  if (!title) return ''
   return title.startsWith('menus.') ? $t(title) : title
 }

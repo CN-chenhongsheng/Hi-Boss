@@ -124,7 +124,6 @@
     "sliderText": "Please slide to verify",
     "sliderSuccessText": "Verification successful",
     "rememberPwd": "Remember password",
-    "forgetPwd": "Forgot password",
     "btnText": "Login",
     "noAccount": "No account yet?",
     "register": "Register",
@@ -132,13 +131,6 @@
       "title": "Login successful",
       "message": "Welcome back"
     }
-  },
-  "forgetPassword": {
-    "title": "Forgot password?",
-    "subTitle": "Enter your email to reset your password",
-    "placeholder": "Please enter your email",
-    "submitBtnText": "Submit",
-    "backBtnText": "Back"
   },
   "register": {
     "title": "Create account",
@@ -287,9 +279,6 @@
     },
     "register": {
       "title": "Register"
-    },
-    "forgetPassword": {
-      "title": "Forget Password"
     },
     "outside": {
       "title": "Outside"
