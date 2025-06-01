@@ -71,7 +71,9 @@ const staticRoutes: AppRouteRecordRaw[] = [
     component: () => import('@views/login/index.vue'),
     name: 'login',
     meta: {
-      hidden: true
+      title: 'menus.login.title',
+      isHideTab: true,
+      setTheme: true
     }
   },
   {
