@@ -12,6 +12,8 @@
 .el-menu--popup-container {
   .el-menu--popup {
     padding: 8px;
+    box-shadow: none;
+    background-color: transparent;
 
     .el-sub-menu__title:hover,
     .el-menu-item:hover {
@@ -60,6 +62,8 @@
   .el-menu--popup-container {
     .el-menu--popup {
       padding: 8px;
+      box-shadow: none;
+      background-color: transparent;
 
       .el-sub-menu__title:hover,
       .el-menu-item:hover {

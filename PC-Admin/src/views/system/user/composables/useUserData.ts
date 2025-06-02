@@ -7,6 +7,8 @@ export function useUserData() {
   const dialogType = ref('add')
   const dialogVisible = ref(false)
   const tableData = ref<any[]>([])
+  // 添加选中行数据数组
+  const selectedRows = ref<any[]>([])
 
   // 表单数据
   const formData = reactive({
@@ -23,6 +25,36 @@ export function useUserData() {
       tableData.value = ACCOUNT_TABLE_DATA
       loading.value = false
     }, 500)
+  }
+
+  // 处理表格选择变更
+  const handleSelectionChange = (rows: any[]) => {
+    selectedRows.value = rows
+  }
+
+  // 处理批量删除
+  const handleBatchDelete = () => {
+    if (selectedRows.value.length === 0) {
+      ElMessage.warning('请至少选择一个用户')
+      return
+    }
+
+    ElMessageBox.confirm(
+      `确定要删除选中的 ${selectedRows.value.length} 个用户吗？`,
+      '批量删除',
+      {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'error'
+      }
+    ).then(() => {
+      // 实际项目中这里会调用批量删除API
+      ElMessage.success(`成功删除 ${selectedRows.value.length} 个用户`)
+      // 重新加载数据
+      getTableData()
+      // 清空选中
+      selectedRows.value = []
+    })
   }
 
   // 统一操作方法
@@ -65,7 +97,10 @@ export function useUserData() {
     dialogVisible,
     tableData,
     formData,
+    selectedRows,
     getTableData,
-    handleOperation
+    handleOperation,
+    handleSelectionChange,
+    handleBatchDelete
   }
 } 
