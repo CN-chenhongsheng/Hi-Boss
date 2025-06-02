@@ -64,9 +64,11 @@ const currentDictType = defineModel<string>('dictType', { required: true })
 // 导出DICTIONARY_DETAIL_DATA引用，便于外部调用
 const tableData = defineModel<DictionaryDetailItem[]>('details', { required: true })
 
+// 添加本地loading状态
+const loading = ref(false)
+
 // 使用字典数据操作composable
 const {
-  loading,
   selectedRows,
   dialogType,
   dialogDetailsVisible,
@@ -105,7 +107,6 @@ const handleRefresh = () => {
 
 const handleOpen = () => {
   console.log('字典数据列表对话框打开')
-  console.log(tableData.value)
 }
 
 const emit = defineEmits(['refresh'])
