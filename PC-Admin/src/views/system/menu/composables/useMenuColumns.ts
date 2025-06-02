@@ -108,12 +108,12 @@ export function useMenuColumns(handleOperation: (type: string, row?: any, lock?:
     },
     {
       prop: 'status',
-      label: '隐藏菜单',
+      label: '状态',
       formatter: (row) => {
         return h(ArtStatusSwitch, {
           modelValue: row.meta?.isHidden || false,
-          activeValue: true,
-          inactiveValue: false,
+          activeValue: false,
+          inactiveValue: true,
           needConfirm: true
         })
       }
