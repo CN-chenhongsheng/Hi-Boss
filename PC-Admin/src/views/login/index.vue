@@ -212,7 +212,7 @@ $padding: 40px;
   background-color: #ffffffe0;
   filter: drop-shadow(0 0 10px rgba(0, 0, 0, 0.1));
   backdrop-filter: blur(10px);
-  border-radius: 10px;
+  border-radius: 15px;
   z-index: 1;
   opacity: 0;
   transform-style: preserve-3d;
@@ -232,6 +232,7 @@ $padding: 40px;
     padding: 0 calc($padding / 2);
     min-height: 70vh;
     transform: translate(-50%, -50%) perspective(800px) rotateX(0deg) rotateY(0deg);
+    border-radius: 25px;
   }
 }
 </style>
