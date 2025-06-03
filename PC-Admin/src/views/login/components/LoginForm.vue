@@ -7,7 +7,6 @@
       :model="formData"
       :rules="rules"
       @keyup.enter="handleSubmit"
-      style="margin-top: 25px"
     >
       <el-form-item>
         <el-select v-model="formData.tenant" placeholder="请选择租户" style="width: 100%">
@@ -270,6 +269,8 @@ const showLoginSuccessNotice = () => {
   :deep(.el-form) {
     position: relative;
     z-index: 1;
+    margin-top: 25px;
+    transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
   
   // 增强表单项浮起效果 - 使用附加的装饰元素
@@ -430,6 +431,21 @@ const showLoginSuccessNotice = () => {
 
     &:hover {
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+  }
+}
+
+@media only screen and (max-width: $device-phone) {
+  .login-form {
+    .title {
+      text-align: center;
+    }
+    .sub-title {
+      text-align: center;
+    }
+
+    :deep(.el-form) {
+      margin-top: 30px;
     }
   }
 }

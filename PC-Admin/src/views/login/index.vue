@@ -47,7 +47,7 @@ const perspective = 1000
 
 // 反应式状态
 const formStyle = reactive({
-  transform: 'translate(-50%, -50%) perspective(1000px) rotateX(0deg) rotateY(0deg) !important',
+  transform: 'translate(-50%, -50%) perspective(1000px) rotateX(0deg) rotateY(0deg)',
   // 边框光效参数
   '--glow-top': '0',
   '--glow-right': '0',
@@ -72,7 +72,7 @@ onMounted(() => {
     isHovering.value = true
     // 设置更平滑的过渡效果
     if (formRef.value) {
-      formRef.value.style.transition = 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) !important'
+      formRef.value.style.transition = 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)'
     }
   }
 
@@ -146,22 +146,22 @@ const resetTransform = (withTransition = false) => {
     // 为移出添加平滑过渡
     if (formRef.value) {
       formRef.value.style.transition =
-        'transform 0.8s cubic-bezier(0.23, 1, 0.32, 1), box-shadow 0.8s cubic-bezier(0.23, 1, 0.32, 1) !important'
+        'transform 0.8s cubic-bezier(0.23, 1, 0.32, 1), box-shadow 0.8s cubic-bezier(0.23, 1, 0.32, 1)'
 
       // 设置目标位置为初始状态
       formStyle.transform =
-        'translate(-50%, -50%) perspective(1000px) rotateX(0deg) rotateY(0deg) !important'
+        'translate(-50%, -50%) perspective(1000px) rotateX(0deg) rotateY(0deg)'
 
       // 一段时间后重置transition，以便鼠标再次进入时立即响应
       transitionTimeout = window.setTimeout(() => {
-        if (formRef.value) formRef.value.style.transition = 'transform 0.2s ease !important'
+        if (formRef.value) formRef.value.style.transition = 'transform 0.2s ease'
         transitionTimeout = null
       }, 800)
     }
   } else {
     // 不需要过渡时直接重置
     formStyle.transform =
-      'translate(-50%, -50%) perspective(1000px) rotateX(0deg) rotateY(0deg) !important'
+      'translate(-50%, -50%) perspective(1000px) rotateX(0deg) rotateY(0deg)'
   }
 }
 
@@ -192,7 +192,7 @@ $padding: 40px;
     opacity: 0;
   }
   to {
-    transform: translate(-50%, -50%) perspective(1000px) rotateX(0deg) rotateY(0deg);
+    transform: translate(-50%, -50%) perspective(1000px) rotateX(0deg) rotateY(0deg) !important;
     opacity: 1;
   }
 }
@@ -221,7 +221,7 @@ $padding: 40px;
     box-shadow 0.5s cubic-bezier(0.23, 1, 0.32, 1);
 
   &.animate-up {
-    animation: slideInUp 0.8s ease-out 0.6s forwards;
+    animation: slideInUp 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
   }
 }
 
