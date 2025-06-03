@@ -117,6 +117,7 @@ const toggleTheme = () => {
     cursor: pointer;
     user-select: none;
     transition: all 0.3s;
+    color: var(--art-text-gray-500) !important;
 
     i {
       font-size: 18px;
@@ -135,7 +136,7 @@ const toggleTheme = () => {
 
 @media only screen and (max-width: 1024px) {
   .logo .title {
-    color: var(--art-text-gray-900);
+    color: var(--art-text-muted) !important;
   }
 }
 </style>

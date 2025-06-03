@@ -128,6 +128,7 @@ defineProps({
     justify-content: center;
     align-items: center;
     opacity: 0;
+    filter: blur(5px);
 
     &.animate-right {
       animation: slideInRight 0.6s ease-out forwards;
@@ -151,7 +152,6 @@ defineProps({
       width: 100%;
       overflow: hidden;
       z-index: 0;
-      filter: blur(5px);
     }
   }
 }

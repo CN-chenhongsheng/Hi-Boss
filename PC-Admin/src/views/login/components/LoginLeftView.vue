@@ -60,7 +60,6 @@ const primaryColor = computed(() => {
 
 <style lang="scss" scoped>
 .left-view {
-  height: 150%;
 
   .bg-wrap {
     height: 100%;

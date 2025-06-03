@@ -417,6 +417,7 @@ const showLoginSuccessNotice = () => {
     box-shadow: none;
     border-radius: 8px;
     transition: box-shadow 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+    color: var(--art-text-gray-500) !important;
     
     &:focus-within {
       box-shadow: 0 0 0 1px var(--el-input-focus-border-color, var(--el-color-primary)) inset, 0 5px 15px rgba(0,0,0,0.05);
@@ -431,5 +432,9 @@ const showLoginSuccessNotice = () => {
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     }
   }
+}
+
+.dark .login-form .title {
+  color: var(--art-text-gray-400) !important;
 }
 </style> 

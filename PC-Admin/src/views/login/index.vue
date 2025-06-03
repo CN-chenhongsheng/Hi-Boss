@@ -1,5 +1,5 @@
 <template>
-  <div class="login">
+  <div class="login" :style="{ backgroundImage: `url(${backgroundImage})` }">
     <LoginHeader />
     <LoginLayout />
     <div
@@ -23,6 +23,15 @@ import LoginHeader from './components/LoginHeader.vue'
 import LoginLayout from './components/LoginLayout.vue'
 import LoginForm from './components/LoginForm.vue'
 import { onMounted, onBeforeUnmount, ref, reactive } from 'vue'
+import { randomNum } from '@/utils/utils'
+
+// 导入背景图片
+import bg1 from '@/assets/img/login/bg1.png'
+import bg2 from '@/assets/img/login/bg2.png'
+
+// 随机选择背景图片
+const bgImages = [bg1, bg2]
+const backgroundImage = ref(bgImages[randomNum(0, 1)])
 
 // 定义扩展的HTMLElement接口，包含自定义属性
 interface ExtendedHTMLElement extends HTMLElement {
@@ -175,6 +184,8 @@ onBeforeUnmount(() => {
 @use './index';
 @use '@styles/variables.scss' as *;
 
+$padding: 40px;
+
 @keyframes slideInUp {
   from {
     transform: translate(-50%, 20%) perspective(1000px) rotateX(0deg) rotateY(0deg);
@@ -193,16 +204,15 @@ onBeforeUnmount(() => {
   transform: translate(-50%, -50%) perspective(1000px) rotateX(0deg) rotateY(0deg);
   width: 440px;
   height: 610px;
-  padding: 0 25px;
+  padding: 0 $padding;
   margin: auto;
   overflow: hidden;
   user-select: none;
   background-size: cover;
-  background-color: #ffffffd9;
+  background-color: #ffffffe0;
   filter: drop-shadow(0 0 10px rgba(0, 0, 0, 0.1));
   backdrop-filter: blur(10px);
   border-radius: 10px;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
   z-index: 1;
   opacity: 0;
   transform-style: preserve-3d;
@@ -215,23 +225,13 @@ onBeforeUnmount(() => {
   }
 }
 
-// 暗色模式下的背景
-html.dark .form {
-  background-color: #ffffff1c;
-}
-
 @media only screen and (max-width: $device-phone) {
   .form {
-    width: calc(90% - 50px);
+    width: calc(90% - $padding);
     height: auto;
+    padding: 0 calc($padding / 2);
     min-height: 70vh;
     transform: translate(-50%, -50%) perspective(800px) rotateX(0deg) rotateY(0deg);
-    background-color: #ffffffd9;
-  }
-
-  // 暗色模式下的背景
-  html.dark .form {
-    background-color: #ffffff1a;
   }
 }
 </style>
