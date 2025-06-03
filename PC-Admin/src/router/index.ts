@@ -69,7 +69,7 @@ const staticRoutes: AppRouteRecordRaw[] = [
   {
     path: RoutesAlias.Login,
     component: () => import('@views/login/index.vue'),
-    name: 'login',
+    name: 'Login',
     meta: {
       title: 'menus.login.title',
       isHideTab: true,
