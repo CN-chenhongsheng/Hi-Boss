@@ -198,7 +198,7 @@ onBeforeUnmount(() => {
   overflow: hidden;
   user-select: none;
   background-size: cover;
-  background-color: #ffffff1c;
+  background-color: #ffffffd9;
   filter: drop-shadow(0 0 10px rgba(0, 0, 0, 0.1));
   backdrop-filter: blur(10px);
   border-radius: 10px;
@@ -215,18 +215,23 @@ onBeforeUnmount(() => {
   }
 }
 
+// 暗色模式下的背景
+html.dark .form {
+  background-color: #ffffff1c;
+}
+
 @media only screen and (max-width: $device-phone) {
   .form {
     width: calc(90% - 50px);
     height: auto;
     min-height: 70vh;
     transform: translate(-50%, -50%) perspective(800px) rotateX(0deg) rotateY(0deg);
-    box-shadow:
-      0 8px 20px rgba(0, 0, 0, 0.15),
-      0 var(--glow-top) 30px -5px rgba(255, 255, 255, 0.4) inset,
-      var(--glow-right) 0 30px -5px rgba(255, 255, 255, 0.4) inset,
-      0 var(--glow-bottom) 30px -5px rgba(255, 255, 255, 0.4) inset,
-      var(--glow-left) 0 30px -5px rgba(255, 255, 255, 0.4) inset;
+    background-color: #ffffffd9;
+  }
+
+  // 暗色模式下的背景
+  html.dark .form {
+    background-color: #ffffff1a;
   }
 }
 </style>
