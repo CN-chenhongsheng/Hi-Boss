@@ -149,8 +149,7 @@ const resetTransform = (withTransition = false) => {
         'transform 0.8s cubic-bezier(0.23, 1, 0.32, 1), box-shadow 0.8s cubic-bezier(0.23, 1, 0.32, 1)'
 
       // 设置目标位置为初始状态
-      formStyle.transform =
-        'translate(-50%, -50%) perspective(1000px) rotateX(0deg) rotateY(0deg)'
+      formStyle.transform = 'translate(-50%, -50%) perspective(1000px) rotateX(0deg) rotateY(0deg)'
 
       // 一段时间后重置transition，以便鼠标再次进入时立即响应
       transitionTimeout = window.setTimeout(() => {
@@ -160,8 +159,7 @@ const resetTransform = (withTransition = false) => {
     }
   } else {
     // 不需要过渡时直接重置
-    formStyle.transform =
-      'translate(-50%, -50%) perspective(1000px) rotateX(0deg) rotateY(0deg)'
+    formStyle.transform = 'translate(-50%, -50%) perspective(1000px) rotateX(0deg) rotateY(0deg)'
   }
 }
 
@@ -236,4 +234,3 @@ $padding: 40px;
   }
 }
 </style>
-

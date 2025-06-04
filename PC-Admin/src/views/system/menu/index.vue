@@ -65,17 +65,14 @@ const {
   lockMenuType,
   getTableData,
   toggleExpand,
-  handleOperation,
+  handleOperation
 } = useMenuData()
 
 // 使用菜单搜索composable
-const {
-  formFilters,
-  formItems,
-  filteredTableData,
-  handleSearch,
-  handleReset
-} = useMenuSearch(tableData, getTableData)
+const { formFilters, formItems, filteredTableData, handleSearch, handleReset } = useMenuSearch(
+  tableData,
+  getTableData
+)
 
 // 使用菜单列配置composable
 const { columnChecks, columns } = useMenuColumns(handleOperation)

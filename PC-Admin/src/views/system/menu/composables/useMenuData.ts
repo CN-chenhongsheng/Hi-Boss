@@ -9,7 +9,7 @@ export function useMenuData() {
   const tableRef = ref()
   const tableData = ref<MenuListType[]>([])
   const lockMenuType = ref(false)
-  
+
   // 表单数据
   const form = reactive({
     // 菜单
@@ -30,7 +30,7 @@ export function useMenuData() {
     authIcon: '',
     authSort: 1
   })
-  
+
   // 对话框状态
   const dialogVisible = ref(false)
   const labelPosition = ref('menu')
@@ -44,7 +44,7 @@ export function useMenuData() {
       loading.value = false
     }, 500)
   }
-  
+
   // 切换展开/收起
   const toggleExpand = () => {
     isExpanded.value = !isExpanded.value
@@ -54,7 +54,7 @@ export function useMenuData() {
       }
     })
   }
-  
+
   // 重置表单
   const resetForm = () => {
     // 不再需要重置表单字段，只需要重置数据对象
@@ -150,7 +150,7 @@ export function useMenuData() {
         break
     }
   }
-  
+
   return {
     loading,
     tableData,
@@ -163,6 +163,6 @@ export function useMenuData() {
     lockMenuType,
     getTableData,
     toggleExpand,
-    handleOperation,
+    handleOperation
   }
-} 
+}
