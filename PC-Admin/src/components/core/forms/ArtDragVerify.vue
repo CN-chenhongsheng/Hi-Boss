@@ -90,14 +90,18 @@ const progressBar = ref()
 const actualWidth = ref(props.width)
 
 // 监听传入的宽度变化
-watch(() => props.width, (newWidth) => {
-  if (newWidth && newWidth > 0) {
-    actualWidth.value = newWidth
-  } else if (dragVerify.value) {
-    // 如果传入宽度无效，则获取容器宽度
-    nextTick(() => updateElementWidth())
-  }
-}, { immediate: true })
+watch(
+  () => props.width,
+  (newWidth) => {
+    if (newWidth && newWidth > 0) {
+      actualWidth.value = newWidth
+    } else if (dragVerify.value) {
+      // 如果传入宽度无效，则获取容器宽度
+      nextTick(() => updateElementWidth())
+    }
+  },
+  { immediate: true }
+)
 
 // 更新元素宽度
 const updateElementWidth = () => {
@@ -131,10 +135,10 @@ document.addEventListener('touchmove', onTouchMove, { passive: false })
 
 onMounted(() => {
   dragVerify.value?.style.setProperty('--textColor', props.textColor)
-  
+
   // 组件挂载后获取实际宽度
   updateElementWidth()
-  
+
   // 监听窗口大小变化
   window.addEventListener('resize', updateElementWidth)
 
@@ -143,7 +147,7 @@ onMounted(() => {
     if (dragVerify.value) {
       dragVerify.value.style.setProperty('--width', Math.floor(actualWidth.value / 2) + 'px')
       dragVerify.value.style.setProperty('--pwidth', -Math.floor(actualWidth.value / 2) + 'px')
-      
+
       // 如果初始状态就是已验证通过，设置正确的样式
       if (props.value && handler.value && progressBar.value && messageRef.value) {
         nextTick(() => {
@@ -157,7 +161,7 @@ onMounted(() => {
       }
     }
   })
-  
+
   document.addEventListener('touchstart', onTouchStart)
   document.addEventListener('touchmove', onTouchMove, { passive: false })
 })
@@ -243,19 +247,19 @@ const dragFinish = (e: any) => {
 const passVerify = () => {
   emit('update:value', true)
   state.isMoving = false
-  
+
   // 设置进度条样式
   progressBar.value.style.background = props.completedBg
   progressBar.value.style.width = '100%'
-  
+
   // 设置文本样式
   messageRef.value.style['-webkit-text-fill-color'] = 'unset'
   messageRef.value.style.animation = 'slidetounlock2 3s infinite'
   messageRef.value.style.color = '#fff'
-  
+
   // 确保滑块停留在右侧
   handler.value.style.left = actualWidth.value - props.height + 'px'
-  
+
   emit('passCallback')
 }
 const reset = () => {
@@ -297,7 +301,7 @@ defineExpose({
       margin-top: 9px;
       color: #6c6;
     }
-    
+
     &.success {
       // 验证成功时确保滑块在右侧
       left: auto !important;
