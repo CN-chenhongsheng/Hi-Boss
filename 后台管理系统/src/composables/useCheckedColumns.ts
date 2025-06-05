@@ -95,6 +95,7 @@ export function useCheckedColumns(columnsFactory: () => ColumnOption[]) {
         // 根据operation列的实际情况设置适当的宽度
         columnMap.set(key, {
           ...column,
+          align: 'center',
           width: TableSizeMap[tableSize.value][num] as number,
           minWidth: TableMinWidthEnum[tableSize.value] as number,
           maxWidth: TableMaxWidthEnum[tableSize.value] as number

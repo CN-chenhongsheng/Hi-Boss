@@ -180,6 +180,10 @@ const handleMouseLeave = () => {
     display: inline-block;
     transition: transform 0.3s ease;
   }
+
+  &:last-child {
+    margin-right: 0;
+  }
 }
 
 // 小尺寸 - 仅文字
@@ -194,6 +198,10 @@ const handleMouseLeave = () => {
 
   &:hover {
     transform: translateY(-2px);
+  }
+
+  &:last-child {
+    margin-right: 0;
   }
 }
 
@@ -225,6 +233,10 @@ const handleMouseLeave = () => {
 
   .btn-text-label {
     display: inline-block;
+  }
+
+  &:last-child {
+    margin-right: 0;
   }
 }
 </style>
