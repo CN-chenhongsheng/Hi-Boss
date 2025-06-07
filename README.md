@@ -8,12 +8,6 @@
 ```
 sushe_web_2025/
 ├── .git/                    # Git仓库文件
-├── .gitignore               # Git忽略配置
-├── .husky/                  # Git钩子配置
-├── .lintstagedrc.json       # lint-staged配置
-├── commitlint.config.cjs    # commit规范配置
-├── package.json             # 项目依赖管理
-├── pnpm-lock.yaml           # pnpm锁定文件
 ├── admin/                   # 管理端Web应用
 │   ├── .gitattributes       # Git属性配置
 │   ├── .gitignore           # Git忽略配置
