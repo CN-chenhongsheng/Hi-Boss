@@ -14,7 +14,7 @@ sushe_web_2025/
 ├── commitlint.config.cjs    # commit规范配置
 ├── package.json             # 项目依赖管理
 ├── pnpm-lock.yaml           # pnpm锁定文件
-├── PC-Admin/                # 管理端Web应用
+├── admin/                   # 管理端Web应用
 │   ├── .gitattributes       # Git属性配置
 │   ├── .gitignore           # Git忽略配置
 │   ├── .prettierignore      # Prettier忽略配置
@@ -28,7 +28,6 @@ sushe_web_2025/
 │   ├── eslint.config.mjs    # ESLint配置
 │   ├── index.html           # HTML入口文件
 │   ├── package.json         # 项目依赖管理
-│   ├── pnpm-lock.yaml       # pnpm锁定文件
 │   ├── tsconfig.json        # TypeScript配置
 │   ├── vite.config.ts       # Vite配置
 │   ├── .auto-import.json    # 自动导入配置
