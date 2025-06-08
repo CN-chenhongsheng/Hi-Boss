@@ -22,7 +22,7 @@
 
 <script setup lang="ts">
 import ArtDialog from '@/components/core/others/ArtDialog.vue'
-import { formatMenuTitle } from '@/utils/menu'
+import { formatMenuTitle } from '@/router/utils/utils'
 import { MenuListType } from '@/types/menu'
 
 // 定义对话框是否打开

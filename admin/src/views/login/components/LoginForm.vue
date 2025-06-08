@@ -65,7 +65,7 @@
 import AppConfig from '@/config'
 import { ElMessage, ElNotification } from 'element-plus'
 import { useUserStore } from '@/store/modules/user'
-import { HOME_PAGE } from '@/router'
+import { HOME_PAGE } from '@/router/routesAlias'
 import { ApiStatus } from '@/utils/http/status'
 import { getCssVariable } from '@/utils/colors'
 import { UserService } from '@/api/usersApi'

@@ -1,5 +1,5 @@
 import { useCheckedColumns } from '@/composables/useCheckedColumns'
-import { formatMenuTitle } from '@/utils/menu'
+import { formatMenuTitle } from '@/router/utils/utils'
 import { MenuListType } from '@/types/menu'
 import ArtButtonTable from '@/components/core/forms/ArtButtonTable.vue'
 import ArtStatusSwitch from '@/components/core/forms/ArtStatusSwitch.vue'

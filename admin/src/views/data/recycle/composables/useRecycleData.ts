@@ -21,7 +21,6 @@ export function useRecycleData() {
 
   // 处理选择变更
   const handleSelectionChange = (selection: RecycleItem[]) => {
-    console.log(selection)
     selectedRows.value = selection
   }
 

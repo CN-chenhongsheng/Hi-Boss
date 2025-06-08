@@ -36,4 +36,3 @@ export const handleMenuJump = (item: MenuListType, jumpToFirst: boolean = false)
   router.push(firstChild.path)
 }
 
-// ... existing code ...

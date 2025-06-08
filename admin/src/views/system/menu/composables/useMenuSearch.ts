@@ -1,6 +1,6 @@
 import { SearchFormItem } from '@/types/search-form'
 import { MenuListType } from '@/types/menu'
-import { formatMenuTitle } from '@/utils/menu'
+import { formatMenuTitle } from '@/router/utils/utils'
 
 export function useMenuSearch(tableData: Ref<MenuListType[]>, onSearch: () => void) {
   // 定义表单搜索初始值

@@ -1,6 +1,6 @@
 import { useMenuStore } from '@/store/modules/menu'
 import { MenuListType } from '@/types/menu'
-import { formatMenuTitle } from '@/utils/menu'
+import { formatMenuTitle } from '@/router/utils/utils'
 
 export function useMenuData() {
   const { menuList } = storeToRefs(useMenuStore())
