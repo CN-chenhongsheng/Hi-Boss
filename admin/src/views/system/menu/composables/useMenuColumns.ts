@@ -3,6 +3,9 @@ import { formatMenuTitle } from '@/router/utils/utils'
 import { MenuListType } from '@/types/menu'
 import ArtButtonTable from '@/components/core/forms/ArtButtonTable.vue'
 import ArtStatusSwitch from '@/components/core/forms/ArtStatusSwitch.vue'
+import { useAuth } from '@/composables/useAuth'
+
+const { hasAuth } = useAuth()
 
 export function useMenuColumns(handleOperation: (type: string, row?: any, lock?: boolean) => void) {
   // 构建菜单类型标签
@@ -123,21 +126,21 @@ export function useMenuColumns(handleOperation: (type: string, row?: any, lock?:
       label: '操作',
       formatter: (row: MenuListType) => {
         return h('div', [
-          h(ArtButtonTable, {
-            type: 'add',
-            'v-auth': "'add'",
-            onClick: () => handleOperation('menu')
-          }),
-          h(ArtButtonTable, {
-            type: 'edit',
-            'v-auth': "'edit'",
-            onClick: () => handleOperation('menu', row, true)
-          }),
-          h(ArtButtonTable, {
-            type: 'delete',
-            'v-auth': "'delete'",
-            onClick: () => handleOperation('deleteMenu')
-          })
+          hasAuth('add') &&
+            h(ArtButtonTable, {
+              type: 'add',
+              onClick: () => handleOperation('menu')
+            }),
+          hasAuth('edit') &&
+            h(ArtButtonTable, {
+              type: 'edit',
+              onClick: () => handleOperation('menu', row, true)
+            }),
+          hasAuth('delete') &&
+            h(ArtButtonTable, {
+              type: 'delete',
+              onClick: () => handleOperation('deleteMenu')
+            })
         ])
       }
     }
