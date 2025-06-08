@@ -2,6 +2,11 @@
 
 export const upgradeLogList = ref([
   {
+    version: 'v2.2.77',
+    title: '优化左侧菜单样式(先合并到2025-05-14版本)',
+    date: '2025-06-09'
+  },
+  {
     version: 'v2.2.76',
     title: 'ArtButtonTable 按钮增加 hover 效果',
     date: '2025-05-28'
