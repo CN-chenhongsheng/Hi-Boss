@@ -1,5 +1,5 @@
 <template>
-  <section class="search-bar">
+  <section class="search-bar art-custom-card">
     <el-form :model="filter" :label-position="props.labelPosition">
       <el-row class="search-form-row" :gutter="props.gutter">
         <el-col

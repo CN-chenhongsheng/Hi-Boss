@@ -104,19 +104,17 @@ export const useUserStore = defineStore('userStore', () => {
   }
 
   const logOut = () => {
-    setTimeout(() => {
-      info.value = {}
-      isLogin.value = false
-      isLock.value = false
-      lockPassword.value = ''
-      accessToken.value = ''
-      refreshToken.value = ''
-      sessionStorage.removeItem('accessToken')
-      useWorktabStore().opened = []
-      saveUserData()
-      sessionStorage.removeItem('iframeRoutes')
-      router.push('/login')
-    }, 300)
+    info.value = {}
+    isLogin.value = false
+    isLock.value = false
+    lockPassword.value = ''
+    accessToken.value = ''
+    refreshToken.value = ''
+    sessionStorage.removeItem('accessToken')
+    useWorktabStore().opened = []
+    saveUserData()
+    sessionStorage.removeItem('iframeRoutes')
+    router.push('/login')
   }
 
   return {

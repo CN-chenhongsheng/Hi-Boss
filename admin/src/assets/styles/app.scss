@@ -104,6 +104,12 @@
   }
 }
 
+// 盒子默认边框
+.page-content,
+.art-custom-card {
+  border: 1px solid var(--art-card-border) !important;
+}
+
 // 盒子边框
 [data-box-mode='border-mode'] {
   .page-content,
