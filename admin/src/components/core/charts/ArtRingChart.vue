@@ -12,7 +12,6 @@
     height?: string
     color?: string[]
     radius?: string[]
-    showLabel?: boolean
     borderRadius?: number
     centerText?: string
   }
@@ -27,7 +26,6 @@
     height: useChartOps().chartHeight,
     color: () => [],
     radius: () => ['50%', '80%'],
-    showLabel: true,
     borderRadius: 10,
     centerText: ''
   })
@@ -44,14 +42,14 @@
             borderRadius: props.borderRadius
           },
           label: {
-            show: props.showLabel,
+            show: false,
             formatter: '{b}\n{d}%',
             position: 'outside',
             color: '#999'
           },
           emphasis: {
             label: {
-              show: true,
+              show: false,
               fontSize: 14,
               fontWeight: 'bold'
             }

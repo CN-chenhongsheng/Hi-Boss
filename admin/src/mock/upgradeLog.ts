@@ -2,6 +2,11 @@
 
 export const upgradeLogList = ref([
   {
+    version: 'v2.2.81',
+    title: '修复环形图表组件 label 样式问题',
+    date: '2025-06-10'
+  },
+  {
     version: 'v2.2.80',
     title: '优化 Checkbox 组件样式',
     date: '2025-06-10'
