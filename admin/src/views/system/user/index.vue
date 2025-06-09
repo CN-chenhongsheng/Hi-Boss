@@ -29,13 +29,13 @@
 
         <!-- 表格 -->
         <ArtTable
+          row-key="id"
           :loading="loading"
           :data="tableData"
           :currentPage="1"
           :pageSize="20"
           :total="500"
           :marginTop="10"
-          row-key="id"
           @selection-change="handleSelectionChange"
         >
           <template #default>

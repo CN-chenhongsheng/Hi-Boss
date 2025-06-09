@@ -9,8 +9,21 @@ import avatar8 from '@/assets/img/avatar/avatar8.jpg'
 import avatar9 from '@/assets/img/avatar/avatar9.jpg'
 import avatar10 from '@/assets/img/avatar/avatar10.jpg'
 
-export const ACCOUNT_TABLE_DATA: any = [
+export interface User {
+  id: number
+  username: string
+  sex: 1 | 0
+  mobile: string
+  email: string
+  dep: string
+  status: string
+  create_time: string
+  avatar: string
+}
+
+export const ACCOUNT_TABLE_DATA: User[] = [
   {
+    id: 1,
     username: '中小鱼',
     sex: 0,
     mobile: '18670001591',
@@ -21,6 +34,7 @@ export const ACCOUNT_TABLE_DATA: any = [
     avatar: avatar1
   },
   {
+    id: 2,
     username: '何小荷',
     sex: 1,
     mobile: '17766664444',
@@ -31,6 +45,7 @@ export const ACCOUNT_TABLE_DATA: any = [
     avatar: avatar2
   },
   {
+    id: 3,
     username: '誶誶淰',
     sex: 0,
     mobile: '18670001597',
@@ -41,6 +56,7 @@ export const ACCOUNT_TABLE_DATA: any = [
     avatar: avatar3
   },
   {
+    id: 4,
     username: '发呆草',
     sex: 0,
     mobile: '18670001596',
@@ -51,6 +67,7 @@ export const ACCOUNT_TABLE_DATA: any = [
     avatar: avatar4
   },
   {
+    id: 5,
     username: '甜筒',
     sex: 1,
     mobile: '18670001595',
@@ -61,6 +78,7 @@ export const ACCOUNT_TABLE_DATA: any = [
     avatar: avatar5
   },
   {
+    id: 6,
     username: '冷月呆呆',
     sex: 1,
     mobile: '18670001594',
@@ -71,6 +89,7 @@ export const ACCOUNT_TABLE_DATA: any = [
     avatar: avatar6
   },
   {
+    id: 7,
     username: '唐不苦',
     sex: 1,
     mobile: '18123820191',
@@ -81,6 +100,7 @@ export const ACCOUNT_TABLE_DATA: any = [
     avatar: avatar7
   },
   {
+    id: 8,
     username: '笑很甜',
     sex: 0,
     mobile: '18670001592',
@@ -91,6 +111,7 @@ export const ACCOUNT_TABLE_DATA: any = [
     avatar: avatar8
   },
   {
+    id: 9,
     username: '青隐篱',
     sex: 0,
     mobile: '18670001581',
@@ -101,6 +122,7 @@ export const ACCOUNT_TABLE_DATA: any = [
     avatar: avatar9
   },
   {
+    id: 10,
     username: '有你一生',
     sex: 0,
     mobile: '13755554444',
@@ -111,6 +133,7 @@ export const ACCOUNT_TABLE_DATA: any = [
     avatar: avatar10
   },
   {
+    id: 11,
     username: '冷月呆呆',
     sex: 1,
     mobile: '13766660000',
@@ -121,6 +144,7 @@ export const ACCOUNT_TABLE_DATA: any = [
     avatar: avatar6
   },
   {
+    id: 12,
     username: '唐不苦',
     sex: 1,
     mobile: '18670001502',
@@ -131,6 +155,7 @@ export const ACCOUNT_TABLE_DATA: any = [
     avatar: avatar7
   },
   {
+    id: 13,
     username: '笑很甜',
     sex: 0,
     mobile: '13006644977',
@@ -141,6 +166,7 @@ export const ACCOUNT_TABLE_DATA: any = [
     avatar: avatar8
   },
   {
+    id: 14,
     username: '青隐篱',
     sex: 0,
     mobile: '13599998888',
@@ -151,6 +177,7 @@ export const ACCOUNT_TABLE_DATA: any = [
     avatar: avatar9
   },
   {
+    id: 15,
     username: '有你一生',
     sex: 0,
     mobile: '13799998888',
