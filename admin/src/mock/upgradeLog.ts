@@ -1,6 +1,18 @@
 // requireReLogin: true // 需要重新登录
+interface UpgradeLog {
+  version: string // 版本号
+  title: string // 更新标题
+  date: string // 更新日期
+  detail?: string[] // 更新内容
+  requireReLogin?: boolean // 是否需要重新登录
+}
 
-export const upgradeLogList = ref([
+export const upgradeLogList = ref<UpgradeLog[]>([
+  {
+    version: 'v2.2.82',
+    title: '修复 .el-menu--popup 阴影问题',
+    date: '2025-06-10'
+  },
   {
     version: 'v2.2.81',
     title: '修复环形图表组件 label 样式问题',
