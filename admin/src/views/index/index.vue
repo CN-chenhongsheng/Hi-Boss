@@ -22,47 +22,59 @@
 </template>
 
 <script setup lang="ts">
-  import '@/assets/styles/transition.scss'
-  import { MenuWidth, MenuTypeEnum } from '@/enums/appEnum'
+import '@/assets/styles/transition.scss'
+import { MenuWidth, MenuTypeEnum } from '@/enums/appEnum'
 
-  // Composables
-  import { useMenuStore } from '@/store/modules/menu'
-  import { useSettingStore } from '@/store/modules/setting'
-  import { getTabConfig } from '@/utils/tabs'
+// Composables
+import { useMenuStore } from '@/store/modules/menu'
+import { useSettingStore } from '@/store/modules/setting'
+import { getTabConfig } from '@/utils/tabs'
+import { useRouter } from 'vue-router'
 
-  // Store instances
-  const settingStore = useSettingStore()
-  const menuStore = useMenuStore()
+// Store instances
+const settingStore = useSettingStore()
+const menuStore = useMenuStore()
+const router = useRouter()
 
-  // Store refs
-  const { menuType, menuOpen, showWorkTab, watermarkVisible, tabStyle } = storeToRefs(settingStore)
+// Store refs
+const { menuType, menuOpen, showWorkTab, watermarkVisible, tabStyle } = storeToRefs(settingStore)
 
-  const paddingLeft = computed(() => {
-    const isOpen = menuOpen.value
-    const type = menuType.value
-    const width = isOpen ? settingStore.getMenuOpenWidth : MenuWidth.CLOSE
+watchEffect(() => {
+  const isOpen = menuOpen.value
+  const width = isOpen ? settingStore.getMenuOpenWidth : MenuWidth.CLOSE
+  menuStore.setMenuWidth(width)
+})
 
-    menuStore.setMenuWidth(width)
+const paddingLeft = computed(() => {
+  const isOpen = menuOpen.value
+  const type = menuType.value
+  const width = isOpen ? settingStore.getMenuOpenWidth : MenuWidth.CLOSE
 
-    if (type === MenuTypeEnum.DUAL_MENU) {
-      return `calc(${width} + 80px)`
-    }
+  const { isRootMenu } = router.currentRoute.value.meta
 
-    return type !== MenuTypeEnum.TOP ? width : 0
-  })
+  if (type === MenuTypeEnum.DUAL_MENU) {
+    return isRootMenu ? '80px' : `calc(${width} + 80px)`
+  }
 
-  const paddingTop = computed(() => {
-    const { openTop, closeTop } = getTabConfig(tabStyle.value)
-    return `${showWorkTab.value ? openTop : closeTop}px`
-  })
+  if (type === MenuTypeEnum.TOP_LEFT && isRootMenu) {
+    return 0
+  }
 
-  // Layout style computed
-  const layoutStyle = computed(() => ({
-    paddingLeft: paddingLeft.value,
-    paddingTop: paddingTop.value
-  }))
+  return type !== MenuTypeEnum.TOP ? width : 0
+})
+
+const paddingTop = computed(() => {
+  const { openTop, closeTop } = getTabConfig(tabStyle.value)
+  return `${showWorkTab.value ? openTop : closeTop}px`
+})
+
+// Layout style computed
+const layoutStyle = computed(() => ({
+  paddingLeft: paddingLeft.value,
+  paddingTop: paddingTop.value
+}))
 </script>
 
 <style lang="scss" scoped>
-  @use './style';
+@use './style';
 </style>

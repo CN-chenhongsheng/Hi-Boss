@@ -17,7 +17,6 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, watch } from 'vue'
   import { useRouter, useRoute } from 'vue-router'
   import type { RouteLocationMatched, RouteRecordRaw } from 'vue-router'
   import { formatMenuTitle } from '@/router/utils/utils'
@@ -44,7 +43,7 @@
     }
 
     // 如果是主容器内的一级菜单，只显示当前路由的面包屑
-    if (matched[0].meta.isInMainContainer) {
+    if (matched[0].meta.isRootMenu) {
       const currentRoute = matched[matched.length - 1]
       breadList.value = [
         {

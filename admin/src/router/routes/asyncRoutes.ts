@@ -761,7 +761,7 @@ export const asyncRoutes: MenuListType[] = [
       showTextBadge: `${upgradeLogList.value[0].version}`,
       icon: '&#xe712;',
       keepAlive: false,
-      isInMainContainer: true
+      isRootMenu: true
     }
   }
 ]
