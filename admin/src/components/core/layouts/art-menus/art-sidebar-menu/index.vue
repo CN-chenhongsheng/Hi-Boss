@@ -24,7 +24,7 @@
             >
               <div
                 :class="{
-                  'is-active': menu.meta.isRootMenu
+                  'is-active': menu.meta.isFirstLevel
                     ? menu.path === route.path
                     : menu.path === firstLevelMenuPath
                 }"
@@ -156,7 +156,7 @@
     const currentTopPath = `/${route.path.split('/')[1]}`
 
     // 处理一级菜单
-    if (route.meta.isRootMenu) {
+    if (route.meta.isFirstLevel) {
       return []
     }
 

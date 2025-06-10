@@ -50,13 +50,13 @@ const paddingLeft = computed(() => {
   const type = menuType.value
   const width = isOpen ? settingStore.getMenuOpenWidth : MenuWidth.CLOSE
 
-  const { isRootMenu } = router.currentRoute.value.meta
+  const { isFirstLevel } = router.currentRoute.value.meta
 
   if (type === MenuTypeEnum.DUAL_MENU) {
-    return isRootMenu ? '80px' : `calc(${width} + 80px)`
+    return isFirstLevel ? '80px' : `calc(${width} + 80px)`
   }
 
-  if (type === MenuTypeEnum.TOP_LEFT && isRootMenu) {
+  if (type === MenuTypeEnum.TOP_LEFT && isFirstLevel) {
     return 0
   }
 
