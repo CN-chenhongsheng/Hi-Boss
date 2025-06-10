@@ -1,5 +1,4 @@
 import App from './App.vue'
-import 'default-passive-events'
 import { createApp } from 'vue'
 import { initStore } from './store'                 // Store
 import { initRouter } from './router'               // Router
@@ -18,6 +17,8 @@ import '@utils/console.ts'                          // 控制台输出内容
 import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 import { setupGlobDirectives } from './directives'
 import language from './language'
+
+window.document.addEventListener('touchstart',  () => {}, { passive: false })
 
 const app = createApp(App)
 initStore(app)

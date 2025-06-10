@@ -9,6 +9,11 @@ interface UpgradeLog {
 
 export const upgradeLogList = ref<UpgradeLog[]>([
   {
+    version: 'v2.2.87',
+    title: '首页图表设计高级动画效果、分析页样式优化',
+    date: '2025-06-11'
+  },
+  {
     version: 'v2.2.86',
     title: '选项卡新增固定属性',
     date: '2025-06-11',
