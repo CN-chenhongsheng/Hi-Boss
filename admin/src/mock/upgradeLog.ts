@@ -9,9 +9,14 @@ interface UpgradeLog {
 
 export const upgradeLogList = ref<UpgradeLog[]>([
   {
-    version: 'v2.2.86',
+    version: 'v2.2.84',
+    title: '横幅组件增加流星动画',
+    date: '2025-06-11'
+  },
+  {
+    version: 'v2.2.83',
     title: '优化用户体验',
-    date: '2025-05-22',
+    date: '2025-06-10',
     detail: [
       '修复全局搜索失去焦点后快捷键失效问题',
       '表格设置本地存储增加默认值',
