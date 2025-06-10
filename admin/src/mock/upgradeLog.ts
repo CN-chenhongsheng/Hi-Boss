@@ -9,6 +9,11 @@ interface UpgradeLog {
 
 export const upgradeLogList = ref<UpgradeLog[]>([
   {
+    version: 'v2.2.90',
+    title: '设置中心代码重构',
+    date: '2025-06-11'
+  },
+  {
     version: 'v2.2.89',
     title: '修复 2.2.88 版本主题样式初始化bug',
     date: '2025-06-11'
