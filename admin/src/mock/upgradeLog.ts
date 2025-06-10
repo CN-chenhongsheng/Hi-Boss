@@ -9,6 +9,13 @@ interface UpgradeLog {
 
 export const upgradeLogList = ref<UpgradeLog[]>([
   {
+    version: 'v2.2.86',
+    title: '选项卡新增固定属性',
+    date: '2025-06-11',
+    detail: ['选项卡代码优化', '右键菜单重构'],
+    requireReLogin: true
+  },
+  {
     version: 'v2.2.85',
     title: 'bug修复、优化用户体验',
     date: '2025-06-11',

@@ -9,6 +9,7 @@ import { menuService } from '@/api/menuApi'
 import { registerDynamicRoutes } from '../utils/registerRoutes'
 import { MenuListType } from '@/types/menu'
 import { RoutesAlias } from '../routesAlias'
+import { useWorktabStore } from '@/store/modules/worktab'
 
 // 是否已注册动态路由
 const isRouteRegistered = ref(false)
@@ -141,6 +142,7 @@ async function getMenuData(router: Router): Promise<void> {
 
   registerDynamicRoutes(router, menuList)
   isRouteRegistered.value = true
+  useWorktabStore().validateWorktabs(router)
   closeLoading()
 }
 
