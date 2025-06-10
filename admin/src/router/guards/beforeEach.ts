@@ -152,3 +152,19 @@ async function getMenuData(router: Router): Promise<void> {
 function isValidMenuList(menuList: MenuListType[]) {
   return Array.isArray(menuList) && menuList.length > 0
 }
+
+/**
+ * 重置路由相关状态
+ */
+export function resetRouterState(router: Router): void {
+  isRouteRegistered.value = false
+  // 清理动态注册的路由
+  router.getRoutes().forEach((route) => {
+    if (route.meta?.dynamic) {
+      router.removeRoute(route.name as string)
+    }
+  })
+  // 清空菜单数据
+  const menuStore = useMenuStore()
+  menuStore.setMenuList([])
+}

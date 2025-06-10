@@ -9,6 +9,13 @@ interface UpgradeLog {
 
 export const upgradeLogList = ref<UpgradeLog[]>([
   {
+    version: 'v2.2.88',
+    title: '本地数据存储重构',
+    date: '2025-06-11',
+    detail: ['本地数据存储代码全部重新设计', '本地数据存储可靠性大幅提升', '修复水平菜单溢出BUG'],
+    requireReLogin: true
+  },
+  {
     version: 'v2.2.87',
     title: '首页图表设计高级动画效果、分析页样式优化',
     date: '2025-06-11'
