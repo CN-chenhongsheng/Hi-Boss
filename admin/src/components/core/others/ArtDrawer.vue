@@ -122,78 +122,78 @@ defineExpose({
 /* 抽屉基础样式设置 */
 .el-drawer {
   // 右侧弹出的抽屉，左上角和左下角圆角
-  &.rtl, &.right {
+  &.rtl,
+  &.right {
     border-top-left-radius: calc(var(--custom-radius) / 2 + 2px);
     border-bottom-left-radius: calc(var(--custom-radius) / 2 + 2px);
   }
 
   // 左侧弹出的抽屉，右上角和右下角圆角
-  &.ltr, &.left {
+  &.ltr,
+  &.left {
     border-top-right-radius: calc(var(--custom-radius) / 2 + 2px);
     border-bottom-right-radius: calc(var(--custom-radius) / 2 + 2px);
   }
 
   // 顶部弹出的抽屉，左下角和右下角圆角
-  &.ttb, &.top {
+  &.ttb,
+  &.top {
     border-bottom-left-radius: calc(var(--custom-radius) / 2 + 2px);
     border-bottom-right-radius: calc(var(--custom-radius) / 2 + 2px);
   }
 
   // 底部弹出的抽屉，左上角和右上角圆角
-  &.btt, &.bottom {
+  &.btt,
+  &.bottom {
     border-top-left-radius: calc(var(--custom-radius) / 2 + 2px);
     border-top-right-radius: calc(var(--custom-radius) / 2 + 2px);
   }
 
-  --el-drawer-bg-color: var(--el-bg-color);
-  --el-drawer-padding-primary: 0;
-  background: rgba($color: #fff, $alpha: 95%) !important;
-  box-shadow: 0 0 30px #0000001a !important;
+  // --el-drawer-bg-color: var(--el-bg-color);
+  // --el-drawer-padding-primary: 0;
+  // background: rgba($color: #fff, $alpha: 95%) !important;
+  // box-shadow: 0 0 30px #0000001a !important;
 
-  /* 增加毛玻璃效果 */
-  backdrop-filter: blur(30px);
-  --tw-backdrop-blur: blur(30px);
-  -webkit-backdrop-filter: var(--tw-backdrop-blur) var(--tw-backdrop-brightness)
-    var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate)
-    var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate)
-    var(--tw-backdrop-sepia);
-  backdrop-filter: var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast)
-    var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert)
-    var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);
+  // /* 增加毛玻璃效果 */
+  // backdrop-filter: blur(30px);
+  // --tw-backdrop-blur: blur(30px);
+  // -webkit-backdrop-filter: var(--tw-backdrop-blur) var(--tw-backdrop-brightness)
+  //   var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate)
+  //   var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate)
+  //   var(--tw-backdrop-sepia);
+  // backdrop-filter: var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast)
+  //   var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert)
+  //   var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);
 }
 
 /* 深色模式样式 */
-:root.dark {
-  .el-drawer {
-    background: rgba($color: #000, $alpha: 75%) !important;
-  }
-}
+// :root.dark {
+//   .el-drawer {
+//     background: rgba($color: #000, $alpha: 75%) !important;
+//   }
+// }
 
-/* 调整标题样式 */
-.el-drawer__header {
-  margin-bottom: 0;
-  padding: 16px 20px;
-  border-bottom: 1px solid var(--el-border-color-lighter);
-  font-size: 16px;
-  font-weight: 500;
-  color: var(--el-text-color-primary);
-}
+// .el-drawer__header {
+//   margin-bottom: 0;
+//   padding: 16px 20px;
+//   border-bottom: 1px solid var(--el-border-color-lighter);
+//   font-size: 16px;
+//   font-weight: 500;
+//   color: var(--el-text-color-primary);
+// }
 
-/* 去除滚动条 */
-.el-drawer__body::-webkit-scrollbar {
-  width: 0 !important;
-}
+// .el-drawer__body::-webkit-scrollbar {
+//   width: 0 !important;
+// }
 
-/* 自定义模态框背景样式 */
-.setting-modal {
-  background: transparent !important;
-  transition: all 0.3s ease-in-out;
-}
+// .setting-modal {
+//   background: transparent !important;
+//   transition: all 0.3s ease-in-out;
+// }
 
-/* Element Plus drawer的模态背景 */
-.el-overlay.setting-modal {
-  background-color: rgba(0, 0, 0, 0.4) !important;
-  backdrop-filter: blur(4px);
-  transition: all 0.3s ease-in-out;
-}
+// .el-overlay.setting-modal {
+//   background-color: rgba(0, 0, 0, 0.4) !important;
+//   backdrop-filter: blur(4px);
+//   transition: all 0.3s ease-in-out;
+// }
 </style>

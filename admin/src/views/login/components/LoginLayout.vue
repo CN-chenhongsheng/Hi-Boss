@@ -55,13 +55,14 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useSettingStore } from '@/store/modules/setting'
 import LoginLeftView from './LoginLeftView.vue'
 
 // 获取主题色
-const settingStore = useSettingStore()
 const primaryColor = computed(() => {
-  return getComputedStyle(document.documentElement).getPropertyValue('--el-color-primary').trim() || '#5D87FF'
+  return (
+    getComputedStyle(document.documentElement).getPropertyValue('--el-color-primary').trim() ||
+    '#5D87FF'
+  )
 })
 
 defineProps({
@@ -143,7 +144,7 @@ defineProps({
       overflow: hidden;
       z-index: 0;
     }
-    
+
     .filtered-bg {
       position: absolute;
       bottom: 0;

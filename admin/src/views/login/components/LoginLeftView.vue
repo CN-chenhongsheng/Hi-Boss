@@ -47,8 +47,6 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-
 // 获取主题色
 const primaryColor = computed(() => {
   return (
@@ -60,7 +58,6 @@ const primaryColor = computed(() => {
 
 <style lang="scss" scoped>
 .left-view {
-
   .bg-wrap {
     height: 100%;
     background-size: cover;

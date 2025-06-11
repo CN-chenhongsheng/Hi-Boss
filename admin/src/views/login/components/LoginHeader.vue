@@ -87,7 +87,7 @@ const toggleTheme = () => {
   box-sizing: border-box;
   z-index: 9;
   opacity: 0;
-  
+
   &.animate-fade-in {
     animation: fadeIn 0.8s ease-out 0.2s forwards;
   }
