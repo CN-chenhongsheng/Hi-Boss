@@ -41,103 +41,103 @@
 </template>
 
 <script setup lang="ts">
-  import { Picture, View, ChatLineRound } from '@element-plus/icons-vue'
+import { Picture, View, ChatLineRound } from '@element-plus/icons-vue'
 
-  interface Props {
-    imageUrl: string
-    title: string
-    category?: string
-    readTime?: string
-    views: number
-    comments?: number
-    date: string
-  }
+interface Props {
+  imageUrl: string
+  title: string
+  category?: string
+  readTime?: string
+  views: number
+  comments?: number
+  date: string
+}
 
-  const props = defineProps<Props>()
+const props = defineProps<Props>()
 </script>
 
 <style lang="scss" scoped>
-  .image-card {
+.image-card {
+  width: 100%;
+
+  .art-custom-card {
+    border-radius: calc(var(--custom-radius) + 2px) !important;
+  }
+
+  .image-wrapper {
+    position: relative;
     width: 100%;
+    aspect-ratio: 16/10; // 图片宽高比 16:10
+    overflow: hidden;
 
-    .art-custom-card {
-      border-radius: calc(var(--custom-radius) + 2px) !important;
-    }
-
-    .image-wrapper {
-      position: relative;
+    .el-image {
       width: 100%;
-      aspect-ratio: 16/10; // 图片宽高比 16:10
-      overflow: hidden;
+      height: 100%;
+      transition: transform 0.3s ease-in-out;
 
-      .el-image {
-        width: 100%;
-        height: 100%;
-        transition: transform 0.3s ease-in-out;
-
-        &:hover {
-          transform: scale(1.05);
-        }
-      }
-
-      .read-time {
-        position: absolute;
-        right: 15px;
-        bottom: 15px;
-        padding: 4px 8px;
-        font-size: 12px;
-        background: var(--art-gray-200);
-        border-radius: 4px;
-      }
-
-      .image-placeholder {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 100%;
-        height: 100%;
-        background: #f5f7fa;
+      &:hover {
+        transform: scale(1.05);
       }
     }
 
-    .content {
-      padding: 16px;
+    .read-time {
+      position: absolute;
+      right: 15px;
+      bottom: 15px;
+      padding: 4px 8px;
+      font-size: 12px;
+      background: var(--art-gray-200);
+      border-radius: 4px;
+    }
 
-      .category {
-        display: inline-block;
-        padding: 2px 8px;
-        margin-bottom: 8px;
-        font-size: 12px;
-        background: var(--art-gray-200);
-        border-radius: 4px;
-      }
+    .image-placeholder {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 100%;
+      background: #f5f7fa;
+    }
+  }
 
-      .title {
-        margin: 0 0 12px;
-        font-size: 16px;
-        font-weight: 500;
-        line-height: 1.4;
-        color: var(--art-text-gray-900);
-      }
+  .content {
+    padding: 16px;
 
-      .stats {
+    .category {
+      display: inline-block;
+      padding: 2px 8px;
+      margin-bottom: 8px;
+      font-size: 12px;
+      background: var(--art-gray-200);
+      border-radius: 4px;
+    }
+
+    .title {
+      margin: 0 0 12px;
+      font-size: 16px;
+      font-weight: 500;
+      line-height: 1.4;
+      color: var(--art-text-gray-900);
+    }
+
+    .stats {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      font-size: 13px;
+      color: var(--art-text-gray-600);
+
+      .views,
+      .comments {
         display: flex;
-        gap: 16px;
+        gap: 4px;
         align-items: center;
-        font-size: 13px;
-        color: var(--art-text-gray-600);
+      }
 
-        .views,
-        .comments {
-          display: flex;
-          gap: 4px;
-          align-items: center;
-        }
-
-        .el-icon {
-          font-size: 16px;
-        }
+      .el-icon {
+        font-size: 16px;
       }
     }
   }
+}
 </style>

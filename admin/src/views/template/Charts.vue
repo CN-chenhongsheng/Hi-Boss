@@ -152,36 +152,36 @@
 <script setup lang="ts"></script>
 
 <style lang="scss" scoped>
-  .charts {
-    padding-top: 20px;
+.charts {
+  padding-top: 20px;
 
-    .page-title {
-      margin: 20px 0 15px;
-      font-size: 22px;
-      font-weight: 500;
+  .page-title {
+    margin: 20px 0 15px;
+    font-size: 22px;
+    font-weight: 500;
 
-      &:first-child {
-        margin-top: 0;
-      }
-    }
-
-    .card {
-      padding: 20px;
-      background-color: var(--art-main-bg-color);
-      border-radius: var(--custom-radius);
-
-      .card-header {
-        padding-bottom: 15px;
-
-        span {
-          font-size: 16px;
-          font-weight: 500;
-        }
-      }
-    }
-
-    .el-col {
-      margin-bottom: 20px;
+    &:first-child {
+      margin-top: 0;
     }
   }
+
+  .card {
+    padding: 20px;
+    background-color: var(--art-main-bg-color);
+    border-radius: var(--custom-radius);
+
+    .card-header {
+      padding-bottom: 15px;
+
+      span {
+        font-size: 16px;
+        font-weight: 500;
+      }
+    }
+  }
+
+  .el-col {
+    margin-bottom: 20px;
+  }
+}
 </style>

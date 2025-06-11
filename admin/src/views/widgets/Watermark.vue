@@ -54,25 +54,25 @@
 </template>
 
 <script setup lang="ts">
-  import { ref } from 'vue'
-  import { useSettingStore } from '@/store/modules/setting'
+import { ref } from 'vue'
+import { useSettingStore } from '@/store/modules/setting'
 
-  const settingStore = useSettingStore()
+const settingStore = useSettingStore()
 
-  // 这里替换成你的实际logo图片地址
-  const watermarkImage = ref('https://element-plus.org/images/element-plus-logo.svg')
+// 这里替换成你的实际logo图片地址
+const watermarkImage = ref('https://element-plus.org/images/element-plus-logo.svg')
 
-  const handleWatermarkVisible = () => {
-    useSettingStore().setWatermarkVisible(!settingStore.watermarkVisible)
-  }
+const handleWatermarkVisible = () => {
+  useSettingStore().setWatermarkVisible(!settingStore.watermarkVisible)
+}
 </script>
 
 <style lang="scss" scoped>
-  .page-content {
-    padding: 20px;
+.page-content {
+  padding: 20px;
 
-    .el-card {
-      margin-bottom: 30px;
-    }
+  .el-card {
+    margin-bottom: 30px;
   }
+}
 </style>

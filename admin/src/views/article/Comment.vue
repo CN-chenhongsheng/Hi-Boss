@@ -62,200 +62,200 @@
 </template>
 
 <script setup lang="ts">
-  import { commentList } from '@/mock/temp/commentList'
-  const showDrawer = ref(false)
+import { commentList } from '@/mock/temp/commentList'
+const showDrawer = ref(false)
 
-  // const colorList = reactive([
-  //   'rgba(216, 248, 255, 0.8)',
-  //   'rgba(253, 223, 217, 0.8)',
-  //   'rgba(252, 230, 240, 0.8)',
-  //   'rgba(211, 248, 240, 0.8)',
-  //   'rgba(255, 234, 188, 0.8)',
-  //   'rgba(245, 225, 255, 0.8)',
-  //   'rgba(225, 230, 254, 0.8)'
-  // ])
+// const colorList = reactive([
+//   'rgba(216, 248, 255, 0.8)',
+//   'rgba(253, 223, 217, 0.8)',
+//   'rgba(252, 230, 240, 0.8)',
+//   'rgba(211, 248, 240, 0.8)',
+//   'rgba(255, 234, 188, 0.8)',
+//   'rgba(245, 225, 255, 0.8)',
+//   'rgba(225, 230, 254, 0.8)'
+// ])
 
-  const colorList = reactive([
-    '#D8F8FF',
-    '#FDDFD9',
-    '#FCE6F0',
-    '#D3F8F0',
-    '#FFEABC',
-    '#F5E1FF',
-    '#E1E6FE'
-  ])
+const colorList = reactive([
+  '#D8F8FF',
+  '#FDDFD9',
+  '#FCE6F0',
+  '#D3F8F0',
+  '#FFEABC',
+  '#F5E1FF',
+  '#E1E6FE'
+])
 
-  let lastColor: string | null = null
+let lastColor: string | null = null
 
-  const randomColor = () => {
-    let newColor: string
+const randomColor = () => {
+  let newColor: string
 
-    do {
-      const index = Math.floor(Math.random() * colorList.length)
-      newColor = colorList[index]
-    } while (newColor === lastColor)
+  do {
+    const index = Math.floor(Math.random() * colorList.length)
+    newColor = colorList[index]
+  } while (newColor === lastColor)
 
-    lastColor = newColor
-    return newColor
-  }
+  lastColor = newColor
+  return newColor
+}
 
-  const clickItem = ref({
-    id: 1,
-    date: '2024-9-3',
-    content: '加油！学好Node 自己写个小Demo',
-    collection: 5,
-    comment: 8,
-    userName: '匿名'
-  })
+const clickItem = ref({
+  id: 1,
+  date: '2024-9-3',
+  content: '加油！学好Node 自己写个小Demo',
+  collection: 5,
+  comment: 8,
+  userName: '匿名'
+})
 
-  const openDrawer = (item: any) => {
-    showDrawer.value = true
-    clickItem.value = item
-  }
+const openDrawer = (item: any) => {
+  showDrawer.value = true
+  clickItem.value = item
+}
 </script>
 
 <style lang="scss" scoped>
-  .page-content {
-    background-color: transparent !important;
-    box-shadow: none !important;
+.page-content {
+  background-color: transparent !important;
+  box-shadow: none !important;
 
-    :deep(.comment-modal) {
-      background-color: transparent;
+  :deep(.comment-modal) {
+    background-color: transparent;
+  }
+
+  .title {
+    margin-top: 20px;
+    font-size: 36px;
+    font-weight: 500;
+  }
+
+  .desc {
+    margin-top: 15px;
+    font-size: 14px;
+    color: var(--art-text-gray-600);
+  }
+
+  .list {
+    margin-top: 40px;
+
+    .offset {
+      display: flex;
+      flex-wrap: wrap;
+      width: calc(100% + 16px);
+    }
+  }
+
+  .comment-box {
+    position: relative;
+    box-sizing: border-box;
+    width: calc(20% - 16px);
+    aspect-ratio: 16 / 12;
+    padding: 16px;
+    margin: 0 16px 16px 0;
+    cursor: pointer;
+    background-color: #eae2cb;
+    transition: all 0.3s;
+
+    &:hover {
+      transform: translateY(-5px);
     }
 
-    .title {
-      margin-top: 20px;
-      font-size: 36px;
-      font-weight: 500;
+    .date {
+      font-size: 12px;
+      color: #949494;
     }
 
-    .desc {
-      margin-top: 15px;
+    .content {
+      margin-top: 16px;
       font-size: 14px;
-      color: var(--art-text-gray-600);
+      color: #333;
     }
 
-    .list {
-      margin-top: 40px;
-
-      .offset {
-        display: flex;
-        flex-wrap: wrap;
-        width: calc(100% + 16px);
-      }
-    }
-
-    .comment-box {
-      position: relative;
+    .bottom {
+      position: absolute;
+      bottom: 16px;
+      left: 0;
       box-sizing: border-box;
-      width: calc(20% - 16px);
-      aspect-ratio: 16 / 12;
-      padding: 16px;
-      margin: 0 16px 16px 0;
-      cursor: pointer;
-      background-color: #eae2cb;
-      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      padding: 0 16px;
 
-      &:hover {
-        transform: translateY(-5px);
-      }
-
-      .date {
-        font-size: 12px;
-        color: #949494;
-      }
-
-      .content {
-        margin-top: 16px;
-        font-size: 14px;
-        color: #333;
-      }
-
-      .bottom {
-        position: absolute;
-        bottom: 16px;
-        left: 0;
-        box-sizing: border-box;
+      .left {
         display: flex;
         align-items: center;
-        justify-content: space-between;
-        width: 100%;
-        padding: 0 16px;
 
-        .left {
+        span {
           display: flex;
           align-items: center;
+          margin-right: 20px;
+          font-size: 12px;
+          color: #949494;
 
-          span {
-            display: flex;
-            align-items: center;
-            margin-right: 20px;
-            font-size: 12px;
-            color: #949494;
-
-            i {
-              margin-right: 5px;
-            }
-          }
-        }
-
-        .right {
-          span {
-            font-size: 14px;
-            color: #333;
+          i {
+            margin-right: 5px;
           }
         }
       }
-    }
 
-    .drawer-default {
-      .comment-box {
-        width: 100%;
-
-        &:hover {
-          transform: translateY(0);
+      .right {
+        span {
+          font-size: 14px;
+          color: #333;
         }
       }
     }
   }
 
-  @media screen and (max-width: $device-notebook) {
-    .page-content {
-      .comment-box {
-        width: calc(25% - 16px);
-      }
-    }
-  }
+  .drawer-default {
+    .comment-box {
+      width: 100%;
 
-  @media screen and (max-width: $device-ipad-pro) {
-    .page-content {
-      .comment-box {
-        width: calc(33.333% - 16px);
+      &:hover {
+        transform: translateY(0);
       }
     }
   }
+}
 
-  @media screen and (max-width: $device-ipad) {
-    .page-content {
-      .comment-box {
-        width: calc(50% - 16px);
-      }
+@media screen and (max-width: $device-notebook) {
+  .page-content {
+    .comment-box {
+      width: calc(25% - 16px);
     }
   }
+}
 
-  @media screen and (max-width: $device-phone) {
-    .page-content {
-      .comment-box {
-        width: calc(100% - 16px);
-      }
+@media screen and (max-width: $device-ipad-pro) {
+  .page-content {
+    .comment-box {
+      width: calc(33.333% - 16px);
     }
   }
+}
 
-  .dark {
-    .page-content {
-      .comment-box {
-        color: #333 !important;
-      }
+@media screen and (max-width: $device-ipad) {
+  .page-content {
+    .comment-box {
+      width: calc(50% - 16px);
     }
   }
+}
+
+@media screen and (max-width: $device-phone) {
+  .page-content {
+    .comment-box {
+      width: calc(100% - 16px);
+    }
+  }
+}
+
+.dark {
+  .page-content {
+    .comment-box {
+      color: #333 !important;
+    }
+  }
+}
 </style>

@@ -33,24 +33,24 @@
 </template>
 
 <script setup lang="ts">
-  import { IconTypeEnum } from '@/enums/appEnum'
+import { IconTypeEnum } from '@/enums/appEnum'
 
-  // 获取选择的图标
-  const getIcon = (icon: string) => {
-    console.log(icon)
-  }
+// 获取选择的图标
+const getIcon = (icon: string) => {
+  console.log(icon)
+}
 </script>
 
 <style scoped lang="scss">
-  .select {
-    .item {
-      margin-bottom: 30px;
+.select {
+  .item {
+    margin-bottom: 30px;
 
-      h3 {
-        padding-bottom: 10px;
-        font-size: 16px;
-        font-weight: 500;
-      }
+    h3 {
+      padding-bottom: 10px;
+      font-size: 16px;
+      font-weight: 500;
     }
   }
+}
 </style>

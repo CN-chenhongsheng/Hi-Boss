@@ -24,83 +24,83 @@
 </template>
 
 <script setup lang="ts">
-  import { CountTo } from 'vue3-count-to'
+import { CountTo } from 'vue3-count-to'
 
-  interface StatsCardProps {
-    icon: string
-    title?: string
-    count?: number
-    description: string
-    iconColor?: string
-    iconBgColor?: string
-    iconSize?: number
-    textColor?: string
-    backgroundColor?: string
-    showArrow?: boolean
-  }
+interface StatsCardProps {
+  icon: string
+  title?: string
+  count?: number
+  description: string
+  iconColor?: string
+  iconBgColor?: string
+  iconSize?: number
+  textColor?: string
+  backgroundColor?: string
+  showArrow?: boolean
+}
 
-  defineProps<StatsCardProps>()
+defineProps<StatsCardProps>()
 </script>
 
 <style lang="scss" scoped>
-  .stats-card {
+.stats-card {
+  display: flex;
+  align-items: center;
+  height: 8rem;
+  padding: 0 20px;
+  cursor: pointer;
+  background-color: var(--art-main-bg-color);
+  border-radius: calc(var(--custom-radius) + 4px) !important;
+  transition: transform 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+  }
+
+  &__icon {
     display: flex;
     align-items: center;
-    height: 8rem;
-    padding: 0 20px;
-    cursor: pointer;
-    background-color: var(--art-main-bg-color);
-    border-radius: calc(var(--custom-radius) + 4px) !important;
-    transition: transform 0.2s ease;
+    justify-content: center;
+    width: 46px;
+    height: 46px;
+    margin-right: 16px;
+    border-radius: 50%;
 
-    &:hover {
-      transform: translateY(-2px);
-    }
-
-    &__icon {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 46px;
-      height: 46px;
-      margin-right: 16px;
-      border-radius: 50%;
-
-      i {
-        font-size: 30px;
-      }
-    }
-
-    &__content {
-      flex: 1;
-    }
-
-    &__title {
-      margin: 0;
-      font-size: 18px;
-      font-weight: 500;
-      color: var(--art-gray-900);
-    }
-
-    &__count {
-      margin: 0;
-      font-size: 28px;
-      font-weight: 500;
-      color: var(--art-gray-900);
-    }
-
-    &__description {
-      margin: 4px 0 0;
-      font-size: 14px;
-      color: var(--art-gray-600);
-      opacity: 0.9;
-    }
-
-    &__arrow {
-      i {
-        font-size: 18px;
-        color: var(--art-gray-600);
-      }
+    i {
+      font-size: 30px;
     }
   }
+
+  &__content {
+    flex: 1;
+  }
+
+  &__title {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 500;
+    color: var(--art-gray-900);
+  }
+
+  &__count {
+    margin: 0;
+    font-size: 28px;
+    font-weight: 500;
+    color: var(--art-gray-900);
+  }
+
+  &__description {
+    margin: 4px 0 0;
+    font-size: 14px;
+    color: var(--art-gray-600);
+    opacity: 0.9;
+  }
+
+  &__arrow {
+    i {
+      font-size: 18px;
+      color: var(--art-gray-600);
+    }
+  }
+}
 </style>

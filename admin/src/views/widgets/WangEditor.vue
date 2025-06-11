@@ -5,9 +5,9 @@
 </template>
 
 <script setup lang="ts">
-  import { ref } from 'vue'
+import { ref } from 'vue'
 
-  const editorHtml = ref(`<h1>欢迎使用富文本编辑器</h1>
+const editorHtml = ref(`<h1>欢迎使用富文本编辑器</h1>
   <p>这是一个段落示例，下面展示了一些常用的富文本格式：</p>
   
   <h2>文本样式</h2>

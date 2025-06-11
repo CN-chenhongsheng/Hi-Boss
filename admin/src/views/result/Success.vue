@@ -20,75 +20,75 @@
 <script setup lang="ts"></script>
 
 <style lang="scss" scoped>
+.success {
+  box-sizing: border-box;
+  padding: 15px 100px !important;
+  text-align: center;
+
+  .icon {
+    display: block;
+    margin-top: 6vh;
+    font-size: 80px;
+    color: #19be6b !important;
+  }
+
+  .title {
+    margin-top: 20px;
+    font-size: 30px;
+    font-weight: 500;
+    color: var(--art-text-gray-900) !important;
+  }
+
+  .msg {
+    margin-top: 20px;
+    font-size: 16px;
+    color: #808695;
+  }
+
+  .res {
+    padding: 22px 30px;
+    margin-top: 30px;
+    text-align: left;
+    background-color: #f8f8f9;
+    border-radius: 5px;
+
+    p {
+      padding: 8px 0;
+      font-size: 15px;
+      color: #808695;
+    }
+  }
+
+  .btn-group {
+    margin-top: 50px;
+  }
+}
+
+.dark {
   .success {
-    box-sizing: border-box;
-    padding: 15px 100px !important;
-    text-align: center;
+    .res {
+      background: #28282a;
+    }
+  }
+}
+
+@media screen and (max-width: $device-phone) {
+  .success {
+    padding: 15px 25px !important;
 
     .icon {
-      display: block;
-      margin-top: 6vh;
-      font-size: 80px;
-      color: #19be6b !important;
+      margin-top: 4vh;
+      font-size: 60px;
     }
 
     .title {
-      margin-top: 20px;
-      font-size: 30px;
-      font-weight: 500;
-      color: var(--art-text-gray-900) !important;
-    }
-
-    .msg {
-      margin-top: 20px;
-      font-size: 16px;
-      color: #808695;
+      margin-top: 10px;
+      font-size: 25px;
     }
 
     .res {
-      padding: 22px 30px;
-      margin-top: 30px;
-      text-align: left;
-      background-color: #f8f8f9;
-      border-radius: 5px;
-
-      p {
-        padding: 8px 0;
-        font-size: 15px;
-        color: #808695;
-      }
-    }
-
-    .btn-group {
-      margin-top: 50px;
+      padding: 10px 30px;
     }
   }
-
-  .dark {
-    .success {
-      .res {
-        background: #28282a;
-      }
-    }
-  }
-
-  @media screen and (max-width: $device-phone) {
-    .success {
-      padding: 15px 25px !important;
-
-      .icon {
-        margin-top: 4vh;
-        font-size: 60px;
-      }
-
-      .title {
-        margin-top: 10px;
-        font-size: 25px;
-      }
-
-      .res {
-        padding: 10px 30px;
-      }
-    }
-  }
+}
 </style>

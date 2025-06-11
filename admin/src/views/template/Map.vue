@@ -5,18 +5,18 @@
 </template>
 
 <script setup lang="ts">
-  import { ref } from 'vue'
+import { ref } from 'vue'
 
-  const loading = ref(true)
-  const onLoaded = () => {
-    loading.value = false
-  }
+const loading = ref(true)
+const onLoaded = () => {
+  loading.value = false
+}
 
-  const ArtMapChart = defineAsyncComponent(() => import('@/components/core/charts/ArtMapChart.vue'))
+const ArtMapChart = defineAsyncComponent(() => import('@/components/core/charts/ArtMapChart.vue'))
 </script>
 
 <style lang="scss" scoped>
-  .page-content {
-    height: 100%;
-  }
+.page-content {
+  height: 100%;
+}
 </style>

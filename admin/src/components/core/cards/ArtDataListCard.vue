@@ -25,115 +25,115 @@
 </template>
 
 <script setup lang="ts">
-  import { computed } from 'vue'
+import { computed } from 'vue'
 
-  const itemHeight = 66
-  const props = withDefaults(
-    defineProps<{
-      list: Activity[]
-      title: string
-      subtitle?: string
-      maxCount?: number
-      showMoreButton?: boolean
-    }>(),
-    {
-      title: '',
-      subtitle: '',
-      maxCount: 5,
-      showMoreButton: false
-    }
-  )
-
-  const maxHeight = computed(() => {
-    return `${itemHeight * (props.maxCount || 5)}px`
-  })
-
-  interface Activity {
+const itemHeight = 66
+const props = withDefaults(
+  defineProps<{
+    list: Activity[]
     title: string
-    status: string
-    time: string
-    class: string
-    icon: string
+    subtitle?: string
     maxCount?: number
+    showMoreButton?: boolean
+  }>(),
+  {
+    title: '',
+    subtitle: '',
+    maxCount: 5,
+    showMoreButton: false
   }
+)
 
-  const emit = defineEmits<{
-    (e: 'more'): void
-  }>()
+const maxHeight = computed(() => {
+  return `${itemHeight * (props.maxCount || 5)}px`
+})
 
-  const handleMore = () => {
-    emit('more')
-  }
+interface Activity {
+  title: string
+  status: string
+  time: string
+  class: string
+  icon: string
+  maxCount?: number
+}
+
+const emit = defineEmits<{
+  (e: 'more'): void
+}>()
+
+const handleMore = () => {
+  emit('more')
+}
 </script>
 
 <style lang="scss" scoped>
-  .basic-list-card {
-    .art-card {
-      padding: 30px;
-      background-color: var(--art-main-bg-color);
-      border-radius: var(--custom-radius);
+.basic-list-card {
+  .art-card {
+    padding: 30px;
+    background-color: var(--art-main-bg-color);
+    border-radius: var(--custom-radius);
 
-      .card-header {
-        padding-bottom: 15px;
+    .card-header {
+      padding-bottom: 15px;
 
-        .card-title {
-          font-size: 18px;
-          font-weight: 500;
-          color: var(--art-gray-900);
-        }
-
-        .card-subtitle {
-          font-size: 14px;
-          color: var(--art-gray-500);
-        }
-      }
-    }
-
-    .list-item {
-      display: flex;
-      align-items: center;
-      padding: 12px 0;
-
-      .item-icon {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 40px;
-        height: 40px;
-        margin-right: 12px;
-        border-radius: 8px;
-
-        i {
-          font-size: 20px;
-        }
+      .card-title {
+        font-size: 18px;
+        font-weight: 500;
+        color: var(--art-gray-900);
       }
 
-      .item-content {
-        flex: 1;
-
-        .item-title {
-          margin-bottom: 4px;
-          font-size: 15px;
-          color: var(--art-gray-900);
-        }
-
-        .item-status {
-          font-size: 12px;
-          color: var(--art-gray-600);
-        }
-      }
-
-      .item-time {
-        margin-left: 12px;
-        font-size: 12px;
+      .card-subtitle {
+        font-size: 14px;
         color: var(--art-gray-500);
       }
     }
+  }
 
-    .more-btn {
-      width: 100%;
-      margin-top: 25px;
-      text-align: center;
+  .list-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 0;
+
+    .item-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      margin-right: 12px;
+      border-radius: 8px;
+
+      i {
+        font-size: 20px;
+      }
+    }
+
+    .item-content {
+      flex: 1;
+
+      .item-title {
+        margin-bottom: 4px;
+        font-size: 15px;
+        color: var(--art-gray-900);
+      }
+
+      .item-status {
+        font-size: 12px;
+        color: var(--art-gray-600);
+      }
+    }
+
+    .item-time {
+      margin-left: 12px;
+      font-size: 12px;
+      color: var(--art-gray-500);
     }
   }
+
+  .more-btn {
+    width: 100%;
+    margin-top: 25px;
+    text-align: center;
+  }
+}
 </style>

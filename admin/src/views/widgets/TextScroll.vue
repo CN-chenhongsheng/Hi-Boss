@@ -20,9 +20,9 @@
 </template>
 
 <style lang="scss" scoped>
-  .page-content {
-    :deep(.text-scroll-container) {
-      margin-bottom: 20px;
-    }
+.page-content {
+  :deep(.text-scroll-container) {
+    margin-bottom: 20px;
   }
+}
 </style>

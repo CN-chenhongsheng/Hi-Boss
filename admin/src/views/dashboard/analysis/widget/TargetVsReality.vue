@@ -32,199 +32,199 @@
 </template>
 
 <script setup lang="ts">
-  import { useChart } from '@/composables/useChart'
-  import { EChartsOption } from 'echarts'
-  import { useI18n } from 'vue-i18n'
-  const { t } = useI18n()
+import { useChart } from '@/composables/useChart'
+import { EChartsOption } from 'echarts'
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
 
-  const { chartRef, isDark, initChart } = useChart()
+const { chartRef, isDark, initChart } = useChart()
 
-  const options: () => EChartsOption = () => ({
-    tooltip: {
-      trigger: 'axis',
-      axisPointer: {
-        type: 'shadow'
+const options: () => EChartsOption = () => ({
+  tooltip: {
+    trigger: 'axis',
+    axisPointer: {
+      type: 'shadow'
+    }
+  },
+  grid: {
+    top: 10,
+    right: 0,
+    bottom: 0,
+    left: 0,
+    containLabel: true
+  },
+  xAxis: {
+    type: 'category',
+    data: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'June', 'July'],
+    axisLabel: {
+      color: '#7B91B0'
+    },
+    axisLine: {
+      show: false // 隐藏 x 轴线
+    },
+    axisTick: {
+      show: false // 隐藏刻度线
+    }
+  },
+  yAxis: {
+    type: 'value',
+    axisLabel: {
+      show: false // 隐藏 y 轴文字
+    },
+    splitLine: {
+      show: false // 隐藏 y 轴分割线
+    },
+    axisLine: {
+      show: false // 隐藏 y 轴线
+    }
+  },
+  series: [
+    {
+      name: 'Reality Sales',
+      type: 'bar',
+      data: [8000, 7000, 6000, 8500, 9000, 10000, 9500],
+      barWidth: '15',
+      itemStyle: {
+        borderRadius: [4, 4, 0, 0],
+        color: '#2B8DFA'
       }
     },
-    grid: {
-      top: 10,
-      right: 0,
-      bottom: 0,
-      left: 0,
-      containLabel: true
-    },
-    xAxis: {
-      type: 'category',
-      data: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'June', 'July'],
-      axisLabel: {
-        color: '#7B91B0'
-      },
-      axisLine: {
-        show: false // 隐藏 x 轴线
-      },
-      axisTick: {
-        show: false // 隐藏刻度线
+    {
+      name: 'Target Sales',
+      type: 'bar',
+      data: [10000, 9000, 11000, 10000, 12000, 12500, 11500],
+      barWidth: '15',
+      itemStyle: {
+        borderRadius: [4, 4, 4, 4],
+        color: '#95E0FB'
       }
-    },
-    yAxis: {
-      type: 'value',
-      axisLabel: {
-        show: false // 隐藏 y 轴文字
-      },
-      splitLine: {
-        show: false // 隐藏 y 轴分割线
-      },
-      axisLine: {
-        show: false // 隐藏 y 轴线
-      }
-    },
-    series: [
-      {
-        name: 'Reality Sales',
-        type: 'bar',
-        data: [8000, 7000, 6000, 8500, 9000, 10000, 9500],
-        barWidth: '15',
-        itemStyle: {
-          borderRadius: [4, 4, 0, 0],
-          color: '#2B8DFA'
-        }
-      },
-      {
-        name: 'Target Sales',
-        type: 'bar',
-        data: [10000, 9000, 11000, 10000, 12000, 12500, 11500],
-        barWidth: '15',
-        itemStyle: {
-          borderRadius: [4, 4, 4, 4],
-          color: '#95E0FB'
-        }
-      }
-    ]
-  })
+    }
+  ]
+})
 
-  watch(isDark, () => {
-    initChart(options())
-  })
+watch(isDark, () => {
+  initChart(options())
+})
 
-  onMounted(() => {
-    initChart(options())
-  })
+onMounted(() => {
+  initChart(options())
+})
 </script>
 
 <style lang="scss" scoped>
-  .custom-card {
-    height: 400px;
+.custom-card {
+  height: 400px;
 
-    &-body {
-      padding: 20px;
-    }
+  &-body {
+    padding: 20px;
+  }
 
-    &-footer {
-      box-sizing: border-box;
-      padding: 0 20px;
-      margin-top: 15px;
+  &-footer {
+    box-sizing: border-box;
+    padding: 0 20px;
+    margin-top: 15px;
 
-      .total-item {
+    .total-item {
+      display: flex;
+      margin-bottom: 20px;
+      text-align: center;
+
+      &:first-of-type .label .iconfont-sys {
+        color: #2b8dfa !important;
+        background-color: #e6f7ff !important;
+      }
+
+      &:last-of-type .label .iconfont-sys {
+        color: #1cb8fc !important;
+        background-color: #e6f7ff !important;
+      }
+
+      .label {
         display: flex;
-        margin-bottom: 20px;
-        text-align: center;
+        align-items: center;
+        justify-content: flex-start;
+        width: 60%;
+        font-size: 14px;
+        color: #606266;
 
-        &:first-of-type .label .iconfont-sys {
-          color: #2b8dfa !important;
-          background-color: #e6f7ff !important;
+        .iconfont-sys {
+          width: 40px;
+          height: 40px;
+          margin-right: 12px;
+          font-size: 18px;
+          line-height: 40px;
+          text-align: center;
+          background-color: #f2f2f2;
+          border-radius: 6px;
         }
 
-        &:last-of-type .label .iconfont-sys {
-          color: #1cb8fc !important;
-          background-color: #e6f7ff !important;
-        }
-
-        .label {
+        .label-text {
           display: flex;
-          align-items: center;
-          justify-content: flex-start;
-          width: 60%;
-          font-size: 14px;
-          color: #606266;
+          flex-direction: column;
+          align-items: flex-start;
 
-          .iconfont-sys {
-            width: 40px;
-            height: 40px;
-            margin-right: 12px;
-            font-size: 18px;
-            line-height: 40px;
-            text-align: center;
-            background-color: #f2f2f2;
-            border-radius: 6px;
-          }
+          span {
+            &:first-of-type {
+              font-size: 16px;
+              color: var(--art-text-gray-800);
+            }
 
-          .label-text {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-
-            span {
-              &:first-of-type {
-                font-size: 16px;
-                color: var(--art-text-gray-800);
-              }
-
-              &:last-of-type {
-                margin-top: 4px;
-                font-size: 12px;
-                color: #737791;
-              }
+            &:last-of-type {
+              margin-top: 4px;
+              font-size: 12px;
+              color: #737791;
             }
           }
         }
+      }
 
-        .value {
-          font-size: 18px;
-          font-weight: 400;
+      .value {
+        font-size: 18px;
+        font-weight: 400;
 
-          &.text-color-green {
-            color: #2b8dfa !important;
-          }
+        &.text-color-green {
+          color: #2b8dfa !important;
+        }
 
-          &.text-color-orange {
-            color: #1cb8fc !important;
-          }
+        &.text-color-orange {
+          color: #1cb8fc !important;
         }
       }
     }
   }
+}
 
-  @media (max-width: $device-notebook) {
-    .custom-card {
-      height: 350px;
+@media (max-width: $device-notebook) {
+  .custom-card {
+    height: 350px;
 
-      &-body {
-        padding-top: 10px;
+    &-body {
+      padding-top: 10px;
 
-        > div {
-          height: 140px !important;
-        }
+      > div {
+        height: 140px !important;
       }
+    }
 
-      &-footer {
-        margin-top: 0;
+    &-footer {
+      margin-top: 0;
+    }
+  }
+}
+
+.dark {
+  .custom-card {
+    &-footer {
+      .total-item {
+        &:first-of-type .label .iconfont-sys {
+          background-color: #222 !important;
+        }
+
+        &:last-of-type .label .iconfont-sys {
+          background-color: #222 !important;
+        }
       }
     }
   }
-
-  .dark {
-    .custom-card {
-      &-footer {
-        .total-item {
-          &:first-of-type .label .iconfont-sys {
-            background-color: #222 !important;
-          }
-
-          &:last-of-type .label .iconfont-sys {
-            background-color: #222 !important;
-          }
-        }
-      }
-    }
-  }
+}
 </style>

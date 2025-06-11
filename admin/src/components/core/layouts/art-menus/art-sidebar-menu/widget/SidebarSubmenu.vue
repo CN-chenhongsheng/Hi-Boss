@@ -36,79 +36,79 @@
 </template>
 
 <script setup lang="ts">
-  import { computed } from 'vue'
-  import type { MenuListType } from '@/types/menu'
-  import { formatMenuTitle } from '@/router/utils/utils'
-  import { handleMenuJump } from '@/utils/jump'
+import { computed } from 'vue'
+import type { MenuListType } from '@/types/menu'
+import { formatMenuTitle } from '@/router/utils/utils'
+import { handleMenuJump } from '@/utils/jump'
 
-  // 类型定义
-  interface Props {
-    title?: string
-    list?: MenuListType[]
-    theme?: {
-      iconColor?: string
-    }
-    isMobile?: boolean
-    level?: number
+// 类型定义
+interface Props {
+  title?: string
+  list?: MenuListType[]
+  theme?: {
+    iconColor?: string
   }
+  isMobile?: boolean
+  level?: number
+}
 
-  // Props定义
-  const props = withDefaults(defineProps<Props>(), {
-    title: '',
-    list: () => [],
-    theme: () => ({}),
-    isMobile: false,
-    level: 0
-  })
+// Props定义
+const props = withDefaults(defineProps<Props>(), {
+  title: '',
+  list: () => [],
+  theme: () => ({}),
+  isMobile: false,
+  level: 0
+})
 
-  // Emits定义
-  const emit = defineEmits<{
-    (e: 'close'): void
-  }>()
+// Emits定义
+const emit = defineEmits<{
+  (e: 'close'): void
+}>()
 
-  // 计算属性
-  const filteredMenuItems = computed(() => filterRoutes(props.list))
+// 计算属性
+const filteredMenuItems = computed(() => filterRoutes(props.list))
 
-  // 跳转页面
-  const goPage = (item: MenuListType) => {
-    closeMenu()
-    handleMenuJump(item)
-  }
+// 跳转页面
+const goPage = (item: MenuListType) => {
+  closeMenu()
+  handleMenuJump(item)
+}
 
-  // 关闭菜单
-  const closeMenu = () => emit('close')
+// 关闭菜单
+const closeMenu = () => emit('close')
 
-  // 判断是否有子菜单
-  const hasChildren = (item: MenuListType): boolean => {
-    return Boolean(item.children?.length)
-  }
+// 判断是否有子菜单
+const hasChildren = (item: MenuListType): boolean => {
+  return Boolean(item.children?.length)
+}
 
-  // 过滤菜单项
-  const filterRoutes = (items: MenuListType[]): MenuListType[] => {
-    return items
-      .filter((item) => !item.meta.isHide)
-      .map((item) => ({
-        ...item,
-        children: item.children ? filterRoutes(item.children) : undefined
-      }))
-  }
+// 过滤菜单项
+const filterRoutes = (items: MenuListType[]): MenuListType[] => {
+  return items
+    .filter((item) => !item.meta.isHide)
+    .map((item) => ({
+      ...item,
+      children: item.children ? filterRoutes(item.children) : undefined
+    }))
+}
 </script>
 
 <script lang="ts">
-  // 抽取图标组件
-  const MenuItemIcon = defineComponent({
-    name: 'MenuItemIcon',
-    props: {
-      icon: String,
-      color: String
-    },
-    setup(props) {
-      return () =>
-        h('i', {
-          class: 'menu-icon iconfont-sys',
-          style: props.color ? { color: props.color } : undefined,
-          innerHTML: props.icon
-        })
-    }
-  })
+// 抽取图标组件
+const MenuItemIcon = defineComponent({
+  name: 'MenuItemIcon',
+  props: {
+    icon: String,
+    color: String
+  },
+  setup(props) {
+    return () =>
+      h('i', {
+        class: 'menu-icon iconfont-sys',
+        style: props.color ? { color: props.color } : undefined,
+        innerHTML: props.icon
+      })
+  }
+})
 </script>

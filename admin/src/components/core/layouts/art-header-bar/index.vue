@@ -186,196 +186,196 @@
 </template>
 
 <script setup lang="ts">
-  import { LanguageEnum, MenuTypeEnum, MenuWidth } from '@/enums/appEnum'
-  import { useSettingStore } from '@/store/modules/setting'
-  import { useUserStore } from '@/store/modules/user'
-  import { useFullscreen } from '@vueuse/core'
-  import { ElMessageBox } from 'element-plus'
-  import { HOME_PAGE } from '@/router/routesAlias'
-  import { useI18n } from 'vue-i18n'
-  import mittBus from '@/utils/mittBus'
-  import { useMenuStore } from '@/store/modules/menu'
-  import AppConfig from '@/config'
-  import { languageOptions } from '@/language'
-  const isWindows = navigator.userAgent.includes('Windows')
-  const { locale } = useI18n()
+import { LanguageEnum, MenuTypeEnum, MenuWidth } from '@/enums/appEnum'
+import { useSettingStore } from '@/store/modules/setting'
+import { useUserStore } from '@/store/modules/user'
+import { useFullscreen } from '@vueuse/core'
+import { ElMessageBox } from 'element-plus'
+import { HOME_PAGE } from '@/router/routesAlias'
+import { useI18n } from 'vue-i18n'
+import mittBus from '@/utils/mittBus'
+import { useMenuStore } from '@/store/modules/menu'
+import AppConfig from '@/config'
+import { languageOptions } from '@/language'
+const isWindows = navigator.userAgent.includes('Windows')
+const { locale } = useI18n()
 
-  const settingStore = useSettingStore()
-  const userStore = useUserStore()
-  const router = useRouter()
+const settingStore = useSettingStore()
+const userStore = useUserStore()
+const router = useRouter()
 
-  const {
-    showMenuButton,
-    showRefreshButton,
-    showLanguage,
-    menuOpen,
-    showCrumbs,
-    systemThemeColor,
-    showSettingGuide,
-    menuType,
-    isDark,
-    tabStyle
-  } = storeToRefs(settingStore)
+const {
+  showMenuButton,
+  showRefreshButton,
+  showLanguage,
+  menuOpen,
+  showCrumbs,
+  systemThemeColor,
+  showSettingGuide,
+  menuType,
+  isDark,
+  tabStyle
+} = storeToRefs(settingStore)
 
-  const { language, getUserInfo: userInfo } = storeToRefs(userStore)
+const { language, getUserInfo: userInfo } = storeToRefs(userStore)
 
-  const { menuList } = storeToRefs(useMenuStore())
+const { menuList } = storeToRefs(useMenuStore())
 
-  const showNotice = ref(false)
-  const notice = ref(null)
-  const userMenuPopover = ref()
+const showNotice = ref(false)
+const notice = ref(null)
+const userMenuPopover = ref()
 
-  const isLeftMenu = computed(() => menuType.value === MenuTypeEnum.LEFT)
-  const isDualMenu = computed(() => menuType.value === MenuTypeEnum.DUAL_MENU)
-  const isTopMenu = computed(() => menuType.value === MenuTypeEnum.TOP)
-  const isTopLeftMenu = computed(() => menuType.value === MenuTypeEnum.TOP_LEFT)
+const isLeftMenu = computed(() => menuType.value === MenuTypeEnum.LEFT)
+const isDualMenu = computed(() => menuType.value === MenuTypeEnum.DUAL_MENU)
+const isTopMenu = computed(() => menuType.value === MenuTypeEnum.TOP)
+const isTopLeftMenu = computed(() => menuType.value === MenuTypeEnum.TOP_LEFT)
 
-  import { useCommon } from '@/composables/useCommon'
-  import { WEB_LINKS } from '@/utils/links'
-  import { themeAnimation } from '@/utils/theme/animation'
+import { useCommon } from '@/composables/useCommon'
+import { WEB_LINKS } from '@/utils/links'
+import { themeAnimation } from '@/utils/theme/animation'
 
-  const { t } = useI18n()
+const { t } = useI18n()
 
-  const { width } = useWindowSize()
+const { width } = useWindowSize()
 
-  const menuTopWidth = computed(() => {
-    return width.value * 0.5
-  })
+const menuTopWidth = computed(() => {
+  return width.value * 0.5
+})
 
-  onMounted(() => {
-    initLanguage()
-    document.addEventListener('click', bodyCloseNotice)
-  })
+onMounted(() => {
+  initLanguage()
+  document.addEventListener('click', bodyCloseNotice)
+})
 
-  onUnmounted(() => {
-    document.removeEventListener('click', bodyCloseNotice)
-  })
+onUnmounted(() => {
+  document.removeEventListener('click', bodyCloseNotice)
+})
 
-  const { isFullscreen, toggle: toggleFullscreen } = useFullscreen()
+const { isFullscreen, toggle: toggleFullscreen } = useFullscreen()
 
-  const toggleFullScreen = () => {
-    toggleFullscreen()
+const toggleFullScreen = () => {
+  toggleFullscreen()
+}
+
+const topBarWidth = (): string => {
+  const { TOP, DUAL_MENU, TOP_LEFT } = MenuTypeEnum
+  const { getMenuOpenWidth } = settingStore
+  const { isFirstLevel } = router.currentRoute.value.meta
+  const type = menuType.value
+  const isMenuOpen = menuOpen.value
+
+  const isTopLayout = type === TOP || (type === TOP_LEFT && isFirstLevel)
+
+  if (isTopLayout) {
+    return '100%'
   }
 
-  const topBarWidth = (): string => {
-    const { TOP, DUAL_MENU, TOP_LEFT } = MenuTypeEnum
-    const { getMenuOpenWidth } = settingStore
-    const { isFirstLevel } = router.currentRoute.value.meta
-    const type = menuType.value
-    const isMenuOpen = menuOpen.value
+  if (type === DUAL_MENU) {
+    return isFirstLevel ? 'calc(100% - 80px)' : `calc(100% - 80px - ${getMenuOpenWidth})`
+  }
 
-    const isTopLayout = type === TOP || (type === TOP_LEFT && isFirstLevel)
+  return isMenuOpen ? `calc(100% - ${getMenuOpenWidth})` : `calc(100% - ${MenuWidth.CLOSE})`
+}
 
-    if (isTopLayout) {
-      return '100%'
+const visibleMenu = () => {
+  settingStore.setMenuOpen(!menuOpen.value)
+}
+
+const goPage = (path: string) => {
+  router.push(path)
+}
+
+const toDocs = () => {
+  window.open(WEB_LINKS.DOCS)
+}
+
+const toGithub = () => {
+  window.open(WEB_LINKS.GITHUB)
+}
+
+const toHome = () => {
+  router.push(HOME_PAGE)
+}
+
+const loginOut = () => {
+  closeUserMenu()
+  setTimeout(() => {
+    ElMessageBox.confirm(t('common.logOutTips'), t('common.tips'), {
+      confirmButtonText: t('common.confirm'),
+      cancelButtonText: t('common.cancel'),
+      customClass: 'login-out-dialog'
+    }).then(() => {
+      userStore.logOut()
+    })
+  }, 200)
+}
+
+const reload = (time: number = 0) => {
+  setTimeout(() => {
+    useCommon().refresh()
+  }, time)
+}
+
+const initLanguage = () => {
+  locale.value = language.value
+}
+
+const changeLanguage = (lang: LanguageEnum) => {
+  if (locale.value === lang) return
+  locale.value = lang
+  userStore.setLanguage(lang)
+  reload(50)
+}
+
+const openSetting = () => {
+  mittBus.emit('openSetting')
+
+  // 隐藏设置引导
+  if (showSettingGuide.value) {
+    settingStore.hideSettingGuide()
+  }
+  // 打开设置引导
+  // settingStore.openSettingGuide()
+}
+
+const openSearchDialog = () => {
+  mittBus.emit('openSearchDialog')
+}
+
+const bodyCloseNotice = (e: any) => {
+  let { className } = e.target
+
+  if (showNotice.value) {
+    if (typeof className === 'object') {
+      showNotice.value = false
+      return
     }
-
-    if (type === DUAL_MENU) {
-      return isFirstLevel ? 'calc(100% - 80px)' : `calc(100% - 80px - ${getMenuOpenWidth})`
-    }
-
-    return isMenuOpen ? `calc(100% - ${getMenuOpenWidth})` : `calc(100% - ${MenuWidth.CLOSE})`
-  }
-
-  const visibleMenu = () => {
-    settingStore.setMenuOpen(!menuOpen.value)
-  }
-
-  const goPage = (path: string) => {
-    router.push(path)
-  }
-
-  const toDocs = () => {
-    window.open(WEB_LINKS.DOCS)
-  }
-
-  const toGithub = () => {
-    window.open(WEB_LINKS.GITHUB)
-  }
-
-  const toHome = () => {
-    router.push(HOME_PAGE)
-  }
-
-  const loginOut = () => {
-    closeUserMenu()
-    setTimeout(() => {
-      ElMessageBox.confirm(t('common.logOutTips'), t('common.tips'), {
-        confirmButtonText: t('common.confirm'),
-        cancelButtonText: t('common.cancel'),
-        customClass: 'login-out-dialog'
-      }).then(() => {
-        userStore.logOut()
-      })
-    }, 200)
-  }
-
-  const reload = (time: number = 0) => {
-    setTimeout(() => {
-      useCommon().refresh()
-    }, time)
-  }
-
-  const initLanguage = () => {
-    locale.value = language.value
-  }
-
-  const changeLanguage = (lang: LanguageEnum) => {
-    if (locale.value === lang) return
-    locale.value = lang
-    userStore.setLanguage(lang)
-    reload(50)
-  }
-
-  const openSetting = () => {
-    mittBus.emit('openSetting')
-
-    // 隐藏设置引导
-    if (showSettingGuide.value) {
-      settingStore.hideSettingGuide()
-    }
-    // 打开设置引导
-    // settingStore.openSettingGuide()
-  }
-
-  const openSearchDialog = () => {
-    mittBus.emit('openSearchDialog')
-  }
-
-  const bodyCloseNotice = (e: any) => {
-    let { className } = e.target
-
-    if (showNotice.value) {
-      if (typeof className === 'object') {
-        showNotice.value = false
-        return
-      }
-      if (className.indexOf('notice-btn') === -1) {
-        showNotice.value = false
-      }
+    if (className.indexOf('notice-btn') === -1) {
+      showNotice.value = false
     }
   }
+}
 
-  const visibleNotice = () => {
-    showNotice.value = !showNotice.value
-  }
+const visibleNotice = () => {
+  showNotice.value = !showNotice.value
+}
 
-  const openChat = () => {
-    mittBus.emit('openChat')
-  }
+const openChat = () => {
+  mittBus.emit('openChat')
+}
 
-  const lockScreen = () => {
-    mittBus.emit('openLockScreen')
-  }
+const lockScreen = () => {
+  mittBus.emit('openLockScreen')
+}
 
-  const closeUserMenu = () => {
-    setTimeout(() => {
-      userMenuPopover.value.hide()
-    }, 100)
-  }
+const closeUserMenu = () => {
+  setTimeout(() => {
+    userMenuPopover.value.hide()
+  }, 100)
+}
 </script>
 
 <style lang="scss" scoped>
-  @use './style';
-  @use './mobile';
+@use './style';
+@use './mobile';
 </style>

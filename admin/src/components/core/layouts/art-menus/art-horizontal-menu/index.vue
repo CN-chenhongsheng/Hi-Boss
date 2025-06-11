@@ -23,55 +23,55 @@
 </template>
 
 <script setup lang="ts">
-  import { MenuListType } from '@/types/menu'
+import { MenuListType } from '@/types/menu'
 
-  const route = useRoute()
+const route = useRoute()
 
-  const props = defineProps({
-    list: {
-      type: [Array] as PropType<MenuListType[]>,
-      default: () => []
-    },
-    width: {
-      type: Number,
-      default: 500
-    }
-  })
+const props = defineProps({
+  list: {
+    type: [Array] as PropType<MenuListType[]>,
+    default: () => []
+  },
+  width: {
+    type: Number,
+    default: 500
+  }
+})
 
-  const filteredMenuItems = computed(() => {
-    return props.list.filter((item) => !item.meta.isHide)
-  })
+const filteredMenuItems = computed(() => {
+  return props.list.filter((item) => !item.meta.isHide)
+})
 
-  const routerPath = computed(() => {
-    return route.path
-  })
+const routerPath = computed(() => {
+  return route.path
+})
 </script>
 
 <style lang="scss" scoped>
-  // 去除 el-sub-menu 的底部横线
-  :deep(.el-menu--horizontal .el-sub-menu__title) {
-    border: 0 !important;
-  }
+// 去除 el-sub-menu 的底部横线
+:deep(.el-menu--horizontal .el-sub-menu__title) {
+  border: 0 !important;
+}
 
-  // 去除 el-menu 的底部横线
+// 去除 el-menu 的底部横线
+.top-menu {
+  .el-menu {
+    border: none;
+  }
+}
+
+// 可自定义选中样式
+// :deep(.el-menu--horizontal .el-sub-menu.is-active) {
+//   background-color: var(--art-gray-200);
+//   margin: 10px 0;
+//   border-radius: 6px;
+// }
+
+@media only screen and (max-width: $device-notebook) {
   .top-menu {
     .el-menu {
-      border: none;
+      width: 38vw !important;
     }
   }
-
-  // 可自定义选中样式
-  // :deep(.el-menu--horizontal .el-sub-menu.is-active) {
-  //   background-color: var(--art-gray-200);
-  //   margin: 10px 0;
-  //   border-radius: 6px;
-  // }
-
-  @media only screen and (max-width: $device-notebook) {
-    .top-menu {
-      .el-menu {
-        width: 38vw !important;
-      }
-    }
-  }
+}
 </style>

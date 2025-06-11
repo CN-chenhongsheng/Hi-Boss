@@ -20,23 +20,23 @@
 </template>
 
 <script setup lang="ts">
-  import { useSettingStore } from '@/store/modules/setting'
-  import { useCeremony } from '@/composables/useCeremony'
+import { useSettingStore } from '@/store/modules/setting'
+import { useCeremony } from '@/composables/useCeremony'
 
-  const settingStore = useSettingStore()
-  const { showFestivalText } = storeToRefs(settingStore)
+const settingStore = useSettingStore()
+const { showFestivalText } = storeToRefs(settingStore)
 
-  const { currentFestivalData } = useCeremony()
+const { currentFestivalData } = useCeremony()
 
-  // 处理关闭节日文本
-  const handleClose = () => {
-    settingStore.setShowFestivalText(false)
-  }
+// 处理关闭节日文本
+const handleClose = () => {
+  settingStore.setShowFestivalText(false)
+}
 </script>
 
 <style lang="scss" scoped>
-  .festival-text-scroll {
-    overflow: hidden;
-    transition: height 0.5s ease-in-out;
-  }
+.festival-text-scroll {
+  overflow: hidden;
+  transition: height 0.5s ease-in-out;
+}
 </style>

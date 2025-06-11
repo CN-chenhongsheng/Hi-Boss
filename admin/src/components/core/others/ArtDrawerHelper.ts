@@ -27,12 +27,12 @@ export interface DrawerOptions {
  * 创建抽屉节点
  * @param component 抽屉内容组件
  * @param options 抽屉选项
- * @returns 
+ * @returns
  */
 function createDrawerNode(component: Component, options: DrawerOptions = {}) {
   // 创建容器
   const container = document.createElement('div')
-  
+
   // 抽屉关闭后的回调
   const onDestroy = () => {
     // 从DOM中移除节点
@@ -105,8 +105,8 @@ class ArtDrawerHelper {
       destroyOnClose: true,
       direction: 'rtl',
       size: '30%',
-      appendToBody: true,       // 默认添加到body，避免样式问题
-      modal: true               // 默认显示模态框
+      appendToBody: true, // 默认添加到body，避免样式问题
+      modal: true // 默认显示模态框
     }
     // 合并配置，传入的options会覆盖默认配置
     const drawerOptions = { ...defaultOptions, ...options }
@@ -114,4 +114,4 @@ class ArtDrawerHelper {
   }
 }
 
-export default ArtDrawerHelper 
+export default ArtDrawerHelper

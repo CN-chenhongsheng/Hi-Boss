@@ -41,63 +41,63 @@
 </template>
 
 <script setup lang="ts">
-  import { ref } from 'vue'
-  import { CountTo } from 'vue3-count-to'
+import { ref } from 'vue'
+import { CountTo } from 'vue3-count-to'
 
-  const count1 = ref(1000)
-  const count2 = ref(19999.99)
-  const count3 = ref(2023.45)
-  const count4 = ref(5000)
+const count1 = ref(1000)
+const count2 = ref(19999.99)
+const count3 = ref(2023.45)
+const count4 = ref(5000)
 
-  const countTo = ref()
-  const isCounting = ref(false)
+const countTo = ref()
+const isCounting = ref(false)
 
-  // 控制方法
-  const start = () => {
-    if (isCounting.value) return
+// 控制方法
+const start = () => {
+  if (isCounting.value) return
 
-    try {
-      countTo.value?.reset()
-      countTo.value?.start()
-      isCounting.value = true
-    } catch (error) {
-      console.error('启动计数器失败:', error)
-    }
+  try {
+    countTo.value?.reset()
+    countTo.value?.start()
+    isCounting.value = true
+  } catch (error) {
+    console.error('启动计数器失败:', error)
   }
+}
 
-  const pause = () => {
-    if (!isCounting.value) return
+const pause = () => {
+  if (!isCounting.value) return
 
-    try {
-      countTo.value?.pause()
-      isCounting.value = false
-    } catch (error) {
-      console.error('暂停计数器失败:', error)
-    }
+  try {
+    countTo.value?.pause()
+    isCounting.value = false
+  } catch (error) {
+    console.error('暂停计数器失败:', error)
   }
+}
 
-  const reset = () => {
-    try {
-      countTo.value?.reset()
-      isCounting.value = false
-    } catch (error) {
-      console.error('重置计数器失败:', error)
-    }
+const reset = () => {
+  try {
+    countTo.value?.reset()
+    isCounting.value = false
+  } catch (error) {
+    console.error('重置计数器失败:', error)
   }
+}
 </script>
 
 <style scoped>
-  .page-content {
-    padding: 20px;
-  }
+.page-content {
+  padding: 20px;
+}
 
-  h2 {
-    margin: 20px 0;
-    font-size: 18px;
-    color: #333;
-  }
+h2 {
+  margin: 20px 0;
+  font-size: 18px;
+  color: #333;
+}
 
-  .mt-4 {
-    margin-top: 16px;
-  }
+.mt-4 {
+  margin-top: 16px;
+}
 </style>

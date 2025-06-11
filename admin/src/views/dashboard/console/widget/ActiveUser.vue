@@ -16,161 +16,161 @@
 </template>
 
 <script setup lang="ts">
-  import * as echarts from 'echarts'
-  import { getCssVariable } from '@/utils/colors'
-  import { useChart } from '@/composables/useChart'
-  import { EChartsOption } from 'echarts'
+import * as echarts from 'echarts'
+import { getCssVariable } from '@/utils/colors'
+import { useChart } from '@/composables/useChart'
+import { EChartsOption } from 'echarts'
 
-  const {
-    chartRef,
-    isDark,
-    initChart,
-    getAxisLineStyle,
-    getAxisLabelStyle,
-    getAxisTickStyle,
-    getSplitLineStyle
-  } = useChart()
+const {
+  chartRef,
+  isDark,
+  initChart,
+  getAxisLineStyle,
+  getAxisLabelStyle,
+  getAxisTickStyle,
+  getSplitLineStyle
+} = useChart()
 
-  const list = [
-    { name: '总用户量', num: '32k' },
-    { name: '总访问量', num: '128k' },
-    { name: '日访问量', num: '1.2k' },
-    { name: '周同比', num: '+5%' }
-  ]
+const list = [
+  { name: '总用户量', num: '32k' },
+  { name: '总访问量', num: '128k' },
+  { name: '日访问量', num: '1.2k' },
+  { name: '周同比', num: '+5%' }
+]
 
-  const options: () => EChartsOption = () => {
-    return {
-      grid: {
-        top: 15,
-        right: 0,
-        bottom: 0,
-        left: 0,
-        containLabel: true
-      },
-      tooltip: {
-        trigger: 'item'
-      },
-      xAxis: {
-        type: 'category',
-        data: [1, 2, 3, 4, 5, 6, 7, 8, 9],
-        axisTick: getAxisTickStyle(),
-        axisLine: getAxisLineStyle(true),
-        axisLabel: getAxisLabelStyle(true)
-      },
-      yAxis: {
-        axisLabel: getAxisLabelStyle(true),
-        axisLine: getAxisLineStyle(!isDark.value),
-        splitLine: getSplitLineStyle(true)
-      },
-      series: [
-        {
-          data: [160, 100, 150, 80, 190, 100, 175, 120, 160],
-          type: 'bar',
-          itemStyle: {
-            borderRadius: 4,
-            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-              {
-                offset: 0,
-                color: getCssVariable('--el-color-primary-light-4')
-              },
-              {
-                offset: 1,
-                color: getCssVariable('--el-color-primary')
-              }
-            ])
-          },
-          barWidth: '50%',
-          animationDelay: (idx) => idx * 50 + 300,
-          animationDuration: (idx) => 1500 - idx * 50,
-          animationEasing: 'quarticOut' // 推荐动画： quarticOut exponentialOut quinticOut backOut
-        }
-      ]
-    }
+const options: () => EChartsOption = () => {
+  return {
+    grid: {
+      top: 15,
+      right: 0,
+      bottom: 0,
+      left: 0,
+      containLabel: true
+    },
+    tooltip: {
+      trigger: 'item'
+    },
+    xAxis: {
+      type: 'category',
+      data: [1, 2, 3, 4, 5, 6, 7, 8, 9],
+      axisTick: getAxisTickStyle(),
+      axisLine: getAxisLineStyle(true),
+      axisLabel: getAxisLabelStyle(true)
+    },
+    yAxis: {
+      axisLabel: getAxisLabelStyle(true),
+      axisLine: getAxisLineStyle(!isDark.value),
+      splitLine: getSplitLineStyle(true)
+    },
+    series: [
+      {
+        data: [160, 100, 150, 80, 190, 100, 175, 120, 160],
+        type: 'bar',
+        itemStyle: {
+          borderRadius: 4,
+          color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+            {
+              offset: 0,
+              color: getCssVariable('--el-color-primary-light-4')
+            },
+            {
+              offset: 1,
+              color: getCssVariable('--el-color-primary')
+            }
+          ])
+        },
+        barWidth: '50%',
+        animationDelay: (idx) => idx * 50 + 300,
+        animationDuration: (idx) => 1500 - idx * 50,
+        animationEasing: 'quarticOut' // 推荐动画： quarticOut exponentialOut quinticOut backOut
+      }
+    ]
   }
+}
 
-  watch(isDark, () => {
-    initChart(options())
-  })
+watch(isDark, () => {
+  initChart(options())
+})
 
-  onMounted(() => {
-    initChart(options())
-  })
+onMounted(() => {
+  initChart(options())
+})
 </script>
 
 <style lang="scss" scoped>
-  .dark {
-    .region {
-      .chart {
-        background: none;
+.dark {
+  .region {
+    .chart {
+      background: none;
+    }
+  }
+}
+
+.region {
+  box-sizing: border-box;
+  width: 42%;
+  height: 420px;
+  padding: 16px;
+
+  .chart {
+    box-sizing: border-box;
+    width: 100%;
+    height: 220px;
+    padding: 20px 0 20px 20px;
+    border-radius: calc(var(--custom-radius) / 2 + 4px) !important;
+  }
+
+  .text {
+    margin-left: 3px;
+
+    h3 {
+      margin-top: 20px;
+      font-size: 18px;
+      font-weight: 500;
+    }
+
+    p {
+      margin-top: 5px;
+      font-size: 14px;
+
+      &:last-of-type {
+        height: 42px;
+        margin-top: 5px;
       }
     }
   }
 
-  .region {
-    box-sizing: border-box;
-    width: 42%;
-    height: 420px;
-    padding: 16px;
+  .list {
+    display: flex;
+    justify-content: space-between;
+    margin-left: 3px;
 
-    .chart {
-      box-sizing: border-box;
-      width: 100%;
-      height: 220px;
-      padding: 20px 0 20px 20px;
-      border-radius: calc(var(--custom-radius) / 2 + 4px) !important;
-    }
-
-    .text {
-      margin-left: 3px;
-
-      h3 {
-        margin-top: 20px;
-        font-size: 18px;
-        font-weight: 500;
-      }
+    > div {
+      flex: 1;
 
       p {
-        margin-top: 5px;
-        font-size: 14px;
+        font-weight: 400;
+
+        &:first-of-type {
+          font-size: 24px;
+          color: var(--art-gray-900);
+        }
 
         &:last-of-type {
-          height: 42px;
-          margin-top: 5px;
-        }
-      }
-    }
-
-    .list {
-      display: flex;
-      justify-content: space-between;
-      margin-left: 3px;
-
-      > div {
-        flex: 1;
-
-        p {
-          font-weight: 400;
-
-          &:first-of-type {
-            font-size: 24px;
-            color: var(--art-gray-900);
-          }
-
-          &:last-of-type {
-            font-size: 13px;
-          }
+          font-size: 13px;
         }
       }
     }
   }
+}
 
-  @media screen and (max-width: $device-phone) {
-    .dark {
-      .active-user {
-        .chart {
-          padding: 15px 0 0 !important;
-        }
+@media screen and (max-width: $device-phone) {
+  .dark {
+    .active-user {
+      .chart {
+        padding: 15px 0 0 !important;
       }
     }
   }
+}
 </style>

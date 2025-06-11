@@ -102,40 +102,40 @@
 </template>
 
 <script setup lang="ts">
-  import icon2 from '@imgs/3d/icon2.png'
-  import icon3 from '@imgs/3d/icon3.png'
-  import icon4 from '@imgs/3d/icon4.png'
-  import icon5 from '@imgs/3d/icon7.png'
+import icon2 from '@imgs/3d/icon2.png'
+import icon3 from '@imgs/3d/icon3.png'
+import icon4 from '@imgs/3d/icon4.png'
+import icon5 from '@imgs/3d/icon7.png'
 
-  const handleBannerClick = () => {
-    console.log('banner clicked')
-  }
+const handleBannerClick = () => {
+  console.log('banner clicked')
+}
 
-  const handleConfirm = () => {
-    console.log('confirm clicked')
-  }
+const handleConfirm = () => {
+  console.log('confirm clicked')
+}
 
-  const handleCancel = () => {
-    console.log('cancel clicked')
-  }
+const handleCancel = () => {
+  console.log('cancel clicked')
+}
 </script>
 
 <style lang="scss" scoped>
-  .banners {
-    padding-top: 20px;
+.banners {
+  padding-top: 20px;
 
-    .page-title {
-      margin: 20px 0 15px;
-      font-size: 22px;
-      font-weight: 500;
+  .page-title {
+    margin: 20px 0 15px;
+    font-size: 22px;
+    font-weight: 500;
 
-      &:first-child {
-        margin-top: 0;
-      }
-    }
-
-    .el-col {
-      margin-bottom: 20px;
+    &:first-child {
+      margin-top: 0;
     }
   }
+
+  .el-col {
+    margin-bottom: 20px;
+  }
+}
 </style>

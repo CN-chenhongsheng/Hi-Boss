@@ -22,18 +22,18 @@
 </template>
 
 <script setup lang="ts">
-  import lockImg from '@imgs/lock/lock_screen_1.png'
-  const imageUrl = ref(lockImg)
+import lockImg from '@imgs/lock/lock_screen_1.png'
+const imageUrl = ref(lockImg)
 
-  const handleError = (error: any) => {
-    console.error('裁剪错误:', error)
-  }
+const handleError = (error: any) => {
+  console.error('裁剪错误:', error)
+}
 
-  const handleLoadComplete = (result: any) => {
-    console.log('图片加载完成:', result)
-  }
+const handleLoadComplete = (result: any) => {
+  console.log('图片加载完成:', result)
+}
 
-  const handleLoadError = (error: any) => {
-    console.error('图片加载失败:', error)
-  }
+const handleLoadError = (error: any) => {
+  console.error('图片加载失败:', error)
+}
 </script>

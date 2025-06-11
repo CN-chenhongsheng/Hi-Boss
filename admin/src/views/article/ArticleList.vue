@@ -92,289 +92,289 @@
 </template>
 
 <script setup lang="ts">
-  import { Picture as IconPicture } from '@element-plus/icons-vue'
+import { Picture as IconPicture } from '@element-plus/icons-vue'
 
-  import { ref, onMounted, computed } from 'vue'
-  import { ArticleType } from '@/api/model/articleModel'
-  import { router } from '@/router'
-  import { useDateFormat } from '@vueuse/core'
-  import { Search } from '@element-plus/icons-vue'
-  import EmojiText from '@/utils/emojo'
-  import { ArticleList } from '@/mock/temp/articleList'
-  import { useCommon } from '@/composables/useCommon'
+import { ref, onMounted, computed } from 'vue'
+import { ArticleType } from '@/api/model/articleModel'
+import { router } from '@/router'
+import { useDateFormat } from '@vueuse/core'
+import { Search } from '@element-plus/icons-vue'
+import EmojiText from '@/utils/emojo'
+import { ArticleList } from '@/mock/temp/articleList'
+import { useCommon } from '@/composables/useCommon'
 
-  const yearVal = ref('All')
+const yearVal = ref('All')
 
-  const options = ['All', '2024', '2023', '2022', '2021', '2020', '2019']
+const options = ['All', '2024', '2023', '2022', '2021', '2020', '2019']
 
-  const searchVal = ref('')
-  const articleList = ref<ArticleType[]>([])
-  const currentPage = ref(1)
-  const pageSize = ref(40)
-  // const lastPage = ref(0)
-  const total = ref(0)
-  const isLoading = ref(true)
+const searchVal = ref('')
+const articleList = ref<ArticleType[]>([])
+const currentPage = ref(1)
+const pageSize = ref(40)
+// const lastPage = ref(0)
+const total = ref(0)
+const isLoading = ref(true)
 
-  const showEmpty = computed(() => {
-    return articleList.value.length === 0 && !isLoading.value
+const showEmpty = computed(() => {
+  return articleList.value.length === 0 && !isLoading.value
+})
+
+onMounted(() => {
+  getArticleList({ backTop: false })
+})
+
+// 搜索文章
+const searchArticle = () => {
+  getArticleList({ backTop: true })
+}
+
+// 根据年份查询文章
+const searchArticleByYear = () => {
+  getArticleList({ backTop: true })
+}
+
+const getArticleList = async ({ backTop = false }) => {
+  isLoading.value = true
+  // let year = yearVal.value
+
+  if (searchVal.value) {
+    yearVal.value = 'All'
+  }
+
+  if (yearVal.value === 'All') {
+    // year = ''
+  }
+
+  // const params = {
+  //   page: currentPage.value,
+  //   size: pageSize.value,
+  //   searchVal: searchVal.value,
+  //   year
+  // }
+
+  articleList.value = ArticleList
+  isLoading.value = false
+
+  if (backTop) {
+    useCommon().scrollToTop()
+  }
+
+  // const res = await ArticleService.getArticleList(params)
+  // if (res.code === ApiStatus.success) {
+  //   currentPage.value = res.currentPage
+  //   pageSize.value = res.pageSize
+  //   lastPage.value = res.lastPage
+  //   total.value = res.total
+  //   articleList.value = res.data
+
+  //   // setTimeout(() => {
+  //   isLoading.value = false
+  //   // }, 3000)
+
+  //   if (searchVal.value) {
+  //     searchVal.value = ''
+  //   }
+  // }
+}
+
+const handleCurrentChange = (val: number) => {
+  currentPage.value = val
+  getArticleList({ backTop: true })
+}
+
+const toDetail = (item: ArticleType) => {
+  router.push({
+    path: `/article/detail`,
+    query: {
+      id: item.id
+    }
   })
+}
 
-  onMounted(() => {
-    getArticleList({ backTop: false })
+const toEdit = (item: ArticleType) => {
+  router.push({
+    path: `/article/article-publish`,
+    query: {
+      id: item.id
+    }
   })
+}
 
-  // 搜索文章
-  const searchArticle = () => {
-    getArticleList({ backTop: true })
-  }
-
-  // 根据年份查询文章
-  const searchArticleByYear = () => {
-    getArticleList({ backTop: true })
-  }
-
-  const getArticleList = async ({ backTop = false }) => {
-    isLoading.value = true
-    // let year = yearVal.value
-
-    if (searchVal.value) {
-      yearVal.value = 'All'
-    }
-
-    if (yearVal.value === 'All') {
-      // year = ''
-    }
-
-    // const params = {
-    //   page: currentPage.value,
-    //   size: pageSize.value,
-    //   searchVal: searchVal.value,
-    //   year
-    // }
-
-    articleList.value = ArticleList
-    isLoading.value = false
-
-    if (backTop) {
-      useCommon().scrollToTop()
-    }
-
-    // const res = await ArticleService.getArticleList(params)
-    // if (res.code === ApiStatus.success) {
-    //   currentPage.value = res.currentPage
-    //   pageSize.value = res.pageSize
-    //   lastPage.value = res.lastPage
-    //   total.value = res.total
-    //   articleList.value = res.data
-
-    //   // setTimeout(() => {
-    //   isLoading.value = false
-    //   // }, 3000)
-
-    //   if (searchVal.value) {
-    //     searchVal.value = ''
-    //   }
-    // }
-  }
-
-  const handleCurrentChange = (val: number) => {
-    currentPage.value = val
-    getArticleList({ backTop: true })
-  }
-
-  const toDetail = (item: ArticleType) => {
-    router.push({
-      path: `/article/detail`,
-      query: {
-        id: item.id
-      }
-    })
-  }
-
-  const toEdit = (item: ArticleType) => {
-    router.push({
-      path: `/article/article-publish`,
-      query: {
-        id: item.id
-      }
-    })
-  }
-
-  const toAddArticle = () => {
-    router.push({
-      path: `/article/article-publish`
-    })
-  }
+const toAddArticle = () => {
+  router.push({
+    path: `/article/article-publish`
+  })
+}
 </script>
 
 <style lang="scss" scoped>
-  .article-list {
-    .custom-segmented .el-segmented {
-      height: 40px;
-      padding: 6px;
+.article-list {
+  .custom-segmented .el-segmented {
+    height: 40px;
+    padding: 6px;
 
-      --el-border-radius-base: 8px;
-    }
+    --el-border-radius-base: 8px;
+  }
 
-    .list {
-      margin-top: 20px;
+  .list {
+    margin-top: 20px;
 
-      .offset {
-        display: flex;
-        flex-wrap: wrap;
-        width: calc(100% + 20px);
+    .offset {
+      display: flex;
+      flex-wrap: wrap;
+      width: calc(100% + 20px);
 
-        .item {
-          box-sizing: border-box;
-          width: calc(20% - 20px);
-          margin: 0 20px 20px 0;
-          cursor: pointer;
-          border: 1px solid var(--art-border-color);
-          border-radius: calc(var(--custom-radius) / 2 + 2px) !important;
+      .item {
+        box-sizing: border-box;
+        width: calc(20% - 20px);
+        margin: 0 20px 20px 0;
+        cursor: pointer;
+        border: 1px solid var(--art-border-color);
+        border-radius: calc(var(--custom-radius) / 2 + 2px) !important;
 
-          &:hover {
-            .el-button {
-              opacity: 1 !important;
+        &:hover {
+          .el-button {
+            opacity: 1 !important;
+          }
+        }
+
+        .top {
+          position: relative;
+          aspect-ratio: 16/9.5;
+
+          .cover {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            background: var(--art-gray-200);
+            border-radius: calc(var(--custom-radius) / 2 + 2px) calc(var(--custom-radius) / 2 + 2px)
+              0 0;
+
+            .image-slot {
+              font-size: 26px;
+              color: var(--art-gray-400);
             }
           }
 
-          .top {
-            position: relative;
-            aspect-ratio: 16/9.5;
+          .type {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            padding: 5px 4px;
+            font-size: 12px;
+            color: rgba(#fff, 0.8);
+            background: rgba($color: #000, $alpha: 60%);
+            border-radius: 4px;
+          }
+        }
 
-            .cover {
+        .bottom {
+          padding: 5px 10px;
+
+          h2 {
+            font-size: 16px;
+            font-weight: 500;
+            color: #333;
+
+            @include ellipsis();
+          }
+
+          .info {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            height: 25px;
+            margin-top: 6px;
+            line-height: 25px;
+
+            .text {
               display: flex;
               align-items: center;
-              justify-content: center;
-              width: 100%;
-              height: 100%;
-              object-fit: cover;
-              background: var(--art-gray-200);
-              border-radius: calc(var(--custom-radius) / 2 + 2px)
-                calc(var(--custom-radius) / 2 + 2px) 0 0;
+              color: var(--art-text-gray-600);
 
-              .image-slot {
-                font-size: 26px;
-                color: var(--art-gray-400);
+              i {
+                margin-right: 5px;
+                font-size: 14px;
+              }
+
+              span {
+                font-size: 13px;
+                color: var(--art-gray-600);
+              }
+
+              .line {
+                width: 1px;
+                height: 12px;
+                margin: 0 15px;
+                background-color: var(--art-border-dashed-color);
               }
             }
 
-            .type {
-              position: absolute;
-              top: 5px;
-              right: 5px;
-              padding: 5px 4px;
-              font-size: 12px;
-              color: rgba(#fff, 0.8);
-              background: rgba($color: #000, $alpha: 60%);
-              border-radius: 4px;
+            .el-button {
+              opacity: 0;
+              transition: all 0.3s;
             }
           }
+        }
+      }
+    }
+  }
+}
+
+@media only screen and (max-width: $device-notebook) {
+  .article-list {
+    .list {
+      .offset {
+        .item {
+          width: calc(25% - 20px);
+        }
+      }
+    }
+  }
+}
+
+@media only screen and (max-width: $device-ipad-pro) {
+  .article-list {
+    .list {
+      .offset {
+        .item {
+          width: calc(33.333% - 20px);
 
           .bottom {
-            padding: 5px 10px;
-
             h2 {
               font-size: 16px;
-              font-weight: 500;
-              color: #333;
-
-              @include ellipsis();
-            }
-
-            .info {
-              display: flex;
-              justify-content: space-between;
-              width: 100%;
-              height: 25px;
-              margin-top: 6px;
-              line-height: 25px;
-
-              .text {
-                display: flex;
-                align-items: center;
-                color: var(--art-text-gray-600);
-
-                i {
-                  margin-right: 5px;
-                  font-size: 14px;
-                }
-
-                span {
-                  font-size: 13px;
-                  color: var(--art-gray-600);
-                }
-
-                .line {
-                  width: 1px;
-                  height: 12px;
-                  margin: 0 15px;
-                  background-color: var(--art-border-dashed-color);
-                }
-              }
-
-              .el-button {
-                opacity: 0;
-                transition: all 0.3s;
-              }
             }
           }
         }
       }
     }
   }
+}
 
-  @media only screen and (max-width: $device-notebook) {
-    .article-list {
-      .list {
-        .offset {
-          .item {
-            width: calc(25% - 20px);
-          }
+@media only screen and (max-width: $device-ipad) {
+  .article-list {
+    .list {
+      .offset {
+        .item {
+          width: calc(50% - 20px);
         }
       }
     }
   }
+}
 
-  @media only screen and (max-width: $device-ipad-pro) {
-    .article-list {
-      .list {
-        .offset {
-          .item {
-            width: calc(33.333% - 20px);
-
-            .bottom {
-              h2 {
-                font-size: 16px;
-              }
-            }
-          }
+@media only screen and (max-width: $device-phone) {
+  .article-list {
+    .list {
+      .offset {
+        .item {
+          width: calc(100% - 20px);
         }
       }
     }
   }
-
-  @media only screen and (max-width: $device-ipad) {
-    .article-list {
-      .list {
-        .offset {
-          .item {
-            width: calc(50% - 20px);
-          }
-        }
-      }
-    }
-  }
-
-  @media only screen and (max-width: $device-phone) {
-    .article-list {
-      .list {
-        .offset {
-          .item {
-            width: calc(100% - 20px);
-          }
-        }
-      }
-    }
-  }
+}
 </style>

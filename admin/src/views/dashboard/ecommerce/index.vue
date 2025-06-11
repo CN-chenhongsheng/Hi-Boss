@@ -58,92 +58,92 @@
 </template>
 
 <script setup lang="ts">
-  import Banner from './widget/Banner.vue'
-  import TotalOrderVolume from './widget/TotalOrderVolume.vue'
-  import TotalProducts from './widget/TotalProducts.vue'
-  import SalesTrend from './widget/SalesTrend.vue'
-  import SalesClassification from './widget/SalesClassification.vue'
-  import TransactionList from './widget/TransactionList.vue'
-  import HotCommodity from './widget/HotCommodity.vue'
-  import RecentTransaction from './widget/RecentTransaction.vue'
-  import AnnualSales from './widget/AnnualSales.vue'
-  import ProductSales from './widget/ProductSales.vue'
-  import SalesGrowth from './widget/SalesGrowth.vue'
-  import CartConversionRate from './widget/CartConversionRate.vue'
-  import HotProductsList from './widget/HotProductsList.vue'
+import Banner from './widget/Banner.vue'
+import TotalOrderVolume from './widget/TotalOrderVolume.vue'
+import TotalProducts from './widget/TotalProducts.vue'
+import SalesTrend from './widget/SalesTrend.vue'
+import SalesClassification from './widget/SalesClassification.vue'
+import TransactionList from './widget/TransactionList.vue'
+import HotCommodity from './widget/HotCommodity.vue'
+import RecentTransaction from './widget/RecentTransaction.vue'
+import AnnualSales from './widget/AnnualSales.vue'
+import ProductSales from './widget/ProductSales.vue'
+import SalesGrowth from './widget/SalesGrowth.vue'
+import CartConversionRate from './widget/CartConversionRate.vue'
+import HotProductsList from './widget/HotProductsList.vue'
 </script>
 
 <style lang="scss" scoped>
-  .ecommerce {
-    :deep(.card) {
-      box-sizing: border-box;
-      padding: 20px;
-      background-color: var(--art-main-bg-color);
-      border-radius: var(--custom-radius);
+.ecommerce {
+  :deep(.card) {
+    box-sizing: border-box;
+    padding: 20px;
+    background-color: var(--art-main-bg-color);
+    border-radius: var(--custom-radius);
 
-      .card-header {
-        padding-bottom: 15px;
+    .card-header {
+      padding-bottom: 15px;
 
-        .title {
-          font-size: 18px;
-          font-weight: 500;
-          color: var(--art-gray-900);
+      .title {
+        font-size: 18px;
+        font-weight: 500;
+        color: var(--art-gray-900);
 
-          i {
-            margin-left: 10px;
-          }
-        }
-
-        .subtitle {
-          font-size: 14px;
-          color: var(--art-gray-500);
+        i {
+          margin-left: 10px;
         }
       }
-    }
 
-    :deep(.icon-text-widget) {
-      display: flex;
-      justify-content: space-around;
-
-      .item {
-        display: flex;
-        align-items: center;
-
-        .icon {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          width: 42px;
-          height: 42px;
-          margin-right: 10px;
-          line-height: 42px;
-          color: var(--main-color);
-          background-color: var(--el-color-primary-light-9);
-          border-radius: 8px;
-
-          i {
-            font-size: 20px;
-          }
-        }
-
-        .content {
-          p {
-            font-size: 18px;
-          }
-
-          span {
-            font-size: 14px;
-          }
-        }
+      .subtitle {
+        font-size: 14px;
+        color: var(--art-gray-500);
       }
-    }
-
-    .no-margin-bottom {
-      margin-bottom: 0 !important;
-    }
-
-    .el-col {
-      margin-bottom: 20px;
     }
   }
+
+  :deep(.icon-text-widget) {
+    display: flex;
+    justify-content: space-around;
+
+    .item {
+      display: flex;
+      align-items: center;
+
+      .icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 42px;
+        height: 42px;
+        margin-right: 10px;
+        line-height: 42px;
+        color: var(--main-color);
+        background-color: var(--el-color-primary-light-9);
+        border-radius: 8px;
+
+        i {
+          font-size: 20px;
+        }
+      }
+
+      .content {
+        p {
+          font-size: 18px;
+        }
+
+        span {
+          font-size: 14px;
+        }
+      }
+    }
+  }
+
+  .no-margin-bottom {
+    margin-bottom: 0 !important;
+  }
+
+  .el-col {
+    margin-bottom: 20px;
+  }
+}
 </style>

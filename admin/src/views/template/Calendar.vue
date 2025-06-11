@@ -76,221 +76,221 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, computed } from 'vue'
+import { ref, computed } from 'vue'
 
-  // 类型定义
-  interface CalendarEvent {
-    date: string
-    endDate?: string
-    content: string
-    type?: 'bg-primary' | 'bg-success' | 'bg-warning' | 'bg-danger'
-  }
+// 类型定义
+interface CalendarEvent {
+  date: string
+  endDate?: string
+  content: string
+  type?: 'bg-primary' | 'bg-success' | 'bg-warning' | 'bg-danger'
+}
 
-  // 常量定义
-  const eventTypes = [
-    { label: '基本', value: 'bg-primary' },
-    { label: '成功', value: 'bg-success' },
-    { label: '警告', value: 'bg-warning' },
-    { label: '危险', value: 'bg-danger' }
-  ] as const
+// 常量定义
+const eventTypes = [
+  { label: '基本', value: 'bg-primary' },
+  { label: '成功', value: 'bg-success' },
+  { label: '警告', value: 'bg-warning' },
+  { label: '危险', value: 'bg-danger' }
+] as const
 
-  // 状态管理
-  const currentDate = ref(new Date('2025-02-07'))
-  const events = ref<CalendarEvent[]>([
-    { date: '2025-02-01', content: '产品需求评审', type: 'bg-primary' },
-    {
-      date: '2025-02-03',
-      endDate: '2025-02-05',
-      content: '项目周报会议（跨日期）',
-      type: 'bg-primary'
-    },
-    { date: '2025-02-10', content: '瑜伽课程', type: 'bg-success' },
-    { date: '2025-02-15', content: '团队建设活动', type: 'bg-primary' },
-    { date: '2025-02-20', content: '健身训练', type: 'bg-success' },
-    { date: '2025-02-20', content: '代码评审', type: 'bg-danger' },
-    { date: '2025-02-20', content: '团队午餐', type: 'bg-primary' },
-    { date: '2025-02-20', content: '项目进度汇报', type: 'bg-warning' },
-    { date: '2025-02-28', content: '月度总结会', type: 'bg-warning' }
-  ])
+// 状态管理
+const currentDate = ref(new Date('2025-02-07'))
+const events = ref<CalendarEvent[]>([
+  { date: '2025-02-01', content: '产品需求评审', type: 'bg-primary' },
+  {
+    date: '2025-02-03',
+    endDate: '2025-02-05',
+    content: '项目周报会议（跨日期）',
+    type: 'bg-primary'
+  },
+  { date: '2025-02-10', content: '瑜伽课程', type: 'bg-success' },
+  { date: '2025-02-15', content: '团队建设活动', type: 'bg-primary' },
+  { date: '2025-02-20', content: '健身训练', type: 'bg-success' },
+  { date: '2025-02-20', content: '代码评审', type: 'bg-danger' },
+  { date: '2025-02-20', content: '团队午餐', type: 'bg-primary' },
+  { date: '2025-02-20', content: '项目进度汇报', type: 'bg-warning' },
+  { date: '2025-02-28', content: '月度总结会', type: 'bg-warning' }
+])
 
-  // 弹窗状态管理
-  const dialogVisible = ref(false)
-  const dialogTitle = ref('添加事件')
-  const editingEventIndex = ref<number>(-1)
-  const eventForm = ref<CalendarEvent>({
+// 弹窗状态管理
+const dialogVisible = ref(false)
+const dialogTitle = ref('添加事件')
+const editingEventIndex = ref<number>(-1)
+const eventForm = ref<CalendarEvent>({
+  date: '',
+  endDate: '',
+  content: '',
+  type: 'bg-primary'
+})
+
+// 计算属性
+const isEditing = computed(() => editingEventIndex.value >= 0)
+
+// 工具函数
+const formatDate = (date: string) => date.split('-')[2]
+
+const getEvents = (day: string) => {
+  return events.value.filter((event) => {
+    const eventDate = new Date(event.date)
+    const currentDate = new Date(day)
+    const endDate = event.endDate ? new Date(event.endDate) : new Date(event.date)
+
+    return currentDate >= eventDate && currentDate <= endDate
+  })
+}
+
+const resetForm = () => {
+  eventForm.value = {
     date: '',
     endDate: '',
     content: '',
     type: 'bg-primary'
-  })
+  }
+  editingEventIndex.value = -1
+}
 
-  // 计算属性
-  const isEditing = computed(() => editingEventIndex.value >= 0)
+// 事件处理函数
+const handleCellClick = (day: string) => {
+  dialogTitle.value = '添加事件'
+  eventForm.value = {
+    date: day,
+    content: '',
+    type: 'bg-primary'
+  }
+  editingEventIndex.value = -1
+  dialogVisible.value = true
+}
 
-  // 工具函数
-  const formatDate = (date: string) => date.split('-')[2]
+const handleEventClick = (event: CalendarEvent) => {
+  dialogTitle.value = '编辑事件'
+  eventForm.value = { ...event }
+  editingEventIndex.value = events.value.findIndex(
+    (e) => e.date === event.date && e.content === event.content
+  )
+  dialogVisible.value = true
+}
 
-  const getEvents = (day: string) => {
-    return events.value.filter((event) => {
-      const eventDate = new Date(event.date)
-      const currentDate = new Date(day)
-      const endDate = event.endDate ? new Date(event.endDate) : new Date(event.date)
-
-      return currentDate >= eventDate && currentDate <= endDate
-    })
+const handleSaveEvent = () => {
+  if (!eventForm.value.content || !eventForm.value.date) {
+    return
   }
 
-  const resetForm = () => {
-    eventForm.value = {
-      date: '',
-      endDate: '',
-      content: '',
-      type: 'bg-primary'
-    }
-    editingEventIndex.value = -1
+  if (isEditing.value) {
+    events.value[editingEventIndex.value] = { ...eventForm.value }
+  } else {
+    events.value.push({ ...eventForm.value })
   }
 
-  // 事件处理函数
-  const handleCellClick = (day: string) => {
-    dialogTitle.value = '添加事件'
-    eventForm.value = {
-      date: day,
-      content: '',
-      type: 'bg-primary'
-    }
-    editingEventIndex.value = -1
-    dialogVisible.value = true
-  }
+  dialogVisible.value = false
+  resetForm()
+}
 
-  const handleEventClick = (event: CalendarEvent) => {
-    dialogTitle.value = '编辑事件'
-    eventForm.value = { ...event }
-    editingEventIndex.value = events.value.findIndex(
-      (e) => e.date === event.date && e.content === event.content
-    )
-    dialogVisible.value = true
-  }
-
-  const handleSaveEvent = () => {
-    if (!eventForm.value.content || !eventForm.value.date) {
-      return
-    }
-
-    if (isEditing.value) {
-      events.value[editingEventIndex.value] = { ...eventForm.value }
-    } else {
-      events.value.push({ ...eventForm.value })
-    }
-
+const handleDeleteEvent = () => {
+  if (isEditing.value) {
+    events.value.splice(editingEventIndex.value, 1)
     dialogVisible.value = false
     resetForm()
   }
-
-  const handleDeleteEvent = () => {
-    if (isEditing.value) {
-      events.value.splice(editingEventIndex.value, 1)
-      dialogVisible.value = false
-      resetForm()
-    }
-  }
+}
 </script>
 
 <style scoped lang="scss">
-  .page-content {
+.page-content {
+  height: 100%;
+
+  :deep(.el-calendar) {
     height: 100%;
 
-    :deep(.el-calendar) {
+    .el-calendar__body {
+      height: calc(100% - 70px);
+    }
+
+    .el-calendar-table {
       height: 100%;
 
-      .el-calendar__body {
-        height: calc(100% - 70px);
+      .is-selected {
+        // 选中日期的背景颜色
+        background-color: var(--el-color-warning-light-9) !important;
       }
 
-      .el-calendar-table {
+      .el-calendar-day {
         height: 100%;
 
-        .is-selected {
-          // 选中日期的背景颜色
-          background-color: var(--el-color-warning-light-9) !important;
-        }
-
-        .el-calendar-day {
-          height: 100%;
-
-          &:hover {
-            background-color: transparent !important;
-          }
+        &:hover {
+          background-color: transparent !important;
         }
       }
     }
   }
+}
 
-  .calendar-cell {
-    position: relative;
+.calendar-cell {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 120px;
+  max-height: 120px;
+  padding: 4px;
+  overflow: hidden;
+  cursor: pointer;
+
+  .calendar-date {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    font-size: 14px;
+  }
+
+  .calendar-events {
     display: flex;
     flex-direction: column;
-    height: 100%;
-    min-height: 120px;
-    max-height: 120px;
-    padding: 4px;
+    gap: 4px;
+    width: 100%;
+    max-height: 85px;
+    padding-right: 4px;
+    margin-top: 24px;
+    overflow-y: auto;
+  }
+
+  .event-tag {
+    min-width: 100px;
+    padding: 6px 12px;
     overflow: hidden;
-    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 24px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    border-radius: 4px;
 
-    .calendar-date {
+    &:hover {
+      opacity: 0.8;
+    }
+
+    &::before {
       position: absolute;
-      top: 4px;
+      top: 0;
+      left: 0;
+      display: inline-block;
+      width: 4px;
+      height: 100%;
+      content: '';
+    }
+
+    &.event-continues::after {
+      position: absolute;
+      top: 50%;
       right: 4px;
-      font-size: 14px;
-    }
-
-    .calendar-events {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      width: 100%;
-      max-height: 85px;
-      padding-right: 4px;
-      margin-top: 24px;
-      overflow-y: auto;
-    }
-
-    .event-tag {
-      min-width: 100px;
-      padding: 6px 12px;
-      overflow: hidden;
-      font-size: 13px;
-      font-weight: 500;
-      line-height: 24px;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      border-radius: 4px;
-
-      &:hover {
-        opacity: 0.8;
-      }
-
-      &::before {
-        position: absolute;
-        top: 0;
-        left: 0;
-        display: inline-block;
-        width: 4px;
-        height: 100%;
-        content: '';
-      }
-
-      &.event-continues::after {
-        position: absolute;
-        top: 50%;
-        right: 4px;
-        font-size: 12px;
-        content: '►';
-        transform: translateY(-50%);
-      }
+      font-size: 12px;
+      content: '►';
+      transform: translateY(-50%);
     }
   }
+}
 
-  :deep(.el-dialog__body) {
-    padding-top: 20px;
-  }
+:deep(.el-dialog__body) {
+  padding-top: 20px;
+}
 </style>
