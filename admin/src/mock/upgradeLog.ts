@@ -9,6 +9,11 @@ interface UpgradeLog {
 
 export const upgradeLogList = ref<UpgradeLog[]>([
   {
+    version: 'v2.2.93',
+    title: 'config 文件夹结构简化',
+    date: '2025-06-12'
+  },
+  {
     version: 'v2.2.92',
     title: 'prettier、stylelint、lint-staged、cz-git 版本升级',
     date: '2025-06-12'

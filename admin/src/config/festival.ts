@@ -1,12 +1,15 @@
-// 节日礼花、文字滚动配置
+/**
+ * 节日配置
+ * 包含：礼花效果、滚动文字
+ */
+// 图片需要在 components/Ceremony/Fireworks 文件预先定义
+import { FestivalConfig } from '@/types/config'
+import sd from '@imgs/ceremony/sd.png'
+import yd from '@imgs/ceremony/yd.png'
 import AppConfig from '@/config'
 const { name } = AppConfig.systemInfo
 
-// 图片需要在 components/Ceremony/Fireworks 文件预先定义
-import sd from '@imgs/ceremony/sd.png'
-import yd from '@imgs/ceremony/yd.png'
-
-export const festivalList = [
+export const festivalConfigList: FestivalConfig[] = [
   {
     date: '2025-01-01',
     name: '元旦',
