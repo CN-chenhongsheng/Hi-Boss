@@ -22,7 +22,7 @@ import { onMounted, onBeforeUnmount, ref, reactive } from 'vue'
 import { randomNum } from '@/utils/utils'
 
 // 导入背景图片
-import bg1 from '@/assets/img/login/bg1.png'
+import bg1 from '@/assets/img/login/bg1.webp'
 import bg2 from '@/assets/img/login/bg2.png'
 
 // 随机选择背景图片
