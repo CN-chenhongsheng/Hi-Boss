@@ -205,7 +205,7 @@ const handleSubmit = async () => {
           // 跳转首页
           router.push(HOME_PAGE)
         } else {
-          ElMessage.error(res.message)
+          ElMessage.error(res.msg)
           resetDragVerify()
         }
       } finally {
@@ -416,7 +416,6 @@ const showLoginSuccessNotice = () => {
   // 输入框样式
   :deep(.el-input__wrapper),
   :deep(.el-select__wrapper) {
-    box-shadow: none;
     border-radius: 8px;
     transition: box-shadow 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
     color: var(--art-text-gray-500) !important;
@@ -429,7 +428,6 @@ const showLoginSuccessNotice = () => {
   }
 
   .drag_verify {
-    border: none;
     transition: box-shadow 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
 
     &:hover {
