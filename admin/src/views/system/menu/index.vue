@@ -21,6 +21,7 @@
         <!-- 表格 -->
         <ArtTable
           ref="tableRef"
+          rowKey="path"
           :loading="loading"
           :data="filteredTableData"
           :currentPage="1"

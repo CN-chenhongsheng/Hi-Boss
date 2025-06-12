@@ -19,6 +19,7 @@
 
         <!-- 表格 -->
         <ArtTable
+          rowKey="id"
           :data="tableData"
           :loading="loading"
           :currentPage="1"

@@ -147,7 +147,7 @@
                 <div class="user-head">
                   <img class="cover" :src="userInfo.avatar" style="float: left" />
                   <div class="user-wrap">
-                    <span class="name">{{ userInfo.username }}</span>
+                    <span class="name">{{ userInfo.userName }}</span>
                     <span class="email" v-if="userInfo.email">{{ userInfo.email }}</span>
                   </div>
                 </div>

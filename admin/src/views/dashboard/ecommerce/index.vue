@@ -58,23 +58,23 @@
 </template>
 
 <script setup lang="ts">
-  import Banner from './widget/Banner.vue'
-  import TotalOrderVolume from './widget/TotalOrderVolume.vue'
-  import TotalProducts from './widget/TotalProducts.vue'
-  import SalesTrend from './widget/SalesTrend.vue'
-  import SalesClassification from './widget/SalesClassification.vue'
-  import TransactionList from './widget/TransactionList.vue'
-  import HotCommodity from './widget/HotCommodity.vue'
-  import RecentTransaction from './widget/RecentTransaction.vue'
-  import AnnualSales from './widget/AnnualSales.vue'
-  import ProductSales from './widget/ProductSales.vue'
-  import SalesGrowth from './widget/SalesGrowth.vue'
-  import CartConversionRate from './widget/CartConversionRate.vue'
-  import HotProductsList from './widget/HotProductsList.vue'
+import Banner from './widget/Banner.vue'
+import TotalOrderVolume from './widget/TotalOrderVolume.vue'
+import TotalProducts from './widget/TotalProducts.vue'
+import SalesTrend from './widget/SalesTrend.vue'
+import SalesClassification from './widget/SalesClassification.vue'
+import TransactionList from './widget/TransactionList.vue'
+import HotCommodity from './widget/HotCommodity.vue'
+import RecentTransaction from './widget/RecentTransaction.vue'
+import AnnualSales from './widget/AnnualSales.vue'
+import ProductSales from './widget/ProductSales.vue'
+import SalesGrowth from './widget/SalesGrowth.vue'
+import CartConversionRate from './widget/CartConversionRate.vue'
+import HotProductsList from './widget/HotProductsList.vue'
 
-  defineOptions({ name: 'Ecommerce' })
+defineOptions({ name: 'Ecommerce' })
 </script>
 
 <style lang="scss" scoped>
-  @use './style';
+@use './style';
 </style>
