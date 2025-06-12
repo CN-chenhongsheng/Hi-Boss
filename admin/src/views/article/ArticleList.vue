@@ -99,7 +99,7 @@ import { ArticleType } from '@/api/model/articleModel'
 import { router } from '@/router'
 import { useDateFormat } from '@vueuse/core'
 import { Search } from '@element-plus/icons-vue'
-import EmojiText from '@/utils/emojo'
+import EmojiText from '@/utils/ui/emojo'
 import { ArticleList } from '@/mock/temp/articleList'
 import { useCommon } from '@/composables/useCommon'
 

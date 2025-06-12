@@ -47,6 +47,7 @@
 </template>
 
 <script setup lang="ts">
+defineOptions({ name: 'Menus' })
 import { useMenuData } from './composables/useMenuData'
 import { useMenuSearch } from './composables/useMenuSearch'
 import { useMenuColumns } from './composables/useMenuColumns'

@@ -20,7 +20,7 @@
 </template>
 
 <script setup lang="ts">
-import { upgradeLogList } from '@/mock/upgradeLog'
+import { upgradeLogList } from '@/mock/upgrade/changeLog'
 </script>
 
 <style lang="scss" scoped>

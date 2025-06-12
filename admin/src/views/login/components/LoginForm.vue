@@ -67,7 +67,7 @@ import { ElMessage, ElNotification } from 'element-plus'
 import { useUserStore } from '@/store/modules/user'
 import { HOME_PAGE } from '@/router/routesAlias'
 import { ApiStatus } from '@/utils/http/status'
-import { getCssVariable } from '@/utils/colors'
+import { getCssVariable } from '@/utils/ui'
 import { UserService } from '@/api/usersApi'
 import { useI18n } from 'vue-i18n'
 import { useWindowSize } from '@vueuse/core'
@@ -85,8 +85,8 @@ const isClickPass = ref(false)
 const systemName = AppConfig.systemInfo.name
 const formRef = ref<FormInstance>()
 const formData = reactive({
-  username: AppConfig.systemInfo.login.username,
-  password: AppConfig.systemInfo.login.password,
+  username: AppConfig.systemInfo.username,
+  password: AppConfig.systemInfo.password,
   rememberPassword: true,
   tenant: 'tenant1'
 })

@@ -39,7 +39,7 @@ const route = useRoute()
 import { ref, onMounted } from 'vue'
 import { ArrowLeft, ArrowRight } from '@element-plus/icons-vue'
 import { formatMenuTitle } from '@/router/utils/utils'
-import { handleMenuJump } from '@/utils/jump'
+import { handleMenuJump } from '@/utils/navigation'
 
 const settingStore = useSettingStore()
 const { getMenuOpenWidth: menuopenwidth } = storeToRefs(settingStore)

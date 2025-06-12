@@ -198,10 +198,10 @@
 </template>
 
 <script setup lang="ts">
-import cover1 from '@imgs/cover/img1.jpg'
-import cover2 from '@imgs/cover/img2.jpg'
-import cover3 from '@imgs/cover/img3.jpg'
-import cover4 from '@imgs/cover/img4.jpg'
+import cover1 from '@imgs/cover/img1.webp'
+import cover2 from '@imgs/cover/img2.webp'
+import cover3 from '@imgs/cover/img3.webp'
+import cover4 from '@imgs/cover/img4.webp'
 
 const statsCards = [
   {

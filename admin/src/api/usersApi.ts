@@ -1,23 +1,23 @@
 // import request from '@/utils/http'
 // import { BaseResult } from '@/types/axios'
 import AppConfig from '@/config'
-import { BaseResult } from '@/types/axios'
+import { BaseResponse } from '@/types/api'
 import { UserInfo } from '@/types/store'
-import avatar from '@imgs/user/avatar.png'
+import avatar from '@/assets/img/avatar/avatar1.webp'
 
 export class UserService {
   // 模拟登录接口
-  static login(options: { body: string }): Promise<BaseResult> {
+  static login(options: { body: string }): Promise<BaseResponse> {
     return new Promise((resolve) => {
       const { username, password } = JSON.parse(options.body)
 
       if (
-        username === AppConfig.systemInfo.login.username &&
-        password === AppConfig.systemInfo.login.password
+        username === AppConfig.systemInfo.username &&
+        password === AppConfig.systemInfo.password
       ) {
         resolve({
           code: 200,
-          message: '登录成功',
+          msg: '登录成功',
           data: {
             accessToken:
               'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IkpvaG4gU25vdyIsImlhdCI6MTcwNjg2NTYwMCwiZXhwIjoxNzA2OTUyMDAwfQ.8f9D4kJ2m3XlH5Q0y6Z1r2Y3n4X5pL6q8K9v2W3n4X5'
@@ -26,7 +26,7 @@ export class UserService {
       } else {
         resolve({
           code: 401,
-          message: '用户名或密码错误',
+          msg: '用户名或密码错误',
           data: null
         })
       }
@@ -34,17 +34,19 @@ export class UserService {
   }
 
   // 获取用户信息
-  static getUserInfo(): Promise<BaseResult<UserInfo>> {
+  static getUserInfo(): Promise<BaseResponse<UserInfo>> {
     return new Promise((resolve) => {
       resolve({
         code: 200,
-        message: '获取用户信息成功',
+        msg: '获取用户信息成功',
         data: {
-          id: 1,
-          name: '张三',
-          username: 'John Snow',
+          userId: 1,
+          userName: '张三',
+          roles: ['R_SUPER', 'R_ADMIN'],
+          buttons: ['add', 'edit', 'delete'],
           avatar: avatar,
-          email: 'art.design@gmail.com'
+          email: 'art.design@gmail.com',
+          phone: '12345678901'
         }
       })
     })

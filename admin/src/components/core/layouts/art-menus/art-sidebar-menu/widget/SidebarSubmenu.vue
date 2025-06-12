@@ -39,7 +39,7 @@
 import { computed } from 'vue'
 import type { MenuListType } from '@/types/menu'
 import { formatMenuTitle } from '@/router/utils/utils'
-import { handleMenuJump } from '@/utils/jump'
+import { handleMenuJump } from '@/utils/navigation'
 
 // 类型定义
 interface Props {

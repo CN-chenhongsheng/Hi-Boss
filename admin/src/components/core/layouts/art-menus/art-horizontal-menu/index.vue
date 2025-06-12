@@ -7,13 +7,15 @@
       mode="horizontal"
       :default-active="routerPath"
       text-color="var(--art-text-gray-700)"
-      :popper-offset="16"
+      :popper-offset="-6"
       :style="{ width: width + 'px' }"
       background-color="transparent"
+      :show-timeout="50"
+      :hide-timeout="50"
     >
       <HorizontalSubmenu
         v-for="item in filteredMenuItems"
-        :key="item.id"
+        :key="item.path"
         :item="item"
         :isMobile="false"
         :level="0"
@@ -23,13 +25,13 @@
 </template>
 
 <script setup lang="ts">
-import { MenuListType } from '@/types/menu'
+import { AppRouteRecord } from '@/types/router'
 
 const route = useRoute()
 
 const props = defineProps({
   list: {
-    type: [Array] as PropType<MenuListType[]>,
+    type: [Array] as PropType<AppRouteRecord[]>,
     default: () => []
   },
   width: {

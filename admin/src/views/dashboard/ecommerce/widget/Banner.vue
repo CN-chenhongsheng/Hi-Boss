@@ -1,7 +1,7 @@
 <template>
   <ArtBasicBanner
     class="banner"
-    :title="`欢迎回来 ${userInfo.username}`"
+    :title="`欢迎回来 ${userInfo.userName}`"
     :showButton="false"
     backgroundColor="var(--el-color-primary-light-9)"
     titleColor="var(--art-gray-900)"
@@ -28,46 +28,46 @@
 </template>
 
 <script setup lang="ts">
-import bannerCover from '@imgs/login/lf_icon2.png'
-import { useUserStore } from '@/store/modules/user'
-const userStore = useUserStore()
+  import bannerCover from '@imgs/login/lf_icon2.webp'
+  import { useUserStore } from '@/store/modules/user'
+  const userStore = useUserStore()
 
-const userInfo = computed(() => userStore.getUserInfo)
+  const userInfo = computed(() => userStore.getUserInfo)
 
-const handleBannerClick = () => {}
+  const handleBannerClick = () => {}
 </script>
 
 <style lang="scss" scoped>
-.banner {
-  .banner-slot {
-    display: flex;
+  .banner {
+    .banner-slot {
+      display: flex;
 
-    .item {
-      margin-right: 30px;
+      .item {
+        margin-right: 30px;
 
-      &:first-of-type {
-        padding-right: 30px;
-        border-right: 1px solid var(--art-gray-300);
-      }
-
-      .title {
-        font-size: 30px;
-        color: var(--art-gray-900) !important;
-
-        i {
-          position: relative;
-          top: -10px;
-          margin-left: 10px;
-          font-size: 16px;
+        &:first-of-type {
+          padding-right: 30px;
+          border-right: 1px solid var(--art-gray-300);
         }
-      }
 
-      .subtitle {
-        margin-top: 4px;
-        font-size: 14px;
-        color: var(--art-gray-700) !important;
+        .title {
+          font-size: 30px;
+          color: var(--art-gray-900) !important;
+
+          i {
+            position: relative;
+            top: -10px;
+            margin-left: 10px;
+            font-size: 16px;
+          }
+        }
+
+        .subtitle {
+          margin-top: 4px;
+          font-size: 14px;
+          color: var(--art-gray-700) !important;
+        }
       }
     }
   }
-}
 </style>

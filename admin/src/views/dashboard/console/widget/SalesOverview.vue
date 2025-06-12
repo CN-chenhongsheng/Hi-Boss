@@ -1,5 +1,5 @@
 <template>
-  <div class="region sales-overview art-custom-card">
+  <div class="card art-custom-card">
     <div class="card-header">
       <div class="title">
         <h4 class="box-title">访问量</h4>
@@ -11,9 +11,8 @@
 </template>
 
 <script setup lang="ts">
-import echarts from '@/plugins/echarts'
-import { hexToRgba } from '@/utils/colors'
-import { getCssVariable } from '@/utils/colors'
+import * as echarts from 'echarts'
+import { hexToRgba, getCssVariable } from '@/utils/ui'
 import { EChartsOption } from 'echarts'
 import { useChart } from '@/composables/useChart'
 
@@ -37,6 +36,10 @@ const initChartWithAnimation = () => {
   initChart(options(true))
   updateChart(options(false))
 }
+
+watch(isDark, () => {
+  initChart(options())
+})
 
 onMounted(() => {
   initChartWithAnimation()
@@ -108,9 +111,9 @@ const options: (isInitial?: boolean) => EChartsOption = (isInitial) => {
 </script>
 
 <style lang="scss" scoped>
-.region {
+.card {
   box-sizing: border-box;
-  width: calc(58% - var(--console-margin));
+  width: 100%;
   height: 420px;
   padding: 20px 0 30px;
 

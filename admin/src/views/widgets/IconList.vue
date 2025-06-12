@@ -31,7 +31,7 @@
 </template>
 
 <script lang="ts" setup>
-import { extractIconClasses, IconfontType } from '@/utils/iconfont'
+import { extractIconClasses, IconfontType } from '@/utils/constants'
 import { ElMessage } from 'element-plus'
 
 const iconType = ref('unicode')

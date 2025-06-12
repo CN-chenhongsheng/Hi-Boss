@@ -3,7 +3,7 @@ import { ref, computed } from 'vue'
 import { MenuThemeType } from '@/types/store'
 import AppConfig from '@/config'
 import { SystemThemeEnum, MenuThemeEnum, MenuTypeEnum, ContainerWidthEnum } from '@/enums/appEnum'
-import { setElementThemeColor } from '@/utils/colors'
+import { setElementThemeColor } from '@/utils/ui'
 import { useCeremony } from '@/composables/useCeremony'
 
 const { defaultMenuWidth, defaultCustomRadius, defaultTabStyle } = AppConfig.systemSetting
@@ -14,8 +14,8 @@ export const useSettingStore = defineStore(
   () => {
     const menuType = ref(MenuTypeEnum.LEFT)
     const menuOpenWidth = ref(defaultMenuWidth)
-    const systemThemeType = ref(SystemThemeEnum.LIGHT)
-    const systemThemeMode = ref(SystemThemeEnum.LIGHT)
+    const systemThemeType = ref(SystemThemeEnum.AUTO)
+    const systemThemeMode = ref(SystemThemeEnum.AUTO)
     const menuThemeType = ref(MenuThemeEnum.DESIGN)
     const systemThemeColor = ref(AppConfig.elementPlusTheme.primary)
     const boxBorderMode = ref(true)

@@ -19,7 +19,7 @@ import LoginHeader from './components/LoginHeader.vue'
 import LoginLayout from './components/LoginLayout.vue'
 import LoginForm from './components/LoginForm.vue'
 import { onMounted, onBeforeUnmount, ref, reactive } from 'vue'
-import { randomNum } from '@/utils/utils'
+import { randomNum } from '@/utils/dataprocess'
 
 // 导入背景图片
 import bg1 from '@/assets/img/login/bg1.webp'

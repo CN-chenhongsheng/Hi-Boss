@@ -1,15 +1,12 @@
 import { useCheckedColumns } from '@/composables/useCheckedColumns'
 import { formatMenuTitle } from '@/router/utils/utils'
-import { MenuListType } from '@/types/menu'
+import { AppRouteRecord } from '@/types/router'
 import ArtButtonTable from '@/components/core/forms/ArtButtonTable.vue'
 import ArtStatusSwitch from '@/components/core/forms/ArtStatusSwitch.vue'
-import { useAuth } from '@/composables/useAuth'
-
-const { hasAuth } = useAuth()
 
 export function useMenuColumns(handleOperation: (type: string, row?: any, lock?: boolean) => void) {
   // 构建菜单类型标签
-  const buildMenuTypeTag = (row: MenuListType) => {
+  const buildMenuTypeTag = (row: AppRouteRecord) => {
     if (row.children && row.children.length > 0) {
       return 'info'
     } else if (row.meta?.link && row.meta?.isIframe) {
@@ -22,7 +19,7 @@ export function useMenuColumns(handleOperation: (type: string, row?: any, lock?:
   }
 
   // 构建菜单类型文本
-  const buildMenuTypeText = (row: MenuListType) => {
+  const buildMenuTypeText = (row: AppRouteRecord) => {
     if (row.children && row.children.length > 0) {
       return '目录'
     } else if (row.meta?.link && row.meta?.isIframe) {
@@ -40,32 +37,32 @@ export function useMenuColumns(handleOperation: (type: string, row?: any, lock?:
       prop: 'meta.title',
       label: '菜单名称',
       minWidth: 120,
-      formatter: (row: MenuListType) => {
+      formatter: (row: AppRouteRecord) => {
         return formatMenuTitle(row.meta?.title)
       }
     },
     {
       prop: 'type',
       label: '菜单类型',
-      formatter: (row: MenuListType) => {
+      formatter: (row: AppRouteRecord) => {
         return h(ElTag, { type: buildMenuTypeTag(row) }, () => buildMenuTypeText(row))
       }
     },
     {
       prop: 'path',
       label: '路由',
-      formatter: (row: MenuListType) => {
+      formatter: (row: AppRouteRecord) => {
         return row.meta?.link || row.path || ''
       }
     },
     {
       prop: 'meta.authList',
       label: '可操作权限',
-      formatter: (row: MenuListType) => {
+      formatter: (row: AppRouteRecord) => {
         return h(
           'div',
           {},
-          row.meta?.authList?.map((item: MenuListType['meta'], index: number) => {
+          row.meta?.authList?.map((item: AppRouteRecord['meta'], index: number) => {
             return h(
               ElPopover,
               {
@@ -124,23 +121,22 @@ export function useMenuColumns(handleOperation: (type: string, row?: any, lock?:
     {
       prop: 'operation',
       label: '操作',
-      formatter: (row: MenuListType) => {
+      formatter: (row: AppRouteRecord) => {
         return h('div', [
-          hasAuth('add') &&
-            h(ArtButtonTable, {
-              type: 'add',
-              onClick: () => handleOperation('menu')
-            }),
-          hasAuth('edit') &&
-            h(ArtButtonTable, {
-              type: 'edit',
-              onClick: () => handleOperation('menu', row, true)
-            }),
-          hasAuth('delete') &&
-            h(ArtButtonTable, {
-              type: 'delete',
-              onClick: () => handleOperation('deleteMenu')
-            })
+          h(ArtButtonTable, {
+            type: 'add',
+            onClick: () => handleOperation('menu')
+          }),
+
+          h(ArtButtonTable, {
+            type: 'edit',
+            onClick: () => handleOperation('menu', row, true)
+          }),
+
+          h(ArtButtonTable, {
+            type: 'delete',
+            onClick: () => handleOperation('deleteMenu')
+          })
         ])
       }
     }

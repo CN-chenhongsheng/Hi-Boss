@@ -34,7 +34,7 @@ import { BgColorEnum } from '@/enums/appEnum'
 import { computed, ref } from 'vue'
 import { useTableStore } from '@/store/modules/table'
 import { TableSizeEnum } from '@/enums/formEnum'
-import { getDarkColor } from '@/utils/colors'
+import { getDarkColor } from '@/utils/ui'
 
 const props = withDefaults(
   defineProps<{

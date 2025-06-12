@@ -1,18 +1,18 @@
-import avatar1 from '@/assets/img/avatar/avatar1.jpg'
-import avatar2 from '@/assets/img/avatar/avatar2.jpg'
-import avatar3 from '@/assets/img/avatar/avatar3.jpg'
-import avatar4 from '@/assets/img/avatar/avatar4.jpg'
-import avatar5 from '@/assets/img/avatar/avatar5.jpg'
-import avatar6 from '@/assets/img/avatar/avatar6.jpg'
-import avatar7 from '@/assets/img/avatar/avatar7.jpg'
-import avatar8 from '@/assets/img/avatar/avatar8.jpg'
-import avatar9 from '@/assets/img/avatar/avatar9.jpg'
-import avatar10 from '@/assets/img/avatar/avatar10.jpg'
+import avatar1 from '@/assets/img/avatar/avatar1.webp'
+import avatar2 from '@/assets/img/avatar/avatar2.webp'
+import avatar3 from '@/assets/img/avatar/avatar3.webp'
+import avatar4 from '@/assets/img/avatar/avatar4.webp'
+import avatar5 from '@/assets/img/avatar/avatar5.webp'
+import avatar6 from '@/assets/img/avatar/avatar6.webp'
+import avatar7 from '@/assets/img/avatar/avatar7.webp'
+import avatar8 from '@/assets/img/avatar/avatar8.webp'
+import avatar9 from '@/assets/img/avatar/avatar9.webp'
+import avatar10 from '@/assets/img/avatar/avatar10.webp'
 
 export interface User {
   id: number
   username: string
-  sex: 1 | 0
+  gender: 1 | 0
   mobile: string
   email: string
   dep: string
@@ -21,13 +21,14 @@ export interface User {
   avatar: string
 }
 
+// 用户列表
 export const ACCOUNT_TABLE_DATA: User[] = [
   {
     id: 1,
-    username: '中小鱼',
-    sex: 0,
+    username: 'alexmorgan',
+    gender: 1,
     mobile: '18670001591',
-    email: '83901823@mall.com',
+    email: 'alexmorgan@company.com',
     dep: '研发部',
     status: '1',
     create_time: '2020-09-09 10:01:10',
@@ -35,10 +36,10 @@ export const ACCOUNT_TABLE_DATA: User[] = [
   },
   {
     id: 2,
-    username: '何小荷',
-    sex: 1,
+    username: 'sophiabaker',
+    gender: 1,
     mobile: '17766664444',
-    email: '623141232@mall.com',
+    email: 'sophiabaker@company.com',
     dep: '电商部',
     status: '1',
     create_time: '2020-10-10 13:01:12',
@@ -46,10 +47,10 @@ export const ACCOUNT_TABLE_DATA: User[] = [
   },
   {
     id: 3,
-    username: '誶誶淰',
-    sex: 0,
+    username: 'liampark',
+    gender: 1,
     mobile: '18670001597',
-    email: '47578182332@mall.com',
+    email: 'liampark@company.com',
     dep: '人事部',
     status: '1',
     create_time: '2020-11-14 12:01:45',
@@ -57,10 +58,10 @@ export const ACCOUNT_TABLE_DATA: User[] = [
   },
   {
     id: 4,
-    username: '发呆草',
-    sex: 0,
+    username: 'oliviagrant',
+    gender: 0,
     mobile: '18670001596',
-    email: '83777712332@mall.com',
+    email: 'oliviagrant@company.com',
     dep: '产品部',
     status: '1',
     create_time: '2020-11-14 09:01:20',
@@ -68,10 +69,10 @@ export const ACCOUNT_TABLE_DATA: User[] = [
   },
   {
     id: 5,
-    username: '甜筒',
-    sex: 1,
+    username: 'emmawilson',
+    gender: 0,
     mobile: '18670001595',
-    email: '318208133@mall.com',
+    email: 'emmawilson@company.com',
     dep: '财务部',
     status: '1',
     create_time: '2020-11-13 11:01:05',
@@ -79,10 +80,10 @@ export const ACCOUNT_TABLE_DATA: User[] = [
   },
   {
     id: 6,
-    username: '冷月呆呆',
-    sex: 1,
+    username: 'noahevan',
+    gender: 1,
     mobile: '18670001594',
-    email: '91231232@mall.com',
+    email: 'noahevan@company.com',
     dep: '运营部',
     status: '1',
     create_time: '2020-10-11 13:10:26',
@@ -90,10 +91,10 @@ export const ACCOUNT_TABLE_DATA: User[] = [
   },
   {
     id: 7,
-    username: '唐不苦',
-    sex: 1,
+    username: 'avamartin',
+    gender: 1,
     mobile: '18123820191',
-    email: '782788821134@mall.com',
+    email: 'avamartin@company.com',
     dep: '客服部',
     status: '2',
     create_time: '2020-05-14 12:05:10',
@@ -101,10 +102,10 @@ export const ACCOUNT_TABLE_DATA: User[] = [
   },
   {
     id: 8,
-    username: '笑很甜',
-    sex: 0,
+    username: 'jacoblee',
+    gender: 1,
     mobile: '18670001592',
-    email: '4234333233@mall.com',
+    email: 'jacoblee@company.com',
     dep: '总经办',
     status: '3',
     create_time: '2020-11-12 07:22:25',
@@ -112,10 +113,10 @@ export const ACCOUNT_TABLE_DATA: User[] = [
   },
   {
     id: 9,
-    username: '青隐篱',
-    sex: 0,
+    username: 'miaclark',
+    gender: 0,
     mobile: '18670001581',
-    email: '731231233@mall.com',
+    email: 'miaclark@company.com',
     dep: '研发部',
     status: '4',
     create_time: '2020-06-12 05:04:20',
@@ -123,10 +124,10 @@ export const ACCOUNT_TABLE_DATA: User[] = [
   },
   {
     id: 10,
-    username: '有你一生',
-    sex: 0,
+    username: 'ethanharris',
+    gender: 1,
     mobile: '13755554444',
-    email: '6908483283@mall.com',
+    email: 'ethanharris@company.com',
     dep: '研发部',
     status: '1',
     create_time: '2020-11-12 16:01:10',
@@ -134,10 +135,10 @@ export const ACCOUNT_TABLE_DATA: User[] = [
   },
   {
     id: 11,
-    username: '冷月呆呆',
-    sex: 1,
+    username: 'isabellamoore',
+    gender: 1,
     mobile: '13766660000',
-    email: '43212312345@mall.com',
+    email: 'isabellamoore@company.com',
     dep: '研发部',
     status: '1',
     create_time: '2020-11-14 12:01:20',
@@ -145,10 +146,10 @@ export const ACCOUNT_TABLE_DATA: User[] = [
   },
   {
     id: 12,
-    username: '唐不苦',
-    sex: 1,
+    username: 'masonwhite',
+    gender: 1,
     mobile: '18670001502',
-    email: '42342343322@mall.com',
+    email: 'masonwhite@company.com',
     dep: '研发部',
     status: '1',
     create_time: '2020-11-14 12:01:20',
@@ -156,10 +157,10 @@ export const ACCOUNT_TABLE_DATA: User[] = [
   },
   {
     id: 13,
-    username: '笑很甜',
-    sex: 0,
+    username: 'charlottehall',
+    gender: 1,
     mobile: '13006644977',
-    email: '59019238828@mall.com',
+    email: 'charlottehall@company.com',
     dep: '研发部',
     status: '1',
     create_time: '2020-11-14 12:01:20',
@@ -167,10 +168,10 @@ export const ACCOUNT_TABLE_DATA: User[] = [
   },
   {
     id: 14,
-    username: '青隐篱',
-    sex: 0,
+    username: 'benjaminscott',
+    gender: 0,
     mobile: '13599998888',
-    email: '8080123333@mall.com',
+    email: 'benjaminscott@company.com',
     dep: '研发部',
     status: '1',
     create_time: '2020-11-14 12:01:20',
@@ -178,13 +179,95 @@ export const ACCOUNT_TABLE_DATA: User[] = [
   },
   {
     id: 15,
-    username: '有你一生',
-    sex: 0,
+    username: 'ameliaking',
+    gender: 1,
     mobile: '13799998888',
-    email: '7923791823@mall.com',
+    email: 'ameliaking@company.com',
     dep: '研发部',
     status: '1',
     create_time: '2020-11-14 12:01:20',
     avatar: avatar10
+  }
+]
+
+export interface Role {
+  roleName: string
+  roleCode: string
+  des: string
+  date: string
+  enable: boolean
+}
+
+// 角色列表
+export const ROLE_LIST_DATA: Role[] = [
+  {
+    roleName: '超级管理员',
+    roleCode: 'R_SUPER',
+    des: '拥有系统全部权限',
+    date: '2025-05-15 12:30:45',
+    enable: true
+  },
+  {
+    roleName: '管理员',
+    roleCode: 'R_ADMIN',
+    des: '拥有系统管理权限',
+    date: '2025-05-15 12:30:45',
+    enable: true
+  },
+  {
+    roleName: '普通用户',
+    roleCode: 'R_USER',
+    des: '拥有系统普通权限',
+    date: '2025-05-15 12:30:45',
+    enable: true
+  },
+  {
+    roleName: '财务管理员',
+    roleCode: 'R_FINANCE',
+    des: '管理财务相关权限',
+    date: '2025-05-16 09:15:30',
+    enable: true
+  },
+  {
+    roleName: '数据分析师',
+    roleCode: 'R_ANALYST',
+    des: '拥有数据分析权限',
+    date: '2025-05-16 11:45:00',
+    enable: false
+  },
+  {
+    roleName: '客服专员',
+    roleCode: 'R_SUPPORT',
+    des: '处理客户支持请求',
+    date: '2025-05-17 14:30:22',
+    enable: true
+  },
+  {
+    roleName: '营销经理',
+    roleCode: 'R_MARKETING',
+    des: '管理营销活动权限',
+    date: '2025-05-17 15:10:50',
+    enable: true
+  },
+  {
+    roleName: '访客用户',
+    roleCode: 'R_GUEST',
+    des: '仅限浏览权限',
+    date: '2025-05-18 08:25:40',
+    enable: false
+  },
+  {
+    roleName: '系统维护员',
+    roleCode: 'R_MAINTAINER',
+    des: '负责系统维护和更新',
+    date: '2025-05-18 09:50:12',
+    enable: true
+  },
+  {
+    roleName: '项目经理',
+    roleCode: 'R_PM',
+    des: '管理项目相关权限',
+    date: '2025-05-19 13:40:35',
+    enable: true
   }
 ]

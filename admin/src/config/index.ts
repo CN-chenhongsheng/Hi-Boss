@@ -9,7 +9,9 @@ import { configImages } from './assets/images'
 const appConfig: SystemConfig = {
   // 系统信息
   systemInfo: {
-    name: 'Art Design Pro' // 系统名称
+    name: 'Art Design Pro', // 系统名称
+    username: 'admin',
+    password: '123456'
   },
   // Element Plus 主题
   elementPlusTheme: {

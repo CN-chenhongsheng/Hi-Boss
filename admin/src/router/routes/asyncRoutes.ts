@@ -1,6 +1,6 @@
 import { RoutesAlias } from '../routesAlias'
-import { MenuListType } from '@/types/menu'
-import { WEB_LINKS } from '@/utils/links'
+import { AppRouteRecord } from '@/types/router'
+import { WEB_LINKS } from '@/utils/constants'
 
 /**
  * 菜单列表、异步路由
@@ -12,7 +12,7 @@ import { WEB_LINKS } from '@/utils/links'
  * 菜单标题（title）:
  * 可以是 i18n 的 key，也可以是字符串，比如：'用户列表'
  */
-export const asyncRoutes: MenuListType[] = [
+export const asyncRoutes: AppRouteRecord[] = [
   {
     id: 1,
     name: 'Dashboard',
@@ -366,7 +366,8 @@ export const asyncRoutes: MenuListType[] = [
     meta: {
       title: 'menus.system.title',
       icon: '&#xe7b9;',
-      keepAlive: false
+      keepAlive: false,
+      roles: ['R_SUPER', 'R_ADMIN']
     },
     children: [
       {
@@ -376,7 +377,8 @@ export const asyncRoutes: MenuListType[] = [
         component: RoutesAlias.User,
         meta: {
           title: 'menus.system.user',
-          keepAlive: true
+          keepAlive: true,
+          roles: ['R_SUPER', 'R_ADMIN']
         }
       },
       {
@@ -386,7 +388,8 @@ export const asyncRoutes: MenuListType[] = [
         component: RoutesAlias.Role,
         meta: {
           title: 'menus.system.role',
-          keepAlive: true
+          keepAlive: true,
+          roles: ['R_SUPER']
         }
       },
       {
@@ -409,6 +412,7 @@ export const asyncRoutes: MenuListType[] = [
         meta: {
           title: 'menus.system.menu',
           keepAlive: true,
+          roles: ['R_SUPER'],
           authList: [
             {
               id: 441,
@@ -560,7 +564,8 @@ export const asyncRoutes: MenuListType[] = [
     meta: {
       title: 'menus.article.title',
       icon: '&#xe7ae;',
-      keepAlive: true
+      keepAlive: true,
+      roles: ['R_SUPER', 'R_ADMIN']
     },
     children: [
       {
@@ -733,7 +738,8 @@ export const asyncRoutes: MenuListType[] = [
     meta: {
       title: 'menus.help.title',
       icon: '&#xe719;',
-      keepAlive: false
+      keepAlive: false,
+      roles: ['R_SUPER', 'R_ADMIN']
     },
     children: [
       {

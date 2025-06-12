@@ -42,7 +42,7 @@
 </template>
 
 <script setup lang="ts">
-import mittBus from '@/utils/mittBus'
+import mittBus from '@/utils/sys/mittBus'
 import { ref } from 'vue'
 
 import bp from '@imgs/ceremony/hb.png'

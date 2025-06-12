@@ -5,45 +5,45 @@
 </template>
 
 <script setup lang="ts">
-  import { useUserStore } from './store/modules/user'
-  import zh from 'element-plus/es/locale/lang/zh-cn'
-  import en from 'element-plus/es/locale/lang/en'
-  import { systemUpgrade } from './utils/upgrade'
-  import { UserService } from './api/usersApi'
-  import { ApiStatus } from './utils/http/status'
-  import { checkStorageCompatibility } from './utils/storage/storage'
-  import { setThemeTransitionClass } from './utils/theme/animation'
+import { useUserStore } from './store/modules/user'
+import zh from 'element-plus/es/locale/lang/zh-cn'
+import en from 'element-plus/es/locale/lang/en'
+import { systemUpgrade } from './utils/sys/upgrade'
+import { UserService } from './api/usersApi'
+import { ApiStatus } from './utils/http/status'
+import { checkStorageCompatibility } from './utils/storage/storage'
+import { setThemeTransitionClass } from './utils/theme/animation'
 
-  const userStore = useUserStore()
-  const { language } = storeToRefs(userStore)
+const userStore = useUserStore()
+const { language } = storeToRefs(userStore)
 
-  const locales = {
-    zh: zh,
-    en: en
-  }
+const locales = {
+  zh: zh,
+  en: en
+}
 
-  onBeforeMount(() => {
-    setThemeTransitionClass(true)
-  })
+onBeforeMount(() => {
+  setThemeTransitionClass(true)
+})
 
-  onMounted(() => {
-    // 检查存储兼容性
-    checkStorageCompatibility()
-    // 提升暗黑主题下页面刷新视觉体验
-    setThemeTransitionClass(false)
-    // 系统升级
-    systemUpgrade()
-    // 获取用户信息
-    getUserInfo()
-  })
-
+onMounted(() => {
+  // 检查存储兼容性
+  checkStorageCompatibility()
+  // 提升暗黑主题下页面刷新视觉体验
+  setThemeTransitionClass(false)
+  // 系统升级
+  systemUpgrade()
   // 获取用户信息
-  const getUserInfo = async () => {
-    if (userStore.isLogin) {
-      const userRes = await UserService.getUserInfo()
-      if (userRes.code === ApiStatus.success) {
-        userStore.setUserInfo(userRes.data)
-      }
+  getUserInfo()
+})
+
+// 获取用户信息
+const getUserInfo = async () => {
+  if (userStore.isLogin) {
+    const userRes = await UserService.getUserInfo()
+    if (userRes.code === ApiStatus.success) {
+      userStore.setUserInfo(userRes.data)
     }
   }
+}
 </script>

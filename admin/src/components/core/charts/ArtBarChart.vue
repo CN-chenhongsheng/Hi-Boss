@@ -4,7 +4,7 @@
 
 <script setup lang="ts">
 import { useChartOps, useChart } from '@/composables/useChart'
-import { getCssVariable } from '@/utils/colors'
+import { getCssVariable } from '@/utils/ui'
 import { EChartsOption } from 'echarts'
 import * as echarts from 'echarts'
 

@@ -102,10 +102,10 @@
 </template>
 
 <script setup lang="ts">
-import icon2 from '@imgs/3d/icon2.png'
-import icon3 from '@imgs/3d/icon3.png'
-import icon4 from '@imgs/3d/icon4.png'
-import icon5 from '@imgs/3d/icon7.png'
+import icon2 from '@imgs/3d/icon2.webp'
+import icon3 from '@imgs/3d/icon3.webp'
+import icon4 from '@imgs/3d/icon4.webp'
+import icon5 from '@imgs/3d/icon7.webp'
 
 const handleBannerClick = () => {
   console.log('banner clicked')

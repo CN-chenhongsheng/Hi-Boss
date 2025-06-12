@@ -193,7 +193,7 @@ import { useFullscreen } from '@vueuse/core'
 import { ElMessageBox } from 'element-plus'
 import { HOME_PAGE } from '@/router/routesAlias'
 import { useI18n } from 'vue-i18n'
-import mittBus from '@/utils/mittBus'
+import mittBus from '@/utils/sys/mittBus'
 import { useMenuStore } from '@/store/modules/menu'
 import AppConfig from '@/config'
 import { languageOptions } from '@/language'
@@ -231,7 +231,7 @@ const isTopMenu = computed(() => menuType.value === MenuTypeEnum.TOP)
 const isTopLeftMenu = computed(() => menuType.value === MenuTypeEnum.TOP_LEFT)
 
 import { useCommon } from '@/composables/useCommon'
-import { WEB_LINKS } from '@/utils/links'
+import { WEB_LINKS } from '@/utils/constants'
 import { themeAnimation } from '@/utils/theme/animation'
 
 const { t } = useI18n()
