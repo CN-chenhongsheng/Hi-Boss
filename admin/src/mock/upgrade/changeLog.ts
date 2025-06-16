@@ -9,6 +9,12 @@ interface UpgradeLog {
 
 export const upgradeLogList = ref<UpgradeLog[]>([
   {
+    version: 'v2.2.97',
+    title: '用户体验优化',
+    date: '2025-06-16',
+    detail: ['删除登录页面背景图片bg2.png，更新相关组件样式，优化用户体验。']
+  },
+  {
     version: 'v2.2.96',
     title: '修复bug，用户体验优化',
     date: '2025-06-13',

@@ -296,6 +296,7 @@ const getTableHeight = () => {
 <style lang="scss" scoped>
 .art-table {
   border-radius: var(--el-border-radius-base);
+  border-bottom: 0px !important;
 
   .table-container {
     height: 100%;

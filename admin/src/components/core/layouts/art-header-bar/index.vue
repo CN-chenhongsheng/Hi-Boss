@@ -303,7 +303,6 @@ const loginOut = () => {
     ElMessageBox.confirm(t('common.logOutTips'), t('common.tips'), {
       confirmButtonText: t('common.confirm'),
       cancelButtonText: t('common.cancel'),
-      customClass: 'login-out-dialog',
       type: 'error'
     }).then(() => {
       userStore.logOut()

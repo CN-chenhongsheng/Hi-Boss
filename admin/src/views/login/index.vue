@@ -22,12 +22,13 @@ import { onMounted, onBeforeUnmount, ref, reactive } from 'vue'
 import { randomNum } from '@/utils/dataprocess'
 
 // 导入背景图片
-import bg1 from '@/assets/img/login/bg1.webp'
-import bg2 from '@/assets/img/login/bg2.png'
+import bg1 from '@imgs/login/bg1.webp'
+import bg2 from '@imgs/login/bg2.webp'
+import bg3 from '@imgs/login/bg3.webp'
 
 // 随机选择背景图片
-const bgImages = [bg1, bg2]
-const backgroundImage = ref(bgImages[randomNum(0, 1)])
+const bgImages = [bg1, bg2, bg3]
+const backgroundImage = ref(bgImages[randomNum(0, bgImages.length - 1)])
 
 // 定义扩展的HTMLElement接口，包含自定义属性
 interface ExtendedHTMLElement extends HTMLElement {

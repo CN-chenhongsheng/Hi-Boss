@@ -6,7 +6,7 @@
     :confirm="handleSubmit"
     :open="handleOpen"
   >
-    <ElForm ref="formRef" :model="form" :rules="rules" label-width="120px">
+    <ElForm ref="formRef" :model="form" :rules="rules" label-width="85px">
       <ElFormItem label="角色名称" prop="name">
         <ElInput v-model="form.name" />
       </ElFormItem>
