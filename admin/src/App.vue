@@ -39,11 +39,39 @@ onMounted(() => {
 
 // 获取用户信息
 const getUserInfo = async () => {
-  if (userStore.isLogin) {
+  // 如果用户未登录，直接返回
+  if (!userStore.isLogin) return
+
+  try {
+    // 发送获取用户信息请求
     const userRes = await UserService.getUserInfo()
-    if (userRes.code === ApiStatus.success) {
-      userStore.setUserInfo(userRes.data)
+
+    // 请求失败，记录错误并返回
+    if (userRes.code !== ApiStatus.success) {
+      console.error('获取用户信息失败:', userRes.msg)
+      return
     }
+
+    // 提取用户信息、权限和角色
+    const { user, permissions, roles } = userRes
+
+    // 将用户详情转换为UserInfo格式并设置到store
+    userStore.setUserInfo({
+      userId: user.userId,
+      userName: user.userName,
+      nickName: user.nickName,
+      avatar: user.avatar || '',
+      email: user.email || '',
+      phone: user.phonenumber || '',
+      roles: roles,
+      buttons: permissions
+    })
+
+    // 设置权限和角色
+    userStore.setPermissions(permissions)
+    userStore.setRoles(roles)
+  } catch (error) {
+    console.error('获取用户信息失败:', error)
   }
 }
 </script>

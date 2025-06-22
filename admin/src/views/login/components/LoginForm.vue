@@ -3,14 +3,12 @@
     <h3 class="title">{{ $t('login.title') }}</h3>
     <p class="sub-title">{{ $t('login.subTitle') }}</p>
     <el-form ref="formRef" :model="formData" :rules="rules" @keyup.enter="handleSubmit">
-      <el-form-item>
-        <el-select v-model="formData.tenant" placeholder="请选择租户" style="width: 100%">
-          <el-option label="测试租户一" value="tenant1" />
-          <el-option label="测试租户二" value="tenant2" />
-        </el-select>
-      </el-form-item>
       <el-form-item prop="username" ref="formItemRef">
-        <el-input :placeholder="$t('login.placeholder[0]')" v-model.trim="formData.username" />
+        <el-input :placeholder="$t('login.placeholder[0]')" v-model.trim="formData.username">
+          <template #prefix>
+            <el-icon><User /></el-icon>
+          </template>
+        </el-input>
       </el-form-item>
       <el-form-item prop="password">
         <el-input
@@ -19,43 +17,63 @@
           type="password"
           radius="8px"
           autocomplete="off"
-        />
+        >
+          <template #prefix>
+            <el-icon><Lock /></el-icon>
+          </template>
+        </el-input>
       </el-form-item>
+      <!-- 验证码输入区域 -->
+      <div class="captcha-wrapper">
+        <el-form-item prop="captcha" v-if="captchaEnabled" class="captcha-form-item">
+          <el-input
+            class="captcha-input"
+            v-model.trim="formData.captcha"
+            :placeholder="$t('login.placeholder[3]')"
+          >
+            <template #prefix>
+              <el-icon><Key /></el-icon>
+            </template>
+          </el-input>
+        </el-form-item>
+        <img
+          v-if="captchaEnabled"
+          class="captcha-img"
+          :src="captchaImg"
+          @click="refreshCaptcha"
+          alt="验证码"
+          title="点击刷新验证码"
+        />
+      </div>
+      <div class="remember-password">
+        <el-checkbox v-model="formData.rememberPassword">{{ $t('login.rememberPwd') }}</el-checkbox>
+      </div>
+
       <div class="drag-verify" ref="dragVerifyContainerRef">
-        <div class="drag-verify-content" :class="{ error: !isPassing && isClickPass }">
+        <div
+          class="drag-verify-content"
+          :class="{ error: !isPassing && isClickPass, loading: loading }"
+        >
           <ArtDragVerify
             ref="dragVerify"
             v-model:value="isPassing"
             :width="dragWidth"
-            :text="$t('login.sliderText')"
+            :text="$t('login.sliderLoginText')"
             textColor="var(--art-gray-800)"
             :successText="$t('login.sliderSuccessText')"
             :progressBarBg="getCssVariable('--el-color-primary')"
             :completedBg="getCssVariable('--el-color-primary')"
             background="var(--art-gray-200)"
             handlerBg="var(--art-main-bg-color)"
-            @pass="onPass"
+            @passCallback="onPass"
           />
+          <div class="loading-indicator" :class="{ show: loading }">
+            <el-icon class="is-loading"><Loading /></el-icon>
+          </div>
         </div>
         <p class="error-text" :class="{ 'show-error-text': !isPassing && isClickPass }">{{
           $t('login.placeholder[2]')
         }}</p>
-      </div>
-
-      <div class="remember-password">
-        <el-checkbox v-model="formData.rememberPassword">{{ $t('login.rememberPwd') }}</el-checkbox>
-      </div>
-
-      <div style="margin-top: 30px">
-        <el-button
-          class="login-btn"
-          type="primary"
-          @click="handleSubmit"
-          :loading="loading"
-          v-ripple
-        >
-          {{ $t('login.btnText') }}
-        </el-button>
       </div>
     </el-form>
   </div>
@@ -72,6 +90,7 @@ import { UserService } from '@/api/usersApi'
 import { useI18n } from 'vue-i18n'
 import { useWindowSize } from '@vueuse/core'
 import type { FormInstance, FormRules } from 'element-plus'
+import avatar from '@imgs/avatar/avatar1.webp'
 
 const { t } = useI18n()
 const dragVerify = ref()
@@ -82,18 +101,24 @@ const router = useRouter()
 const isPassing = ref(false)
 const isClickPass = ref(false)
 
+// 验证码相关状态
+const captchaImg = ref('')
+const captchaUuid = ref('')
+const captchaEnabled = ref(true)
+
 const systemName = AppConfig.systemInfo.name
 const formRef = ref<FormInstance>()
 const formData = reactive({
   username: AppConfig.systemInfo.username,
   password: AppConfig.systemInfo.password,
-  rememberPassword: true,
-  tenant: 'tenant1'
+  captcha: '',
+  rememberPassword: true
 })
 
 const rules = computed<FormRules>(() => ({
   username: [{ required: true, message: t('login.placeholder[0]'), trigger: 'blur' }],
-  password: [{ required: true, message: t('login.placeholder[1]'), trigger: 'blur' }]
+  password: [{ required: true, message: t('login.placeholder[1]'), trigger: 'blur' }],
+  captcha: [{ required: captchaEnabled.value, message: t('login.placeholder[3]'), trigger: 'blur' }]
 }))
 
 const loading = ref(false)
@@ -126,7 +151,31 @@ const updateDragWidth = () => {
 // 使用ResizeObserver监听元素尺寸变化
 let resizeObserver: ResizeObserver | null = null
 
+// 获取验证码
+const getCaptcha = async () => {
+  try {
+    const res = await UserService.getCodeImg()
+    if (res.code === ApiStatus.success) {
+      captchaImg.value = `data:image/gif;base64,${res.img}`
+      captchaUuid.value = res.uuid
+      captchaEnabled.value = res.captchaEnabled
+    }
+  } catch (error: any) {
+    ElMessage.error('获取验证码失败')
+    console.error('获取验证码失败', error)
+    captchaEnabled.value = false
+  }
+}
+
+// 刷新验证码
+const refreshCaptcha = () => {
+  getCaptcha()
+}
+
 onMounted(() => {
+  // 获取验证码
+  getCaptcha()
+
   // 等待DOM更新
   nextTick(() => {
     // 首先更新一次
@@ -161,78 +210,150 @@ onBeforeUnmount(() => {
   }
 })
 
-const onPass = () => {}
+// 滑动验证成功时触发登录
+const onPass = async () => {
+  await handleSubmit()
+}
 
 const handleSubmit = async () => {
+  // 前置条件检查：表单实例不存在则直接返回
   if (!formRef.value) return
 
-  await formRef.value.validate(async (valid) => {
-    if (valid) {
-      if (!isPassing.value) {
-        isClickPass.value = true
-        return
-      }
+  // 如果滑动验证未通过，标记点击状态并直接返回
+  if (!isPassing.value) {
+    isClickPass.value = true
+    return
+  }
 
-      loading.value = true
+  // 验证表单，验证失败则重置滑动验证并返回
+  try {
+    await formRef.value.validate()
+  } catch {
+    resetDragVerify()
+    return
+  }
 
-      // 延时辅助函数
-      const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
+  // 开始登录流程，设置加载状态
+  loading.value = true
 
-      try {
-        const res = await UserService.login({
-          body: JSON.stringify({
-            username: formData.username,
-            password: formData.password
-          })
-        })
+  try {
+    // 发送登录请求
+    const res = await UserService.login({
+      username: formData.username,
+      password: formData.password,
+      code: formData.captcha,
+      uuid: captchaUuid.value
+    })
 
-        if (res.code === ApiStatus.success && res.data) {
-          // 设置 token
-          userStore.setToken(res.data.accessToken)
-
-          // 获取用户信息
-          const userRes = await UserService.getUserInfo()
-          if (userRes.code === ApiStatus.success) {
-            userStore.setUserInfo(userRes.data)
-          }
-
-          // 设置登录状态
-          userStore.setLoginStatus(true)
-          // 延时辅助函数
-          await delay(1000)
-          // 登录成功提示
-          showLoginSuccessNotice()
-          // 跳转首页
-          router.push(HOME_PAGE)
-        } else {
-          ElMessage.error(res.msg)
-          resetDragVerify()
-        }
-      } finally {
-        await delay(1000)
-        loading.value = false
-      }
+    // 登录请求失败，显示错误信息并重置状态
+    if (res.code !== ApiStatus.success) {
+      ElMessage.error(res.msg)
+      resetDragVerify()
+      refreshCaptcha()
+      return
     }
-  })
+
+    // 检查token是否存在
+    if (!res.token) {
+      ElMessage.error('登录成功但未获取到令牌')
+      resetDragVerify()
+      refreshCaptcha()
+      return
+    }
+
+    // 设置token
+    userStore.setToken(res.token)
+
+    // 获取用户信息
+    const userRes = await UserService.getUserInfo()
+
+    // 用户信息获取失败
+    if (userRes.code !== ApiStatus.success) {
+      ElMessage.error(userRes.msg || '获取用户信息失败')
+      resetDragVerify()
+      refreshCaptcha()
+      return
+    }
+
+    // 提取用户信息、权限和角色
+    const { user, permissions, roles } = userRes
+
+    // 将用户详情转换为UserInfo格式并设置到store
+    userStore.setUserInfo({
+      userId: user.userId,
+      userName: user.userName,
+      nickName: user.nickName,
+      avatar: user.avatar || avatar,
+      email: user.email || '',
+      phone: user.phonenumber || '',
+      roles: roles,
+      buttons: permissions
+    })
+
+    // 设置权限和角色
+    userStore.setPermissions(permissions)
+    userStore.setRoles(roles)
+
+    // 设置登录状态
+    userStore.setLoginStatus(true)
+
+    // 登录成功提示
+    showLoginSuccessNotice()
+
+    // 跳转首页
+    router.push(HOME_PAGE)
+  } catch {
+    ElMessage.error('登录失败，请重试')
+    resetDragVerify()
+    refreshCaptcha()
+  } finally {
+    loading.value = false
+  }
 }
 
 // 重置拖拽验证
 const resetDragVerify = () => {
   dragVerify.value.reset()
+  isPassing.value = false
 }
 
 // 登录成功提示
 const showLoginSuccessNotice = () => {
-  setTimeout(() => {
-    ElNotification({
-      title: t('login.success.title'),
-      type: 'success',
-      showClose: false,
-      duration: 2500,
-      zIndex: 10000,
-      message: `${t('login.success.message')}, ${systemName}!`
-    })
-  }, 300)
+  const { getUserInfo: userInfo } = storeToRefs(userStore)
+
+  // 根据当前时间获取问候语
+  const getGreeting = () => {
+    const hour = new Date().getHours()
+    if (hour < 6) return t('login.greeting.dawn')
+    if (hour < 9) return t('login.greeting.morning')
+    if (hour < 12) return t('login.greeting.forenoon')
+    if (hour < 14) return t('login.greeting.noon')
+    if (hour < 18) return t('login.greeting.afternoon')
+    if (hour < 22) return t('login.greeting.evening')
+    return t('login.greeting.night')
+  }
+
+  // 获取用户称呼
+  const userName = userInfo.value?.nickName || systemName
+
+  // 构建欢迎消息 - 优化排版
+  const welcomeMessage = `<div class="welcome-message">
+    <div class="greeting">${getGreeting()}，<strong>${userName}</strong>！</div>
+    <div class="welcome-text">${t('login.welcomeBack')}</div>
+  </div>`
+
+  ElNotification({
+    title: t('login.success.title'),
+    type: 'success',
+    showClose: false,
+    duration: 3000,
+    zIndex: 10000,
+    dangerouslyUseHTMLString: true,
+    message: welcomeMessage,
+    position: 'top-right',
+    offset: 35,
+    customClass: 'login-success-notification'
+  })
 }
 </script>
 
@@ -300,6 +421,41 @@ const showLoginSuccessNotice = () => {
     }
   }
 
+  // 输入框图标样式
+  :deep(.el-input__prefix) {
+    margin-right: 5px;
+
+    .el-icon {
+      color: var(--el-text-color-secondary);
+      font-size: 18px;
+    }
+  }
+
+  // 验证码容器样式
+  .captcha-wrapper {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 22px;
+
+    .captcha-form-item {
+      flex: 1;
+      margin-right: 10px;
+      margin-bottom: 0;
+    }
+
+    .captcha-img {
+      height: 40px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: opacity 0.3s;
+
+      &:hover {
+        opacity: 0.8;
+      }
+    }
+  }
+
   .drag-verify {
     position: relative;
     padding-bottom: 20px;
@@ -336,6 +492,11 @@ const showLoginSuccessNotice = () => {
       &.error {
         border-color: #f56c6c;
       }
+
+      &.loading {
+        opacity: 0.7;
+        pointer-events: none;
+      }
     }
 
     .error-text {
@@ -349,6 +510,21 @@ const showLoginSuccessNotice = () => {
 
       &.show-error-text {
         transform: translateY(40px);
+      }
+    }
+
+    .loading-indicator {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 10;
+      display: none;
+      font-size: 24px;
+      color: var(--el-color-primary);
+
+      &.show {
+        display: block;
       }
     }
   }
@@ -377,39 +553,6 @@ const showLoginSuccessNotice = () => {
 
     &:hover::before {
       transform: translateZ(15px);
-    }
-  }
-
-  .login-btn {
-    width: 100%;
-    height: 40px !important;
-    color: #fff;
-    border: 0;
-    position: relative;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
-    z-index: 20;
-
-    // 使用额外元素实现3D效果
-    &::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      z-index: -1;
-      transform: translateZ(20px);
-      transition:
-        transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1),
-        box-shadow 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
-      pointer-events: none;
-      border-radius: inherit;
-    }
-
-    &:hover::before {
-      transform: translateZ(25px);
-      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
     }
   }
 
@@ -448,10 +591,72 @@ const showLoginSuccessNotice = () => {
     :deep(.el-form) {
       margin-top: 30px;
     }
+
+    .captcha-wrapper {
+      flex-direction: column;
+
+      .captcha-form-item {
+        margin-right: 0;
+        margin-bottom: 10px;
+        width: 100%;
+      }
+
+      .captcha-img {
+        width: 100%;
+        height: auto;
+      }
+    }
+  }
+
+  // 移除原有的手机样式
+  .captcha-container {
+    display: none;
   }
 }
 
 .dark .login-form .title {
   color: var(--art-text-gray-400) !important;
+}
+
+// 登录成功通知样式
+:global(.login-success-notification) {
+  .el-notification__title {
+    color: var(--el-color-success-dark-1);
+    font-weight: 600;
+    margin-bottom: 10px;
+    padding-top: 6px;
+  }
+
+  .el-notification__content {
+    color: var(--el-text-color-primary);
+    margin: 0;
+    padding-bottom: 8px;
+
+    .welcome-message {
+      padding: 10px 0 10px 10px;
+
+      .greeting {
+        font-size: 15px;
+        margin-bottom: 8px;
+
+        strong {
+          font-weight: 600;
+          color: var(--el-color-success-dark-1);
+        }
+      }
+
+      .welcome-text {
+        font-size: 14px;
+        color: var(--el-text-color-secondary);
+        line-height: 1.5;
+      }
+    }
+  }
+
+  .el-notification__icon {
+    color: var(--el-color-success);
+    font-size: 20px;
+    margin-top: 6px;
+  }
 }
 </style>

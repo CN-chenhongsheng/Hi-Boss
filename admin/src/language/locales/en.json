@@ -15,7 +15,9 @@
     "tips": "Prompt",
     "cancel": "Cancel",
     "confirm": "Confirm",
-    "logOutTips": "Do you want to log out?"
+    "logOutTips": "Do you want to log out?",
+    "logoutSuccess": "Log out successfully",
+    "logoutLocalSuccess": "I have logged out locally"
   },
   "search": {
     "placeholder": "Search page",
@@ -26,11 +28,20 @@
   "setting": {
     "menuType": {
       "title": "Menu Layout",
-      "list": ["Vertical", "Horizontal", "Mixed", "Dual"]
+      "list": [
+        "Vertical",
+        "Horizontal",
+        "Mixed",
+        "Dual"
+      ]
     },
     "theme": {
       "title": "Theme Style",
-      "list": ["Light", "Dark", "System"]
+      "list": [
+        "Light",
+        "Dark",
+        "System"
+      ]
     },
     "menu": {
       "title": "Menu Style"
@@ -40,11 +51,17 @@
     },
     "box": {
       "title": "Box Style",
-      "list": ["Border", "Shadow"]
+      "list": [
+        "Border",
+        "Shadow"
+      ]
     },
     "container": {
       "title": "Container Width",
-      "list": ["Full", "Boxed"]
+      "list": [
+        "Full",
+        "Boxed"
+      ]
     },
     "basics": {
       "title": "Basic Config",
@@ -71,14 +88,26 @@
       "google": "Chrome"
     },
     "transition": {
-      "list": ["None", "Fade", "Slide Left", "Slide Bottom", "Slide Top"]
+      "list": [
+        "None",
+        "Fade",
+        "Slide Left",
+        "Slide Bottom",
+        "Slide Top"
+      ]
     }
   },
   "notice": {
     "title": "Notice",
     "btnRead": "Mark as read",
-    "bar": ["Notice", "Message", "Todo"],
-    "text": ["No"],
+    "bar": [
+      "Notice",
+      "Message",
+      "Todo"
+    ],
+    "text": [
+      "No"
+    ],
     "viewAll": "View all"
   },
   "worktab": {
@@ -102,17 +131,30 @@
     "placeholder": [
       "Please enter your account",
       "Please enter your password",
-      "Please slide to verify"
+      "Please slide to verify",
+      "Please enter captcha"
     ],
     "sliderText": "Please slide to verify",
+    "sliderLoginText": "Slide to login",
     "sliderSuccessText": "Verification successful",
     "rememberPwd": "Remember password",
     "btnText": "Login",
     "noAccount": "No account yet?",
     "success": {
-      "title": "Login successful",
+      "title": "Login successful  ദ്ദി˶˃ ᵕ ˂ )✧",
       "message": "Welcome back"
-    }
+    },
+    "greeting": {
+      "dawn": "Good early morning",
+      "morning": "Good morning",
+      "forenoon": "Good day",
+      "noon": "Good noon",
+      "afternoon": "Good afternoon",
+      "evening": "Good evening",
+      "night": "Good night"
+    },
+    "welcomeBack": "Welcome back, enjoy your session!",
+    "placeholder[3]": "Please enter captcha"
   },
   "lockScreen": {
     "pwdError": "Password error",

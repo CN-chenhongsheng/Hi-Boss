@@ -140,15 +140,15 @@
             popper-style="border: 1px solid var(--art-border-dashed-color); border-radius: calc(var(--custom-radius) / 2 + 4px); padding: 5px 16px; 5px 16px;"
           >
             <template #reference>
-              <img class="cover" :src="userInfo.avatar" />
+              <img class="cover" :src="userInfo?.avatar || defaultAvatar" />
             </template>
             <template #default>
               <div class="user-menu-box">
                 <div class="user-head">
-                  <img class="cover" :src="userInfo.avatar" style="float: left" />
+                  <img class="cover" :src="userInfo?.avatar || defaultAvatar" style="float: left" />
                   <div class="user-wrap">
-                    <span class="name">{{ userInfo.userName }}</span>
-                    <span class="email" v-if="userInfo.email">{{ userInfo.email }}</span>
+                    <span class="name">{{ userInfo?.nickName || '用户' }}</span>
+                    <span class="email" v-if="userInfo?.email">{{ userInfo.email }}</span>
                   </div>
                 </div>
                 <ul class="user-menu">
@@ -197,8 +197,15 @@ import mittBus from '@/utils/sys/mittBus'
 import { useMenuStore } from '@/store/modules/menu'
 import AppConfig from '@/config'
 import { languageOptions } from '@/language'
+import { useCommon } from '@/composables/useCommon'
+import { WEB_LINKS } from '@/utils/constants'
+import { themeAnimation } from '@/utils/theme/animation'
+import { UserService } from '@/api/usersApi'
+import { ApiStatus } from '@/utils/http/status'
+import { ElMessage } from 'element-plus'
+import defaultAvatar from '@imgs/avatar/avatar1.webp'
 const isWindows = navigator.userAgent.includes('Windows')
-const { locale } = useI18n()
+const { locale, t } = useI18n()
 
 const settingStore = useSettingStore()
 const userStore = useUserStore()
@@ -229,12 +236,6 @@ const isLeftMenu = computed(() => menuType.value === MenuTypeEnum.LEFT)
 const isDualMenu = computed(() => menuType.value === MenuTypeEnum.DUAL_MENU)
 const isTopMenu = computed(() => menuType.value === MenuTypeEnum.TOP)
 const isTopLeftMenu = computed(() => menuType.value === MenuTypeEnum.TOP_LEFT)
-
-import { useCommon } from '@/composables/useCommon'
-import { WEB_LINKS } from '@/utils/constants'
-import { themeAnimation } from '@/utils/theme/animation'
-
-const { t } = useI18n()
 
 const { width } = useWindowSize()
 
@@ -299,21 +300,31 @@ const toHome = () => {
 
 const loginOut = () => {
   closeUserMenu()
-  setTimeout(() => {
-    ElMessageBox.confirm(t('common.logOutTips'), t('common.tips'), {
-      confirmButtonText: t('common.confirm'),
-      cancelButtonText: t('common.cancel'),
-      type: 'error'
-    }).then(() => {
+
+  ElMessageBox.confirm(t('common.logOutTips'), t('common.tips'), {
+    confirmButtonText: t('common.confirm'),
+    cancelButtonText: t('common.cancel'),
+    type: 'error'
+  }).then(async () => {
+    try {
+      const res = await UserService.logout()
+      if (res.code === ApiStatus.success) {
+        userStore.logOut()
+        ElMessage.success(t('common.logoutSuccess'))
+      } else {
+        ElMessage.error(res.msg || '退出登录失败')
+      }
+    } catch (error) {
+      console.error('登出失败', error)
+      // 即使接口调用失败，也执行前端登出逻辑
       userStore.logOut()
-    })
-  }, 200)
+      ElMessage.warning(t('common.logoutLocalSuccess'))
+    }
+  })
 }
 
-const reload = (time: number = 0) => {
-  setTimeout(() => {
-    useCommon().refresh()
-  }, time)
+const reload = () => {
+  useCommon().refresh()
 }
 
 const initLanguage = () => {
@@ -324,7 +335,7 @@ const changeLanguage = (lang: LanguageEnum) => {
   if (locale.value === lang) return
   locale.value = lang
   userStore.setLanguage(lang)
-  reload(50)
+  reload()
 }
 
 const openSetting = () => {

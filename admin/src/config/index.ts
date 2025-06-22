@@ -11,7 +11,7 @@ const appConfig: SystemConfig = {
   systemInfo: {
     name: 'Art Design Pro', // 系统名称
     username: 'admin',
-    password: '123456'
+    password: 'admin123'
   },
   // Element Plus 主题
   elementPlusTheme: {

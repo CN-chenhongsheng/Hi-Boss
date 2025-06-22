@@ -9,6 +9,17 @@ interface UpgradeLog {
 
 export const upgradeLogList = ref<UpgradeLog[]>([
   {
+    version: 'v2.2.98',
+    title: '登录体验优化',
+    date: '2025-06-23',
+    detail: [
+      '优化登录成功提示，增加基于时间的智能问候语',
+      '完善登录通知的国际化支持',
+      '优化登录成功通知的样式和排版',
+      '调整通知显示位置，提升用户体验'
+    ]
+  },
+  {
     version: 'v2.2.97',
     title: '用户体验优化',
     date: '2025-06-16',

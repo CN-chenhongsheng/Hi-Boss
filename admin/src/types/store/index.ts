@@ -14,6 +14,7 @@ export interface UserInfo {
   avatar?: string
   email?: string
   phone?: string
+  nickName?: string
 }
 
 // 系统主题样式（light | dark）

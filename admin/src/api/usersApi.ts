@@ -1,54 +1,48 @@
-// import request from '@/utils/http'
+import request from '@/utils/http'
 // import { BaseResult } from '@/types/axios'
-import AppConfig from '@/config'
-import { BaseResponse } from '@/types/api'
-import { UserInfo } from '@/types/store'
-import avatar from '@/assets/img/avatar/avatar1.webp'
+import { BaseResponse, UserInfoResponse } from '@/types/api'
+
+interface LoginParams {
+  username: string
+  password: string
+  code: string
+  uuid: string
+}
+
+// 验证码响应类型
+interface CaptchaResponse extends BaseResponse {
+  img: string
+  uuid: string
+  captchaEnabled: boolean
+}
 
 export class UserService {
-  // 模拟登录接口
-  static login(options: { body: string }): Promise<BaseResponse> {
-    return new Promise((resolve) => {
-      const { username, password } = JSON.parse(options.body)
+  // 获取验证码
+  static getCodeImg(): Promise<CaptchaResponse> {
+    return request.get<CaptchaResponse>({
+      url: '/captchaImage'
+    })
+  }
 
-      if (
-        username === AppConfig.systemInfo.username &&
-        password === AppConfig.systemInfo.password
-      ) {
-        resolve({
-          code: 200,
-          msg: '登录成功',
-          data: {
-            accessToken:
-              'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IkpvaG4gU25vdyIsImlhdCI6MTcwNjg2NTYwMCwiZXhwIjoxNzA2OTUyMDAwfQ.8f9D4kJ2m3XlH5Q0y6Z1r2Y3n4X5pL6q8K9v2W3n4X5'
-          }
-        })
-      } else {
-        resolve({
-          code: 401,
-          msg: '用户名或密码错误',
-          data: null
-        })
-      }
+  // 登录接口
+  static login(params: LoginParams): Promise<BaseResponse> {
+    return request.post<BaseResponse>({
+      url: '/login',
+      params
     })
   }
 
   // 获取用户信息
-  static getUserInfo(): Promise<BaseResponse<UserInfo>> {
-    return new Promise((resolve) => {
-      resolve({
-        code: 200,
-        msg: '获取用户信息成功',
-        data: {
-          userId: 1,
-          userName: '张三',
-          roles: ['R_SUPER', 'R_ADMIN'],
-          buttons: ['add', 'edit', 'delete'],
-          avatar: avatar,
-          email: 'art.design@gmail.com',
-          phone: '12345678901'
-        }
-      })
+  static getUserInfo(): Promise<UserInfoResponse> {
+    return request.get<UserInfoResponse>({
+      url: '/getUserInfo'
+    })
+  }
+
+  // 登出接口
+  static logout(): Promise<BaseResponse> {
+    return request.get<BaseResponse>({
+      url: '/logout'
     })
   }
 }

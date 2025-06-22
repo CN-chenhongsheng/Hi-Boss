@@ -22,10 +22,14 @@ export const useUserStore = defineStore(
     const searchHistory = ref<AppRouteRecord[]>([])
     const accessToken = ref('')
     const refreshToken = ref('')
+    const permissions = ref<string[]>([])
+    const roles = ref<string[]>([])
 
     const getUserInfo = computed(() => info.value)
     const getSettingState = computed(() => useSettingStore().$state)
     const getWorktabState = computed(() => useWorktabStore().$state)
+    const getPermissions = computed(() => permissions.value)
+    const getRoles = computed(() => roles.value)
 
     const setUserInfo = (newInfo: UserInfo) => {
       info.value = newInfo
@@ -59,6 +63,14 @@ export const useUserStore = defineStore(
       }
     }
 
+    const setPermissions = (newPermissions: string[]) => {
+      permissions.value = newPermissions
+    }
+
+    const setRoles = (newRoles: string[]) => {
+      roles.value = newRoles
+    }
+
     const logOut = () => {
       info.value = {}
       isLogin.value = false
@@ -66,6 +78,8 @@ export const useUserStore = defineStore(
       lockPassword.value = ''
       accessToken.value = ''
       refreshToken.value = ''
+      permissions.value = []
+      roles.value = []
       useWorktabStore().opened = []
       sessionStorage.removeItem('iframeRoutes')
       resetRouterState(router)
@@ -81,9 +95,13 @@ export const useUserStore = defineStore(
       searchHistory,
       accessToken,
       refreshToken,
+      permissions,
+      roles,
       getUserInfo,
       getSettingState,
       getWorktabState,
+      getPermissions,
+      getRoles,
       setUserInfo,
       setLoginStatus,
       setLanguage,
@@ -91,6 +109,8 @@ export const useUserStore = defineStore(
       setLockStatus,
       setLockPassword,
       setToken,
+      setPermissions,
+      setRoles,
       logOut
     }
   },

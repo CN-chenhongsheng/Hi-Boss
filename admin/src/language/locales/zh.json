@@ -15,7 +15,9 @@
     "tips": "提示",
     "cancel": "取消",
     "confirm": "确定",
-    "logOutTips": "您是否要退出登录?"
+    "logOutTips": "您是否要退出登录?",
+    "logoutSuccess": "退出登录成功",
+    "logoutLocalSuccess": "已在本地退出登录"
   },
   "search": {
     "placeholder": "搜索页面",
@@ -124,22 +126,34 @@
       "title": "专注于用户体验的后台管理系统模版",
       "subTitle": "美观实用的界面，经过视觉优化，确保卓越的用户体验"
     },
-    "title": "欢迎回来",
+    "title": "欢迎回来 ",
     "subTitle": "输入您的账号和密码登录",
     "placeholder": [
       "请输入账号",
       "请输入密码",
-      "请拖动滑块完成验证"
+      "请拖动滑块完成验证",
+      "请输入验证码"
     ],
     "sliderText": "按住滑块拖动",
+    "sliderLoginText": "滑动完成即登录",
     "sliderSuccessText": "验证成功",
     "rememberPwd": "记住密码",
     "btnText": "登      录",
     "noAccount": "还没有账号？",
     "success": {
-      "title": "登录成功",
+      "title": "登录成功 ദ്ദി˶˃ ᵕ ˂ )✧",
       "message": "欢迎回来"
-    }
+    },
+    "greeting": {
+      "dawn": "凌晨好",
+      "morning": "早上好",
+      "forenoon": "上午好",
+      "noon": "中午好",
+      "afternoon": "下午好",
+      "evening": "晚上好",
+      "night": "夜深了"
+    },
+    "welcomeBack": "欢迎回来，祝您使用愉快！"
   },
   "lockScreen": {
     "pwdError": "密码错误",
