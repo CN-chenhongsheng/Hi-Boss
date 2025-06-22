@@ -155,14 +155,16 @@ let resizeObserver: ResizeObserver | null = null
 const getCaptcha = async () => {
   try {
     const res = await UserService.getCodeImg()
-    if (res.code === ApiStatus.success) {
-      captchaImg.value = `data:image/gif;base64,${res.img}`
-      captchaUuid.value = res.uuid
-      captchaEnabled.value = res.captchaEnabled
+    if (res.code !== ApiStatus.success) {
+      ElMessage.error(t('login.captchaFailed'))
+      captchaEnabled.value = false
+      return
     }
+    captchaImg.value = `data:image/gif;base64,${res.img}`
+    captchaUuid.value = res.uuid
+    captchaEnabled.value = res.captchaEnabled
   } catch (error: any) {
-    ElMessage.error('获取验证码失败')
-    console.error('获取验证码失败', error)
+    console.error(t('login.captchaFailed'), error)
     captchaEnabled.value = false
   }
 }

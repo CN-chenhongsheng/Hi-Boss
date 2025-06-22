@@ -154,7 +154,7 @@
       "night": "Good night"
     },
     "welcomeBack": "Welcome back, enjoy your session!",
-    "placeholder[3]": "Please enter captcha"
+    "captchaFailed": "Failed to get verification code"
   },
   "lockScreen": {
     "pwdError": "Password error",
