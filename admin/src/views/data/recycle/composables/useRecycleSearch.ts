@@ -1,4 +1,4 @@
-import { SearchFormItem, SearchChangeParams } from '@/types/search-form'
+import { SearchFormItem, SearchChangeParams } from '@/types'
 
 export function useRecycleSearch(onSearch: () => void) {
   // 定义表单搜索初始值

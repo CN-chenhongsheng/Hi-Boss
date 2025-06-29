@@ -1,15 +1,31 @@
 // 字典明细数据接口
 export interface DictionaryDetailItem {
-  id: number
+  dictCode: number
+  dictSort: number
+  dictLabel: string
+  dictValue: string
   dictType: string
-  code: string
-  name: string
-  status: number
-  createTime: string
-  remark: string
+  cssClass?: string
+  listClass?: string
+  isDefault?: string
+  status: string | number
+  createBy?: string
+  createTime?: string
+  updateBy?: string
+  updateTime?: string
+  remark?: string
+  default?: boolean
 }
 
-export function useDictDataOperations(dictType: string) {
+// 导入删除字典数据的API
+import { deleteDictData } from '@/api/dictionary'
+import { ApiStatus } from '@/utils/http/status'
+
+// 修改函数签名，添加emit参数
+export function useDictDataOperations(dictTypeRef: Ref<string>, emit?: (event: 'refresh') => void) {
+  // 监听dictTypeRef值的变化
+  const dictType = computed(() => dictTypeRef.value)
+
   // 响应式状态
   const selectedRows = ref<DictionaryDetailItem[]>([])
   const dictDetails = ref<DictionaryDetailItem[]>([])
@@ -20,63 +36,102 @@ export function useDictDataOperations(dictType: string) {
 
   // 表单数据
   const detailFormData = ref<{
-    id?: number
+    dictCode?: number
+    dictSort: number
+    dictLabel: string
+    dictValue: string
     dictType: string
-    code: string
-    name: string
-    status: number
+    status: string | number
     remark: string
   }>({
-    dictType: '',
-    code: '',
-    name: '',
+    dictType: dictType.value,
+    dictLabel: '',
+    dictValue: '',
+    dictSort: 0,
     status: 1,
     remark: ''
   })
 
+  // 监听dictType变化，同步更新detailFormData中的dictType
+  watch(dictType, (newValue) => {
+    detailFormData.value.dictType = newValue
+  })
+
   // 处理选择变更
   const handleSelectionChange = (selection: DictionaryDetailItem[]) => {
-    selectedRows.value = selection
+    console.log('选中的行数:', selection.length, '选中的行数据:', selection)
+    // 确保每次都是新数组，避免引用问题
+    selectedRows.value = [...selection]
+  }
+
+  // 处理添加字典数据
+  const handleAddDictData = () => {
+    dialogType.value = 'add'
+    dialogDetailsVisible.value = true
+
+    detailFormData.value.dictCode = undefined
+    detailFormData.value.dictType = dictType.value // 使用响应式引用的值
+    detailFormData.value.dictLabel = ''
+    detailFormData.value.dictValue = ''
+    detailFormData.value.dictSort = 0
+    detailFormData.value.status = 0
+    detailFormData.value.remark = ''
   }
 
   // 处理编辑字典数据
-  const handleEditDictData = (type: string, row?: DictionaryDetailItem) => {
-    dialogType.value = type
+  const handleEditDictData = (row: DictionaryDetailItem) => {
+    dialogType.value = 'edit'
     dialogDetailsVisible.value = true
 
-    if (type === 'edit' && row) {
-      detailFormData.value.id = row.id
-      detailFormData.value.dictType = dictType
-      detailFormData.value.code = row.code
-      detailFormData.value.name = row.name
-      detailFormData.value.status = row.status
-      detailFormData.value.remark = row.remark
-    } else {
-      detailFormData.value.dictType = dictType
-      detailFormData.value.code = ''
-      detailFormData.value.name = ''
-      detailFormData.value.status = 1
-      detailFormData.value.remark = ''
+    detailFormData.value.dictCode = row.dictCode
+    detailFormData.value.dictType = dictType.value // 使用响应式引用的值
+    detailFormData.value.dictLabel = row.dictLabel
+    detailFormData.value.dictValue = row.dictValue
+    detailFormData.value.dictSort = row.dictSort
+    detailFormData.value.status = row.status
+    detailFormData.value.remark = row.remark || ''
+  }
+
+  // 刷新字典数据列表
+  const refreshDictDataList = () => {
+    // 清空选中行
+    selectedRows.value = []
+
+    // 触发父组件的刷新方法
+    if (emit) {
+      emit('refresh')
     }
   }
 
   // 删除单个字典数据
-  const handleDeleteDictData = (row: DictionaryDetailItem) => {
+  const handleDeleteDictData = async (row: DictionaryDetailItem) => {
     ElMessageBox.confirm('确定要删除该字典数据吗？', '删除字典数据', {
       confirmButtonText: '确定',
       cancelButtonText: '取消',
       type: 'error'
     })
-      .then(() => {
-        // 模拟删除操作，实际项目中应该调用API
-        const index = dictDetails.value.findIndex((item) => item.id === row.id)
-        if (index !== -1) {
-          dictDetails.value.splice(index, 1)
-          ElMessage.success('删除成功')
+      .then(async () => {
+        try {
+          // 调用API删除字典数据
+          const dictCode = row.dictCode.toString()
+
+          const res: any = await deleteDictData(dictCode)
+
+          if (res.code === ApiStatus.success) {
+            ElMessage.success('删除成功')
+            // 删除成功后刷新数据列表
+            refreshDictDataList()
+          } else {
+            ElMessage.error(res.msg || '删除失败')
+          }
+        } catch (error) {
+          console.error('删除字典数据出错:', error)
+          ElMessage.error('删除字典数据出错')
         }
       })
       .catch(() => {
         // 取消操作
+        console.log('用户取消删除')
       })
   }
 
@@ -96,15 +151,29 @@ export function useDictDataOperations(dictType: string) {
         type: 'error'
       }
     )
-      .then(() => {
-        // 模拟批量删除
-        const ids = selectedRows.value.map((item) => item.id)
-        dictDetails.value = dictDetails.value.filter((item) => !ids.includes(item.id))
-        ElMessage.success(`已删除 ${selectedRows.value.length} 条数据`)
-        selectedRows.value = []
+      .then(async () => {
+        try {
+          // 获取所有选中行的dictCode，并用逗号拼接
+          const dictCodes = selectedRows.value.map((item) => item.dictCode).join(',')
+
+          // 调用API批量删除
+          const res: any = await deleteDictData(dictCodes)
+
+          if (res.code === ApiStatus.success) {
+            ElMessage.success(`已删除 ${selectedRows.value.length} 条数据`)
+            // 删除成功后刷新数据列表
+            refreshDictDataList()
+          } else {
+            ElMessage.error(res.msg || '批量删除失败')
+          }
+        } catch (error) {
+          console.error('批量删除字典数据出错:', error)
+          ElMessage.error('批量删除字典数据出错')
+        }
       })
       .catch(() => {
         // 取消操作
+        console.log('用户取消批量删除')
       })
   }
 
@@ -115,6 +184,7 @@ export function useDictDataOperations(dictType: string) {
     dialogDetailsVisible,
     detailFormData,
     handleSelectionChange,
+    handleAddDictData,
     handleEditDictData,
     handleDeleteDictData,
     handleBatchDelete

@@ -65,7 +65,7 @@ import { DefineComponent, computed, ref } from 'vue'
 import ArtSearchInput from './widget/ArtSearchInput.vue'
 import ArtSearchSelect from './widget/ArtSearchSelect.vue'
 import ArtSearchRadio from './widget/ArtSearchRadio.vue'
-import { SearchComponentType, SearchFormItem } from '@/types/search-form'
+import { SearchComponentType, SearchFormItem } from '@/types'
 
 const { width } = useWindowSize()
 const isMobile = computed(() => width.value < 500)

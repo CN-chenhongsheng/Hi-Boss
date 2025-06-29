@@ -1,4 +1,4 @@
-import type { SearchFormItem, SearchChangeParams } from '@/types/search-form'
+import type { SearchFormItem, SearchChangeParams } from '@/types'
 
 // 定义表单搜索初始值
 const initialSearchState = {

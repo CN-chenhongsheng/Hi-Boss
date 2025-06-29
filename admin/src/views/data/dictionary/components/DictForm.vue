@@ -27,9 +27,12 @@
 import ArtDialog from '@/components/core/others/ArtDialog.vue'
 import ArtStatusSwitch from '@/components/core/forms/ArtStatusSwitch.vue'
 import { FormInstance, FormRules } from 'element-plus'
+import { addDictType, updateDictType } from '@/api/dictionary'
+import { ApiStatus } from '@/utils/http/status'
 
 // 表单数据接口
 interface FormData {
+  dictId?: number
   dictName: string
   dictType: string
   status: number
@@ -67,11 +70,43 @@ const handleSubmit = async () => {
   if (!formRef.value) return false
 
   return new Promise<boolean>((resolve) => {
-    formRef.value!.validate((valid) => {
+    formRef.value!.validate(async (valid) => {
       if (valid) {
-        ElMessage.success(dialogType.value === 'add' ? '添加成功' : '更新成功')
-        emit('refresh')
-        resolve(true) // 验证通过，返回true表示可以关闭对话框
+        try {
+          const submitData: Record<string, any> = {
+            dictName: formData.value.dictName,
+            dictType: formData.value.dictType,
+            status: formData.value.status,
+            remark: formData.value.remark
+          }
+
+          // 编辑时需要添加dictId
+          if (dialogType.value === 'edit' && formData.value.dictId) {
+            submitData.dictId = formData.value.dictId
+          }
+
+          let res: any
+          if (dialogType.value === 'add') {
+            // 新增字典
+            res = await addDictType(submitData)
+          } else {
+            // 编辑字典
+            res = await updateDictType(submitData)
+          }
+
+          if (res.code === ApiStatus.success) {
+            ElMessage.success(dialogType.value === 'add' ? '添加成功' : '更新成功')
+            emit('refresh')
+            resolve(true) // 验证通过，返回true表示可以关闭对话框
+          } else {
+            ElMessage.error(res.msg || (dialogType.value === 'add' ? '添加失败' : '更新失败'))
+            resolve(false)
+          }
+        } catch (error) {
+          console.error('提交字典数据出错:', error)
+          ElMessage.error(dialogType.value === 'add' ? '添加失败' : '更新失败')
+          resolve(false)
+        }
       } else {
         resolve(false) // 验证失败，返回false阻止关闭对话框
       }

@@ -16,7 +16,12 @@
       :style="progressBarStyle"
     >
     </div>
-    <div class="dv_text" :style="textStyle" ref="messageRef">
+    <div 
+      class="dv_text" 
+      :class="{ 'text-success': value }"
+      :style="textStyle" 
+      ref="messageRef"
+    >
       <slot name="textBefore" v-if="$slots.textBefore"></slot>
       {{ message }}
       <slot name="textAfter" v-if="$slots.textAfter"></slot>
@@ -149,14 +154,11 @@ onMounted(() => {
       dragVerify.value.style.setProperty('--pwidth', -Math.floor(actualWidth.value / 2) + 'px')
 
       // 如果初始状态就是已验证通过，设置正确的样式
-      if (props.value && handler.value && progressBar.value && messageRef.value) {
+      if (props.value && handler.value && progressBar.value) {
         nextTick(() => {
           handler.value.style.left = actualWidth.value - props.height + 'px'
           progressBar.value.style.width = '100%'
           progressBar.value.style.background = props.completedBg
-          messageRef.value.style['-webkit-text-fill-color'] = 'unset'
-          messageRef.value.style.animation = 'slidetounlock2 3s infinite'
-          messageRef.value.style.color = '#fff'
         })
       }
     }
@@ -252,27 +254,27 @@ const passVerify = () => {
   progressBar.value.style.background = props.completedBg
   progressBar.value.style.width = '100%'
 
-  // 设置文本样式
-  messageRef.value.style['-webkit-text-fill-color'] = 'unset'
-  messageRef.value.style.animation = 'slidetounlock2 3s infinite'
-  messageRef.value.style.color = '#fff'
-
   // 确保滑块停留在右侧
   handler.value.style.left = actualWidth.value - props.height + 'px'
 
   emit('passCallback')
 }
 const reset = () => {
-  handler.value.style.left = '0'
-  progressBar.value.style.width = '0'
-  handler.value.children[0].innerHTML = props.handlerIcon
+  // 先设置文本相关样式，避免文本闪烁
   messageRef.value.style['-webkit-text-fill-color'] = 'transparent'
   messageRef.value.style.animation = 'slidetounlock 3s infinite'
   messageRef.value.style.color = props.background
-  emit('update:value', false)
-  state.isOk = false
-  state.isMoving = false
-  state.x = 0
+  
+  // 延迟一帧再重置位置，避免文本和滑块位置不同步
+  nextTick(() => {
+    handler.value.style.left = '0'
+    progressBar.value.style.width = '0'
+    handler.value.children[0].innerHTML = props.handlerIcon
+    emit('update:value', false)
+    state.isOk = false
+    state.isMoving = false
+    state.x = 0
+  })
 }
 defineExpose({
   reset
@@ -332,9 +334,16 @@ defineExpose({
     animation: slidetounlock 3s infinite;
     -webkit-text-fill-color: transparent;
     text-size-adjust: none;
+    transition: all 0.3s ease;
 
     * {
       -webkit-text-fill-color: var(--textColor);
+    }
+    
+    &.text-success {
+      -webkit-text-fill-color: unset;
+      animation: slidetounlock2 3s infinite;
+      color: #fff;
     }
   }
 }

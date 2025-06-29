@@ -1,4 +1,4 @@
-import { SearchFormItem } from '@/types/search-form'
+import { SearchFormItem } from '@/types'
 
 export function useRoleSearch(onSearch: () => void) {
   // 定义表单搜索初始值

@@ -131,7 +131,6 @@
     "placeholder": [
       "Please enter your account",
       "Please enter your password",
-      "Please slide to verify",
       "Please enter captcha"
     ],
     "sliderText": "Please slide to verify",

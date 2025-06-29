@@ -6,7 +6,7 @@
         v-model:filter="formFilters"
         :items="formItems"
         @reset="handleReset"
-        @search="() => handleSearch(getTableData)"
+        @search="handleSearchWrapper"
       />
 
       <ElCard shadow="never" class="art-table-card">
@@ -32,12 +32,14 @@
           ref="tableRef"
           :loading="loading"
           :data="tableData"
-          :currentPage="1"
-          :pageSize="20"
-          :total="500"
+          :currentPage="pagination.pageNum"
+          :pageSize="pagination.pageSize"
+          :total="pagination.total"
           :marginTop="10"
-          row-key="dictType"
+          row-key="dictId"
           @selection-change="handleSelectionChange"
+          @current-change="handleCurrentChange"
+          @size-change="handleSizeChange"
         >
           <template #default>
             <ElTableColumn v-for="col in columns" :key="col.prop || col.type" v-bind="col" />
@@ -76,6 +78,7 @@ const settingStore = useSettingStore()
 import { useDictionaryData } from './composables/useDictionaryData'
 import { useDictionaryColumns } from './composables/useDictionaryColumns'
 import { useDictionarySearch } from './composables/useDictionarySearch'
+import { useDictDataList } from './composables/useDictDataList'
 
 // 使用字典数据composable
 const {
@@ -85,83 +88,48 @@ const {
   dialogVisible,
   dialogType,
   formData,
+  pagination,
+  permissionDialogVisible,
+  currentType,
+  dataDetails,
   getTableData,
+  handleCurrentChange,
+  handleSizeChange,
   handleSelectionChange,
   handleRefresh,
+  handleAddDictionary,
   handleEditDictionary,
+  handleDetailDictionary,
   handleDeleteDictionary,
-  handleBatchDelete
+  handleBatchDelete,
+  setQueryParams
 } = useDictionaryData()
+
+// 使用字典数据列表composable
+const { dictDataList, getDictData } = useDictDataList()
 
 // 计算属性：是否显示恢复按钮
 const showRecoverButton = computed(() => selectedRows.value.length > 0)
 
-// 权限弹窗相关变量
-const permissionDialogVisible = ref(false)
-const currentType = ref('')
-const currentDict = reactive({
-  dictName: '',
-  dictType: '',
-  status: 1,
-  remark: ''
-})
-
-// 当前选中字典的明细数据
-const dataDetails = ref<any[]>([])
-
 // 统一的操作方法
-const handleOperation = (type: string, row?: any) => {
-  // 预先定义可能用到的变量
-  let mockDetails = []
-
+const handleOperation = async (type: string, row?: any) => {
   switch (type) {
     case 'detail':
-      // 查看权限（展示字典值）
-      permissionDialogVisible.value = true
+      // 先设置当前字典类型，再打开对话框
       currentType.value = row.dictType
-      currentDict.dictName = row.dictName
-      currentDict.dictType = row.dictType
-      currentDict.status = row.status
-      currentDict.remark = row.remark
 
-      // 加载对应的字典明细数据 - 模拟数据
-      // 实际项目中应从API获取字典明细数据
-      mockDetails = [
-        {
-          id: 1,
-          dictType: row.dictType,
-          code: '0',
-          name: '选项一',
-          status: 1,
-          createTime: '2023-07-15 14:35:00',
-          remark: '备注信息1'
-        },
-        {
-          id: 2,
-          dictType: row.dictType,
-          code: '1',
-          name: '选项二',
-          status: 1,
-          createTime: '2023-07-15 14:36:00',
-          remark: '备注信息2'
-        },
-        {
-          id: 3,
-          dictType: row.dictType,
-          code: '2',
-          name: '选项三',
-          status: 0,
-          createTime: '2023-07-15 14:37:00',
-          remark: '备注信息3'
-        }
-      ]
+      // 获取字典数据
+      await getDictData(row.dictType)
+      dataDetails.value = dictDataList.value
 
-      // 赋值给明细数据
-      dataDetails.value = mockDetails
+      // 最后打开对话框
+      handleDetailDictionary(row)
       break
     case 'add':
+      handleAddDictionary()
+      break
     case 'edit':
-      handleEditDictionary(type, row)
+      handleEditDictionary(row)
       break
     case 'delete':
       handleDeleteDictionary(row)
@@ -177,15 +145,19 @@ const { columnChecks, columns } = useDictionaryColumns(handleOperation)
 // 使用字典搜索配置
 const { formFilters, formItems, handleReset, handleSearch } = useDictionarySearch()
 
-// 刷新字典明细数据
-const handleDetailRefresh = () => {
-  if (currentType.value) {
-    // 这里应该重新加载当前字典类型的明细数据
-    console.log('刷新字典明细数据:', currentType.value)
-  }
+// 重写搜索处理函数
+const handleSearchWrapper = () => {
+  handleSearch(setQueryParams)
 }
 
-const tableRef = ref()
+// 刷新字典明细数据
+const handleDetailRefresh = async (searchParams?: any) => {
+  if (currentType.value) {
+    // 重新加载当前字典类型的明细数据，并传入搜索参数
+    await getDictData(currentType.value, searchParams)
+    dataDetails.value = dictDataList.value
+  }
+}
 
 onMounted(() => {
   getTableData()

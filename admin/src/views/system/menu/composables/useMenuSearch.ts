@@ -1,4 +1,4 @@
-import { SearchFormItem } from '@/types/search-form'
+import { SearchFormItem } from '@/types'
 import { MenuListType } from '@/types/menu'
 import { formatMenuTitle } from '@/router/utils/utils'
 

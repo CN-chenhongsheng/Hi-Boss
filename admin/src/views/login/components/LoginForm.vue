@@ -29,7 +29,7 @@
           <el-input
             class="captcha-input"
             v-model.trim="formData.captcha"
-            :placeholder="$t('login.placeholder[3]')"
+            :placeholder="$t('login.placeholder[2]')"
           >
             <template #prefix>
               <el-icon><Key /></el-icon>
@@ -71,9 +71,6 @@
             <el-icon class="is-loading"><Loading /></el-icon>
           </div>
         </div>
-        <p class="error-text" :class="{ 'show-error-text': !isPassing && isClickPass }">{{
-          $t('login.placeholder[2]')
-        }}</p>
       </div>
     </el-form>
   </div>
@@ -118,7 +115,7 @@ const formData = reactive({
 const rules = computed<FormRules>(() => ({
   username: [{ required: true, message: t('login.placeholder[0]'), trigger: 'blur' }],
   password: [{ required: true, message: t('login.placeholder[1]'), trigger: 'blur' }],
-  captcha: [{ required: captchaEnabled.value, message: t('login.placeholder[3]'), trigger: 'blur' }]
+  captcha: [{ required: captchaEnabled.value, message: t('login.placeholder[2]'), trigger: 'blur' }]
 }))
 
 const loading = ref(false)
@@ -299,11 +296,11 @@ const handleSubmit = async () => {
     // 设置登录状态
     userStore.setLoginStatus(true)
 
-    // 登录成功提示
-    showLoginSuccessNotice()
-
     // 跳转首页
     router.push(HOME_PAGE)
+
+    // 登录成功提示
+    showLoginSuccessNotice()
   } catch {
     ElMessage.error('登录失败，请重试')
     resetDragVerify()
@@ -315,8 +312,11 @@ const handleSubmit = async () => {
 
 // 重置拖拽验证
 const resetDragVerify = () => {
-  dragVerify.value.reset()
+  // 先更新状态，再重置组件
   isPassing.value = false
+  nextTick(() => {
+    dragVerify.value.reset()
+  })
 }
 
 // 登录成功提示

@@ -1,4 +1,4 @@
-import type { SearchFormItem, SearchChangeParams } from '@/types/search-form'
+import type { SearchFormItem, SearchChangeParams } from '@/types'
 
 // 定义表单搜索初始值
 const initialSearchState = {
@@ -22,9 +22,9 @@ export function useDictionarySearch() {
   }
 
   // 搜索处理
-  const handleSearch = (callback: () => void) => {
-    console.log('搜索参数:', formFilters)
-    callback()
+  const handleSearch = (callback: (params: any) => void) => {
+    // 将表单数据传递给回调函数
+    callback(formFilters)
   }
 
   // 表单配置项
@@ -33,6 +33,7 @@ export function useDictionarySearch() {
       label: '字典名称',
       prop: 'dictName',
       type: 'input',
+      placeholder: '请输入字典名称',
       config: {
         clearable: true
       },
@@ -42,6 +43,7 @@ export function useDictionarySearch() {
       label: '字典类型',
       prop: 'dictType',
       type: 'input',
+      placeholder: '请输入字典类型',
       config: {
         clearable: true
       },
@@ -51,6 +53,10 @@ export function useDictionarySearch() {
       label: '状态',
       prop: 'status',
       type: 'select',
+      placeholder: '请选择状态',
+      config: {
+        clearable: true
+      },
       options: [
         { label: '启用', value: 1 },
         { label: '禁用', value: 0 }

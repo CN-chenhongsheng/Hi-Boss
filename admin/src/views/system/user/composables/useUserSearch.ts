@@ -1,5 +1,5 @@
 import { reactive } from 'vue'
-import { SearchFormItem, SearchChangeParams } from '@/types/search-form'
+import { SearchFormItem, SearchChangeParams } from '@/types'
 
 export function useUserSearch(onSearch: () => void) {
   // 定义表单搜索初始值
