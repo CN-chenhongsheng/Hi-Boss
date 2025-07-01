@@ -281,14 +281,23 @@ const handleCurrentChange = (val: number) => {
 
 // 根据表格尺寸计算高度
 const getTableHeight = () => {
-  if (!props.total) return 'calc(100% - 25px)'
+  if (!props.total) return 'calc(100% - 40px)'
 
-  if (tableSizeComputed.value === 'small') {
-    return 'calc(100% - 80px)' // 小尺寸，增加高度
-  } else if (tableSizeComputed.value === 'large') {
-    return 'calc(100% - 100px)' // 大尺寸，减少高度
+  // 检查是否只有一页且需要隐藏分页组件
+  const isHidePagination = props.hideOnSinglePage && props.total <= props.pageSize
+
+  if (isHidePagination) {
+    // 当分页组件不显示时，减少高度预留
+    return 'calc(100% - 45px)'
   } else {
-    return 'calc(100% - 90px)' // 默认尺寸
+    // 分页组件显示时的原有逻辑
+    if (tableSizeComputed.value === 'small') {
+      return `calc(100% - 80px)` // 小尺寸，增加高度
+    } else if (tableSizeComputed.value === 'large') {
+      return `calc(100% - 100px)` // 大尺寸，减少高度
+    } else {
+      return `calc(100% - 90px)` // 默认尺寸
+    }
   }
 }
 </script>

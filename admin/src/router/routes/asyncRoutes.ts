@@ -366,8 +366,7 @@ export const asyncRoutes: AppRouteRecord[] = [
     meta: {
       title: 'menus.system.title',
       icon: '&#xe7b9;',
-      keepAlive: false,
-      roles: ['R_SUPER', 'R_ADMIN']
+      keepAlive: false
     },
     children: [
       {
@@ -377,8 +376,7 @@ export const asyncRoutes: AppRouteRecord[] = [
         component: RoutesAlias.User,
         meta: {
           title: 'menus.system.user',
-          keepAlive: true,
-          roles: ['R_SUPER', 'R_ADMIN']
+          keepAlive: true
         }
       },
       {
@@ -388,8 +386,7 @@ export const asyncRoutes: AppRouteRecord[] = [
         component: RoutesAlias.Role,
         meta: {
           title: 'menus.system.role',
-          keepAlive: true,
-          roles: ['R_SUPER']
+          keepAlive: true
         }
       },
       {
@@ -412,7 +409,6 @@ export const asyncRoutes: AppRouteRecord[] = [
         meta: {
           title: 'menus.system.menu',
           keepAlive: true,
-          roles: ['R_SUPER'],
           authList: [
             {
               id: 441,
@@ -564,8 +560,7 @@ export const asyncRoutes: AppRouteRecord[] = [
     meta: {
       title: 'menus.article.title',
       icon: '&#xe7ae;',
-      keepAlive: true,
-      roles: ['R_SUPER', 'R_ADMIN']
+      keepAlive: true
     },
     children: [
       {
@@ -738,8 +733,7 @@ export const asyncRoutes: AppRouteRecord[] = [
     meta: {
       title: 'menus.help.title',
       icon: '&#xe719;',
-      keepAlive: false,
-      roles: ['R_SUPER', 'R_ADMIN']
+      keepAlive: false
     },
     children: [
       {
