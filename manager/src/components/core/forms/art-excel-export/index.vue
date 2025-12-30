@@ -25,6 +25,7 @@
   import { Loading } from '@element-plus/icons-vue'
   import type { ButtonType } from 'element-plus'
   import { useThrottleFn } from '@vueuse/core'
+  import AppConfig from '@/config'
 
   defineOptions({ name: 'ArtExcelExport' })
 
@@ -257,7 +258,7 @@
         workbook.Props = {
           Title: filename,
           Subject: '数据导出',
-          Author: props.workbookOptions.creator || '学工系统',
+          Author: props.workbookOptions.creator || AppConfig.systemInfo.name,
           Manager: props.workbookOptions.lastModifiedBy || '',
           Company: '系统导出',
           Category: '数据',
