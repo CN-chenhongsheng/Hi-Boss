@@ -21,7 +21,17 @@
       >
         <template #left>
           <ElSpace wrap>
-            <ElButton @click="showDialog('add')" v-ripple>新增角色</ElButton>
+            <ElButton @click="showDialog('add')" v-ripple v-permission="'system:role:add'">
+              新增角色
+            </ElButton>
+            <ElButton
+              :disabled="selectedRows.length === 0"
+              @click="handleBatchDelete"
+              v-ripple
+              v-permission="'system:role:delete'"
+            >
+              批量删除
+            </ElButton>
           </ElSpace>
         </template>
       </ArtTableHeader>
@@ -32,6 +42,7 @@
         :data="data"
         :columns="columns"
         :pagination="pagination"
+        @selection-change="handleSelectionChange"
         @pagination:size-change="handleSizeChange"
         @pagination:current-change="handleCurrentChange"
       >
@@ -56,33 +67,34 @@
 </template>
 
 <script setup lang="ts">
-  import { ButtonMoreItem } from '@/components/core/forms/art-button-more/index.vue'
   import { useTable } from '@/hooks/core/useTable'
-  import { fetchGetRoleList } from '@/api/system-manage'
-  import ArtButtonMore from '@/components/core/forms/art-button-more/index.vue'
+  import { fetchGetRoleList, fetchDeleteRole, fetchUpdateRoleStatus } from '@/api/system-manage'
+  import ArtButtonTable from '@/components/core/forms/art-button-table/index.vue'
   import RoleSearch from './modules/role-search.vue'
   import RoleEditDialog from './modules/role-edit-dialog.vue'
   import RolePermissionDialog from './modules/role-permission-dialog.vue'
-  import { ElTag, ElMessageBox } from 'element-plus'
+  import { ElMessageBox, ElMessage } from 'element-plus'
+  import ArtSwitch from '@/components/core/forms/art-switch/index.vue'
+  import { hasPermission } from '@/directives/core/permission'
 
   defineOptions({ name: 'Role' })
 
-  type RoleListItem = Api.SystemManage.RoleListItem
+  type RoleListItem = Api.SystemManage.RoleListItem & { _statusLoading?: boolean }
 
   // 搜索表单
-  const searchForm = ref({
+  const searchForm = ref<Api.SystemManage.RoleSearchParams>({
+    pageNum: 1,
+    pageSize: 20,
     roleName: undefined,
     roleCode: undefined,
-    description: undefined,
-    enabled: undefined,
-    daterange: undefined
+    status: undefined
   })
 
   const showSearchBar = ref(false)
-
   const dialogVisible = ref(false)
   const permissionDialog = ref(false)
   const currentRoleData = ref<RoleListItem | undefined>(undefined)
+  const selectedRows = ref<RoleListItem[]>([])
 
   const {
     columns,
@@ -101,83 +113,105 @@
     core: {
       apiFn: fetchGetRoleList,
       apiParams: {
-        current: 1,
-        size: 20
+        pageNum: 1,
+        pageSize: 20
       },
-      // 排除 apiParams 中的属性
-      excludeParams: ['daterange'],
+      // 自定义分页字段映射
+      paginationKey: {
+        current: 'pageNum',
+        size: 'pageSize'
+      },
       columnsFactory: () => [
-        {
-          prop: 'roleId',
-          label: '角色ID',
-          width: 100
-        },
+        { type: 'selection' },
         {
           prop: 'roleName',
           label: '角色名称',
-          minWidth: 120
+          minWidth: 150,
+          formatter: (row: RoleListItem) => {
+            return h('div', { class: 'flex items-center gap-2' }, [
+              h('span', { class: 'font-medium' }, `${row.roleName as string}#${row.id}`)
+            ])
+          }
         },
         {
           prop: 'roleCode',
           label: '角色编码',
-          minWidth: 120
-        },
-        {
-          prop: 'description',
-          label: '角色描述',
           minWidth: 150,
-          showOverflowTooltip: true
-        },
-        {
-          prop: 'enabled',
-          label: '角色状态',
-          width: 100,
-          formatter: (row) => {
-            const statusConfig = row.enabled
-              ? { type: 'success', text: '启用' }
-              : { type: 'warning', text: '禁用' }
-            return h(
-              ElTag,
-              { type: statusConfig.type as 'success' | 'warning' },
-              () => statusConfig.text
-            )
+          formatter: (row: RoleListItem) => {
+            return row.roleCode
           }
         },
         {
+          prop: 'sort',
+          label: '排序',
+          width: 80,
+          sortable: true
+        },
+        {
+          prop: 'status',
+          label: '状态',
+          width: 100,
+          formatter: (row: RoleListItem) => {
+            const isSuperAdmin = row.roleCode === 'SUPER_ADMIN'
+            return h(ArtSwitch, {
+              modelValue: row.status === 1,
+              loading: row._statusLoading || false,
+              inlinePrompt: true,
+              disabled: isSuperAdmin, // 超级管理员禁用开关
+              onChange: (value: string | number | boolean) => {
+                handleStatusChange(row, value === true || value === 1)
+              }
+            })
+          }
+        },
+        {
+          prop: 'remark',
+          label: '备注',
+          minWidth: 200,
+          showOverflowTooltip: true
+        },
+        {
           prop: 'createTime',
-          label: '创建日期',
+          label: '创建时间',
           width: 180,
           sortable: true
         },
         {
           prop: 'operation',
           label: '操作',
-          width: 80,
+          width: 180,
           fixed: 'right',
-          formatter: (row) =>
-            h('div', [
-              h(ArtButtonMore, {
-                list: [
-                  {
-                    key: 'permission',
-                    label: '菜单权限',
-                    icon: 'ri:user-3-line'
-                  },
-                  {
-                    key: 'edit',
-                    label: '编辑角色',
-                    icon: 'ri:edit-2-line'
-                  },
-                  {
-                    key: 'delete',
-                    label: '删除角色',
-                    icon: 'ri:delete-bin-4-line',
-                    color: '#f56c6c'
-                  }
-                ],
-                onClick: (item: ButtonMoreItem) => buttonMoreClick(item, row)
-              })
-            ])
+          formatter: (row: RoleListItem) => {
+            const buttons = []
+            if (hasPermission('system:role:assign')) {
+              buttons.push(
+                h(ArtButtonTable, {
+                  type: 'view',
+                  icon: 'ri-share-line',
+                  tooltip: '分配权限',
+                  onClick: () => showPermissionDialog(row)
+                })
+              )
+            }
+            if (hasPermission('system:role:edit')) {
+              buttons.push(
+                h(ArtButtonTable, {
+                  type: 'edit',
+                  onClick: () => showDialog('edit', row)
+                })
+              )
+            }
+            // 超级管理员角色不允许删除
+            if (hasPermission('system:role:delete') && row.roleCode !== 'SUPER_ADMIN') {
+              buttons.push(
+                h(ArtButtonTable, {
+                  type: 'delete',
+                  onClick: () => deleteRole(row)
+                })
+              )
+            }
+            return h('div', buttons)
+          }
         }
       ]
     }
@@ -193,50 +227,118 @@
 
   /**
    * 搜索处理
-   * @param params 搜索参数
    */
   const handleSearch = (params: Record<string, any>) => {
-    // 处理日期区间参数，把 daterange 转换为 startTime 和 endTime
-    const { daterange, ...filtersParams } = params
-    const [startTime, endTime] = Array.isArray(daterange) ? daterange : [null, null]
-
-    // 搜索参数赋值
-    Object.assign(searchParams, { ...filtersParams, startTime, endTime })
+    console.log('搜索参数:', params)
+    Object.assign(searchParams, params, { pageNum: 1 })
     getData()
   }
 
-  const buttonMoreClick = (item: ButtonMoreItem, row: RoleListItem) => {
-    switch (item.key) {
-      case 'permission':
-        showPermissionDialog(row)
-        break
-      case 'edit':
-        showDialog('edit', row)
-        break
-      case 'delete':
-        deleteRole(row)
-        break
-    }
-  }
-
+  /**
+   * 显示权限分配弹窗
+   */
   const showPermissionDialog = (row?: RoleListItem) => {
     permissionDialog.value = true
     currentRoleData.value = row
   }
 
-  const deleteRole = (row: RoleListItem) => {
-    ElMessageBox.confirm(`确定删除角色"${row.roleName}"吗？此操作不可恢复！`, '删除确认', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      type: 'warning'
-    })
-      .then(() => {
-        // TODO: 调用删除接口
-        ElMessage.success('删除成功')
-        refreshData()
+  /**
+   * 删除角色
+   */
+  const deleteRole = async (row: RoleListItem) => {
+    // 防止删除超级管理员角色
+    if (row.roleCode === 'SUPER_ADMIN') {
+      ElMessage.warning('超级管理员角色不允许删除')
+      return
+    }
+
+    try {
+      await ElMessageBox.confirm(`确定删除角色"${row.roleName}"吗？此操作不可恢复！`, '删除确认', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
       })
-      .catch(() => {
-        ElMessage.info('已取消删除')
-      })
+
+      await fetchDeleteRole(row.id)
+      await refreshData()
+    } catch (error) {
+      if (error !== 'cancel') {
+        console.error('删除角色失败:', error)
+      }
+    }
+  }
+
+  /**
+   * 批量删除
+   */
+  const handleBatchDelete = async () => {
+    if (selectedRows.value.length === 0) {
+      ElMessage.warning('请先选择要删除的角色')
+      return
+    }
+
+    // 检查是否包含超级管理员
+    const hasSuperAdmin = selectedRows.value.some((row) => row.roleCode === 'SUPER_ADMIN')
+    if (hasSuperAdmin) {
+      ElMessage.warning('选中的角色中包含超级管理员，无法删除')
+      return
+    }
+
+    try {
+      await ElMessageBox.confirm(
+        `确定要删除选中的 ${selectedRows.value.length} 个角色吗？此操作不可恢复！`,
+        '批量删除',
+        {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }
+      )
+
+      // 逐个删除
+      for (const role of selectedRows.value) {
+        await fetchDeleteRole(role.id)
+      }
+
+      ElMessage.success('批量删除成功')
+      selectedRows.value = []
+      await refreshData()
+    } catch (error) {
+      if (error !== 'cancel') {
+        console.error('批量删除失败:', error)
+      }
+    }
+  }
+
+  /**
+   * 处理表格行选择变化
+   */
+  const handleSelectionChange = (selection: RoleListItem[]) => {
+    selectedRows.value = selection
+    console.log('选中行数据:', selectedRows.value)
+  }
+
+  /**
+   * 更新角色状态
+   */
+  const handleStatusChange = async (row: RoleListItem, value: boolean): Promise<void> => {
+    // 超级管理员不允许关闭
+    if (row.roleCode === 'SUPER_ADMIN' && !value) {
+      ElMessage.warning('超级管理员角色不允许停用')
+      return
+    }
+
+    const originalStatus = row.status
+    try {
+      row._statusLoading = true
+      row.status = value ? 1 : 0
+      await fetchUpdateRoleStatus(row.id, value ? 1 : 0)
+    } catch (error) {
+      console.error('更新角色状态失败:', error)
+      ElMessage.error('更新角色状态失败')
+      row.status = originalStatus
+    } finally {
+      row._statusLoading = false
+    }
   }
 </script>

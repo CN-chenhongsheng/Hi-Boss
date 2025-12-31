@@ -111,7 +111,6 @@
     ElRate,
     ElSelect,
     ElSlider,
-    ElSwitch,
     ElTimePicker,
     ElTimeSelect,
     ElTreeSelect,
@@ -126,7 +125,7 @@
     inputtag: ElInputTag, // 标签输入框
     number: ElInputNumber, // 数字输入框
     select: ElSelect, // 选择器
-    switch: ElSwitch, // 开关
+    switch: ArtSwitch, // 开关
     checkbox: ElCheckbox, // 复选框
     checkboxgroup: ElCheckboxGroup, // 复选框组
     radiogroup: ElRadioGroup, // 单选框组

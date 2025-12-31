@@ -3,7 +3,7 @@
     <span class="text-sm">{{ config.label }}</span>
 
     <!-- 开关类型 -->
-    <ElSwitch v-if="config.type === 'switch'" :model-value="modelValue" @change="handleChange" />
+    <ArtSwitch v-if="config.type === 'switch'" :model-value="modelValue" @change="handleChange" />
 
     <!-- 数字输入类型 -->
     <ElInputNumber

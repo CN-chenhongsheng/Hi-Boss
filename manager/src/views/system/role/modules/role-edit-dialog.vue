@@ -2,37 +2,77 @@
   <ElDialog
     v-model="visible"
     :title="dialogType === 'add' ? '新增角色' : '编辑角色'"
-    width="30%"
+    width="600px"
     align-center
     @close="handleClose"
   >
-    <ElForm ref="formRef" :model="form" :rules="rules" label-width="120px">
-      <ElFormItem label="角色名称" prop="roleName">
-        <ElInput v-model="form.roleName" placeholder="请输入角色名称" />
-      </ElFormItem>
-      <ElFormItem label="角色编码" prop="roleCode">
-        <ElInput v-model="form.roleCode" placeholder="请输入角色编码" />
-      </ElFormItem>
-      <ElFormItem label="描述" prop="description">
+    <ElForm ref="formRef" :model="form" :rules="rules" label-width="100px">
+      <ElRow :gutter="20">
+        <ElCol :span="12">
+          <ElFormItem label="角色名称" prop="roleName">
+            <ElInput v-model="form.roleName" placeholder="请输入角色名称" />
+          </ElFormItem>
+        </ElCol>
+        <ElCol :span="12">
+          <ElFormItem label="角色编码" prop="roleCode">
+            <ElInput
+              v-model="form.roleCode"
+              placeholder="请输入角色编码"
+              :disabled="dialogType === 'edit'"
+            />
+          </ElFormItem>
+        </ElCol>
+      </ElRow>
+
+      <ElRow :gutter="20">
+        <ElCol :span="12">
+          <ElFormItem label="排序" prop="sort">
+            <ElInputNumber
+              v-model="form.sort"
+              :min="0"
+              :max="999"
+              controls-position="right"
+              style="width: 100%"
+            />
+          </ElFormItem>
+        </ElCol>
+        <ElCol :span="12">
+          <ElFormItem label="状态" prop="status">
+            <ElRadioGroup v-model="form.status" :disabled="isSuperAdmin">
+              <ElRadio :value="1">正常</ElRadio>
+              <ElRadio :value="0" :disabled="isSuperAdmin">停用</ElRadio>
+            </ElRadioGroup>
+            <ElText v-if="isSuperAdmin" type="warning" size="small" class="ml-2">
+              超级管理员不允许停用
+            </ElText>
+          </ElFormItem>
+        </ElCol>
+      </ElRow>
+
+      <ElFormItem label="备注" prop="remark">
         <ElInput
-          v-model="form.description"
+          v-model="form.remark"
           type="textarea"
           :rows="3"
-          placeholder="请输入角色描述"
+          placeholder="请输入角色备注"
+          maxlength="200"
+          show-word-limit
         />
       </ElFormItem>
-      <ElFormItem label="启用">
-        <ElSwitch v-model="form.enabled" />
-      </ElFormItem>
     </ElForm>
+
     <template #footer>
       <ElButton @click="handleClose">取消</ElButton>
-      <ElButton type="primary" @click="handleSubmit">提交</ElButton>
+      <ElButton type="primary" :loading="submitLoading" @click="handleSubmit">
+        {{ submitLoading ? '提交中...' : '确定' }}
+      </ElButton>
     </template>
   </ElDialog>
 </template>
 
 <script setup lang="ts">
+  import { fetchAddRole, fetchUpdateRole } from '@/api/system-manage'
+  import { ElText, ElMessage } from 'element-plus'
   import type { FormInstance, FormRules } from 'element-plus'
 
   type RoleListItem = Api.SystemManage.RoleListItem
@@ -57,6 +97,7 @@
   const emit = defineEmits<Emits>()
 
   const formRef = ref<FormInstance>()
+  const submitLoading = ref(false)
 
   /**
    * 弹窗显示状态双向绑定
@@ -76,21 +117,27 @@
     ],
     roleCode: [
       { required: true, message: '请输入角色编码', trigger: 'blur' },
-      { min: 2, max: 50, message: '长度在 2 到 50 个字符', trigger: 'blur' }
+      { pattern: /^[A-Z_]+$/, message: '角色编码只能包含大写字母和下划线', trigger: 'blur' }
     ],
-    description: [{ required: true, message: '请输入角色描述', trigger: 'blur' }]
+    sort: [{ required: true, message: '请输入排序值', trigger: 'blur' }]
   })
 
   /**
    * 表单数据
    */
-  const form = reactive<RoleListItem>({
-    roleId: 0,
+  const form = reactive<Api.SystemManage.RoleSaveParams>({
     roleName: '',
     roleCode: '',
-    description: '',
-    createTime: '',
-    enabled: true
+    sort: 0,
+    status: 1,
+    remark: ''
+  })
+
+  /**
+   * 是否为超级管理员
+   */
+  const isSuperAdmin = computed(() => {
+    return props.dialogType === 'edit' && props.roleData?.roleCode === 'SUPER_ADMIN'
   })
 
   /**
@@ -116,19 +163,25 @@
 
   /**
    * 初始化表单数据
-   * 根据弹窗类型填充表单或重置表单
    */
   const initForm = () => {
     if (props.dialogType === 'edit' && props.roleData) {
-      Object.assign(form, props.roleData)
+      Object.assign(form, {
+        id: props.roleData.id,
+        roleName: props.roleData.roleName,
+        roleCode: props.roleData.roleCode,
+        sort: props.roleData.sort ?? 0,
+        status: props.roleData.status ?? 1,
+        remark: props.roleData.remark || ''
+      })
     } else {
       Object.assign(form, {
-        roleId: 0,
+        id: undefined,
         roleName: '',
         roleCode: '',
-        description: '',
-        createTime: '',
-        enabled: true
+        sort: 0,
+        status: 1,
+        remark: ''
       })
     }
   }
@@ -143,20 +196,37 @@
 
   /**
    * 提交表单
-   * 验证通过后调用接口保存数据
    */
   const handleSubmit = async () => {
     if (!formRef.value) return
 
     try {
       await formRef.value.validate()
-      // TODO: 调用新增/编辑接口
-      const message = props.dialogType === 'add' ? '新增成功' : '修改成功'
-      ElMessage.success(message)
+
+      // 超级管理员不允许设置为停用
+      if (isSuperAdmin.value && form.status === 0) {
+        ElMessage.warning('超级管理员角色不允许停用')
+        return
+      }
+
+      submitLoading.value = true
+
+      const submitData: Api.SystemManage.RoleSaveParams = {
+        ...form
+      }
+
+      if (props.dialogType === 'add') {
+        await fetchAddRole(submitData)
+      } else {
+        await fetchUpdateRole(form.id!, submitData)
+      }
+
       emit('success')
       handleClose()
     } catch (error) {
-      console.log('表单验证失败:', error)
+      console.error('提交失败:', error)
+    } finally {
+      submitLoading.value = false
     }
   }
 </script>

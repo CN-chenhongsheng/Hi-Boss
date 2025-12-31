@@ -10,7 +10,7 @@
 import type { AppRouteRecord } from '@/types/router'
 import { useUserStore } from '@/store/modules/user'
 import { useAppMode } from '@/hooks/core/useAppMode'
-import { fetchGetMenuList } from '@/api/system-manage'
+import { fetchGetUserMenuTree } from '@/api/system-manage'
 import { asyncRoutes } from '../routes/asyncRoutes'
 import { RoutesAlias } from '../routesAlias'
 import { formatMenuTitle } from '@/utils'
@@ -57,8 +57,76 @@ export class MenuProcessor {
    * 处理后端控制模式的菜单
    */
   private async processBackendMenu(): Promise<AppRouteRecord[]> {
-    const list = await fetchGetMenuList()
-    return this.filterEmptyMenus(list)
+    // 使用用户菜单接口，根据当前登录用户的角色权限返回菜单
+    const list = await fetchGetUserMenuTree()
+    // 过滤掉按钮类型（menuType='F'），按钮不参与路由
+    // 过滤掉 visible=0 的菜单（不显示在侧边栏，但路由仍然注册）
+    const filteredList = this.filterMenuForRoutes(list)
+    const routes = this.convertMenuToRoutes(filteredList)
+    return this.filterEmptyMenus(routes)
+  }
+
+  /**
+   * 过滤菜单用于路由注册
+   * - 过滤掉按钮类型（menuType='F'），按钮不参与路由
+   * - 保留 visible=0 的菜单用于路由注册，但在 meta.hidden 中标记
+   */
+  private filterMenuForRoutes(menuList: any[]): any[] {
+    return menuList
+      .filter((menu) => menu.menuType !== 'F') // 过滤掉按钮
+      .map((menu) => ({
+        ...menu,
+        children: menu.children ? this.filterMenuForRoutes(menu.children) : []
+      }))
+  }
+
+  /**
+   * 将后端菜单数据转换为前端路由格式
+   */
+  private convertMenuToRoutes(menuList: any[]): AppRouteRecord[] {
+    return menuList.map((menu) => {
+      const route: AppRouteRecord = {
+        name: this.generateRouteName(menu.menuName, menu.id),
+        path: menu.path,
+        component: menu.component,
+        meta: {
+          title: menu.menuName,
+          icon: menu.icon,
+          isHide: menu.visible === 0,
+          keepAlive: menu.keepAlive === 1
+        }
+      }
+
+      // 递归处理子菜单
+      if (menu.children && menu.children.length > 0) {
+        route.children = this.convertMenuToRoutes(menu.children)
+      }
+
+      return route
+    })
+  }
+
+  /**
+   * 生成路由名称
+   */
+  private generateRouteName(menuName: string, id: number): string {
+    const nameMap: Record<string, string> = {
+      工作台: 'Dashboard',
+      控制台: 'Console',
+      系统管理: 'System',
+      用户管理: 'User',
+      角色管理: 'Role',
+      菜单管理: 'Menus',
+      个人中心: 'UserCenter',
+      异常页面: 'Exception',
+      '403': 'Exception403',
+      '404': 'Exception404',
+      '500': 'Exception500',
+      结果页面: 'Result',
+      成功页: 'ResultSuccess',
+      失败页: 'ResultFail'
+    }
+    return nameMap[menuName] || `Menu${id}`
   }
 
   /**

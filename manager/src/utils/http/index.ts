@@ -36,6 +36,8 @@ let unauthorizedTimer: NodeJS.Timeout | null = null
 interface ExtendedAxiosRequestConfig extends AxiosRequestConfig {
   showErrorMessage?: boolean
   showSuccessMessage?: boolean
+  /** 自定义成功提示消息，如果设置了则优先使用，否则使用后端返回的 message */
+  successMessage?: string
 }
 
 const { VITE_API_URL, VITE_WITH_CREDENTIALS } = import.meta.env
@@ -83,10 +85,13 @@ axiosInstance.interceptors.request.use(
 /** 响应拦截器 */
 axiosInstance.interceptors.response.use(
   (response: AxiosResponse<BaseResponse>) => {
-    const { code, msg } = response.data
+    const { code, message, msg } = response.data
+    // 使用 message 或 msg（兼容旧格式）
+    const responseMsg = message || msg || ''
+
     if (code === ApiStatus.success) return response
-    if (code === ApiStatus.unauthorized) handleUnauthorizedError(msg)
-    throw createHttpError(msg || $t('httpMsg.requestFailed'), code)
+    if (code === ApiStatus.unauthorized) handleUnauthorizedError(responseMsg)
+    throw createHttpError(responseMsg || $t('httpMsg.requestFailed'), code)
   },
   (error) => {
     if (error.response?.status === ApiStatus.unauthorized) handleUnauthorizedError()
@@ -177,9 +182,10 @@ async function request<T = any>(config: ExtendedAxiosRequestConfig): Promise<T> 
   try {
     const res = await axiosInstance.request<BaseResponse<T>>(config)
 
-    // 显示成功消息
-    if (config.showSuccessMessage && res.data.msg) {
-      showSuccess(res.data.msg)
+    // 显示成功消息（优先使用自定义消息，否则使用后端返回的消息）
+    if (config.showSuccessMessage) {
+      const successMsg = config.successMessage || res.data.message || res.data.msg || '操作成功'
+      showSuccess(successMsg)
     }
 
     return res.data.data as T

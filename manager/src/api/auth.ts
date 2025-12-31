@@ -1,29 +1,68 @@
 import request from '@/utils/http'
 
 /**
- * 登录
+ * 用户登录
  * @param params 登录参数
  * @returns 登录响应
  */
 export function fetchLogin(params: Api.Auth.LoginParams) {
   return request.post<Api.Auth.LoginResponse>({
-    url: '/api/auth/login',
-    params
-    // showSuccessMessage: true // 显示成功消息
-    // showErrorMessage: false // 不显示错误消息
+    url: '/api/v1/auth/login',
+    data: params
   })
 }
 
 /**
- * 获取用户信息
+ * 用户登出
+ */
+export function fetchLogout() {
+  return request.post<void>({
+    url: '/api/v1/auth/logout'
+  })
+}
+
+/**
+ * 获取当前用户信息
  * @returns 用户信息
  */
 export function fetchGetUserInfo() {
   return request.get<Api.Auth.UserInfo>({
-    url: '/api/user/info'
-    // 自定义请求头
-    // headers: {
-    //   'X-Custom-Header': 'your-custom-value'
-    // }
+    url: '/api/v1/auth/userinfo'
+  })
+}
+
+/** ==================== 个人中心 ==================== */
+
+/**
+ * 获取当前用户个人信息（详细）
+ * @returns 用户详细信息
+ */
+export function fetchGetUserProfile() {
+  return request.get<Api.Auth.UserProfile>({
+    url: '/api/v1/user/profile'
+  })
+}
+
+/**
+ * 更新当前用户个人信息
+ * @param data 个人信息
+ */
+export function fetchUpdateUserProfile(data: Api.Auth.UserProfileUpdateParams) {
+  return request.put<void>({
+    url: '/api/v1/user/profile',
+    data,
+    showSuccessMessage: true
+  })
+}
+
+/**
+ * 修改当前用户密码
+ * @param data 密码信息
+ */
+export function fetchChangePassword(data: Api.Auth.ChangePasswordParams) {
+  return request.put<void>({
+    url: '/api/v1/user/profile/password',
+    data,
+    showSuccessMessage: true
   })
 }

@@ -2,10 +2,10 @@
 <template>
   <div
     :class="[
-      'inline-flex items-center justify-center min-w-8 h-8 px-2.5 mr-2.5 text-sm c-p rounded-md align-middle',
-      buttonClass
+      'art-button-table inline-flex items-center justify-center min-w-8 h-8 px-2.5 mr-2.5 text-sm c-p rounded-md align-middle',
+      isCompactMode ? 'compact-mode' : buttonClass
     ]"
-    :style="{ backgroundColor: buttonBgColor, color: iconColor }"
+    :style="buttonStyle"
     @click="handleClick"
   >
     <ArtSvgIcon :icon="iconContent" />
@@ -13,6 +13,10 @@
 </template>
 
 <script setup lang="ts">
+  import { storeToRefs } from 'pinia'
+  import { useTableStore } from '@/store/modules/table'
+  import { TableSizeEnum } from '@/enums/formEnum'
+
   defineOptions({ name: 'ArtButtonTable' })
 
   interface Props {
@@ -34,6 +38,15 @@
     (e: 'click'): void
   }>()
 
+  // 获取表格大小
+  const tableStore = useTableStore()
+  const { tableSize } = storeToRefs(tableStore)
+
+  // 判断是否为紧凑模式（紧凑或默认）
+  const isCompactMode = computed(() => {
+    return tableSize.value === TableSizeEnum.SMALL || tableSize.value === TableSizeEnum.DEFAULT
+  })
+
   // 默认按钮配置
   const defaultButtons = {
     add: { icon: 'ri:add-fill', class: 'bg-theme/12 text-theme' },
@@ -53,7 +66,71 @@
     return props.iconClass || (props.type ? defaultButtons[props.type]?.class : '') || ''
   })
 
+  // 动态按钮样式
+  const buttonStyle = computed(() => {
+    const style: Record<string, string> = {}
+
+    if (isCompactMode.value) {
+      // 紧凑模式：背景透明，只显示图标颜色
+      style.backgroundColor = 'transparent'
+      if (props.iconColor) {
+        style.color = props.iconColor
+      } else if (props.type) {
+        // 根据按钮类型设置图标颜色
+        const typeColors: Record<string, string> = {
+          add: 'var(--el-color-primary)',
+          edit: 'var(--el-color-info)',
+          delete: 'var(--el-color-danger)',
+          view: 'var(--el-color-info)',
+          more: 'var(--el-text-color-regular)'
+        }
+        style.color = typeColors[props.type] || 'var(--el-text-color-regular)'
+      }
+    } else {
+      // 宽松模式：使用原有样式
+      if (props.buttonBgColor) {
+        style.backgroundColor = props.buttonBgColor
+      }
+      if (props.iconColor) {
+        style.color = props.iconColor
+      }
+    }
+
+    return style
+  })
+
   const handleClick = () => {
     emit('click')
   }
 </script>
+
+<style scoped lang="scss">
+  .art-button-table {
+    :deep(.art-svg-icon) {
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      transform-origin: center;
+    }
+
+    &:hover :deep(.art-svg-icon) {
+      transform: scale(1.1);
+    }
+
+    &:active :deep(.art-svg-icon) {
+      transform: scale(0.95);
+    }
+  }
+
+  // 紧凑模式下的透明度效果
+  .art-button-table.compact-mode {
+    transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    background-color: transparent !important;
+
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.05) !important;
+    }
+
+    &.dark-mode:hover {
+      background-color: rgba(255, 255, 255, 0.05) !important;
+    }
+  }
+</style>

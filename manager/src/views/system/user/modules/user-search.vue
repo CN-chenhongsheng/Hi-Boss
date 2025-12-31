@@ -31,50 +31,42 @@
 
   // 校验规则
   const rules = {
-    // userName: [{ required: true, message: '请输入用户名', trigger: 'blur' }]
+    // username: [{ required: true, message: '请输入用户名', trigger: 'blur' }]
   }
 
-  // 动态 options
-  const statusOptions = ref<{ label: string; value: string; disabled?: boolean }[]>([])
-
-  // 模拟接口返回状态数据
-  function fetchStatusOptions(): Promise<typeof statusOptions.value> {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve([
-          { label: '在线', value: '1' },
-          { label: '离线', value: '2' },
-          { label: '异常', value: '3' },
-          { label: '注销', value: '4' }
-        ])
-      }, 1000)
-    })
-  }
-
-  onMounted(async () => {
-    statusOptions.value = await fetchStatusOptions()
-  })
+  // 状态选项
+  const statusOptions = [
+    { label: '正常', value: 1 },
+    { label: '停用', value: 0 }
+  ]
 
   // 表单配置
   const formItems = computed(() => [
     {
       label: '用户名',
-      key: 'userName',
+      key: 'username',
       type: 'input',
       placeholder: '请输入用户名',
       clearable: true
     },
     {
-      label: '手机号',
-      key: 'userPhone',
+      label: '昵称',
+      key: 'nickname',
       type: 'input',
-      props: { placeholder: '请输入手机号', maxlength: '11' }
+      placeholder: '请输入昵称',
+      clearable: true
     },
     {
-      label: '邮箱',
-      key: 'userEmail',
+      label: '手机号',
+      key: 'phone',
       type: 'input',
-      props: { placeholder: '请输入邮箱' }
+      props: { placeholder: '请输入手机号', maxlength: '11', clearable: true }
+    },
+    {
+      label: '学院',
+      key: 'college',
+      type: 'input',
+      props: { placeholder: '请输入学院', clearable: true }
     },
     {
       label: '状态',
@@ -82,18 +74,8 @@
       type: 'select',
       props: {
         placeholder: '请选择状态',
-        options: statusOptions.value
-      }
-    },
-    {
-      label: '性别',
-      key: 'userGender',
-      type: 'radiogroup',
-      props: {
-        options: [
-          { label: '男', value: '1' },
-          { label: '女', value: '2' }
-        ]
+        clearable: true,
+        options: statusOptions
       }
     }
   ])

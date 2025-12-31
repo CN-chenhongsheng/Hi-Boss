@@ -1,0 +1,360 @@
+<!-- 专业管理页面 -->
+<template>
+  <div class="major-page art-full-height">
+    <!-- 搜索栏 -->
+    <ArtSearchBar
+      v-model="formFilters"
+      :items="formItems"
+      :showExpand="false"
+      @reset="handleReset"
+      @search="handleSearch"
+    />
+
+    <ElCard class="art-table-card" shadow="never">
+      <!-- 表格头部 -->
+      <ArtTableHeader :loading="loading" v-model:columns="columnChecks" @refresh="handleRefresh">
+        <template #left>
+          <ElSpace wrap>
+            <ElButton @click="handleAdd" v-ripple v-permission="'system:major:add'"
+              >新增专业</ElButton
+            >
+            <ElButton
+              :disabled="selectedRows.length === 0"
+              @click="handleBatchDelete"
+              v-ripple
+              v-permission="'system:major:delete'"
+            >
+              批量删除
+            </ElButton>
+          </ElSpace>
+        </template>
+      </ArtTableHeader>
+
+      <ArtTable
+        :loading="loading"
+        :data="data"
+        :columns="columns"
+        :pagination="pagination"
+        @selection-change="handleSelectionChange"
+        @pagination:size-change="handleSizeChange"
+        @pagination:current-change="handleCurrentChange"
+      />
+
+      <!-- 专业弹窗 -->
+      <MajorDialog
+        v-model:visible="dialogVisible"
+        :type="dialogType"
+        :edit-data="currentMajorData"
+        @submit="handleDialogSubmit"
+      />
+    </ElCard>
+  </div>
+</template>
+
+<script setup lang="ts">
+  import ArtButtonTable from '@/components/core/forms/art-button-table/index.vue'
+  import { useTable } from '@/hooks/core/useTable'
+  import {
+    fetchGetMajorPage,
+    fetchDeleteMajor,
+    fetchBatchDeleteMajor,
+    fetchUpdateMajorStatus
+  } from '@/api/school-manage'
+  import ArtSwitch from '@/components/core/forms/art-switch/index.vue'
+  import MajorDialog from './modules/major-dialog.vue'
+  import { ElMessageBox, ElMessage } from 'element-plus'
+  import { DialogType } from '@/types'
+  import { hasPermission } from '@/directives/core/permission'
+  import { h } from 'vue'
+
+  defineOptions({ name: 'Major' })
+
+  type MajorListItem = Api.SystemManage.MajorListItem & { _statusLoading?: boolean }
+
+  // 弹窗相关
+  const dialogType = ref<DialogType>('add')
+  const dialogVisible = ref(false)
+  const currentMajorData = ref<Partial<MajorListItem>>({})
+  const selectedRows = ref<MajorListItem[]>([])
+
+  // 搜索栏表单数据（使用 reactive 以确保双向绑定正常工作）
+  const formFilters = reactive<Api.SystemManage.MajorSearchParams>({
+    pageNum: 1,
+    pageSize: 20,
+    majorCode: undefined,
+    majorName: undefined,
+    deptCode: undefined,
+    status: undefined
+  })
+
+  const {
+    columns,
+    columnChecks,
+    data,
+    loading,
+    pagination,
+    getData,
+    resetSearchParams,
+    handleSizeChange,
+    handleCurrentChange,
+    refreshData
+  } = useTable<typeof fetchGetMajorPage>({
+    core: {
+      apiFn: fetchGetMajorPage,
+      apiParams: computed(() => {
+        // 从 formFilters 同步到 searchParams，用于 API 调用
+        // 分页信息由 useTable 内部管理，这里只传递搜索条件
+        return {
+          majorCode: formFilters.majorCode || undefined,
+          majorName: formFilters.majorName || undefined,
+          deptCode: formFilters.deptCode || undefined,
+          status: formFilters.status
+        } as Partial<Api.SystemManage.MajorSearchParams>
+      }),
+      paginationKey: {
+        current: 'pageNum',
+        size: 'pageSize'
+      },
+      columnsFactory: () => [
+        {
+          type: 'selection',
+          width: 55
+        },
+        {
+          prop: 'majorCode',
+          label: '专业编码',
+          minWidth: 120
+        },
+        {
+          prop: 'majorName',
+          label: '专业名称',
+          minWidth: 150
+        },
+        {
+          prop: 'deptName',
+          label: '所属院系',
+          minWidth: 150
+        },
+        {
+          prop: 'director',
+          label: '专业负责人',
+          minWidth: 120
+        },
+        {
+          prop: 'duration',
+          label: '学制',
+          width: 100
+        },
+        {
+          prop: 'status',
+          label: '状态',
+          width: 100,
+          formatter: (row: MajorListItem) => {
+            return h(ArtSwitch, {
+              modelValue: row.status === 1,
+              loading: row._statusLoading || false,
+              inlinePrompt: true,
+              onChange: (value: string | number | boolean) => {
+                handleStatusChange(row, value === true || value === 1)
+              }
+            })
+          }
+        },
+        {
+          prop: 'createTime',
+          label: '创建时间',
+          width: 180
+        },
+        {
+          prop: 'action',
+          label: '操作',
+          width: 150,
+          fixed: 'right' as const,
+          formatter: (row: MajorListItem) => {
+            const buttons = []
+            if (hasPermission('system:major:edit')) {
+              buttons.push(
+                h(ArtButtonTable, {
+                  type: 'edit',
+                  onClick: () => handleEdit(row)
+                })
+              )
+            }
+            if (hasPermission('system:major:delete')) {
+              buttons.push(
+                h(ArtButtonTable, {
+                  type: 'delete',
+                  onClick: () => handleDelete(row)
+                })
+              )
+            }
+            return h('div', { class: 'flex gap-1' }, buttons)
+          }
+        }
+      ]
+    } as any
+  })
+
+  /**
+   * 搜索
+   */
+  const handleSearch = async (): Promise<void> => {
+    // getData 方法会自动重置到第一页（对应内部的 getDataByPage）
+    await getData()
+  }
+
+  /**
+   * 重置搜索
+   */
+  const handleReset = async (): Promise<void> => {
+    // 重置 formFilters
+    Object.assign(formFilters, {
+      majorCode: undefined,
+      majorName: undefined,
+      deptCode: undefined,
+      status: undefined
+    })
+    // 使用 useTable 的 resetSearchParams 统一重置
+    await resetSearchParams()
+  }
+
+  /**
+   * 刷新数据
+   */
+  const handleRefresh = (): void => {
+    refreshData()
+  }
+
+  /**
+   * 新增专业
+   */
+  const handleAdd = (): void => {
+    dialogType.value = 'add'
+    currentMajorData.value = {}
+    dialogVisible.value = true
+  }
+
+  /**
+   * 编辑专业
+   */
+  const handleEdit = (row: MajorListItem): void => {
+    dialogType.value = 'edit'
+    currentMajorData.value = { ...row }
+    dialogVisible.value = true
+  }
+
+  /**
+   * 删除专业
+   */
+  const handleDelete = async (row: MajorListItem): Promise<void> => {
+    try {
+      await ElMessageBox.confirm(`确定要删除专业"${row.majorName}"吗？`, '提示', {
+        type: 'warning'
+      })
+      await fetchDeleteMajor(row.id)
+      ElMessage.success('删除成功')
+      refreshData()
+    } catch (error) {
+      if (error !== 'cancel') {
+        console.error('删除专业失败:', error)
+      }
+    }
+  }
+
+  /**
+   * 批量删除
+   */
+  const handleBatchDelete = async (): Promise<void> => {
+    if (selectedRows.value.length === 0) {
+      ElMessage.warning('请选择要删除的专业')
+      return
+    }
+
+    try {
+      await ElMessageBox.confirm(
+        `确定要删除选中的 ${selectedRows.value.length} 个专业吗？`,
+        '提示',
+        {
+          type: 'warning'
+        }
+      )
+      const ids = selectedRows.value.map((item) => item.id)
+      await fetchBatchDeleteMajor(ids)
+      ElMessage.success('批量删除成功')
+      selectedRows.value = []
+      refreshData()
+    } catch (error) {
+      if (error !== 'cancel') {
+        console.error('批量删除失败:', error)
+      }
+    }
+  }
+
+  /**
+   * 选择变化
+   */
+  const handleSelectionChange = (selection: MajorListItem[]): void => {
+    selectedRows.value = selection
+  }
+
+  /**
+   * 弹窗提交
+   */
+  const handleDialogSubmit = (): void => {
+    dialogVisible.value = false
+    refreshData()
+  }
+
+  /**
+   * 更新专业状态
+   */
+  const handleStatusChange = async (row: MajorListItem, value: boolean): Promise<void> => {
+    const originalStatus = row.status
+    try {
+      row._statusLoading = true
+      row.status = value ? 1 : 0
+      await fetchUpdateMajorStatus(row.id, value ? 1 : 0)
+    } catch (error) {
+      console.error('更新专业状态失败:', error)
+      ElMessage.error('更新专业状态失败')
+      row.status = originalStatus
+    } finally {
+      row._statusLoading = false
+    }
+  }
+
+  // 表单项配置（用于搜索栏）
+  const formItems = computed(() => [
+    {
+      label: '专业编码',
+      key: 'majorCode',
+      type: 'input',
+      props: { clearable: true, placeholder: '请输入专业编码' }
+    },
+    {
+      label: '专业名称',
+      key: 'majorName',
+      type: 'input',
+      props: { clearable: true, placeholder: '请输入专业名称' }
+    },
+    {
+      label: '所属院系',
+      key: 'deptCode',
+      type: 'input',
+      props: { clearable: true, placeholder: '请输入院系编码' }
+    },
+    {
+      label: '状态',
+      key: 'status',
+      type: 'select',
+      props: {
+        clearable: true,
+        placeholder: '请选择状态',
+        options: [
+          { label: '正常', value: 1 },
+          { label: '停用', value: 0 }
+        ]
+      }
+    }
+  ])
+</script>
