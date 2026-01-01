@@ -53,12 +53,30 @@
         :parent-data="parentData"
         @submit="handleSubmit"
       />
+
+      <!-- 下钻弹框 -->
+      <DrillDownDialog
+        v-model:visible="drillDownVisible"
+        :drill-type="drillDownType"
+        :parent-name="drillDownParentName"
+        :filter-params="drillDownFilterParams"
+        :key="`${drillDownType}-${drillDownVisible}`"
+        @drill-down="handleDrillDown"
+      />
+
+      <!-- 嵌套下钻弹框 -->
+      <DrillDownDialog
+        v-model:visible="nestedDrillDownVisible"
+        :drill-type="nestedDrillDownType"
+        :parent-name="nestedDrillDownParentName"
+        :filter-params="nestedDrillDownFilterParams"
+        :key="`${nestedDrillDownType}-${nestedDrillDownVisible}`"
+      />
     </ElCard>
   </div>
 </template>
 
 <script setup lang="ts">
-  import ArtButtonTable from '@/components/core/forms/art-button-table/index.vue'
   import { useTable } from '@/hooks/core/useTable'
   import DepartmentDialog from './modules/department-dialog.vue'
   import {
@@ -66,10 +84,10 @@
     fetchDeleteDepartment,
     fetchUpdateDepartmentStatus
   } from '@/api/school-manage'
+  import DrillDownDialog from '@/components/school/DrillDownDialog.vue'
   import { ElMessageBox, ElMessage } from 'element-plus'
   import DepartmentSearch from './modules/department-search.vue'
   import ArtSwitch from '@/components/core/forms/art-switch/index.vue'
-  import { hasPermission } from '@/directives/core/permission'
   import { h, nextTick } from 'vue'
 
   defineOptions({ name: 'Department' })
@@ -85,6 +103,16 @@
   const dialogType = ref<'add' | 'edit' | 'addChild'>('add')
   const editData = ref<DepartmentListItem | null>(null)
   const parentData = ref<DepartmentListItem | null>(null)
+
+  // 下钻弹框相关
+  const drillDownVisible = ref(false)
+  const drillDownType = ref<'department' | 'major' | 'class'>('major')
+  const drillDownParentName = ref('')
+  const drillDownFilterParams = ref<Record<string, any>>({})
+  const nestedDrillDownVisible = ref(false)
+  const nestedDrillDownType = ref<'department' | 'major' | 'class'>('class')
+  const nestedDrillDownParentName = ref('')
+  const nestedDrillDownFilterParams = ref<Record<string, any>>({})
 
   // 搜索相关
   const initialSearchState = {
@@ -176,34 +204,17 @@
           label: '操作',
           width: 180,
           fixed: 'right' as const,
-          formatter: (row: DepartmentListItem) => {
-            const buttons = []
-            if (hasPermission('system:department:add')) {
-              buttons.push(
-                h(ArtButtonTable, {
-                  type: 'add',
-                  onClick: () => handleAddChild(row)
-                })
-              )
+          formatter: (row: DepartmentListItem) => [
+            { type: 'view', onClick: () => handleViewMajors(row) },
+            { type: 'add', onClick: () => handleAddChild(row), auth: 'system:department:add' },
+            { type: 'edit', onClick: () => handleEdit(row), auth: 'system:department:edit' },
+            {
+              type: 'delete',
+              onClick: () => handleDelete(row),
+              auth: 'system:department:delete',
+              danger: true
             }
-            if (hasPermission('system:department:edit')) {
-              buttons.push(
-                h(ArtButtonTable, {
-                  type: 'edit',
-                  onClick: () => handleEdit(row)
-                })
-              )
-            }
-            if (hasPermission('system:department:delete')) {
-              buttons.push(
-                h(ArtButtonTable, {
-                  type: 'delete',
-                  onClick: () => handleDelete(row)
-                })
-              )
-            }
-            return h('div', { class: 'flex gap-1' }, buttons)
-          }
+          ]
         }
       ],
       immediate: true
@@ -321,6 +332,29 @@
       await refreshCreate()
     } else {
       await refreshUpdate()
+    }
+  }
+
+  /**
+   * 查看专业
+   */
+  const handleViewMajors = (row: DepartmentListItem): void => {
+    drillDownType.value = 'major'
+    drillDownParentName.value = row.deptName
+    drillDownFilterParams.value = { deptCode: row.deptCode }
+    drillDownVisible.value = true
+  }
+
+  /**
+   * 处理下钻事件
+   */
+  const handleDrillDown = (type: 'department' | 'major' | 'class', row: any): void => {
+    if (type === 'class') {
+      // 从专业下钻到班级
+      nestedDrillDownType.value = 'class'
+      nestedDrillDownParentName.value = row.majorName
+      nestedDrillDownFilterParams.value = { majorCode: row.majorCode }
+      nestedDrillDownVisible.value = true
     }
   }
 

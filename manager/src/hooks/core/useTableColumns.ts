@@ -35,6 +35,7 @@
 import { ref, computed, watch } from 'vue'
 import { $t } from '@/locales'
 import type { ColumnOption } from '@/types/component'
+import { isActionButtonConfig, renderActionButtons } from '@/utils/table/actionButtons'
 
 /**
  * 特殊列类型
@@ -171,10 +172,31 @@ export function useTableColumns<T = any>(
   // 当前显示列（基于 columnChecks 的 checked 或 visible）
   const columns = computed(() => {
     const colMap = new Map(dynamicColumns.value.map((c) => [getColumnKey(c), c]))
-    return columnChecks.value
+    const visibleColumns = columnChecks.value
       .filter((c) => getColumnVisibility(c))
       .map((c) => colMap.get(getColumnKey(c)))
       .filter(Boolean) as ColumnOption<T>[]
+
+    // 自动处理操作列的 formatter
+    return visibleColumns.map((col) => {
+      // 如果是操作列且有 formatter
+      if (col.prop === 'action' && col.formatter) {
+        const originalFormatter = col.formatter
+        return {
+          ...col,
+          formatter: (row: T) => {
+            const result = originalFormatter(row)
+            // 如果 formatter 返回的是按钮配置数组，自动渲染
+            if (isActionButtonConfig(result)) {
+              return renderActionButtons(result)
+            }
+            // 否则返回原始结果
+            return result
+          }
+        }
+      }
+      return col
+    })
   })
 
   // 支持 updater 返回新数组或直接在传入数组上 mutate

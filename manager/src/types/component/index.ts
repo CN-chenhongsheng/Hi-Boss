@@ -143,3 +143,21 @@ export interface DialogConfig {
   // 自定义类名
   customClass?: string
 }
+
+// 操作按钮配置
+export interface ActionButtonConfig {
+  // 按钮类型
+  type: 'view' | 'add' | 'edit' | 'delete' | 'detail' | 'download' | 'upload'
+  // 点击事件
+  onClick: () => void
+  // 权限标识
+  auth?: string
+  // 自定义标签（用于更多菜单）
+  label?: string
+  // 自定义图标（用于更多菜单）
+  icon?: string
+  // 是否危险操作（红色）
+  danger?: boolean
+  // 是否禁用
+  disabled?: boolean
+}

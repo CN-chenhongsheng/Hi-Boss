@@ -238,6 +238,51 @@ export function fetchGetUsersByRoleCodes(roleCodes: string[]) {
   })
 }
 
+/** ==================== 操作日志管理 ==================== */
+
+/**
+ * 获取操作日志分页列表
+ * @param params 查询参数
+ */
+export function fetchGetOperLogList(params: Api.SystemManage.OperLogSearchParams) {
+  return request.get<Api.SystemManage.OperLogPageResponse>({
+    url: '/api/v1/system/oper-log/page',
+    params
+  })
+}
+
+/**
+ * 获取操作日志详情
+ * @param id 日志ID
+ */
+export function fetchGetOperLogDetail(id: number) {
+  return request.get<Api.SystemManage.OperLogListItem>({
+    url: `/api/v1/system/oper-log/${id}`
+  })
+}
+
+/**
+ * 批量删除操作日志
+ * @param ids 日志ID列表
+ */
+export function fetchBatchDeleteOperLog(ids: number[]) {
+  return request.del({
+    url: '/api/v1/system/oper-log/batch',
+    data: ids,
+    showSuccessMessage: true
+  })
+}
+
+/**
+ * 清空操作日志
+ */
+export function fetchCleanOperLog() {
+  return request.del({
+    url: '/api/v1/system/oper-log/clean',
+    showSuccessMessage: true
+  })
+}
+
 /** ==================== 菜单管理 ==================== */
 
 /**

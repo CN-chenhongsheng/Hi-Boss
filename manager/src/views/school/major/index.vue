@@ -55,12 +55,20 @@
         :edit-data="currentMajorData"
         @submit="handleDialogSubmit"
       />
+
+      <!-- 下钻弹框 -->
+      <DrillDownDialog
+        v-model:visible="drillDownVisible"
+        :drill-type="drillDownType"
+        :parent-name="drillDownParentName"
+        :filter-params="drillDownFilterParams"
+        :key="`${drillDownType}-${drillDownVisible}`"
+      />
     </ElCard>
   </div>
 </template>
 
 <script setup lang="ts">
-  import ArtButtonTable from '@/components/core/forms/art-button-table/index.vue'
   import { useTable } from '@/hooks/core/useTable'
   import {
     fetchGetMajorPage,
@@ -68,12 +76,12 @@
     fetchBatchDeleteMajor,
     fetchUpdateMajorStatus
   } from '@/api/school-manage'
+  import DrillDownDialog from '@/components/school/DrillDownDialog.vue'
   import ArtSwitch from '@/components/core/forms/art-switch/index.vue'
   import MajorDialog from './modules/major-dialog.vue'
   import MajorSearch from './modules/major-search.vue'
   import { ElMessageBox, ElMessage } from 'element-plus'
   import { DialogType } from '@/types'
-  import { hasPermission } from '@/directives/core/permission'
   import { h } from 'vue'
 
   defineOptions({ name: 'Major' })
@@ -86,6 +94,12 @@
   const currentMajorData = ref<Partial<MajorListItem>>({})
   const selectedRows = ref<MajorListItem[]>([])
   const showSearchBar = ref(false)
+
+  // 下钻弹框相关
+  const drillDownVisible = ref(false)
+  const drillDownType = ref<'department' | 'major' | 'class'>('class')
+  const drillDownParentName = ref('')
+  const drillDownFilterParams = ref<Record<string, any>>({})
 
   // 搜索栏表单数据（使用 reactive 以确保双向绑定正常工作）
   const formFilters = reactive<Api.SystemManage.MajorSearchParams>({
@@ -184,28 +198,18 @@
         {
           prop: 'action',
           label: '操作',
-          width: 150,
+          width: 180,
           fixed: 'right' as const,
-          formatter: (row: MajorListItem) => {
-            const buttons = []
-            if (hasPermission('system:major:edit')) {
-              buttons.push(
-                h(ArtButtonTable, {
-                  type: 'edit',
-                  onClick: () => handleEdit(row)
-                })
-              )
+          formatter: (row: MajorListItem) => [
+            { type: 'view', onClick: () => handleViewClasses(row) },
+            { type: 'edit', onClick: () => handleEdit(row), auth: 'system:major:edit' },
+            {
+              type: 'delete',
+              onClick: () => handleDelete(row),
+              auth: 'system:major:delete',
+              danger: true
             }
-            if (hasPermission('system:major:delete')) {
-              buttons.push(
-                h(ArtButtonTable, {
-                  type: 'delete',
-                  onClick: () => handleDelete(row)
-                })
-              )
-            }
-            return h('div', { class: 'flex gap-1' }, buttons)
-          }
+          ]
         }
       ]
     } as any
@@ -331,6 +335,16 @@
     } else {
       await refreshUpdate()
     }
+  }
+
+  /**
+   * 查看班级
+   */
+  const handleViewClasses = (row: MajorListItem): void => {
+    drillDownType.value = 'class'
+    drillDownParentName.value = row.majorName
+    drillDownFilterParams.value = { majorCode: row.majorCode }
+    drillDownVisible.value = true
   }
 
   /**

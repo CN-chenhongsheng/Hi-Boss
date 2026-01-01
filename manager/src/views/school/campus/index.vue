@@ -53,12 +53,40 @@
         :parent-data="parentData"
         @submit="handleSubmit"
       />
+
+      <!-- 下钻弹框 -->
+      <DrillDownDialog
+        v-model:visible="drillDownVisible"
+        :drill-type="drillDownType"
+        :parent-name="drillDownParentName"
+        :filter-params="drillDownFilterParams"
+        :key="`${drillDownType}-${drillDownVisible}`"
+        @drill-down="handleDrillDown"
+      />
+
+      <!-- 嵌套下钻弹框（专业） -->
+      <DrillDownDialog
+        v-model:visible="nestedDrillDownVisible"
+        :drill-type="nestedDrillDownType"
+        :parent-name="nestedDrillDownParentName"
+        :filter-params="nestedDrillDownFilterParams"
+        :key="`${nestedDrillDownType}-${nestedDrillDownVisible}`"
+        @drill-down="handleNestedDrillDown"
+      />
+
+      <!-- 第三层下钻弹框（班级） -->
+      <DrillDownDialog
+        v-model:visible="thirdLevelDrillDownVisible"
+        :drill-type="thirdLevelDrillDownType"
+        :parent-name="thirdLevelDrillDownParentName"
+        :filter-params="thirdLevelDrillDownFilterParams"
+        :key="`${thirdLevelDrillDownType}-${thirdLevelDrillDownVisible}`"
+      />
     </ElCard>
   </div>
 </template>
 
 <script setup lang="ts">
-  import ArtButtonTable from '@/components/core/forms/art-button-table/index.vue'
   import { useTable } from '@/hooks/core/useTable'
   import CampusDialog from './modules/campus-dialog.vue'
   import CampusSearch from './modules/campus-search.vue'
@@ -67,9 +95,9 @@
     fetchDeleteCampus,
     fetchUpdateCampusStatus
   } from '@/api/school-manage'
+  import DrillDownDialog from '@/components/school/DrillDownDialog.vue'
   import { ElMessageBox, ElMessage } from 'element-plus'
   import ArtSwitch from '@/components/core/forms/art-switch/index.vue'
-  import { hasPermission } from '@/directives/core/permission'
   import { h, nextTick } from 'vue'
 
   defineOptions({ name: 'Campus' })
@@ -86,6 +114,20 @@
   const dialogType = ref<'add' | 'edit' | 'addChild'>('add')
   const editData = ref<CampusListItem | null>(null)
   const parentData = ref<CampusListItem | null>(null)
+
+  // 下钻弹框相关
+  const drillDownVisible = ref(false)
+  const drillDownType = ref<'department' | 'major' | 'class'>('department')
+  const drillDownParentName = ref('')
+  const drillDownFilterParams = ref<Record<string, any>>({})
+  const nestedDrillDownVisible = ref(false)
+  const nestedDrillDownType = ref<'department' | 'major' | 'class'>('major')
+  const nestedDrillDownParentName = ref('')
+  const nestedDrillDownFilterParams = ref<Record<string, any>>({})
+  const thirdLevelDrillDownVisible = ref(false)
+  const thirdLevelDrillDownType = ref<'department' | 'major' | 'class'>('class')
+  const thirdLevelDrillDownParentName = ref('')
+  const thirdLevelDrillDownFilterParams = ref<Record<string, any>>({})
 
   // 搜索相关
   const initialSearchState = {
@@ -170,34 +212,17 @@
           label: '操作',
           width: 180,
           fixed: 'right' as const,
-          formatter: (row: CampusListItem) => {
-            const buttons = []
-            if (hasPermission('system:campus:add')) {
-              buttons.push(
-                h(ArtButtonTable, {
-                  type: 'add',
-                  onClick: () => handleAddChild(row)
-                })
-              )
+          formatter: (row: CampusListItem) => [
+            { type: 'view', onClick: () => handleViewDepartments(row) },
+            { type: 'add', onClick: () => handleAddChild(row), auth: 'system:campus:add' },
+            { type: 'edit', onClick: () => handleEdit(row), auth: 'system:campus:edit' },
+            {
+              type: 'delete',
+              onClick: () => handleDelete(row),
+              auth: 'system:campus:delete',
+              danger: true
             }
-            if (hasPermission('system:campus:edit')) {
-              buttons.push(
-                h(ArtButtonTable, {
-                  type: 'edit',
-                  onClick: () => handleEdit(row)
-                })
-              )
-            }
-            if (hasPermission('system:campus:delete')) {
-              buttons.push(
-                h(ArtButtonTable, {
-                  type: 'delete',
-                  onClick: () => handleDelete(row)
-                })
-              )
-            }
-            return h('div', { class: 'flex gap-1' }, buttons)
-          }
+          ]
         }
       ],
       immediate: true
@@ -315,6 +340,48 @@
       await refreshCreate()
     } else {
       await refreshUpdate()
+    }
+  }
+
+  /**
+   * 查看院系
+   */
+  const handleViewDepartments = (row: CampusListItem): void => {
+    drillDownType.value = 'department'
+    drillDownParentName.value = row.campusName
+    drillDownFilterParams.value = { campusCode: row.campusCode }
+    drillDownVisible.value = true
+  }
+
+  /**
+   * 处理下钻事件
+   */
+  const handleDrillDown = (type: 'department' | 'major' | 'class', row: any): void => {
+    if (type === 'major') {
+      // 从院系下钻到专业
+      nestedDrillDownType.value = 'major'
+      nestedDrillDownParentName.value = row.deptName
+      nestedDrillDownFilterParams.value = { deptCode: row.deptCode }
+      nestedDrillDownVisible.value = true
+    } else if (type === 'class') {
+      // 从专业下钻到班级
+      thirdLevelDrillDownType.value = 'class'
+      thirdLevelDrillDownParentName.value = row.majorName
+      thirdLevelDrillDownFilterParams.value = { majorCode: row.majorCode }
+      thirdLevelDrillDownVisible.value = true
+    }
+  }
+
+  /**
+   * 处理嵌套下钻事件（从专业下钻到班级）
+   */
+  const handleNestedDrillDown = (type: 'department' | 'major' | 'class', row: any): void => {
+    if (type === 'class') {
+      // 从专业下钻到班级
+      thirdLevelDrillDownType.value = 'class'
+      thirdLevelDrillDownParentName.value = row.majorName
+      thirdLevelDrillDownFilterParams.value = { majorCode: row.majorCode }
+      thirdLevelDrillDownVisible.value = true
     }
   }
 

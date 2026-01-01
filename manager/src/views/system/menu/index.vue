@@ -57,14 +57,12 @@
 </template>
 
 <script setup lang="ts">
-  import ArtButtonTable from '@/components/core/forms/art-button-table/index.vue'
   import { useTable } from '@/hooks/core/useTable'
   import MenuDialog from './modules/menu-dialog.vue'
   import MenuSearch from './modules/menu-search.vue'
   import { fetchGetMenuList, fetchDeleteMenu, fetchUpdateMenuStatus } from '@/api/system-manage'
   import { ElTag, ElMessageBox, ElMessage } from 'element-plus'
   import ArtSwitch from '@/components/core/forms/art-switch/index.vue'
-  import { hasPermission } from '@/directives/core/permission'
   import { h, nextTick } from 'vue'
 
   defineOptions({ name: 'Menus' })
@@ -231,42 +229,32 @@
           width: 180
         },
         {
-          prop: 'operation',
+          prop: 'action',
           label: '操作',
           width: 180,
           fixed: 'right' as const,
           formatter: (row: MenuListItem) => {
             const buttons = []
             // 只有目录和菜单可以添加子菜单/按钮
-            if (
-              hasPermission('system:menu:add') &&
-              (row.menuType === 'M' || row.menuType === 'C')
-            ) {
-              buttons.push(
-                h(ArtButtonTable, {
-                  type: 'add',
-                  tooltip: '添加',
-                  onClick: () => handleAddSubMenu(row)
-                })
-              )
+            if (row.menuType === 'M' || row.menuType === 'C') {
+              buttons.push({
+                type: 'add',
+                onClick: () => handleAddSubMenu(row),
+                auth: 'system:menu:add'
+              })
             }
-            if (hasPermission('system:menu:edit')) {
-              buttons.push(
-                h(ArtButtonTable, {
-                  type: 'edit',
-                  onClick: () => handleEditMenu(row)
-                })
-              )
-            }
-            if (hasPermission('system:menu:delete')) {
-              buttons.push(
-                h(ArtButtonTable, {
-                  type: 'delete',
-                  onClick: () => handleDeleteMenu(row)
-                })
-              )
-            }
-            return h('div', { class: 'flex gap-1' }, buttons)
+            buttons.push({
+              type: 'edit',
+              onClick: () => handleEditMenu(row),
+              auth: 'system:menu:edit'
+            })
+            buttons.push({
+              type: 'delete',
+              onClick: () => handleDeleteMenu(row),
+              auth: 'system:menu:delete',
+              danger: true
+            })
+            return buttons
           }
         }
       ],

@@ -41,7 +41,9 @@ public class DictUtils implements ApplicationContextAware {
     private static final String[] COMMON_DICT_CODES = {
             "sys_user_sex",
             "sys_user_status",
-            "sys_common_status"
+            "sys_common_status",
+            "sys_oper_business_type",
+            "sys_device_type"
     };
 
     @Override

@@ -62,7 +62,6 @@
 </template>
 
 <script setup lang="ts">
-  import ArtButtonTable from '@/components/core/forms/art-button-table/index.vue'
   import { ACCOUNT_TABLE_DATA } from '@/mock/temp/formData'
   import { useTable } from '@/hooks/core/useTable'
   import {
@@ -75,7 +74,6 @@
   import UserDialog from './modules/user-dialog.vue'
   import { ElTag, ElMessageBox, ElImage } from 'element-plus'
   import ArtSwitch from '@/components/core/forms/art-switch/index.vue'
-  import { hasPermission } from '@/directives/core/permission'
   import { DialogType } from '@/types'
 
   defineOptions({ name: 'User' })
@@ -213,38 +211,25 @@
           sortable: true
         },
         {
-          prop: 'operation',
+          prop: 'action',
           label: '操作',
           width: 200,
           fixed: 'right',
-          formatter: (row) => {
-            const buttons = []
-            if (hasPermission('system:user:edit')) {
-              buttons.push(
-                h(ArtButtonTable, {
-                  type: 'edit',
-                  onClick: () => showDialog('edit', row)
-                })
-              )
+          formatter: (row) => [
+            { type: 'edit', onClick: () => showDialog('edit', row), auth: 'system:user:edit' },
+            {
+              type: 'reset',
+              onClick: () => handleResetPassword(row),
+              auth: 'system:user:reset-pwd',
+              label: '重置密码'
+            },
+            {
+              type: 'delete',
+              onClick: () => deleteUser(row),
+              auth: 'system:user:delete',
+              danger: true
             }
-            if (hasPermission('system:user:reset-pwd')) {
-              buttons.push(
-                h(ArtButtonTable, {
-                  type: 'reset',
-                  onClick: () => handleResetPassword(row)
-                })
-              )
-            }
-            if (hasPermission('system:user:delete')) {
-              buttons.push(
-                h(ArtButtonTable, {
-                  type: 'delete',
-                  onClick: () => deleteUser(row)
-                })
-              )
-            }
-            return h('div', buttons)
-          }
+          ]
         }
       ]
     },

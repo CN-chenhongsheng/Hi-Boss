@@ -60,7 +60,6 @@
 </template>
 
 <script setup lang="ts">
-  import ArtButtonTable from '@/components/core/forms/art-button-table/index.vue'
   import { useTable } from '@/hooks/core/useTable'
   import {
     fetchGetClassPage,
@@ -73,7 +72,6 @@
   import ClassSearch from './modules/class-search.vue'
   import { ElMessageBox, ElMessage } from 'element-plus'
   import { DialogType } from '@/types'
-  import { hasPermission } from '@/directives/core/permission'
   import { h } from 'vue'
 
   defineOptions({ name: 'Class' })
@@ -193,28 +191,17 @@
         {
           prop: 'action',
           label: '操作',
-          width: 150,
+          width: 180,
           fixed: 'right' as const,
-          formatter: (row: ClassListItem) => {
-            const buttons = []
-            if (hasPermission('system:class:edit')) {
-              buttons.push(
-                h(ArtButtonTable, {
-                  type: 'edit',
-                  onClick: () => handleEdit(row)
-                })
-              )
+          formatter: (row: ClassListItem) => [
+            { type: 'edit', onClick: () => handleEdit(row), auth: 'system:class:edit' },
+            {
+              type: 'delete',
+              onClick: () => handleDelete(row),
+              auth: 'system:class:delete',
+              danger: true
             }
-            if (hasPermission('system:class:delete')) {
-              buttons.push(
-                h(ArtButtonTable, {
-                  type: 'delete',
-                  onClick: () => handleDelete(row)
-                })
-              )
-            }
-            return h('div', { class: 'flex gap-1' }, buttons)
-          }
+          ]
         }
       ]
     } as any

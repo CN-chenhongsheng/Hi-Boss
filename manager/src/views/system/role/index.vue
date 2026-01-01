@@ -69,13 +69,11 @@
 <script setup lang="ts">
   import { useTable } from '@/hooks/core/useTable'
   import { fetchGetRoleList, fetchDeleteRole, fetchUpdateRoleStatus } from '@/api/system-manage'
-  import ArtButtonTable from '@/components/core/forms/art-button-table/index.vue'
   import RoleSearch from './modules/role-search.vue'
   import RoleEditDialog from './modules/role-edit-dialog.vue'
   import RolePermissionDialog from './modules/role-permission-dialog.vue'
   import { ElMessageBox, ElMessage } from 'element-plus'
   import ArtSwitch from '@/components/core/forms/art-switch/index.vue'
-  import { hasPermission } from '@/directives/core/permission'
 
   defineOptions({ name: 'Role' })
 
@@ -180,38 +178,30 @@
           sortable: true
         },
         {
-          prop: 'operation',
+          prop: 'action',
           label: '操作',
           width: 180,
           fixed: 'right',
           formatter: (row: RoleListItem) => {
-            const buttons = []
-            if (hasPermission('system:role:assign')) {
-              buttons.push(
-                h(ArtButtonTable, {
-                  type: 'share',
-                  onClick: () => showPermissionDialog(row)
-                })
-              )
-            }
-            if (hasPermission('system:role:edit')) {
-              buttons.push(
-                h(ArtButtonTable, {
-                  type: 'edit',
-                  onClick: () => showDialog('edit', row)
-                })
-              )
-            }
+            const buttons: any[] = [
+              {
+                type: 'share',
+                onClick: () => showPermissionDialog(row),
+                auth: 'system:role:assign',
+                label: '分配权限'
+              },
+              { type: 'edit', onClick: () => showDialog('edit', row), auth: 'system:role:edit' }
+            ]
             // 超级管理员角色不允许删除
-            if (hasPermission('system:role:delete') && row.roleCode !== 'SUPER_ADMIN') {
-              buttons.push(
-                h(ArtButtonTable, {
-                  type: 'delete',
-                  onClick: () => deleteRole(row)
-                })
-              )
+            if (row.roleCode !== 'SUPER_ADMIN') {
+              buttons.push({
+                type: 'delete',
+                onClick: () => deleteRole(row),
+                auth: 'system:role:delete',
+                danger: true
+              })
             }
-            return h('div', buttons)
+            return buttons
           }
         }
       ]
