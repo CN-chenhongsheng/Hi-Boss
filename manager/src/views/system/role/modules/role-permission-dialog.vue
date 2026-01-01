@@ -18,7 +18,12 @@
         @check="handleTreeCheck"
       >
         <template #default="{ data }">
-          <div style="display: flex; align-items: center">
+          <div
+            style="display: flex; align-items: center"
+            :style="
+              data.status === 0 ? { opacity: 0.5, color: 'var(--el-text-color-disabled)' } : {}
+            "
+          >
             <i :class="getMenuIcon(data)" style="margin-right: 8px"></i>
             <span>{{ data.menuName }}</span>
             <ElTag
@@ -28,6 +33,9 @@
               style="margin-left: 8px"
             >
               {{ getMenuTypeText(data.menuType) }}
+            </ElTag>
+            <ElTag v-if="data.status === 0" type="info" size="small" style="margin-left: 8px">
+              已停用
             </ElTag>
           </div>
         </template>
@@ -93,6 +101,8 @@
   const isSelectAll = ref(false)
   const menuTree = ref<MenuListItem[]>([])
   const checkedMenuIds = ref<number[]>([])
+  // 菜单状态映射：menuId -> status（用于禁用判断）
+  const menuStatusMap = ref<Map<number, number>>(new Map())
 
   /**
    * 弹窗显示状态双向绑定
@@ -107,7 +117,11 @@
    */
   const defaultProps = {
     children: 'children',
-    label: 'menuName'
+    label: 'menuName',
+    disabled: (data: any) => {
+      // 如果菜单状态为关闭（0），则禁用
+      return (data as MenuListItem).status === 0
+    }
   }
 
   /**
@@ -168,13 +182,28 @@
 
     try {
       loading.value = true
-      const menuIds = await fetchGetRolePermissions(props.roleData.id)
+      const permissions = await fetchGetRolePermissions(props.roleData.id)
+
+      // 构建菜单状态映射
+      const statusMap = new Map<number, number>()
+      permissions.forEach((item) => {
+        statusMap.set(item.menuId, item.status)
+      })
+      menuStatusMap.value = statusMap
+
+      // 同步菜单树中的状态信息
+      syncMenuStatus(menuTree.value, statusMap)
+
+      // 提取菜单ID列表
+      const menuIds = permissions.map((item) => item.menuId)
       checkedMenuIds.value = menuIds
 
       // 设置选中的节点（只设置叶子节点，避免父节点被自动选中）
       nextTick(() => {
         const leafMenuIds = getLeafMenuIds(menuTree.value, menuIds)
         treeRef.value?.setCheckedKeys(leafMenuIds, false)
+        // 重新计算全选状态
+        updateSelectAllStatus()
       })
     } catch (error) {
       console.error('加载角色权限失败:', error)
@@ -182,6 +211,20 @@
     } finally {
       loading.value = false
     }
+  }
+
+  /**
+   * 同步菜单树中的状态信息
+   */
+  const syncMenuStatus = (menus: MenuListItem[], statusMap: Map<number, number>): void => {
+    menus.forEach((menu) => {
+      if (statusMap.has(menu.id)) {
+        menu.status = statusMap.get(menu.id) || 0
+      }
+      if (menu.children && menu.children.length > 0) {
+        syncMenuStatus(menu.children, statusMap)
+      }
+    })
   }
 
   /**
@@ -228,6 +271,7 @@
     visible.value = false
     treeRef.value?.setCheckedKeys([])
     checkedMenuIds.value = []
+    menuStatusMap.value.clear()
   }
 
   /**
@@ -281,8 +325,9 @@
     if (!tree) return
 
     if (!isSelectAll.value) {
-      const allKeys = getAllNodeKeys(menuTree.value)
-      tree.setCheckedKeys(allKeys)
+      // 只选中启用状态的菜单
+      const enabledKeys = getAllEnabledNodeKeys(menuTree.value)
+      tree.setCheckedKeys(enabledKeys)
     } else {
       tree.setCheckedKeys([])
     }
@@ -291,13 +336,16 @@
   }
 
   /**
-   * 递归获取所有节点的 key
+   * 递归获取所有启用状态的节点 key（排除禁用状态）
    */
-  const getAllNodeKeys = (nodes: MenuListItem[]): number[] => {
+  const getAllEnabledNodeKeys = (nodes: MenuListItem[]): number[] => {
     const keys: number[] = []
     const traverse = (nodeList: MenuListItem[]): void => {
       nodeList.forEach((node) => {
-        keys.push(node.id)
+        // 只包含启用状态的菜单（status === 1）
+        if (node.status === 1) {
+          keys.push(node.id)
+        }
         if (node.children?.length) traverse(node.children)
       })
     }
@@ -306,15 +354,23 @@
   }
 
   /**
-   * 处理树节点选中状态变化
+   * 更新全选状态
    */
-  const handleTreeCheck = () => {
+  const updateSelectAllStatus = () => {
     const tree = treeRef.value
     if (!tree) return
 
-    const checkedKeys = tree.getCheckedKeys()
-    const allKeys = getAllNodeKeys(menuTree.value)
+    const checkedKeys = tree.getCheckedKeys() as number[]
+    const enabledKeys = getAllEnabledNodeKeys(menuTree.value)
 
-    isSelectAll.value = checkedKeys.length === allKeys.length && allKeys.length > 0
+    // 只有当所有启用状态的菜单都被选中时，才显示为全选
+    isSelectAll.value = enabledKeys.length > 0 && checkedKeys.length === enabledKeys.length
+  }
+
+  /**
+   * 处理树节点选中状态变化
+   */
+  const handleTreeCheck = () => {
+    updateSelectAllStatus()
   }
 </script>

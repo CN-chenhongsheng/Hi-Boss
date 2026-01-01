@@ -203,11 +203,11 @@ export function fetchAssignRolePermissions(id: number, menuIds: number[]) {
 }
 
 /**
- * 获取角色的菜单权限
+ * 获取角色的菜单权限（包含菜单状态）
  * @param id 角色ID
  */
 export function fetchGetRolePermissions(id: number) {
-  return request.get<number[]>({
+  return request.get<Api.SystemManage.RolePermissionItem[]>({
     url: `/api/v1/system/role/${id}/permissions`
   })
 }

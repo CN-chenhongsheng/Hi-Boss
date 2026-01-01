@@ -112,7 +112,9 @@ export const useMenuStore = defineStore(
   {
     persist: {
       key: 'menu',
-      storage: localStorage
+      storage: localStorage,
+      // 只持久化 menuList 和 homePath，排除 removeRouteFns（函数无法序列化）
+      pick: ['menuList', 'homePath']
     }
   }
 )

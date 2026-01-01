@@ -428,19 +428,24 @@
    * 更新菜单状态
    */
   const handleStatusChange = async (row: MenuListItem, value: boolean): Promise<void> => {
+    // 检查是否有子节点
+    const hasChildren = row.children && row.children.length > 0
+
     // 如果是关闭操作（从启用变为停用），需要提示用户级联影响
     if (!value && row.status === 1) {
       try {
-        await ElMessageBox.confirm(
-          `确定要停用菜单"${row.menuName}"吗？<br/>提示：停用菜单后，该菜单下的所有子菜单也会被停用。`,
-          '确认停用',
-          {
-            type: 'warning',
-            confirmButtonText: '确认停用',
-            cancelButtonText: '取消',
-            dangerouslyUseHTMLString: true
-          }
-        )
+        let message = `确定要停用菜单"${row.menuName}"吗？`
+        if (hasChildren) {
+          message += `<br/>提示：停用菜单后，该菜单下的所有子菜单也会被停用，且关联的角色也将失去对此菜单及其子菜单的权限。`
+        } else {
+          message += `<br/>提示：关联的角色将失去对此菜单的权限。`
+        }
+        await ElMessageBox.confirm(message, '确认停用', {
+          type: 'warning',
+          confirmButtonText: '确认停用',
+          cancelButtonText: '取消',
+          dangerouslyUseHTMLString: true
+        })
       } catch {
         // 用户取消操作，不执行任何更改
         return
@@ -452,8 +457,11 @@
       row._statusLoading = true
       row.status = value ? 1 : 0
       await fetchUpdateMenuStatus(row.id, value ? 1 : 0)
-      // 由于有级联操作，需要刷新表格以同步子菜单状态
-      await refreshData()
+      // 如果有子节点，需要刷新表格以同步子菜单状态
+      // 如果是叶子节点，只更新当前行状态即可，不需要刷新表格
+      if (hasChildren) {
+        await refreshData()
+      }
     } catch (error) {
       console.error('更新菜单状态失败:', error)
       ElMessage.error('更新菜单状态失败')

@@ -5,6 +5,7 @@ import com.sushe.backend.common.result.R;
 import com.sushe.backend.dto.role.RoleQueryDTO;
 import com.sushe.backend.dto.role.RoleSaveDTO;
 import com.sushe.backend.service.SysRoleService;
+import com.sushe.backend.vo.RolePermissionVO;
 import com.sushe.backend.vo.RoleVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -102,12 +103,12 @@ public class SysRoleController {
     }
 
     @GetMapping("/{id}/permissions")
-    @Operation(summary = "获取角色的菜单权限ID列表")
+    @Operation(summary = "获取角色的菜单权限列表（包含菜单状态）")
     @Parameter(name = "id", description = "角色ID", required = true)
-    public R<List<Long>> getPermissions(@PathVariable Long id) {
+    public R<List<RolePermissionVO>> getPermissions(@PathVariable Long id) {
         log.info("获取角色菜单权限，角色ID：{}", id);
-        List<Long> menuIds = roleService.getRoleMenuIds(id);
-        return R.ok(menuIds);
+        List<RolePermissionVO> permissions = roleService.getRolePermissions(id);
+        return R.ok(permissions);
     }
 
     @PutMapping("/{id}/status/{status}")

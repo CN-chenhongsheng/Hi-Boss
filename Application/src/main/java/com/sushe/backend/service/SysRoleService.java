@@ -5,6 +5,7 @@ import com.sushe.backend.common.result.PageResult;
 import com.sushe.backend.dto.role.RoleQueryDTO;
 import com.sushe.backend.dto.role.RoleSaveDTO;
 import com.sushe.backend.entity.SysRole;
+import com.sushe.backend.vo.RolePermissionVO;
 import com.sushe.backend.vo.RoleVO;
 
 import java.util.List;
@@ -80,6 +81,14 @@ public interface SysRoleService extends IService<SysRole> {
      * @return 菜单ID列表
      */
     List<Long> getRoleMenuIds(Long roleId);
+
+    /**
+     * 获取角色的菜单权限列表（包含菜单状态）
+     * 
+     * @param roleId 角色ID
+     * @return 菜单权限列表（包含菜单ID和状态）
+     */
+    List<RolePermissionVO> getRolePermissions(Long roleId);
 
     /**
      * 更新角色状态

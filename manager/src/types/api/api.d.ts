@@ -239,6 +239,12 @@ declare namespace Api {
     /** 角色列表 */
     type RoleList = RolePageResponse
 
+    /** 角色权限项（包含菜单ID和状态） */
+    interface RolePermissionItem {
+      menuId: number
+      status: number
+    }
+
     /** 角色列表项 */
     interface RoleListItem {
       id: number

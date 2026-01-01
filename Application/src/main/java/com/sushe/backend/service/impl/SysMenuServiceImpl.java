@@ -247,7 +247,7 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
 
     /**
      * 更新菜单状态
-     * 如果状态改为关闭，则级联关闭该菜单下的所有子菜单
+     * 如果状态改为关闭，则级联关闭该菜单下的所有子菜单，并删除相关的角色菜单关联
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -268,8 +268,12 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
         menu.setStatus(status);
         boolean result = updateById(menu);
 
-        // 如果状态改为关闭（0），则级联关闭所有子菜单
+        // 如果状态改为关闭（0），则级联关闭所有子菜单，并删除角色菜单关联
         if (status == 0 && result) {
+            // 删除当前菜单的角色菜单关联
+            deleteRoleMenuRelations(id);
+
+            // 级联关闭所有子菜单，并删除子菜单的角色菜单关联
             cascadeUpdateChildrenStatus(id, 0);
         }
 
@@ -278,6 +282,7 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
 
     /**
      * 递归级联更新所有子菜单的状态
+     * 如果状态为关闭（0），同时删除子菜单的角色菜单关联
      */
     private void cascadeUpdateChildrenStatus(Long parentId, Integer status) {
         LambdaQueryWrapper<SysMenu> wrapper = new LambdaQueryWrapper<>();
@@ -288,9 +293,28 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
             for (SysMenu child : children) {
                 child.setStatus(status);
                 updateById(child);
+
+                // 如果状态为关闭（0），删除子菜单的角色菜单关联
+                if (status == 0) {
+                    deleteRoleMenuRelations(child.getId());
+                }
+
                 // 递归处理子菜单的子菜单
                 cascadeUpdateChildrenStatus(child.getId(), status);
             }
+        }
+    }
+
+    /**
+     * 删除菜单的角色菜单关联关系
+     * @param menuId 菜单ID
+     */
+    private void deleteRoleMenuRelations(Long menuId) {
+        LambdaQueryWrapper<SysRoleMenu> roleMenuWrapper = new LambdaQueryWrapper<>();
+        roleMenuWrapper.eq(SysRoleMenu::getMenuId, menuId);
+        int deletedCount = roleMenuMapper.delete(roleMenuWrapper);
+        if (deletedCount > 0) {
+            log.info("删除菜单关联的角色菜单关系，菜单ID：{}，删除数量：{}", menuId, deletedCount);
         }
     }
 }

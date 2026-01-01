@@ -65,7 +65,7 @@
   import { ElMessageBox, ElMessage } from 'element-plus'
   import ArtSwitch from '@/components/core/forms/art-switch/index.vue'
   import { hasPermission } from '@/directives/core/permission'
-  import { h } from 'vue'
+  import { h, nextTick } from 'vue'
 
   defineOptions({ name: 'Department' })
 
@@ -245,13 +245,15 @@
    * 递归展开/收起所有节点
    */
   const toggleAllExpansion = (treeData: DepartmentListItem[], expand: boolean): void => {
-    treeData.forEach((item) => {
-      if (tableRef.value) {
-        tableRef.value.toggleRowExpansion(item, expand)
-      }
-      if (item.children && item.children.length > 0) {
-        toggleAllExpansion(item.children, expand)
-      }
+    nextTick(() => {
+      treeData.forEach((item) => {
+        if (tableRef.value?.elTableRef) {
+          tableRef.value.elTableRef.toggleRowExpansion(item, expand)
+        }
+        if (item.children && item.children.length > 0) {
+          toggleAllExpansion(item.children, expand)
+        }
+      })
     })
   }
 
@@ -349,19 +351,19 @@
    * 更新院系状态
    */
   const handleStatusChange = async (row: DepartmentListItem, value: boolean): Promise<void> => {
+    // 检查是否有子节点
+    const hasChildren = row.children && row.children.length > 0
+
     // 如果是关闭操作（从启用变为停用），需要提示用户级联影响
     if (!value && row.status === 1) {
       try {
-        await ElMessageBox.confirm(
-          `确定要停用院系"${row.deptName}"吗？<br/>提示：停用院系后，该院系下的所有专业和班级也会被停用。`,
-          '确认停用',
-          {
-            type: 'warning',
-            confirmButtonText: '确认停用',
-            cancelButtonText: '取消',
-            dangerouslyUseHTMLString: true
-          }
-        )
+        let message = `确定要停用院系"${row.deptName}"吗？<br/>提示：停用院系后，该院系下的所有专业和班级也会被停用。`
+        await ElMessageBox.confirm(message, '确认停用', {
+          type: 'warning',
+          confirmButtonText: '确认停用',
+          cancelButtonText: '取消',
+          dangerouslyUseHTMLString: true
+        })
       } catch {
         // 用户取消操作，不执行任何更改
         return
@@ -373,8 +375,11 @@
       row._statusLoading = true
       row.status = value ? 1 : 0
       await fetchUpdateDepartmentStatus(row.id, value ? 1 : 0)
-      // 由于有级联操作，需要刷新表格以同步子院系状态
-      await refreshData()
+      // 如果有子节点，需要刷新表格以同步子院系状态
+      // 如果是叶子节点，只更新当前行状态即可，不需要刷新表格
+      if (hasChildren) {
+        await refreshData()
+      }
     } catch (error) {
       console.error('更新院系状态失败:', error)
       ElMessage.error('更新院系状态失败')

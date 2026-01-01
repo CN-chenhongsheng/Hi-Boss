@@ -9,13 +9,16 @@ import com.sushe.backend.common.exception.BusinessException;
 import com.sushe.backend.common.result.PageResult;
 import com.sushe.backend.dto.role.RoleQueryDTO;
 import com.sushe.backend.dto.role.RoleSaveDTO;
+import com.sushe.backend.entity.SysMenu;
 import com.sushe.backend.entity.SysRole;
 import com.sushe.backend.entity.SysRoleMenu;
+import com.sushe.backend.mapper.SysMenuMapper;
 import com.sushe.backend.mapper.SysRoleMapper;
 import com.sushe.backend.mapper.SysRoleMenuMapper;
 import com.sushe.backend.service.SysRoleService;
 import com.sushe.backend.util.BusinessRuleUtils;
 import com.sushe.backend.util.DictUtils;
+import com.sushe.backend.vo.RolePermissionVO;
 import com.sushe.backend.vo.RoleVO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -38,6 +41,7 @@ import java.util.stream.Collectors;
 public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole> implements SysRoleService {
 
     private final SysRoleMenuMapper roleMenuMapper;
+    private final SysMenuMapper menuMapper;
 
     /**
      * 分页查询角色列表
@@ -150,20 +154,20 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole> impl
         if (id == null) {
             throw new BusinessException("角色ID不能为空");
         }
-        
+
         SysRole role = getById(id);
         if (role == null) {
             throw new BusinessException("角色不存在");
         }
-        
+
         // 不能删除超级管理员角色
         BusinessRuleUtils.validateNotSuperAdminRole(role.getRoleCode(), "不能删除超级管理员角色");
-        
+
         // TODO: 检查是否有用户使用该角色
         // 如果有用户使用，则不允许删除
-        
+
         // TODO: 删除角色菜单关联
-        
+
         return removeById(id);
     }
 
@@ -176,7 +180,7 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole> impl
         if (ids == null || ids.length == 0) {
             throw new BusinessException("角色ID不能为空");
         }
-        
+
         // 检查是否包含超级管理员角色
         for (Long id : ids) {
             SysRole role = getById(id);
@@ -184,9 +188,9 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole> impl
                 BusinessRuleUtils.validateNotSuperAdminRole(role.getRoleCode(), "不能删除超级管理员角色");
             }
         }
-        
+
         // TODO: 批量检查是否有用户使用这些角色
-        
+
         return removeByIds(Arrays.asList(ids));
     }
 
@@ -197,16 +201,16 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole> impl
     @Transactional(rollbackFor = Exception.class)
     public boolean assignMenus(Long roleId, Long[] menuIds) {
         log.info("分配角色菜单权限，角色ID：{}，菜单IDs：{}", roleId, Arrays.toString(menuIds));
-        
+
         if (roleId == null) {
             throw new BusinessException("角色ID不能为空");
         }
-        
+
         // 1. 删除角色原有的菜单权限
         LambdaQueryWrapper<SysRoleMenu> deleteWrapper = new LambdaQueryWrapper<>();
         deleteWrapper.eq(SysRoleMenu::getRoleId, roleId);
         roleMenuMapper.delete(deleteWrapper);
-        
+
         // 2. 批量插入新的菜单权限
         if (menuIds != null && menuIds.length > 0) {
             for (Long menuId : menuIds) {
@@ -216,7 +220,7 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole> impl
                 roleMenuMapper.insert(roleMenu);
             }
         }
-        
+
         return true;
     }
 
@@ -228,14 +232,56 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole> impl
         if (roleId == null) {
             return List.of();
         }
-        
+
         LambdaQueryWrapper<SysRoleMenu> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(SysRoleMenu::getRoleId, roleId);
-        
+
         List<SysRoleMenu> roleMenus = roleMenuMapper.selectList(wrapper);
-        
+
         return roleMenus.stream()
                 .map(SysRoleMenu::getMenuId)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * 获取角色的菜单权限列表（包含菜单状态）
+     */
+    public List<RolePermissionVO> getRolePermissions(Long roleId) {
+        if (roleId == null) {
+            return List.of();
+        }
+
+        // 查询角色关联的菜单
+        LambdaQueryWrapper<SysRoleMenu> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(SysRoleMenu::getRoleId, roleId);
+        List<SysRoleMenu> roleMenus = roleMenuMapper.selectList(wrapper);
+
+        if (roleMenus.isEmpty()) {
+            return List.of();
+        }
+
+        // 批量查询菜单状态
+        List<Long> menuIds = roleMenus.stream()
+                .map(SysRoleMenu::getMenuId)
+                .collect(Collectors.toList());
+
+        LambdaQueryWrapper<SysMenu> menuWrapper = new LambdaQueryWrapper<>();
+        menuWrapper.in(SysMenu::getId, menuIds);
+        List<SysMenu> menus = menuMapper.selectList(menuWrapper);
+
+        // 构建菜单ID到状态的映射
+        java.util.Map<Long, Integer> menuStatusMap = menus.stream()
+                .collect(Collectors.toMap(SysMenu::getId, SysMenu::getStatus, (v1, v2) -> v1));
+
+        // 构建返回结果
+        return roleMenus.stream()
+                .map(roleMenu -> {
+                    RolePermissionVO vo = new RolePermissionVO();
+                    vo.setMenuId(roleMenu.getMenuId());
+                    // 如果菜单已被删除，状态设为0（停用）
+                    vo.setStatus(menuStatusMap.getOrDefault(roleMenu.getMenuId(), 0));
+                    return vo;
+                })
                 .collect(Collectors.toList());
     }
 
@@ -249,10 +295,10 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole> impl
         if (role == null) {
             throw new BusinessException("角色不存在");
         }
-        
+
         // 使用通用工具类验证超级管理员角色状态
         BusinessRuleUtils.validateSuperAdminRoleStatus(role.getRoleCode(), status);
-        
+
         role.setStatus(status);
         return updateById(role);
     }
@@ -263,10 +309,10 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole> impl
     private RoleVO convertToVO(SysRole role) {
         RoleVO vo = new RoleVO();
         BeanUtil.copyProperties(role, vo);
-        
+
         // 状态文本（使用字典）
         vo.setStatusText(DictUtils.getLabel("sys_user_status", role.getStatus(), "未知"));
-        
+
         return vo;
     }
 }
