@@ -264,9 +264,15 @@
    */
   const handleDelete = async (row: ClassListItem): Promise<void> => {
     try {
-      await ElMessageBox.confirm(`确定要删除班级"${row.className}"吗？`, '提示', {
-        type: 'warning'
-      })
+      await ElMessageBox.confirm(
+        `确定要删除班级"${row.className}"吗？此操作不可恢复！`,
+        '删除确认',
+        {
+          type: 'warning',
+          confirmButtonText: '确定删除',
+          cancelButtonText: '取消'
+        }
+      )
       await fetchDeleteClass(row.id)
       ElMessage.success('删除成功')
       refreshData()
@@ -288,10 +294,12 @@
 
     try {
       await ElMessageBox.confirm(
-        `确定要删除选中的 ${selectedRows.value.length} 个班级吗？`,
-        '提示',
+        `确定要删除选中的 ${selectedRows.value.length} 个班级吗？此操作不可恢复！`,
+        '批量删除确认',
         {
-          type: 'warning'
+          type: 'warning',
+          confirmButtonText: '确定删除',
+          cancelButtonText: '取消'
         }
       )
       const ids = selectedRows.value.map((item) => item.id)

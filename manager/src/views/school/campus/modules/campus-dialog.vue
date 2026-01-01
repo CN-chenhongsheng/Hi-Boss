@@ -25,6 +25,7 @@
           clearable
           check-strictly
           :render-after-expand="false"
+          :disabled="isAddChild"
         />
       </ElFormItem>
 
@@ -62,13 +63,13 @@
 
 <script setup lang="ts">
   import { fetchGetCampusTree, fetchAddCampus, fetchUpdateCampus } from '@/api/school-manage'
-  import { ElMessage } from 'element-plus'
   import type { FormInstance, FormRules } from 'element-plus'
 
   interface Props {
     visible: boolean
-    type: 'add' | 'edit'
+    type: 'add' | 'edit' | 'addChild'
     editData?: Api.SystemManage.CampusListItem | null
+    parentData?: Api.SystemManage.CampusListItem | null
   }
 
   interface Emits {
@@ -77,7 +78,8 @@
   }
 
   const props = withDefaults(defineProps<Props>(), {
-    editData: null
+    editData: null,
+    parentData: null
   })
 
   const emit = defineEmits<Emits>()
@@ -92,8 +94,13 @@
   })
 
   const isEdit = computed(() => props.type === 'edit')
+  const isAddChild = computed(() => props.type === 'addChild')
 
-  const dialogTitle = computed(() => (isEdit.value ? '编辑校区' : '新增校区'))
+  const dialogTitle = computed(() => {
+    if (isEdit.value) return '编辑校区'
+    if (isAddChild.value) return '新增子校区'
+    return '新增校区'
+  })
 
   const form = reactive<Api.SystemManage.CampusSaveParams>({
     campusCode: '',
@@ -121,6 +128,9 @@
       // 编辑时，排除自己和自己的子校区
       if (isEdit.value && props.editData) {
         campusTreeOptions.value = filterCampusTree(list, props.editData.campusCode)
+      } else if (isAddChild.value && props.parentData) {
+        // 新增子校区时，排除父校区及其子校区
+        campusTreeOptions.value = filterCampusTree(list, props.parentData.campusCode)
       } else {
         campusTreeOptions.value = list
       }
@@ -164,6 +174,10 @@
         status: props.editData.status,
         sort: props.editData.sort || 0
       })
+    } else if (isAddChild.value && props.parentData) {
+      // 新增子校区时，默认填充父校区
+      resetForm()
+      form.parentCode = props.parentData.campusCode
     } else {
       resetForm()
     }
@@ -198,10 +212,8 @@
     try {
       if (isEdit.value) {
         await fetchUpdateCampus(form.id!, form)
-        ElMessage.success('编辑成功')
       } else {
         await fetchAddCampus(form)
-        ElMessage.success('新增成功')
       }
       emit('submit')
       handleClose()

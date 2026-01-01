@@ -21,6 +21,7 @@
           v-model="form.campusCode"
           placeholder="请选择所属校区"
           filterable
+          :disabled="isAddChild"
           @change="handleCampusChange"
         >
           <ElOption
@@ -41,7 +42,7 @@
           clearable
           check-strictly
           :render-after-expand="false"
-          :disabled="!form.campusCode"
+          :disabled="isAddChild || !form.campusCode"
         />
       </ElFormItem>
 
@@ -80,13 +81,13 @@
     fetchAddDepartment,
     fetchUpdateDepartment
   } from '@/api/school-manage'
-  import { ElMessage } from 'element-plus'
   import type { FormInstance, FormRules } from 'element-plus'
 
   interface Props {
     visible: boolean
-    type: 'add' | 'edit'
+    type: 'add' | 'edit' | 'addChild'
     editData?: Api.SystemManage.DepartmentListItem | null
+    parentData?: Api.SystemManage.DepartmentListItem | null
   }
 
   interface Emits {
@@ -95,7 +96,8 @@
   }
 
   const props = withDefaults(defineProps<Props>(), {
-    editData: null
+    editData: null,
+    parentData: null
   })
 
   const emit = defineEmits<Emits>()
@@ -111,8 +113,13 @@
   })
 
   const isEdit = computed(() => props.type === 'edit')
+  const isAddChild = computed(() => props.type === 'addChild')
 
-  const dialogTitle = computed(() => (isEdit.value ? '编辑院系' : '新增院系'))
+  const dialogTitle = computed(() => {
+    if (isEdit.value) return '编辑院系'
+    if (isAddChild.value) return '新增子院系'
+    return '新增院系'
+  })
 
   const form = reactive<Api.SystemManage.DepartmentSaveParams>({
     deptCode: '',
@@ -175,6 +182,9 @@
       // 编辑时，排除自己和自己的子院系
       if (isEdit.value && props.editData) {
         departmentTreeOptions.value = filterDepartmentTree(list, props.editData.deptCode)
+      } else if (isAddChild.value && props.parentData) {
+        // 新增子院系时，排除父院系及其子院系
+        departmentTreeOptions.value = filterDepartmentTree(list, props.parentData.deptCode)
       } else {
         departmentTreeOptions.value = list
       }
@@ -227,6 +237,12 @@
         status: props.editData.status
       })
       loadDepartmentTree()
+    } else if (isAddChild.value && props.parentData) {
+      // 新增子院系时，默认填充父院系信息
+      resetForm()
+      form.campusCode = props.parentData.campusCode
+      form.parentCode = props.parentData.deptCode
+      loadDepartmentTree()
     } else {
       resetForm()
     }
@@ -262,10 +278,8 @@
     try {
       if (isEdit.value) {
         await fetchUpdateDepartment(form.id!, form)
-        ElMessage.success('编辑成功')
       } else {
         await fetchAddDepartment(form)
-        ElMessage.success('新增成功')
       }
       emit('submit')
       handleClose()

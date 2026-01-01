@@ -145,13 +145,41 @@ public class SysDepartmentServiceImpl extends ServiceImpl<SysDepartmentMapper, S
             throw new BusinessException("院系不存在");
         }
 
-        // 检查是否有子院系
-        LambdaQueryWrapper<SysDepartment> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(SysDepartment::getParentCode, department.getDeptCode());
-        if (count(wrapper) > 0) {
-            throw new BusinessException("存在子院系，不允许删除");
+        // 获取该院系及其所有子院系的编码列表
+        List<String> deptCodes = getAllDepartmentCodes(department.getDeptCode());
+
+        // 查询所有属于这些院系的专业
+        LambdaQueryWrapper<SysMajor> majorWrapper = new LambdaQueryWrapper<>();
+        majorWrapper.in(SysMajor::getDeptCode, deptCodes);
+        List<SysMajor> majors = majorMapper.selectList(majorWrapper);
+
+        // 获取这些专业的所有编码
+        List<String> majorCodes = majors.stream()
+                .map(SysMajor::getMajorCode)
+                .collect(Collectors.toList());
+
+        if (!majorCodes.isEmpty()) {
+            // 删除所有属于这些专业的班级
+            LambdaQueryWrapper<SysClass> classWrapper = new LambdaQueryWrapper<>();
+            classWrapper.in(SysClass::getMajorCode, majorCodes);
+            classMapper.delete(classWrapper);
         }
 
+        // 删除所有专业
+        if (!majorCodes.isEmpty()) {
+            majorMapper.delete(majorWrapper);
+        }
+
+        // 删除所有子院系（递归删除）
+        for (String deptCode : deptCodes) {
+            if (!deptCode.equals(department.getDeptCode())) {
+                LambdaQueryWrapper<SysDepartment> childWrapper = new LambdaQueryWrapper<>();
+                childWrapper.eq(SysDepartment::getDeptCode, deptCode);
+                remove(childWrapper);
+            }
+        }
+
+        // 最后删除当前院系
         return removeById(id);
     }
 
@@ -192,6 +220,27 @@ public class SysDepartmentServiceImpl extends ServiceImpl<SysDepartmentMapper, S
         if (department == null) {
             throw new BusinessException("院系不存在");
         }
+
+        // 如果要启用院系，需要检查所属校区是否启用
+        if (status == 1 && StrUtil.isNotBlank(department.getCampusCode())) {
+            LambdaQueryWrapper<SysCampus> campusWrapper = new LambdaQueryWrapper<>();
+            campusWrapper.eq(SysCampus::getCampusCode, department.getCampusCode());
+            SysCampus campus = campusMapper.selectOne(campusWrapper);
+            if (campus != null && campus.getStatus() != null && campus.getStatus() == 0) {
+                throw new BusinessException("该校区处于停用状态，不允许启用院系");
+            }
+
+            // 如果院系有父院系，也需要检查父院系状态
+            if (StrUtil.isNotBlank(department.getParentCode())) {
+                LambdaQueryWrapper<SysDepartment> parentWrapper = new LambdaQueryWrapper<>();
+                parentWrapper.eq(SysDepartment::getDeptCode, department.getParentCode());
+                SysDepartment parentDept = getOne(parentWrapper);
+                if (parentDept != null && parentDept.getStatus() != null && parentDept.getStatus() == 0) {
+                    throw new BusinessException("上级院系处于停用状态，不允许启用院系");
+                }
+            }
+        }
+
         department.setStatus(status);
         boolean result = updateById(department);
 

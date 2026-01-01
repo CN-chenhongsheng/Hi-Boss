@@ -257,7 +257,6 @@
    * 搜索处理
    */
   const handleSearch = (params: Record<string, any>) => {
-    console.log('搜索参数:', params)
     Object.assign(searchParams, params, { pageNum: 1 })
     getData()
   }

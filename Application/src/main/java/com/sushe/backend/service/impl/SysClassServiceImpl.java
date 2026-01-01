@@ -129,6 +129,17 @@ public class SysClassServiceImpl extends ServiceImpl<SysClassMapper, SysClass> i
         if (classEntity == null) {
             throw new BusinessException("班级不存在");
         }
+
+        // 如果要启用班级，需要检查所属专业是否启用
+        if (status == 1 && StrUtil.isNotBlank(classEntity.getMajorCode())) {
+            LambdaQueryWrapper<SysMajor> majorWrapper = new LambdaQueryWrapper<>();
+            majorWrapper.eq(SysMajor::getMajorCode, classEntity.getMajorCode());
+            SysMajor major = majorMapper.selectOne(majorWrapper);
+            if (major != null && major.getStatus() != null && major.getStatus() == 0) {
+                throw new BusinessException("该专业处于停用状态，不允许启用班级");
+            }
+        }
+
         classEntity.setStatus(status);
         return updateById(classEntity);
     }

@@ -80,7 +80,6 @@
     fetchAddClass,
     fetchUpdateClass
   } from '@/api/school-manage'
-  import { ElMessage } from 'element-plus'
   import type { FormInstance, FormRules } from 'element-plus'
 
   interface Props {
@@ -219,10 +218,8 @@
     try {
       if (isEdit.value) {
         await fetchUpdateClass(form.id!, form)
-        ElMessage.success('编辑成功')
       } else {
         await fetchAddClass(form)
-        ElMessage.success('新增成功')
       }
       emit('submit')
       handleClose()

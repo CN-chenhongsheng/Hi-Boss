@@ -46,6 +46,7 @@
         v-model:visible="dialogVisible"
         :type="dialogType"
         :edit-data="editData"
+        :parent-data="parentData"
         @submit="handleSubmit"
       />
     </ElCard>
@@ -77,8 +78,9 @@
 
   // 弹窗相关
   const dialogVisible = ref(false)
-  const dialogType = ref<'add' | 'edit'>('add')
+  const dialogType = ref<'add' | 'edit' | 'addChild'>('add')
   const editData = ref<DepartmentListItem | null>(null)
+  const parentData = ref<DepartmentListItem | null>(null)
 
   // 表格数据
   const tableData = ref<DepartmentListItem[]>([])
@@ -177,10 +179,18 @@
     {
       prop: 'action',
       label: '操作',
-      width: 150,
+      width: 180,
       fixed: 'right' as const,
       formatter: (row: DepartmentListItem) => {
         const buttons = []
+        if (hasPermission('system:department:add')) {
+          buttons.push(
+            h(ArtButtonTable, {
+              type: 'add',
+              onClick: () => handleAddChild(row)
+            })
+          )
+        }
         if (hasPermission('system:department:edit')) {
           buttons.push(
             h(ArtButtonTable, {
@@ -287,6 +297,17 @@
   const handleAdd = (): void => {
     dialogType.value = 'add'
     editData.value = null
+    parentData.value = null
+    dialogVisible.value = true
+  }
+
+  /**
+   * 新增子院系
+   */
+  const handleAddChild = (row: DepartmentListItem): void => {
+    dialogType.value = 'addChild'
+    editData.value = null
+    parentData.value = row
     dialogVisible.value = true
   }
 
@@ -296,6 +317,7 @@
   const handleEdit = (row: DepartmentListItem): void => {
     dialogType.value = 'edit'
     editData.value = { ...row }
+    parentData.value = null
     dialogVisible.value = true
   }
 
@@ -304,9 +326,16 @@
    */
   const handleDelete = async (row: DepartmentListItem): Promise<void> => {
     try {
-      await ElMessageBox.confirm(`确定要删除院系"${row.deptName}"吗？`, '提示', {
-        type: 'warning'
-      })
+      await ElMessageBox.confirm(
+        `确定要删除院系"${row.deptName}"吗？<br/>提示：删除院系后，该院系下的所有专业和班级也会被删除。`,
+        '删除确认',
+        {
+          type: 'warning',
+          confirmButtonText: '确定删除',
+          cancelButtonText: '取消',
+          dangerouslyUseHTMLString: true
+        }
+      )
       await fetchDeleteDepartment(row.id)
       ElMessage.success('删除成功')
       getDepartmentList()
@@ -329,6 +358,25 @@
    * 更新院系状态
    */
   const handleStatusChange = async (row: DepartmentListItem, value: boolean): Promise<void> => {
+    // 如果是关闭操作（从启用变为停用），需要提示用户级联影响
+    if (!value && row.status === 1) {
+      try {
+        await ElMessageBox.confirm(
+          `确定要停用院系"${row.deptName}"吗？<br/>提示：停用院系后，该院系下的所有专业和班级也会被停用。`,
+          '确认停用',
+          {
+            type: 'warning',
+            confirmButtonText: '确认停用',
+            cancelButtonText: '取消',
+            dangerouslyUseHTMLString: true
+          }
+        )
+      } catch {
+        // 用户取消操作，不执行任何更改
+        return
+      }
+    }
+
     const originalStatus = row.status
     try {
       row._statusLoading = true

@@ -46,6 +46,7 @@
         v-model:visible="dialogVisible"
         :type="dialogType"
         :edit-data="editData"
+        :parent-data="parentData"
         @submit="handleSubmit"
       />
     </ElCard>
@@ -77,8 +78,9 @@
 
   // 弹窗相关
   const dialogVisible = ref(false)
-  const dialogType = ref<'add' | 'edit'>('add')
+  const dialogType = ref<'add' | 'edit' | 'addChild'>('add')
   const editData = ref<CampusListItem | null>(null)
+  const parentData = ref<CampusListItem | null>(null)
 
   // 表格数据
   const tableData = ref<CampusListItem[]>([])
@@ -174,10 +176,18 @@
     {
       prop: 'action',
       label: '操作',
-      width: 150,
+      width: 180,
       fixed: 'right' as const,
       formatter: (row: CampusListItem) => {
         const buttons = []
+        if (hasPermission('system:campus:add')) {
+          buttons.push(
+            h(ArtButtonTable, {
+              type: 'add',
+              onClick: () => handleAddChild(row)
+            })
+          )
+        }
         if (hasPermission('system:campus:edit')) {
           buttons.push(
             h(ArtButtonTable, {
@@ -281,6 +291,17 @@
   const handleAdd = (): void => {
     dialogType.value = 'add'
     editData.value = null
+    parentData.value = null
+    dialogVisible.value = true
+  }
+
+  /**
+   * 新增子校区
+   */
+  const handleAddChild = (row: CampusListItem): void => {
+    dialogType.value = 'addChild'
+    editData.value = null
+    parentData.value = row
     dialogVisible.value = true
   }
 
@@ -290,6 +311,7 @@
   const handleEdit = (row: CampusListItem): void => {
     dialogType.value = 'edit'
     editData.value = { ...row }
+    parentData.value = null
     dialogVisible.value = true
   }
 
@@ -298,9 +320,16 @@
    */
   const handleDelete = async (row: CampusListItem): Promise<void> => {
     try {
-      await ElMessageBox.confirm(`确定要删除校区"${row.campusName}"吗？`, '提示', {
-        type: 'warning'
-      })
+      await ElMessageBox.confirm(
+        `确定要删除校区"${row.campusName}"吗？<br/>提示：删除校区后，该校区下的所有院系、专业和班级也会被删除。`,
+        '删除确认',
+        {
+          type: 'warning',
+          confirmButtonText: '确定删除',
+          cancelButtonText: '取消',
+          dangerouslyUseHTMLString: true
+        }
+      )
       await fetchDeleteCampus(row.id)
       ElMessage.success('删除成功')
       getCampusList()
@@ -323,6 +352,25 @@
    * 更新校区状态
    */
   const handleStatusChange = async (row: CampusListItem, value: boolean): Promise<void> => {
+    // 如果是关闭操作（从启用变为停用），需要提示用户级联影响
+    if (!value && row.status === 1) {
+      try {
+        await ElMessageBox.confirm(
+          `确定要停用校区"${row.campusName}"吗？<br/>提示：停用校区后，该校区下的所有院系、专业和班级也会被停用。`,
+          '确认停用',
+          {
+            type: 'warning',
+            confirmButtonText: '确认停用',
+            cancelButtonText: '取消',
+            dangerouslyUseHTMLString: true
+          }
+        )
+      } catch {
+        // 用户取消操作，不执行任何更改
+        return
+      }
+    }
+
     const originalStatus = row.status
     try {
       row._statusLoading = true

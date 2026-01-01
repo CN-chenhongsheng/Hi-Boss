@@ -109,6 +109,18 @@ public class SysMajorServiceImpl extends ServiceImpl<SysMajorMapper, SysMajor> i
         if (id == null) {
             throw new BusinessException("专业ID不能为空");
         }
+
+        SysMajor major = getById(id);
+        if (major == null) {
+            throw new BusinessException("专业不存在");
+        }
+
+        // 删除所有属于该专业的班级
+        LambdaQueryWrapper<SysClass> classWrapper = new LambdaQueryWrapper<>();
+        classWrapper.eq(SysClass::getMajorCode, major.getMajorCode());
+        classMapper.delete(classWrapper);
+
+        // 删除专业
         return removeById(id);
     }
 
@@ -118,6 +130,21 @@ public class SysMajorServiceImpl extends ServiceImpl<SysMajorMapper, SysMajor> i
         if (ids == null || ids.length == 0) {
             throw new BusinessException("专业ID不能为空");
         }
+
+        // 查询所有要删除的专业
+        List<SysMajor> majors = listByIds(Arrays.asList(ids));
+        List<String> majorCodes = majors.stream()
+                .map(SysMajor::getMajorCode)
+                .collect(Collectors.toList());
+
+        if (!majorCodes.isEmpty()) {
+            // 删除所有属于这些专业的班级
+            LambdaQueryWrapper<SysClass> classWrapper = new LambdaQueryWrapper<>();
+            classWrapper.in(SysClass::getMajorCode, majorCodes);
+            classMapper.delete(classWrapper);
+        }
+
+        // 删除专业
         return removeByIds(Arrays.asList(ids));
     }
 
@@ -132,6 +159,17 @@ public class SysMajorServiceImpl extends ServiceImpl<SysMajorMapper, SysMajor> i
         if (major == null) {
             throw new BusinessException("专业不存在");
         }
+
+        // 如果要启用专业，需要检查所属院系是否启用
+        if (status == 1 && StrUtil.isNotBlank(major.getDeptCode())) {
+            LambdaQueryWrapper<SysDepartment> deptWrapper = new LambdaQueryWrapper<>();
+            deptWrapper.eq(SysDepartment::getDeptCode, major.getDeptCode());
+            SysDepartment department = departmentMapper.selectOne(deptWrapper);
+            if (department != null && department.getStatus() != null && department.getStatus() == 0) {
+                throw new BusinessException("该院系处于停用状态，不允许启用专业");
+            }
+        }
+
         major.setStatus(status);
         boolean result = updateById(major);
 

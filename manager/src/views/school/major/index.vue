@@ -102,8 +102,6 @@
     core: {
       apiFn: fetchGetMajorPage,
       apiParams: computed(() => {
-        // 从 formFilters 同步到 searchParams，用于 API 调用
-        // 分页信息由 useTable 内部管理，这里只传递搜索条件
         return {
           majorCode: formFilters.majorCode || undefined,
           majorName: formFilters.majorName || undefined,
@@ -248,9 +246,16 @@
    */
   const handleDelete = async (row: MajorListItem): Promise<void> => {
     try {
-      await ElMessageBox.confirm(`确定要删除专业"${row.majorName}"吗？`, '提示', {
-        type: 'warning'
-      })
+      await ElMessageBox.confirm(
+        `确定要删除专业"${row.majorName}"吗？<br/>提示：删除专业后，该专业下的所有班级也会被删除。`,
+        '删除确认',
+        {
+          type: 'warning',
+          confirmButtonText: '确定删除',
+          cancelButtonText: '取消',
+          dangerouslyUseHTMLString: true
+        }
+      )
       await fetchDeleteMajor(row.id)
       ElMessage.success('删除成功')
       refreshData()
@@ -272,10 +277,13 @@
 
     try {
       await ElMessageBox.confirm(
-        `确定要删除选中的 ${selectedRows.value.length} 个专业吗？`,
-        '提示',
+        `确定要删除选中的 ${selectedRows.value.length} 个专业吗？<br/>提示：删除专业后，这些专业下的所有班级也会被删除。`,
+        '批量删除确认',
         {
-          type: 'warning'
+          type: 'warning',
+          confirmButtonText: '确定删除',
+          cancelButtonText: '取消',
+          dangerouslyUseHTMLString: true
         }
       )
       const ids = selectedRows.value.map((item) => item.id)
@@ -309,6 +317,25 @@
    * 更新专业状态
    */
   const handleStatusChange = async (row: MajorListItem, value: boolean): Promise<void> => {
+    // 如果是关闭操作（从启用变为停用），需要提示用户级联影响
+    if (!value && row.status === 1) {
+      try {
+        await ElMessageBox.confirm(
+          `确定要停用专业"${row.majorName}"吗？<br/>提示：停用专业后，该专业下的所有班级也会被停用。`,
+          '确认停用',
+          {
+            type: 'warning',
+            confirmButtonText: '确认停用',
+            cancelButtonText: '取消',
+            dangerouslyUseHTMLString: true
+          }
+        )
+      } catch {
+        // 用户取消操作，不执行任何更改
+        return
+      }
+    }
+
     const originalStatus = row.status
     try {
       row._statusLoading = true

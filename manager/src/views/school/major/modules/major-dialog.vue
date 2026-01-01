@@ -66,7 +66,6 @@
     fetchAddMajor,
     fetchUpdateMajor
   } from '@/api/school-manage'
-  import { ElMessage } from 'element-plus'
   import type { FormInstance, FormRules } from 'element-plus'
 
   interface Props {
@@ -218,10 +217,8 @@
     try {
       if (isEdit.value) {
         await fetchUpdateMajor(form.id!, form)
-        ElMessage.success('编辑成功')
       } else {
         await fetchAddMajor(form)
-        ElMessage.success('新增成功')
       }
       emit('submit')
       handleClose()

@@ -139,18 +139,64 @@ public class SysCampusServiceImpl extends ServiceImpl<SysCampusMapper, SysCampus
             throw new BusinessException("校区ID不能为空");
         }
 
-        // 检查是否有子校区
         SysCampus campus = getById(id);
         if (campus == null) {
             throw new BusinessException("校区不存在");
         }
 
-        LambdaQueryWrapper<SysCampus> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(SysCampus::getParentCode, campus.getCampusCode());
-        if (count(wrapper) > 0) {
-            throw new BusinessException("存在子校区，不允许删除");
+        // 获取该校区及其所有子校区的编码列表
+        List<String> campusCodes = getAllCampusCodes(campus.getCampusCode());
+
+        // 查询所有属于这些校区的院系
+        LambdaQueryWrapper<SysDepartment> deptWrapper = new LambdaQueryWrapper<>();
+        deptWrapper.in(SysDepartment::getCampusCode, campusCodes);
+        List<SysDepartment> departments = departmentMapper.selectList(deptWrapper);
+
+        // 获取这些院系及其所有子院系的编码列表
+        List<String> deptCodes = new ArrayList<>();
+        for (SysDepartment dept : departments) {
+            deptCodes.addAll(getAllDepartmentCodes(dept.getDeptCode()));
         }
 
+        if (!deptCodes.isEmpty()) {
+            // 查询所有属于这些院系的专业
+            LambdaQueryWrapper<SysMajor> majorWrapper = new LambdaQueryWrapper<>();
+            majorWrapper.in(SysMajor::getDeptCode, deptCodes);
+            List<SysMajor> majors = majorMapper.selectList(majorWrapper);
+
+            // 获取这些专业的所有编码
+            List<String> majorCodes = majors.stream()
+                    .map(SysMajor::getMajorCode)
+                    .collect(Collectors.toList());
+
+            if (!majorCodes.isEmpty()) {
+                // 删除所有属于这些专业的班级
+                LambdaQueryWrapper<SysClass> classWrapper = new LambdaQueryWrapper<>();
+                classWrapper.in(SysClass::getMajorCode, majorCodes);
+                classMapper.delete(classWrapper);
+            }
+
+            // 删除所有专业
+            majorMapper.delete(majorWrapper);
+        }
+
+        // 删除所有院系（包括子院系）
+        if (!deptCodes.isEmpty()) {
+            LambdaQueryWrapper<SysDepartment> deleteDeptWrapper = new LambdaQueryWrapper<>();
+            deleteDeptWrapper.in(SysDepartment::getDeptCode, deptCodes);
+            departmentMapper.delete(deleteDeptWrapper);
+        }
+
+        // 删除所有子校区（递归删除）
+        for (String campusCode : campusCodes) {
+            if (!campusCode.equals(campus.getCampusCode())) {
+                LambdaQueryWrapper<SysCampus> childWrapper = new LambdaQueryWrapper<>();
+                childWrapper.eq(SysCampus::getCampusCode, campusCode);
+                remove(childWrapper);
+            }
+        }
+
+        // 最后删除当前校区
         return removeById(id);
     }
 
@@ -209,6 +255,17 @@ public class SysCampusServiceImpl extends ServiceImpl<SysCampusMapper, SysCampus
         if (campus == null) {
             throw new BusinessException("校区不存在");
         }
+
+        // 如果要启用校区，需要检查父校区是否启用（如果存在父校区）
+        if (status == 1 && StrUtil.isNotBlank(campus.getParentCode())) {
+            LambdaQueryWrapper<SysCampus> parentWrapper = new LambdaQueryWrapper<>();
+            parentWrapper.eq(SysCampus::getCampusCode, campus.getParentCode());
+            SysCampus parentCampus = getOne(parentWrapper);
+            if (parentCampus != null && parentCampus.getStatus() != null && parentCampus.getStatus() == 0) {
+                throw new BusinessException("上级校区处于停用状态，不允许启用校区");
+            }
+        }
+
         campus.setStatus(status);
         boolean result = updateById(campus);
 
