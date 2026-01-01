@@ -179,7 +179,8 @@
         {
           prop: 'sort',
           label: '排序',
-          width: 80
+          width: 80,
+          sortable: true
         },
         {
           prop: 'createTime',
