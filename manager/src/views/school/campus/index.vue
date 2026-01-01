@@ -35,7 +35,7 @@
         row-key="id"
         :loading="loading"
         :columns="columns"
-        :data="tableData"
+        :data="data"
         :stripe="false"
         :tree-props="{ children: 'children', hasChildren: 'hasChildren' }"
         :default-expand-all="false"
@@ -55,7 +55,7 @@
 
 <script setup lang="ts">
   import ArtButtonTable from '@/components/core/forms/art-button-table/index.vue'
-  import { useTableColumns } from '@/hooks/core/useTableColumns'
+  import { useTable } from '@/hooks/core/useTable'
   import CampusDialog from './modules/campus-dialog.vue'
   import {
     fetchGetCampusTree,
@@ -72,7 +72,6 @@
   type CampusListItem = Api.SystemManage.CampusListItem & { _statusLoading?: boolean }
 
   // 状态管理
-  const loading = ref(false)
   const isExpanded = ref(false)
   const tableRef = ref()
 
@@ -81,9 +80,6 @@
   const dialogType = ref<'add' | 'edit' | 'addChild'>('add')
   const editData = ref<CampusListItem | null>(null)
   const parentData = ref<CampusListItem | null>(null)
-
-  // 表格数据
-  const tableData = ref<CampusListItem[]>([])
 
   // 搜索相关
   const initialSearchState = {
@@ -122,138 +118,130 @@
     }
   ])
 
-  // 表格列配置
-  const { columns, columnChecks } = useTableColumns<CampusListItem>(() => [
-    {
-      type: 'selection',
-      width: 55
-    },
-    {
-      prop: 'campusCode',
-      label: '校区编码',
-      minWidth: 120
-    },
-    {
-      prop: 'campusName',
-      label: '校区名称',
-      minWidth: 150
-    },
-    {
-      prop: 'address',
-      label: '校区地址',
-      minWidth: 200
-    },
-    {
-      prop: 'manager',
-      label: '负责人',
-      minWidth: 100
-    },
-    {
-      prop: 'status',
-      label: '状态',
-      width: 100,
-      formatter: (row: CampusListItem) => {
-        return h(ArtSwitch, {
-          modelValue: row.status === 1,
-          loading: row._statusLoading || false,
-          inlinePrompt: true,
-          onChange: (value: string | number | boolean) => {
-            handleStatusChange(row, value === true || value === 1)
+  // 使用 useTable 管理表格数据
+  const {
+    columns,
+    columnChecks,
+    data,
+    loading,
+    getData,
+    resetSearchParams,
+    refreshData,
+    refreshCreate,
+    refreshUpdate,
+    refreshRemove
+  } = useTable<typeof fetchGetCampusTree>({
+    core: {
+      apiFn: fetchGetCampusTree,
+      apiParams: computed(() => {
+        return {
+          campusCode: formFilters.campusCode || undefined,
+          campusName: formFilters.campusName || undefined,
+          status: formFilters.status
+        } as Partial<Api.SystemManage.CampusSearchParams>
+      }),
+      columnsFactory: () => [
+        {
+          type: 'selection',
+          width: 55
+        },
+        {
+          prop: 'campusCode',
+          label: '校区编码',
+          minWidth: 120
+        },
+        {
+          prop: 'campusName',
+          label: '校区名称',
+          minWidth: 150
+        },
+        {
+          prop: 'address',
+          label: '校区地址',
+          minWidth: 200
+        },
+        {
+          prop: 'manager',
+          label: '负责人',
+          minWidth: 100
+        },
+        {
+          prop: 'status',
+          label: '状态',
+          width: 100,
+          formatter: (row: CampusListItem) => {
+            return h(ArtSwitch, {
+              modelValue: row.status === 1,
+              loading: row._statusLoading || false,
+              inlinePrompt: true,
+              onChange: (value: string | number | boolean) => {
+                handleStatusChange(row, value === true || value === 1)
+              }
+            })
           }
-        })
-      }
-    },
-    {
-      prop: 'sort',
-      label: '排序',
-      width: 80
-    },
-    {
-      prop: 'createTime',
-      label: '创建时间',
-      width: 180
-    },
-    {
-      prop: 'action',
-      label: '操作',
-      width: 180,
-      fixed: 'right' as const,
-      formatter: (row: CampusListItem) => {
-        const buttons = []
-        if (hasPermission('system:campus:add')) {
-          buttons.push(
-            h(ArtButtonTable, {
-              type: 'add',
-              onClick: () => handleAddChild(row)
-            })
-          )
+        },
+        {
+          prop: 'sort',
+          label: '排序',
+          width: 80
+        },
+        {
+          prop: 'createTime',
+          label: '创建时间',
+          width: 180
+        },
+        {
+          prop: 'action',
+          label: '操作',
+          width: 180,
+          fixed: 'right' as const,
+          formatter: (row: CampusListItem) => {
+            const buttons = []
+            if (hasPermission('system:campus:add')) {
+              buttons.push(
+                h(ArtButtonTable, {
+                  type: 'add',
+                  onClick: () => handleAddChild(row)
+                })
+              )
+            }
+            if (hasPermission('system:campus:edit')) {
+              buttons.push(
+                h(ArtButtonTable, {
+                  type: 'edit',
+                  onClick: () => handleEdit(row)
+                })
+              )
+            }
+            if (hasPermission('system:campus:delete')) {
+              buttons.push(
+                h(ArtButtonTable, {
+                  type: 'delete',
+                  onClick: () => handleDelete(row)
+                })
+              )
+            }
+            return h('div', { class: 'flex gap-1' }, buttons)
+          }
         }
-        if (hasPermission('system:campus:edit')) {
-          buttons.push(
-            h(ArtButtonTable, {
-              type: 'edit',
-              onClick: () => handleEdit(row)
-            })
-          )
-        }
-        if (hasPermission('system:campus:delete')) {
-          buttons.push(
-            h(ArtButtonTable, {
-              type: 'delete',
-              onClick: () => handleDelete(row)
-            })
-          )
-        }
-        return h('div', { class: 'flex gap-1' }, buttons)
-      }
+      ],
+      immediate: true
     }
-  ])
-
-  onMounted(() => {
-    getCampusList()
   })
-
-  /**
-   * 获取校区列表数据
-   */
-  const getCampusList = async (): Promise<void> => {
-    loading.value = true
-
-    try {
-      const params: Api.SystemManage.CampusSearchParams = {}
-      if (formFilters.campusCode) {
-        params.campusCode = formFilters.campusCode
-      }
-      if (formFilters.campusName) {
-        params.campusName = formFilters.campusName
-      }
-      if (formFilters.status !== undefined) {
-        params.status = formFilters.status
-      }
-
-      const list = await fetchGetCampusTree(params)
-      tableData.value = list
-    } catch (error) {
-      console.error('获取校区列表失败:', error)
-      ElMessage.error('获取校区列表失败')
-    } finally {
-      loading.value = false
-    }
-  }
 
   /**
    * 切换展开/收起
    */
   const toggleExpand = (): void => {
     isExpanded.value = !isExpanded.value
-    toggleAllExpansion(tableData.value, isExpanded.value)
+    toggleAllExpansion(data.value, isExpanded.value)
   }
 
   /**
    * 递归展开/收起所有节点
    */
-  const toggleAllExpansion = (data: CampusListItem[], expand: boolean): void => {
-    data.forEach((item) => {
+  const toggleAllExpansion = (treeData: CampusListItem[], expand: boolean): void => {
+    treeData.forEach((item) => {
       if (tableRef.value) {
         tableRef.value.toggleRowExpansion(item, expand)
       }
@@ -266,23 +254,23 @@
   /**
    * 搜索
    */
-  const handleSearch = (): void => {
-    getCampusList()
+  const handleSearch = async (): Promise<void> => {
+    await getData()
   }
 
   /**
    * 重置搜索
    */
-  const handleReset = (): void => {
+  const handleReset = async (): Promise<void> => {
     Object.assign(formFilters, initialSearchState)
-    getCampusList()
+    await resetSearchParams()
   }
 
   /**
    * 刷新数据
    */
   const handleRefresh = (): void => {
-    getCampusList()
+    refreshData()
   }
 
   /**
@@ -332,7 +320,7 @@
       )
       await fetchDeleteCampus(row.id)
       ElMessage.success('删除成功')
-      getCampusList()
+      await refreshRemove()
     } catch (error) {
       if (error !== 'cancel') {
         console.error('删除校区失败:', error)
@@ -343,9 +331,14 @@
   /**
    * 弹窗提交
    */
-  const handleSubmit = (): void => {
+  const handleSubmit = async (): Promise<void> => {
     dialogVisible.value = false
-    getCampusList()
+    // 根据 dialogType 判断是新增还是编辑
+    if (dialogType.value === 'add' || dialogType.value === 'addChild') {
+      await refreshCreate()
+    } else {
+      await refreshUpdate()
+    }
   }
 
   /**

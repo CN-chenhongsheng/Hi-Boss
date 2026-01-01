@@ -17,7 +17,18 @@
  * @author HongSheng_Chen Team
  */
 
-import { ref, reactive, computed, onMounted, onUnmounted, nextTick, readonly } from 'vue'
+import {
+  ref,
+  reactive,
+  computed,
+  watch,
+  onMounted,
+  onUnmounted,
+  nextTick,
+  readonly,
+  unref,
+  isRef
+} from 'vue'
 import { useWindowSize } from '@vueuse/core'
 import { useTableColumns } from './useTableColumns'
 import type { ColumnOption } from '@/types/component'
@@ -52,8 +63,8 @@ export interface UseTableConfig<
   core: {
     /** API 请求函数 */
     apiFn: TApiFn
-    /** 默认请求参数 */
-    apiParams?: Partial<TParams>
+    /** 默认请求参数，支持普通对象或 computed ref */
+    apiParams?: Partial<TParams> | import('vue').ComputedRef<Partial<TParams>>
     /** 排除 apiParams 中的属性 */
     excludeParams?: string[]
     /** 是否立即加载数据 */
@@ -201,15 +212,34 @@ function useTableImpl<TApiFn extends (params: any) => Promise<any>>(
   let cacheCleanupTimer: NodeJS.Timeout | null = null
 
   // 搜索参数
+  // 如果 apiParams 是 ref/computed，需要解包
+  const resolvedApiParams = isRef(apiParams) ? unref(apiParams) : apiParams || {}
   const searchParams = reactive(
     Object.assign(
       {
         [pageKey]: 1,
         [sizeKey]: 10
       },
-      apiParams || {}
+      resolvedApiParams
     ) as TParams
   )
+
+  // 如果 apiParams 是 computed/ref，需要监听变化并同步到 searchParams
+  if (isRef(apiParams)) {
+    watch(
+      apiParams,
+      (newParams) => {
+        const resolved = unref(newParams) || {}
+        Object.keys(searchParams).forEach((key) => {
+          if (!(key === pageKey || key === sizeKey)) {
+            delete (searchParams as Record<string, unknown>)[key]
+          }
+        })
+        Object.assign(searchParams, resolved)
+      },
+      { deep: true }
+    )
+  }
 
   // 分页配置
   const pagination = reactive<Api.Common.PaginationParams>({

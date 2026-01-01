@@ -98,7 +98,10 @@
     resetSearchParams,
     handleSizeChange,
     handleCurrentChange,
-    refreshData
+    refreshData,
+    refreshCreate,
+    refreshUpdate,
+    refreshRemove
   } = useTable<typeof fetchGetUserList>({
     // 核心配置
     core: {
@@ -289,7 +292,7 @@
       )
 
       await fetchDeleteUser(row.id)
-      await refreshData()
+      await refreshRemove()
     } catch (error) {
       if (error !== 'cancel') {
         console.error('删除用户失败:', error)
@@ -324,7 +327,7 @@
 
       ElMessage.success('批量删除成功')
       selectedRows.value = []
-      await refreshData()
+      await refreshRemove()
     } catch (error) {
       if (error !== 'cancel') {
         console.error('批量删除失败:', error)
@@ -384,7 +387,12 @@
    * 处理弹窗提交事件
    */
   const handleDialogSubmit = async () => {
-    await refreshData()
+    // 根据 dialogType 判断是新增还是编辑
+    if (dialogType.value === 'add') {
+      await refreshCreate()
+    } else {
+      await refreshUpdate()
+    }
   }
 
   /**

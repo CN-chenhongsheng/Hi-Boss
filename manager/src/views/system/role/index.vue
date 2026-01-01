@@ -54,14 +54,14 @@
       v-model="dialogVisible"
       :dialog-type="dialogType"
       :role-data="currentRoleData"
-      @success="refreshData"
+      @success="handleEditDialogSuccess"
     />
 
     <!-- 菜单权限弹窗 -->
     <RolePermissionDialog
       v-model="permissionDialog"
       :role-data="currentRoleData"
-      @success="refreshData"
+      @success="refreshUpdate"
     />
   </div>
 </template>
@@ -107,7 +107,10 @@
     resetSearchParams,
     handleSizeChange,
     handleCurrentChange,
-    refreshData
+    refreshData,
+    refreshCreate,
+    refreshUpdate,
+    refreshRemove
   } = useTable({
     // 核心配置
     core: {
@@ -243,6 +246,18 @@
   }
 
   /**
+   * 处理编辑弹窗成功事件
+   */
+  const handleEditDialogSuccess = async () => {
+    // 根据 dialogType 判断是新增还是编辑
+    if (dialogType.value === 'add') {
+      await refreshCreate()
+    } else {
+      await refreshUpdate()
+    }
+  }
+
+  /**
    * 删除角色
    */
   const deleteRole = async (row: RoleListItem) => {
@@ -260,7 +275,7 @@
       })
 
       await fetchDeleteRole(row.id)
-      await refreshData()
+      await refreshRemove()
     } catch (error) {
       if (error !== 'cancel') {
         console.error('删除角色失败:', error)
@@ -302,7 +317,7 @@
 
       ElMessage.success('批量删除成功')
       selectedRows.value = []
-      await refreshData()
+      await refreshRemove()
     } catch (error) {
       if (error !== 'cancel') {
         console.error('批量删除失败:', error)

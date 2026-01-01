@@ -35,7 +35,7 @@
         row-key="id"
         :loading="loading"
         :columns="columns"
-        :data="tableData"
+        :data="data"
         :stripe="false"
         :tree-props="{ children: 'children', hasChildren: 'hasChildren' }"
         :default-expand-all="false"
@@ -55,7 +55,7 @@
 
 <script setup lang="ts">
   import ArtButtonTable from '@/components/core/forms/art-button-table/index.vue'
-  import { useTableColumns } from '@/hooks/core/useTableColumns'
+  import { useTable } from '@/hooks/core/useTable'
   import DepartmentDialog from './modules/department-dialog.vue'
   import {
     fetchGetDepartmentTree,
@@ -72,7 +72,6 @@
   type DepartmentListItem = Api.SystemManage.DepartmentListItem & { _statusLoading?: boolean }
 
   // 状态管理
-  const loading = ref(false)
   const isExpanded = ref(false)
   const tableRef = ref()
 
@@ -81,9 +80,6 @@
   const dialogType = ref<'add' | 'edit' | 'addChild'>('add')
   const editData = ref<DepartmentListItem | null>(null)
   const parentData = ref<DepartmentListItem | null>(null)
-
-  // 表格数据
-  const tableData = ref<DepartmentListItem[]>([])
 
   // 搜索相关
   const initialSearchState = {
@@ -129,137 +125,127 @@
     }
   ])
 
-  // 表格列配置
-  const { columns, columnChecks } = useTableColumns<DepartmentListItem>(() => [
-    {
-      prop: 'deptCode',
-      label: '院系编码',
-      minWidth: 120
-    },
-    {
-      prop: 'deptName',
-      label: '院系名称',
-      minWidth: 150
-    },
-    {
-      prop: 'campusName',
-      label: '所属校区',
-      minWidth: 120
-    },
-    {
-      prop: 'leader',
-      label: '院系领导',
-      minWidth: 100
-    },
-    {
-      prop: 'phone',
-      label: '联系电话',
-      minWidth: 120
-    },
-    {
-      prop: 'status',
-      label: '状态',
-      width: 100,
-      formatter: (row: DepartmentListItem) => {
-        return h(ArtSwitch, {
-          modelValue: row.status === 1,
-          loading: row._statusLoading || false,
-          inlinePrompt: true,
-          onChange: (value: string | number | boolean) => {
-            handleStatusChange(row, value === true || value === 1)
+  // 使用 useTable 管理表格数据
+  const {
+    columns,
+    columnChecks,
+    data,
+    loading,
+    getData,
+    resetSearchParams,
+    refreshData,
+    refreshCreate,
+    refreshUpdate,
+    refreshRemove
+  } = useTable<typeof fetchGetDepartmentTree>({
+    core: {
+      apiFn: fetchGetDepartmentTree,
+      apiParams: computed(() => {
+        return {
+          deptCode: formFilters.deptCode || undefined,
+          deptName: formFilters.deptName || undefined,
+          campusCode: formFilters.campusCode || undefined,
+          status: formFilters.status
+        } as Partial<Api.SystemManage.DepartmentSearchParams>
+      }),
+      columnsFactory: () => [
+        {
+          prop: 'deptCode',
+          label: '院系编码',
+          minWidth: 120
+        },
+        {
+          prop: 'deptName',
+          label: '院系名称',
+          minWidth: 150
+        },
+        {
+          prop: 'campusName',
+          label: '所属校区',
+          minWidth: 120
+        },
+        {
+          prop: 'leader',
+          label: '院系领导',
+          minWidth: 100
+        },
+        {
+          prop: 'phone',
+          label: '联系电话',
+          minWidth: 120
+        },
+        {
+          prop: 'status',
+          label: '状态',
+          width: 100,
+          formatter: (row: DepartmentListItem) => {
+            return h(ArtSwitch, {
+              modelValue: row.status === 1,
+              loading: row._statusLoading || false,
+              inlinePrompt: true,
+              onChange: (value: string | number | boolean) => {
+                handleStatusChange(row, value === true || value === 1)
+              }
+            })
           }
-        })
-      }
-    },
-    {
-      prop: 'createTime',
-      label: '创建时间',
-      width: 180
-    },
-    {
-      prop: 'action',
-      label: '操作',
-      width: 180,
-      fixed: 'right' as const,
-      formatter: (row: DepartmentListItem) => {
-        const buttons = []
-        if (hasPermission('system:department:add')) {
-          buttons.push(
-            h(ArtButtonTable, {
-              type: 'add',
-              onClick: () => handleAddChild(row)
-            })
-          )
+        },
+        {
+          prop: 'createTime',
+          label: '创建时间',
+          width: 180
+        },
+        {
+          prop: 'action',
+          label: '操作',
+          width: 180,
+          fixed: 'right' as const,
+          formatter: (row: DepartmentListItem) => {
+            const buttons = []
+            if (hasPermission('system:department:add')) {
+              buttons.push(
+                h(ArtButtonTable, {
+                  type: 'add',
+                  onClick: () => handleAddChild(row)
+                })
+              )
+            }
+            if (hasPermission('system:department:edit')) {
+              buttons.push(
+                h(ArtButtonTable, {
+                  type: 'edit',
+                  onClick: () => handleEdit(row)
+                })
+              )
+            }
+            if (hasPermission('system:department:delete')) {
+              buttons.push(
+                h(ArtButtonTable, {
+                  type: 'delete',
+                  onClick: () => handleDelete(row)
+                })
+              )
+            }
+            return h('div', { class: 'flex gap-1' }, buttons)
+          }
         }
-        if (hasPermission('system:department:edit')) {
-          buttons.push(
-            h(ArtButtonTable, {
-              type: 'edit',
-              onClick: () => handleEdit(row)
-            })
-          )
-        }
-        if (hasPermission('system:department:delete')) {
-          buttons.push(
-            h(ArtButtonTable, {
-              type: 'delete',
-              onClick: () => handleDelete(row)
-            })
-          )
-        }
-        return h('div', { class: 'flex gap-1' }, buttons)
-      }
+      ],
+      immediate: true
     }
-  ])
-
-  onMounted(() => {
-    getDepartmentList()
   })
-
-  /**
-   * 获取院系列表数据
-   */
-  const getDepartmentList = async (): Promise<void> => {
-    loading.value = true
-
-    try {
-      const params: Api.SystemManage.DepartmentSearchParams = {}
-      if (formFilters.deptCode) {
-        params.deptCode = formFilters.deptCode
-      }
-      if (formFilters.deptName) {
-        params.deptName = formFilters.deptName
-      }
-      if (formFilters.campusCode) {
-        params.campusCode = formFilters.campusCode
-      }
-      if (formFilters.status !== undefined) {
-        params.status = formFilters.status
-      }
-
-      const list = await fetchGetDepartmentTree(params)
-      tableData.value = list
-    } catch (error) {
-      console.error('获取院系列表失败:', error)
-      ElMessage.error('获取院系列表失败')
-    } finally {
-      loading.value = false
-    }
-  }
 
   /**
    * 切换展开/收起
    */
   const toggleExpand = (): void => {
     isExpanded.value = !isExpanded.value
-    toggleAllExpansion(tableData.value, isExpanded.value)
+    toggleAllExpansion(data.value, isExpanded.value)
   }
 
   /**
    * 递归展开/收起所有节点
    */
-  const toggleAllExpansion = (data: DepartmentListItem[], expand: boolean): void => {
-    data.forEach((item) => {
+  const toggleAllExpansion = (treeData: DepartmentListItem[], expand: boolean): void => {
+    treeData.forEach((item) => {
       if (tableRef.value) {
         tableRef.value.toggleRowExpansion(item, expand)
       }
@@ -272,23 +258,23 @@
   /**
    * 搜索
    */
-  const handleSearch = (): void => {
-    getDepartmentList()
+  const handleSearch = async (): Promise<void> => {
+    await getData()
   }
 
   /**
    * 重置搜索
    */
-  const handleReset = (): void => {
+  const handleReset = async (): Promise<void> => {
     Object.assign(formFilters, initialSearchState)
-    getDepartmentList()
+    await resetSearchParams()
   }
 
   /**
    * 刷新数据
    */
   const handleRefresh = (): void => {
-    getDepartmentList()
+    refreshData()
   }
 
   /**
@@ -338,7 +324,7 @@
       )
       await fetchDeleteDepartment(row.id)
       ElMessage.success('删除成功')
-      getDepartmentList()
+      await refreshRemove()
     } catch (error) {
       if (error !== 'cancel') {
         console.error('删除院系失败:', error)
@@ -349,9 +335,14 @@
   /**
    * 弹窗提交
    */
-  const handleSubmit = (): void => {
+  const handleSubmit = async (): Promise<void> => {
     dialogVisible.value = false
-    getDepartmentList()
+    // 根据 dialogType 判断是新增还是编辑
+    if (dialogType.value === 'add' || dialogType.value === 'addChild') {
+      await refreshCreate()
+    } else {
+      await refreshUpdate()
+    }
   }
 
   /**

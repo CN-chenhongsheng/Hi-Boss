@@ -99,7 +99,10 @@
     resetSearchParams,
     handleSizeChange,
     handleCurrentChange,
-    refreshData
+    refreshData,
+    refreshCreate,
+    refreshUpdate,
+    refreshRemove
   } = useTable<typeof fetchGetClassPage>({
     core: {
       apiFn: fetchGetClassPage,
@@ -275,7 +278,7 @@
       )
       await fetchDeleteClass(row.id)
       ElMessage.success('删除成功')
-      refreshData()
+      await refreshRemove()
     } catch (error) {
       if (error !== 'cancel') {
         console.error('删除班级失败:', error)
@@ -306,7 +309,7 @@
       await fetchBatchDeleteClass(ids)
       ElMessage.success('批量删除成功')
       selectedRows.value = []
-      refreshData()
+      await refreshRemove()
     } catch (error) {
       if (error !== 'cancel') {
         console.error('批量删除失败:', error)
@@ -324,9 +327,14 @@
   /**
    * 弹窗提交
    */
-  const handleDialogSubmit = (): void => {
+  const handleDialogSubmit = async (): Promise<void> => {
     dialogVisible.value = false
-    refreshData()
+    // 根据 dialogType 判断是新增还是编辑
+    if (dialogType.value === 'add') {
+      await refreshCreate()
+    } else {
+      await refreshUpdate()
+    }
   }
 
   /**
