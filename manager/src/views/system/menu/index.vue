@@ -403,7 +403,11 @@
    */
   const toggleExpand = (): void => {
     isExpanded.value = !isExpanded.value
-    toggleAllExpansion(data.value, isExpanded.value)
+    nextTick(() => {
+      if (tableRef.value?.elTableRef && data.value) {
+        toggleAllExpansion(data.value, isExpanded.value)
+      }
+    })
   }
 
   /**
@@ -411,8 +415,8 @@
    */
   const toggleAllExpansion = (treeData: MenuListItem[], expand: boolean): void => {
     treeData.forEach((item) => {
-      if (tableRef.value) {
-        tableRef.value.toggleRowExpansion(item, expand)
+      if (tableRef.value?.elTableRef) {
+        tableRef.value.elTableRef.toggleRowExpansion(item, expand)
       }
       if (item.children && item.children.length > 0) {
         toggleAllExpansion(item.children, expand)
