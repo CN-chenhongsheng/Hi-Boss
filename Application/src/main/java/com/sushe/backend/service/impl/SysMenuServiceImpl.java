@@ -98,6 +98,7 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
 
     /**
      * 删除菜单
+     * 级联删除所有子菜单及相关的角色菜单关系
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -106,12 +107,8 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
             throw new BusinessException("菜单ID不能为空");
         }
 
-        // 检查是否存在子菜单
-        LambdaQueryWrapper<SysMenu> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(SysMenu::getParentId, id);
-        if (count(wrapper) > 0) {
-            throw new BusinessException("存在子菜单，不允许删除");
-        }
+        // 级联删除所有子菜单
+        cascadeDeleteChildren(id);
 
         // 删除与该菜单关联的角色菜单关系
         LambdaQueryWrapper<SysRoleMenu> roleMenuWrapper = new LambdaQueryWrapper<>();
@@ -121,6 +118,32 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
 
         // 删除菜单
         return removeById(id);
+    }
+
+    /**
+     * 递归级联删除所有子菜单
+     */
+    private void cascadeDeleteChildren(Long parentId) {
+        LambdaQueryWrapper<SysMenu> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(SysMenu::getParentId, parentId);
+        List<SysMenu> children = list(wrapper);
+
+        if (children != null && !children.isEmpty()) {
+            for (SysMenu child : children) {
+                // 先删除子菜单的角色菜单关系
+                LambdaQueryWrapper<SysRoleMenu> roleMenuWrapper = new LambdaQueryWrapper<>();
+                roleMenuWrapper.eq(SysRoleMenu::getMenuId, child.getId());
+                roleMenuMapper.delete(roleMenuWrapper);
+                log.info("删除子菜单关联的角色菜单关系，菜单ID：{}", child.getId());
+
+                // 递归删除子菜单的子菜单
+                cascadeDeleteChildren(child.getId());
+
+                // 删除子菜单
+                removeById(child.getId());
+                log.info("删除子菜单，菜单ID：{}，菜单名称：{}", child.getId(), child.getMenuName());
+            }
+        }
     }
 
     /**
@@ -224,6 +247,7 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
 
     /**
      * 更新菜单状态
+     * 如果状态改为关闭，则级联关闭该菜单下的所有子菜单
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -232,8 +256,42 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
         if (menu == null) {
             throw new BusinessException("菜单不存在");
         }
+
+        // 如果要启用菜单，需要检查父菜单是否启用
+        if (status == 1 && menu.getParentId() != null && menu.getParentId() != 0) {
+            SysMenu parentMenu = getById(menu.getParentId());
+            if (parentMenu != null && parentMenu.getStatus() != null && parentMenu.getStatus() == 0) {
+                throw new BusinessException("上级菜单处于停用状态，不允许启用菜单");
+            }
+        }
+
         menu.setStatus(status);
-        return updateById(menu);
+        boolean result = updateById(menu);
+
+        // 如果状态改为关闭（0），则级联关闭所有子菜单
+        if (status == 0 && result) {
+            cascadeUpdateChildrenStatus(id, 0);
+        }
+
+        return result;
+    }
+
+    /**
+     * 递归级联更新所有子菜单的状态
+     */
+    private void cascadeUpdateChildrenStatus(Long parentId, Integer status) {
+        LambdaQueryWrapper<SysMenu> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(SysMenu::getParentId, parentId);
+        List<SysMenu> children = list(wrapper);
+
+        if (children != null && !children.isEmpty()) {
+            for (SysMenu child : children) {
+                child.setStatus(status);
+                updateById(child);
+                // 递归处理子菜单的子菜单
+                cascadeUpdateChildrenStatus(child.getId(), status);
+            }
+        }
     }
 }
 

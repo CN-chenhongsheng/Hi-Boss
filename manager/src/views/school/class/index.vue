@@ -107,8 +107,6 @@
     core: {
       apiFn: fetchGetClassPage,
       apiParams: computed(() => {
-        // 从 formFilters 同步到 searchParams，用于 API 调用
-        // 分页信息由 useTable 内部管理，这里只传递搜索条件
         return {
           classCode: formFilters.classCode || undefined,
           className: formFilters.className || undefined,
@@ -216,7 +214,6 @@
    * 搜索
    */
   const handleSearch = async (): Promise<void> => {
-    // getData 方法会自动重置到第一页（对应内部的 getDataByPage）
     await getData()
   }
 
@@ -224,7 +221,6 @@
    * 重置搜索
    */
   const handleReset = async (): Promise<void> => {
-    // 重置 formFilters
     Object.assign(formFilters, {
       classCode: undefined,
       className: undefined,
@@ -233,7 +229,6 @@
       enrollmentYear: undefined,
       status: undefined
     })
-    // 使用 useTable 的 resetSearchParams 统一重置
     await resetSearchParams()
   }
 

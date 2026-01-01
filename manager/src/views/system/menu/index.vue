@@ -32,10 +32,10 @@
 
       <ArtTable
         ref="tableRef"
-        rowKey="id"
+        row-key="id"
         :loading="loading"
         :columns="columns"
-        :data="tableData"
+        :data="data"
         :stripe="false"
         :tree-props="{ children: 'children', hasChildren: 'hasChildren' }"
         :default-expand-all="false"
@@ -54,7 +54,7 @@
 
 <script setup lang="ts">
   import ArtButtonTable from '@/components/core/forms/art-button-table/index.vue'
-  import { useTableColumns } from '@/hooks/core/useTableColumns'
+  import { useTable } from '@/hooks/core/useTable'
   import MenuDialog from './modules/menu-dialog.vue'
   import { fetchGetMenuList, fetchDeleteMenu, fetchUpdateMenuStatus } from '@/api/system-manage'
   import { ElTag, ElMessageBox, ElMessage } from 'element-plus'
@@ -66,7 +66,6 @@
   type MenuListItem = Api.SystemManage.MenuListItem & { _statusLoading?: boolean }
 
   // 状态管理
-  const loading = ref(false)
   const isExpanded = ref(false)
   const tableRef = ref()
 
@@ -105,35 +104,6 @@
     }
   ])
 
-  onMounted(() => {
-    getMenuList()
-  })
-
-  /**
-   * 获取菜单列表数据
-   */
-  const getMenuList = async (): Promise<void> => {
-    loading.value = true
-
-    try {
-      const params: Api.SystemManage.MenuSearchParams = {}
-      if (formFilters.menuName) {
-        params.menuName = formFilters.menuName
-      }
-      if (formFilters.status !== undefined) {
-        params.status = formFilters.status
-      }
-
-      const list = await fetchGetMenuList(params)
-      tableData.value = list
-    } catch (error) {
-      console.error('获取菜单失败:', error)
-      ElMessage.error('获取菜单列表失败')
-    } finally {
-      loading.value = false
-    }
-  }
-
   /**
    * 获取菜单类型标签颜色
    */
@@ -165,157 +135,180 @@
     return icon || 'i-carbon-document'
   }
 
-  // 表格列配置
-  const { columnChecks, columns } = useTableColumns(() => [
-    {
-      prop: 'menuName',
-      label: '菜单名称',
-      minWidth: 200,
-      formatter: (row: MenuListItem) => {
-        return h('div', { class: 'flex items-center gap-2' }, [
-          h('i', { class: `${getMenuIcon(row.icon)} text-lg` }),
-          h('span', row.menuName)
-        ])
-      }
-    },
-    {
-      prop: 'menuType',
-      label: '类型',
-      width: 80,
-      formatter: (row: MenuListItem) => {
-        return h(ElTag, { type: getMenuTypeTag(row.menuType), size: 'small' }, () =>
-          getMenuTypeText(row.menuType)
-        )
-      }
-    },
-    {
-      prop: 'path',
-      label: '路由路径',
-      minWidth: 150,
-      formatter: (row: MenuListItem) => {
-        return row.path || '-'
-      }
-    },
-    {
-      prop: 'component',
-      label: '组件路径',
-      minWidth: 180,
-      showOverflowTooltip: true,
-      formatter: (row: MenuListItem) => {
-        return row.component || '-'
-      }
-    },
-    {
-      prop: 'permission',
-      label: '权限标识',
-      minWidth: 150,
-      formatter: (row: MenuListItem) => {
-        if (!row.permission) return '-'
-        return `${row.permission.split(',').length} 个权限标识`
-      }
-    },
-    {
-      prop: 'sort',
-      label: '排序',
-      width: 80,
-      sortable: true
-    },
-    {
-      prop: 'visible',
-      label: '可见',
-      width: 80,
-      formatter: (row: MenuListItem) => {
-        return h(
-          ElTag,
-          {
-            type: row.visible === 1 ? 'success' : 'info',
-            size: 'small'
-          },
-          () => (row.visible === 1 ? '是' : '否')
-        )
-      }
-    },
-    {
-      prop: 'status',
-      label: '状态',
-      width: 100,
-      formatter: (row: MenuListItem) => {
-        return h(ArtSwitch, {
-          modelValue: row.status === 1,
-          loading: row._statusLoading || false,
-          inlinePrompt: true,
-          onChange: (value: string | number | boolean) => {
-            handleStatusChange(row, value === true || value === 1)
+  // 使用 useTable 管理表格数据
+  const {
+    columns,
+    columnChecks,
+    data,
+    loading,
+    getData,
+    resetSearchParams,
+    refreshData,
+    refreshCreate,
+    refreshUpdate,
+    refreshRemove
+  } = useTable<typeof fetchGetMenuList>({
+    core: {
+      apiFn: fetchGetMenuList,
+      apiParams: computed(() => {
+        return {
+          menuName: formFilters.menuName || undefined,
+          status: formFilters.status
+        } as Partial<Api.SystemManage.MenuSearchParams>
+      }),
+      columnsFactory: () => [
+        {
+          prop: 'menuName',
+          label: '菜单名称',
+          minWidth: 200,
+          formatter: (row: MenuListItem) => {
+            return h('div', { class: 'flex items-center gap-2' }, [
+              h('i', { class: `${getMenuIcon(row.icon)} text-lg` }),
+              h('span', row.menuName)
+            ])
           }
-        })
-      }
-    },
-    {
-      prop: 'createTime',
-      label: '创建时间',
-      width: 180
-    },
-    {
-      prop: 'operation',
-      label: '操作',
-      width: 180,
-      fixed: 'right',
-      formatter: (row: MenuListItem) => {
-        const buttons = []
-        // 只有目录和菜单可以添加子菜单/按钮
-        if (hasPermission('system:menu:add') && (row.menuType === 'M' || row.menuType === 'C')) {
-          buttons.push(
-            h(ArtButtonTable, {
-              type: 'add',
-              tooltip: '添加',
-              onClick: () => handleAddSubMenu(row)
+        },
+        {
+          prop: 'menuType',
+          label: '类型',
+          width: 80,
+          formatter: (row: MenuListItem) => {
+            return h(ElTag, { type: getMenuTypeTag(row.menuType), size: 'small' }, () =>
+              getMenuTypeText(row.menuType)
+            )
+          }
+        },
+        {
+          prop: 'path',
+          label: '路由路径',
+          minWidth: 150,
+          formatter: (row: MenuListItem) => {
+            return row.path || '-'
+          }
+        },
+        {
+          prop: 'component',
+          label: '组件路径',
+          minWidth: 180,
+          showOverflowTooltip: true,
+          formatter: (row: MenuListItem) => {
+            return row.component || '-'
+          }
+        },
+        {
+          prop: 'permission',
+          label: '权限标识',
+          minWidth: 150,
+          formatter: (row: MenuListItem) => {
+            if (!row.permission) return '-'
+            return `${row.permission.split(',').length} 个权限标识`
+          }
+        },
+        {
+          prop: 'sort',
+          label: '排序',
+          width: 80,
+          sortable: true
+        },
+        {
+          prop: 'visible',
+          label: '可见',
+          width: 80,
+          formatter: (row: MenuListItem) => {
+            return h(
+              ElTag,
+              {
+                type: row.visible === 1 ? 'success' : 'info',
+                size: 'small'
+              },
+              () => (row.visible === 1 ? '是' : '否')
+            )
+          }
+        },
+        {
+          prop: 'status',
+          label: '状态',
+          width: 100,
+          formatter: (row: MenuListItem) => {
+            return h(ArtSwitch, {
+              modelValue: row.status === 1,
+              loading: row._statusLoading || false,
+              inlinePrompt: true,
+              onChange: (value: string | number | boolean) => {
+                handleStatusChange(row, value === true || value === 1)
+              }
             })
-          )
+          }
+        },
+        {
+          prop: 'createTime',
+          label: '创建时间',
+          width: 180
+        },
+        {
+          prop: 'operation',
+          label: '操作',
+          width: 180,
+          fixed: 'right' as const,
+          formatter: (row: MenuListItem) => {
+            const buttons = []
+            // 只有目录和菜单可以添加子菜单/按钮
+            if (
+              hasPermission('system:menu:add') &&
+              (row.menuType === 'M' || row.menuType === 'C')
+            ) {
+              buttons.push(
+                h(ArtButtonTable, {
+                  type: 'add',
+                  tooltip: '添加',
+                  onClick: () => handleAddSubMenu(row)
+                })
+              )
+            }
+            if (hasPermission('system:menu:edit')) {
+              buttons.push(
+                h(ArtButtonTable, {
+                  type: 'edit',
+                  onClick: () => handleEditMenu(row)
+                })
+              )
+            }
+            if (hasPermission('system:menu:delete')) {
+              buttons.push(
+                h(ArtButtonTable, {
+                  type: 'delete',
+                  onClick: () => handleDeleteMenu(row)
+                })
+              )
+            }
+            return h('div', { class: 'flex gap-1' }, buttons)
+          }
         }
-        if (hasPermission('system:menu:edit')) {
-          buttons.push(
-            h(ArtButtonTable, {
-              type: 'edit',
-              onClick: () => handleEditMenu(row)
-            })
-          )
-        }
-        if (hasPermission('system:menu:delete')) {
-          buttons.push(
-            h(ArtButtonTable, {
-              type: 'delete',
-              onClick: () => handleDeleteMenu(row)
-            })
-          )
-        }
-        return h('div', buttons)
-      }
+      ],
+      immediate: true
     }
-  ])
-
-  // 数据相关
-  const tableData = ref<MenuListItem[]>([])
+  })
 
   /**
    * 重置搜索条件
    */
-  const handleReset = (): void => {
-    Object.assign(formFilters, { ...initialSearchState })
-    getMenuList()
+  const handleReset = async (): Promise<void> => {
+    Object.assign(formFilters, initialSearchState)
+    await resetSearchParams()
   }
 
   /**
    * 执行搜索
    */
-  const handleSearch = (): void => {
-    getMenuList()
+  const handleSearch = async (): Promise<void> => {
+    await getData()
   }
 
   /**
    * 刷新菜单列表
    */
   const handleRefresh = (): void => {
-    getMenuList()
+    refreshData()
   }
 
   /**
@@ -348,8 +341,28 @@
   /**
    * 提交表单数据
    */
-  const handleSubmit = (): void => {
-    getMenuList()
+  const handleSubmit = async (): Promise<void> => {
+    dialogVisible.value = false
+    // 根据 dialogType 判断是新增还是编辑
+    if (dialogType.value === 'add') {
+      await refreshCreate()
+    } else {
+      await refreshUpdate()
+    }
+  }
+
+  /**
+   * 递归计算子菜单数量
+   */
+  const getChildrenCount = (menu: MenuListItem): number => {
+    let count = 0
+    if (menu.children && menu.children.length > 0) {
+      count += menu.children.length
+      menu.children.forEach((child) => {
+        count += getChildrenCount(child)
+      })
+    }
+    return count
   }
 
   /**
@@ -357,20 +370,27 @@
    */
   const handleDeleteMenu = async (row: MenuListItem): Promise<void> => {
     // 检查是否有子菜单
-    if (row.children && row.children.length > 0) {
-      ElMessage.warning('该菜单下有子菜单，请先删除子菜单')
-      return
-    }
+    const hasChildren = row.children && row.children.length > 0
+    const childrenCount = hasChildren ? getChildrenCount(row) : 0
 
     try {
-      await ElMessageBox.confirm(`确定要删除菜单"${row.menuName}"吗？删除后无法恢复`, '删除确认', {
-        confirmButtonText: '确定',
+      let message = `确定要删除菜单"${row.menuName}"吗？`
+      if (hasChildren) {
+        message += `<br/>提示：删除菜单后，该菜单下的所有 ${childrenCount} 个子菜单也会被删除，此操作不可恢复！`
+      } else {
+        message += '此操作不可恢复！'
+      }
+
+      await ElMessageBox.confirm(message, '删除确认', {
+        confirmButtonText: '确定删除',
         cancelButtonText: '取消',
-        type: 'warning'
+        type: 'warning',
+        dangerouslyUseHTMLString: true
       })
 
       await fetchDeleteMenu(row.id)
-      await getMenuList()
+      ElMessage.success('删除成功')
+      await refreshRemove()
     } catch (error) {
       if (error !== 'cancel') {
         console.error('删除菜单失败:', error)
@@ -383,17 +403,19 @@
    */
   const toggleExpand = (): void => {
     isExpanded.value = !isExpanded.value
-    nextTick(() => {
-      if (tableRef.value?.elTableRef && tableData.value) {
-        const processRows = (rows: MenuListItem[]) => {
-          rows.forEach((row) => {
-            if (row.children?.length) {
-              tableRef.value.elTableRef.toggleRowExpansion(row, isExpanded.value)
-              processRows(row.children)
-            }
-          })
-        }
-        processRows(tableData.value)
+    toggleAllExpansion(data.value, isExpanded.value)
+  }
+
+  /**
+   * 递归展开/收起所有节点
+   */
+  const toggleAllExpansion = (treeData: MenuListItem[], expand: boolean): void => {
+    treeData.forEach((item) => {
+      if (tableRef.value) {
+        tableRef.value.toggleRowExpansion(item, expand)
+      }
+      if (item.children && item.children.length > 0) {
+        toggleAllExpansion(item.children, expand)
       }
     })
   }
@@ -402,11 +424,32 @@
    * 更新菜单状态
    */
   const handleStatusChange = async (row: MenuListItem, value: boolean): Promise<void> => {
+    // 如果是关闭操作（从启用变为停用），需要提示用户级联影响
+    if (!value && row.status === 1) {
+      try {
+        await ElMessageBox.confirm(
+          `确定要停用菜单"${row.menuName}"吗？<br/>提示：停用菜单后，该菜单下的所有子菜单也会被停用。`,
+          '确认停用',
+          {
+            type: 'warning',
+            confirmButtonText: '确认停用',
+            cancelButtonText: '取消',
+            dangerouslyUseHTMLString: true
+          }
+        )
+      } catch {
+        // 用户取消操作，不执行任何更改
+        return
+      }
+    }
+
     const originalStatus = row.status
     try {
       row._statusLoading = true
       row.status = value ? 1 : 0
       await fetchUpdateMenuStatus(row.id, value ? 1 : 0)
+      // 由于有级联操作，需要刷新表格以同步子菜单状态
+      await refreshData()
     } catch (error) {
       console.error('更新菜单状态失败:', error)
       ElMessage.error('更新菜单状态失败')

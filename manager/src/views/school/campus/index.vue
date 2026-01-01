@@ -369,6 +369,8 @@
       row._statusLoading = true
       row.status = value ? 1 : 0
       await fetchUpdateCampusStatus(row.id, value ? 1 : 0)
+      // 由于有级联操作，需要刷新表格以同步子校区状态
+      await refreshData()
     } catch (error) {
       console.error('更新校区状态失败:', error)
       ElMessage.error('更新校区状态失败')

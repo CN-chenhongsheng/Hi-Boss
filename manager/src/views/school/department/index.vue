@@ -373,6 +373,8 @@
       row._statusLoading = true
       row.status = value ? 1 : 0
       await fetchUpdateDepartmentStatus(row.id, value ? 1 : 0)
+      // 由于有级联操作，需要刷新表格以同步子院系状态
+      await refreshData()
     } catch (error) {
       console.error('更新院系状态失败:', error)
       ElMessage.error('更新院系状态失败')

@@ -200,7 +200,6 @@
    * 搜索
    */
   const handleSearch = async (): Promise<void> => {
-    // getData 方法会自动重置到第一页（对应内部的 getDataByPage）
     await getData()
   }
 
@@ -208,14 +207,12 @@
    * 重置搜索
    */
   const handleReset = async (): Promise<void> => {
-    // 重置 formFilters
     Object.assign(formFilters, {
       majorCode: undefined,
       majorName: undefined,
       deptCode: undefined,
       status: undefined
     })
-    // 使用 useTable 的 resetSearchParams 统一重置
     await resetSearchParams()
   }
 
