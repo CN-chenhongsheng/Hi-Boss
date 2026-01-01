@@ -2,20 +2,24 @@
 <template>
   <div class="department-page art-full-height">
     <!-- 搜索栏 -->
-    <ArtSearchBar
+    <DepartmentSearch
+      v-show="showSearchBar"
       v-model="formFilters"
-      :items="formItems"
-      :showExpand="false"
       @reset="handleReset"
       @search="handleSearch"
     />
 
-    <ElCard class="art-table-card" shadow="never">
+    <ElCard
+      class="art-table-card"
+      shadow="never"
+      :style="{ 'margin-top': showSearchBar ? '12px' : '0' }"
+    >
       <!-- 表格头部 -->
       <ArtTableHeader
         :showZebra="false"
         :loading="loading"
         v-model:columns="columnChecks"
+        v-model:showSearchBar="showSearchBar"
         @refresh="handleRefresh"
       >
         <template #left>
@@ -63,6 +67,7 @@
     fetchUpdateDepartmentStatus
   } from '@/api/school-manage'
   import { ElMessageBox, ElMessage } from 'element-plus'
+  import DepartmentSearch from './modules/department-search.vue'
   import ArtSwitch from '@/components/core/forms/art-switch/index.vue'
   import { hasPermission } from '@/directives/core/permission'
   import { h, nextTick } from 'vue'
@@ -75,7 +80,7 @@
   const isExpanded = ref(false)
   const tableRef = ref()
 
-  // 弹窗相关
+  const showSearchBar = ref(false)
   const dialogVisible = ref(false)
   const dialogType = ref<'add' | 'edit' | 'addChild'>('add')
   const editData = ref<DepartmentListItem | null>(null)
@@ -90,40 +95,6 @@
   }
 
   const formFilters = reactive({ ...initialSearchState })
-
-  const formItems = computed(() => [
-    {
-      label: '院系编码',
-      key: 'deptCode',
-      type: 'input',
-      props: { clearable: true, placeholder: '请输入院系编码' }
-    },
-    {
-      label: '院系名称',
-      key: 'deptName',
-      type: 'input',
-      props: { clearable: true, placeholder: '请输入院系名称' }
-    },
-    {
-      label: '所属校区',
-      key: 'campusCode',
-      type: 'input',
-      props: { clearable: true, placeholder: '请输入校区编码' }
-    },
-    {
-      label: '状态',
-      key: 'status',
-      type: 'select',
-      props: {
-        clearable: true,
-        placeholder: '请选择状态',
-        options: [
-          { label: '正常', value: 1 },
-          { label: '停用', value: 0 }
-        ]
-      }
-    }
-  ])
 
   // 使用 useTable 管理表格数据
   const {

@@ -2,20 +2,24 @@
 <template>
   <div class="menu-page art-full-height">
     <!-- 搜索栏 -->
-    <ArtSearchBar
+    <MenuSearch
+      v-show="showSearchBar"
       v-model="formFilters"
-      :items="formItems"
-      :showExpand="false"
       @reset="handleReset"
       @search="handleSearch"
     />
 
-    <ElCard class="art-table-card" shadow="never">
+    <ElCard
+      class="art-table-card"
+      shadow="never"
+      :style="{ 'margin-top': showSearchBar ? '12px' : '0' }"
+    >
       <!-- 表格头部 -->
       <ArtTableHeader
         :showZebra="false"
         :loading="loading"
         v-model:columns="columnChecks"
+        v-model:showSearchBar="showSearchBar"
         @refresh="handleRefresh"
       >
         <template #left>
@@ -56,10 +60,12 @@
   import ArtButtonTable from '@/components/core/forms/art-button-table/index.vue'
   import { useTable } from '@/hooks/core/useTable'
   import MenuDialog from './modules/menu-dialog.vue'
+  import MenuSearch from './modules/menu-search.vue'
   import { fetchGetMenuList, fetchDeleteMenu, fetchUpdateMenuStatus } from '@/api/system-manage'
   import { ElTag, ElMessageBox, ElMessage } from 'element-plus'
   import ArtSwitch from '@/components/core/forms/art-switch/index.vue'
   import { hasPermission } from '@/directives/core/permission'
+  import { h, nextTick } from 'vue'
 
   defineOptions({ name: 'Menus' })
 
@@ -68,6 +74,7 @@
   // 状态管理
   const isExpanded = ref(false)
   const tableRef = ref()
+  const showSearchBar = ref(false)
 
   // 弹窗相关
   const dialogVisible = ref(false)
@@ -81,28 +88,6 @@
   }
 
   const formFilters = reactive({ ...initialSearchState })
-
-  const formItems = computed(() => [
-    {
-      label: '菜单名称',
-      key: 'menuName',
-      type: 'input',
-      props: { clearable: true, placeholder: '请输入菜单名称' }
-    },
-    {
-      label: '状态',
-      key: 'status',
-      type: 'select',
-      props: {
-        clearable: true,
-        placeholder: '请选择状态',
-        options: [
-          { label: '正常', value: 1 },
-          { label: '停用', value: 0 }
-        ]
-      }
-    }
-  ])
 
   /**
    * 获取菜单类型标签颜色

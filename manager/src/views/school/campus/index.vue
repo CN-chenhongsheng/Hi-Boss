@@ -2,20 +2,24 @@
 <template>
   <div class="campus-page art-full-height">
     <!-- 搜索栏 -->
-    <ArtSearchBar
+    <CampusSearch
+      v-show="showSearchBar"
       v-model="formFilters"
-      :items="formItems"
-      :showExpand="false"
       @reset="handleReset"
       @search="handleSearch"
     />
 
-    <ElCard class="art-table-card" shadow="never">
+    <ElCard
+      class="art-table-card"
+      shadow="never"
+      :style="{ 'margin-top': showSearchBar ? '12px' : '0' }"
+    >
       <!-- 表格头部 -->
       <ArtTableHeader
         :showZebra="false"
         :loading="loading"
         v-model:columns="columnChecks"
+        v-model:showSearchBar="showSearchBar"
         @refresh="handleRefresh"
       >
         <template #left>
@@ -57,6 +61,7 @@
   import ArtButtonTable from '@/components/core/forms/art-button-table/index.vue'
   import { useTable } from '@/hooks/core/useTable'
   import CampusDialog from './modules/campus-dialog.vue'
+  import CampusSearch from './modules/campus-search.vue'
   import {
     fetchGetCampusTree,
     fetchDeleteCampus,
@@ -74,6 +79,7 @@
   // 状态管理
   const isExpanded = ref(false)
   const tableRef = ref()
+  const showSearchBar = ref(false)
 
   // 弹窗相关
   const dialogVisible = ref(false)
@@ -89,34 +95,6 @@
   }
 
   const formFilters = reactive({ ...initialSearchState })
-
-  const formItems = computed(() => [
-    {
-      label: '校区编码',
-      key: 'campusCode',
-      type: 'input',
-      props: { clearable: true, placeholder: '请输入校区编码' }
-    },
-    {
-      label: '校区名称',
-      key: 'campusName',
-      type: 'input',
-      props: { clearable: true, placeholder: '请输入校区名称' }
-    },
-    {
-      label: '状态',
-      key: 'status',
-      type: 'select',
-      props: {
-        clearable: true,
-        placeholder: '请选择状态',
-        options: [
-          { label: '正常', value: 1 },
-          { label: '停用', value: 0 }
-        ]
-      }
-    }
-  ])
 
   // 使用 useTable 管理表格数据
   const {

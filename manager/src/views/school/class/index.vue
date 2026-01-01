@@ -2,17 +2,25 @@
 <template>
   <div class="class-page art-full-height">
     <!-- 搜索栏 -->
-    <ArtSearchBar
+    <ClassSearch
+      v-show="showSearchBar"
       v-model="formFilters"
-      :items="formItems"
-      :showExpand="false"
       @reset="handleReset"
       @search="handleSearch"
     />
 
-    <ElCard class="art-table-card" shadow="never">
+    <ElCard
+      class="art-table-card"
+      shadow="never"
+      :style="{ 'margin-top': showSearchBar ? '12px' : '0' }"
+    >
       <!-- 表格头部 -->
-      <ArtTableHeader :loading="loading" v-model:columns="columnChecks" @refresh="handleRefresh">
+      <ArtTableHeader
+        :loading="loading"
+        v-model:columns="columnChecks"
+        v-model:showSearchBar="showSearchBar"
+        @refresh="handleRefresh"
+      >
         <template #left>
           <ElSpace wrap>
             <ElButton @click="handleAdd" v-ripple v-permission="'system:class:add'"
@@ -62,6 +70,7 @@
   } from '@/api/school-manage'
   import ArtSwitch from '@/components/core/forms/art-switch/index.vue'
   import ClassDialog from './modules/class-dialog.vue'
+  import ClassSearch from './modules/class-search.vue'
   import { ElMessageBox, ElMessage } from 'element-plus'
   import { DialogType } from '@/types'
   import { hasPermission } from '@/directives/core/permission'
@@ -76,6 +85,7 @@
   const dialogVisible = ref(false)
   const currentClassData = ref<Partial<ClassListItem>>({})
   const selectedRows = ref<ClassListItem[]>([])
+  const showSearchBar = ref(false)
 
   // 搜索栏表单数据（使用 reactive 以确保双向绑定正常工作）
   const formFilters = reactive<Api.SystemManage.ClassSearchParams>({
@@ -349,51 +359,4 @@
       row._statusLoading = false
     }
   }
-
-  // 表单项配置（用于搜索栏）
-  const formItems = computed(() => [
-    {
-      label: '班级编码',
-      key: 'classCode',
-      type: 'input',
-      props: { clearable: true, placeholder: '请输入班级编码' }
-    },
-    {
-      label: '班级名称',
-      key: 'className',
-      type: 'input',
-      props: { clearable: true, placeholder: '请输入班级名称' }
-    },
-    {
-      label: '所属专业',
-      key: 'majorCode',
-      type: 'input',
-      props: { clearable: true, placeholder: '请输入专业编码' }
-    },
-    {
-      label: '年级',
-      key: 'grade',
-      type: 'input',
-      props: { clearable: true, placeholder: '请输入年级' }
-    },
-    {
-      label: '入学年份',
-      key: 'enrollmentYear',
-      type: 'input',
-      props: { clearable: true, placeholder: '请输入入学年份' }
-    },
-    {
-      label: '状态',
-      key: 'status',
-      type: 'select',
-      props: {
-        clearable: true,
-        placeholder: '请选择状态',
-        options: [
-          { label: '正常', value: 1 },
-          { label: '停用', value: 0 }
-        ]
-      }
-    }
-  ])
 </script>

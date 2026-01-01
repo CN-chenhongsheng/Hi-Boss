@@ -2,17 +2,25 @@
 <template>
   <div class="major-page art-full-height">
     <!-- 搜索栏 -->
-    <ArtSearchBar
+    <MajorSearch
+      v-show="showSearchBar"
       v-model="formFilters"
-      :items="formItems"
-      :showExpand="false"
       @reset="handleReset"
       @search="handleSearch"
     />
 
-    <ElCard class="art-table-card" shadow="never">
+    <ElCard
+      class="art-table-card"
+      shadow="never"
+      :style="{ 'margin-top': showSearchBar ? '12px' : '0' }"
+    >
       <!-- 表格头部 -->
-      <ArtTableHeader :loading="loading" v-model:columns="columnChecks" @refresh="handleRefresh">
+      <ArtTableHeader
+        :loading="loading"
+        v-model:columns="columnChecks"
+        v-model:showSearchBar="showSearchBar"
+        @refresh="handleRefresh"
+      >
         <template #left>
           <ElSpace wrap>
             <ElButton @click="handleAdd" v-ripple v-permission="'system:major:add'"
@@ -62,6 +70,7 @@
   } from '@/api/school-manage'
   import ArtSwitch from '@/components/core/forms/art-switch/index.vue'
   import MajorDialog from './modules/major-dialog.vue'
+  import MajorSearch from './modules/major-search.vue'
   import { ElMessageBox, ElMessage } from 'element-plus'
   import { DialogType } from '@/types'
   import { hasPermission } from '@/directives/core/permission'
@@ -76,6 +85,7 @@
   const dialogVisible = ref(false)
   const currentMajorData = ref<Partial<MajorListItem>>({})
   const selectedRows = ref<MajorListItem[]>([])
+  const showSearchBar = ref(false)
 
   // 搜索栏表单数据（使用 reactive 以确保双向绑定正常工作）
   const formFilters = reactive<Api.SystemManage.MajorSearchParams>({
