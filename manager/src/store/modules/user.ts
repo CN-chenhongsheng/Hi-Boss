@@ -162,8 +162,10 @@ export const useUserStore = defineStore(
       // 注意：不清空工作台标签页，等下次登录时根据用户判断
       // 移除iframe路由缓存
       sessionStorage.removeItem('iframeRoutes')
-      // 清空主页路径
-      useMenuStore().setHomePath('')
+      // 清空菜单数据
+      const menuStore = useMenuStore()
+      menuStore.setMenuList([])
+      menuStore.setHomePath('')
       // 重置路由状态
       resetRouterState(500)
       // 跳转到登录页，携带当前路由作为 redirect 参数

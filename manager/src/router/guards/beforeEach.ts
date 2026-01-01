@@ -52,6 +52,7 @@ import { fetchGetUserInfo } from '@/api/auth'
 import { ApiStatus } from '@/utils/http/status'
 import { isHttpError } from '@/utils/http/error'
 import { RouteRegistry, MenuProcessor, IframeRouteManager, RoutePermissionValidator } from '../core'
+import type { AppRouteRecord } from '@/types/router'
 
 // 路由注册器实例
 let routeRegistry: RouteRegistry | null = null
@@ -245,6 +246,21 @@ function isStaticRoute(path: string): boolean {
 }
 
 /**
+ * 检查是否有缓存的用户信息
+ */
+function hasCachedUserInfo(userStore: ReturnType<typeof useUserStore>): boolean {
+  const info = userStore.info
+  return !!(info && info.userId && Object.keys(info).length > 0)
+}
+
+/**
+ * 检查是否有缓存的菜单数据
+ */
+function hasCachedMenuData(menuStore: ReturnType<typeof useMenuStore>): boolean {
+  return !!(menuStore.menuList && menuStore.menuList.length > 0)
+}
+
+/**
  * 处理动态路由注册
  */
 async function handleDynamicRoutes(
@@ -255,28 +271,105 @@ async function handleDynamicRoutes(
   // 标记初始化进行中
   routeInitInProgress = true
 
-  // 显示 loading
+  const userStore = useUserStore()
+  const menuStore = useMenuStore()
+
+  // 检查是否有缓存数据
+  const hasUserInfoCache = hasCachedUserInfo(userStore)
+  const hasMenuDataCache = hasCachedMenuData(menuStore)
+
+  // 如果都有缓存，直接使用缓存，无需显示 loading 和调用 API
+  if (hasUserInfoCache && hasMenuDataCache) {
+    try {
+      // 使用缓存数据
+      const menuList = menuStore.menuList
+
+      // 验证菜单数据有效性
+      if (!menuProcessor.validateMenuList(menuList)) {
+        // 缓存数据无效，清空并重新获取
+        menuStore.setMenuList([])
+        throw new Error('缓存菜单数据无效，需要重新获取')
+      }
+
+      // 1. 注册动态路由（使用缓存数据）
+      routeRegistry?.register(menuList)
+      menuStore.addRemoveRouteFns(routeRegistry?.getRemoveRouteFns() || [])
+
+      // 2. 保存 iframe 路由
+      IframeRouteManager.getInstance().save()
+
+      // 3. 验证工作标签页
+      useWorktabStore().validateWorktabs(router)
+
+      // 4. 验证目标路径权限
+      const { homePath } = useCommon()
+      const { path: validatedPath, hasPermission } = RoutePermissionValidator.validatePath(
+        to.path,
+        menuList,
+        homePath.value || '/'
+      )
+
+      // 初始化成功，重置进行中标记
+      routeInitInProgress = false
+
+      // 5. 重新导航到目标路由
+      if (!hasPermission) {
+        console.warn(`[RouteGuard] 用户无权限访问路径: ${to.path}，已跳转到首页`)
+        next({
+          path: validatedPath,
+          replace: true
+        })
+      } else {
+        next({
+          path: to.path,
+          query: to.query,
+          hash: to.hash,
+          replace: true
+        })
+      }
+
+      // 后台静默刷新数据（不阻塞导航）
+      refreshDataInBackground(userStore, menuStore).catch((error) => {
+        console.warn('[RouteGuard] 后台刷新数据失败，使用缓存数据继续:', error)
+      })
+
+      return
+    } catch (error) {
+      // 缓存数据有问题，继续走正常流程重新获取
+      console.warn('[RouteGuard] 使用缓存数据失败，重新获取:', error)
+      menuStore.setMenuList([])
+    }
+  }
+
+  // 没有缓存或缓存无效，显示 loading 并调用 API
   pendingLoading = true
   loadingService.showLoading()
 
   try {
-    // 1. 获取用户信息
-    await fetchUserInfo()
-
-    // 2. 获取菜单数据
-    const menuList = await menuProcessor.getMenuList()
-
-    // 3. 验证菜单数据
-    if (!menuProcessor.validateMenuList(menuList)) {
-      throw new Error('获取菜单列表失败，请重新登录')
+    // 1. 获取用户信息（如果没有缓存）
+    if (!hasUserInfoCache) {
+      await fetchUserInfo()
     }
 
-    // 4. 注册动态路由
-    routeRegistry?.register(menuList)
+    // 2. 获取菜单数据（如果没有缓存）
+    let menuList: AppRouteRecord[]
+    if (!hasMenuDataCache) {
+      menuList = await menuProcessor.getMenuList()
 
-    // 5. 保存菜单数据到 store
-    const menuStore = useMenuStore()
-    menuStore.setMenuList(menuList)
+      // 3. 验证菜单数据
+      if (!menuProcessor.validateMenuList(menuList)) {
+        throw new Error('获取菜单列表失败，请重新登录')
+      }
+
+      // 4. 保存菜单数据到 store（会自动持久化）
+      menuStore.setMenuList(menuList)
+    } else {
+      // 使用缓存数据
+      menuList = menuStore.menuList
+    }
+
+    // 5. 注册动态路由
+    routeRegistry?.register(menuList)
     menuStore.addRemoveRouteFns(routeRegistry?.getRemoveRouteFns() || [])
 
     // 6. 保存 iframe 路由
@@ -296,12 +389,12 @@ async function handleDynamicRoutes(
     // 初始化成功，重置进行中标记
     routeInitInProgress = false
 
+    // 关闭 loading
+    closeLoading()
+
     // 9. 重新导航到目标路由
     if (!hasPermission) {
       // 无权限访问，跳转到首页
-      closeLoading()
-
-      // 输出警告信息
       console.warn(`[RouteGuard] 用户无权限访问路径: ${to.path}，已跳转到首页`)
 
       // 直接跳转到首页
@@ -328,6 +421,9 @@ async function handleDynamicRoutes(
     if (isUnauthorizedError(error)) {
       // 重置状态，允许重新登录后再次初始化
       routeInitInProgress = false
+      // 清空可能已失效的缓存
+      userStore.setUserInfo({} as Api.Auth.UserInfo)
+      menuStore.setMenuList([])
       next(false)
       return
     }
@@ -343,6 +439,28 @@ async function handleDynamicRoutes(
 
     // 跳转到 500 页面，使用 replace 避免产生历史记录
     next({ name: 'Exception500', replace: true })
+  }
+}
+
+/**
+ * 后台静默刷新数据（不阻塞导航）
+ */
+async function refreshDataInBackground(
+  userStore: ReturnType<typeof useUserStore>,
+  menuStore: ReturnType<typeof useMenuStore>
+): Promise<void> {
+  try {
+    // 刷新用户信息
+    await fetchUserInfo()
+
+    // 刷新菜单数据
+    const menuList = await menuProcessor.getMenuList()
+    if (menuProcessor.validateMenuList(menuList)) {
+      menuStore.setMenuList(menuList)
+    }
+  } catch (error) {
+    // 刷新失败不影响当前使用，只记录日志
+    console.warn('[RouteGuard] 后台刷新数据失败:', error)
   }
 }
 
