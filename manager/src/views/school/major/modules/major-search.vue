@@ -64,6 +64,12 @@
       props: { clearable: true, placeholder: '请输入专业名称' }
     },
     {
+      label: '所属院系',
+      key: 'deptCode',
+      type: 'input',
+      props: { clearable: true, placeholder: '请输入院系编码' }
+    },
+    {
       label: '状态',
       key: 'status',
       type: 'select',

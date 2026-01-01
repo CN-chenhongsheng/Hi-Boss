@@ -369,39 +369,4 @@
       row._statusLoading = false
     }
   }
-
-  // 表单项配置（用于搜索栏）
-  const formItems = computed(() => [
-    {
-      label: '专业编码',
-      key: 'majorCode',
-      type: 'input',
-      props: { clearable: true, placeholder: '请输入专业编码' }
-    },
-    {
-      label: '专业名称',
-      key: 'majorName',
-      type: 'input',
-      props: { clearable: true, placeholder: '请输入专业名称' }
-    },
-    {
-      label: '所属院系',
-      key: 'deptCode',
-      type: 'input',
-      props: { clearable: true, placeholder: '请输入院系编码' }
-    },
-    {
-      label: '状态',
-      key: 'status',
-      type: 'select',
-      props: {
-        clearable: true,
-        placeholder: '请选择状态',
-        options: [
-          { label: '正常', value: 1 },
-          { label: '停用', value: 0 }
-        ]
-      }
-    }
-  ])
 </script>
