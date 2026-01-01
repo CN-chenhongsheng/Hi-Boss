@@ -2,11 +2,16 @@ package com.sushe.backend.controller.system;
 
 import com.sushe.backend.common.result.PageResult;
 import com.sushe.backend.common.result.R;
+import com.sushe.backend.dto.user.RoleUserQueryDTO;
 import com.sushe.backend.dto.user.UserQueryDTO;
 import com.sushe.backend.dto.user.UserResetPasswordDTO;
 import com.sushe.backend.dto.user.UserSaveDTO;
 import com.sushe.backend.service.SysUserService;
+import com.sushe.backend.vo.UserSimpleVO;
 import com.sushe.backend.vo.UserVO;
+
+import java.util.List;
+import java.util.Map;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -101,6 +106,14 @@ public class SysUserController {
         log.info("修改用户状态，ID：{}，状态：{}", id, status);
         boolean success = userService.updateStatus(id, status);
         return R.ok(status == 1 ? "用户已启用" : "用户已停用", null);
+    }
+
+    @PostMapping("/by-roles")
+    @Operation(summary = "根据角色代码列表查询用户列表", description = "支持多个角色代码，返回Map格式，key为角色代码，value为用户列表")
+    public R<Map<String, List<UserSimpleVO>>> getUsersByRoleCodes(@Valid @RequestBody RoleUserQueryDTO queryDTO) {
+        log.info("根据角色代码查询用户列表，角色代码：{}", queryDTO.getRoleCodes());
+        Map<String, List<UserSimpleVO>> result = userService.getUsersByRoleCodes(queryDTO);
+        return R.ok(result);
     }
 }
 

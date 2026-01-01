@@ -32,6 +32,9 @@ public class MajorSaveDTO {
     @Schema(description = "专业负责人")
     private String director;
 
+    @Schema(description = "学位类型（字典degree_type）")
+    private String type;
+
     @Schema(description = "学制", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "学制不能为空")
     private String duration;

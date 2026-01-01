@@ -194,6 +194,11 @@ public class SysMajorServiceImpl extends ServiceImpl<SysMajorMapper, SysMajor> i
         BeanUtil.copyProperties(major, vo);
         vo.setStatusText(DictUtils.getLabel("sys_user_status", major.getStatus(), "未知"));
 
+        // 学位类型文本（从字典获取）
+        if (StrUtil.isNotBlank(major.getType())) {
+            vo.setTypeText(DictUtils.getLabel("degree_type", major.getType(), "未知"));
+        }
+
         // 查询院系名称
         if (StrUtil.isNotBlank(major.getDeptCode())) {
             LambdaQueryWrapper<SysDepartment> wrapper = new LambdaQueryWrapper<>();

@@ -142,6 +142,11 @@
           minWidth: 120
         },
         {
+          prop: 'typeText',
+          label: '类型',
+          width: 100
+        },
+        {
           prop: 'duration',
           label: '学制',
           width: 100

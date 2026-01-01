@@ -175,6 +175,12 @@
           minWidth: 120
         },
         {
+          prop: 'sort',
+          label: '排序',
+          width: 80,
+          sortable: true
+        },
+        {
           prop: 'status',
           label: '状态',
           width: 100,

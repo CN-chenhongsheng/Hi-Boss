@@ -37,6 +37,12 @@ public class MajorVO implements Serializable {
     @Schema(description = "专业负责人")
     private String director;
 
+    @Schema(description = "学位类型（字典degree_type）")
+    private String type;
+
+    @Schema(description = "学位类型文本")
+    private String typeText;
+
     @Schema(description = "学制")
     private String duration;
 

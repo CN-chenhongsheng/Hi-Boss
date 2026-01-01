@@ -115,8 +115,7 @@
   const rules = reactive<FormRules>({
     campusCode: [{ required: true, message: '请输入校区编码', trigger: 'blur' }],
     campusName: [{ required: true, message: '请输入校区名称', trigger: 'blur' }],
-    address: [{ required: true, message: '请输入校区地址', trigger: 'blur' }],
-    status: [{ required: true, message: '请选择状态', trigger: 'change' }]
+    address: [{ required: true, message: '请输入校区地址', trigger: 'blur' }]
   })
 
   /**

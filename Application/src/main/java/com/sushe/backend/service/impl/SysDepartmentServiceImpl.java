@@ -52,6 +52,7 @@ public class SysDepartmentServiceImpl extends ServiceImpl<SysDepartmentMapper, S
                .like(StrUtil.isNotBlank(queryDTO.getDeptName()), SysDepartment::getDeptName, queryDTO.getDeptName())
                .eq(StrUtil.isNotBlank(queryDTO.getCampusCode()), SysDepartment::getCampusCode, queryDTO.getCampusCode())
                .eq(queryDTO.getStatus() != null, SysDepartment::getStatus, queryDTO.getStatus())
+               .orderByAsc(SysDepartment::getSort)
                .orderByAsc(SysDepartment::getId);
 
         Page<SysDepartment> page = new Page<>(queryDTO.getPageNum(), queryDTO.getPageSize());
@@ -71,6 +72,7 @@ public class SysDepartmentServiceImpl extends ServiceImpl<SysDepartmentMapper, S
                .like(StrUtil.isNotBlank(queryDTO.getDeptName()), SysDepartment::getDeptName, queryDTO.getDeptName())
                .eq(StrUtil.isNotBlank(queryDTO.getCampusCode()), SysDepartment::getCampusCode, queryDTO.getCampusCode())
                .eq(queryDTO.getStatus() != null, SysDepartment::getStatus, queryDTO.getStatus())
+               .orderByAsc(SysDepartment::getSort)
                .orderByAsc(SysDepartment::getId);
 
         List<SysDepartment> allDepartments = list(wrapper);
@@ -255,7 +257,7 @@ public class SysDepartmentServiceImpl extends ServiceImpl<SysDepartmentMapper, S
             SysMajor majorUpdate = new SysMajor();
             majorUpdate.setStatus(0);
             majorMapper.update(majorUpdate, majorWrapper);
-            
+
             // 重新查询更新后的专业列表，用于后续级联更新
             List<SysMajor> majors = majorMapper.selectList(majorWrapper);
 

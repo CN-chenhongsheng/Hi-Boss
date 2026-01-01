@@ -55,7 +55,21 @@
       <ElRow :gutter="20">
         <ElCol :span="12">
           <ElFormItem label="负责人" prop="teacher">
-            <ElInput v-model="form.teacher" placeholder="请输入负责人" />
+            <ElSelect
+              v-model="form.teacher"
+              placeholder="请选择负责人"
+              filterable
+              clearable
+              :loading="teacherLoading"
+              @focus="handleTeacherFocus"
+            >
+              <ElOption
+                v-for="user in teacherOptions"
+                :key="user.id"
+                :label="user.nickname ? `${user.nickname} (${user.username})` : user.username"
+                :value="user.username"
+              />
+            </ElSelect>
           </ElFormItem>
         </ElCol>
         <ElCol :span="12">
@@ -80,6 +94,7 @@
     fetchAddClass,
     fetchUpdateClass
   } from '@/api/school-manage'
+  import { fetchGetUsersByRoleCodes } from '@/api/system-manage'
   import type { FormInstance, FormRules } from 'element-plus'
 
   interface Props {
@@ -103,6 +118,8 @@
   const loading = ref(false)
   const majorLoading = ref(false)
   const majorOptions = ref<Api.SystemManage.MajorListItem[]>([])
+  const teacherLoading = ref(false)
+  const teacherOptions = ref<Api.SystemManage.UserSimpleItem[]>([])
 
   const dialogVisible = computed({
     get: () => props.visible,
@@ -153,6 +170,33 @@
     if (majorOptions.value.length === 0) {
       await loadMajorOptions()
     }
+  }
+
+  /**
+   * 加载负责人列表（辅导员角色）
+   */
+  const loadTeacherOptions = async (): Promise<void> => {
+    if (teacherOptions.value.length > 0) return
+
+    teacherLoading.value = true
+    try {
+      const result = await fetchGetUsersByRoleCodes(['COUNSELOR'])
+      // 直接从结果中获取COUNSELOR角色的用户列表
+      if (result.COUNSELOR && result.COUNSELOR.length > 0) {
+        teacherOptions.value = result.COUNSELOR
+      }
+    } catch (error) {
+      console.error('加载负责人列表失败:', error)
+    } finally {
+      teacherLoading.value = false
+    }
+  }
+
+  /**
+   * 负责人下拉框获取焦点时加载数据
+   */
+  const handleTeacherFocus = async (): Promise<void> => {
+    await loadTeacherOptions()
   }
 
   /**
@@ -243,6 +287,7 @@
     (val) => {
       if (val) {
         loadMajorOptions()
+        loadTeacherOptions()
         loadFormData()
       }
     },

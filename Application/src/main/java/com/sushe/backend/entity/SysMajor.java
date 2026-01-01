@@ -40,6 +40,10 @@ public class SysMajor implements Serializable {
     @TableField("director")
     private String director;
 
+    @Schema(description = "学位类型（字典degree_type）")
+    @TableField("type")
+    private String type;
+
     @Schema(description = "学制")
     @TableField("duration")
     private String duration;

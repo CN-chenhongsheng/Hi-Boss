@@ -48,6 +48,10 @@ public class SysDepartment implements Serializable {
     @TableField("phone")
     private String phone;
 
+    @Schema(description = "排序")
+    @TableField("sort")
+    private Integer sort;
+
     @Schema(description = "状态：1启用 0停用")
     @TableField("status")
     private Integer status;

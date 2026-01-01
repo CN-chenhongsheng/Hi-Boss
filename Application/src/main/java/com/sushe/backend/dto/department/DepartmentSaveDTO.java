@@ -39,6 +39,9 @@ public class DepartmentSaveDTO {
     @Schema(description = "联系电话")
     private String phone;
 
+    @Schema(description = "排序")
+    private Integer sort;
+
     @Schema(description = "状态：1启用 0停用", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "状态不能为空")
     private Integer status;

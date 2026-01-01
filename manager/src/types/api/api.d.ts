@@ -114,6 +114,23 @@ declare namespace Api {
       lastLoginTime?: string
     }
 
+    /** 用户简单信息 */
+    interface UserSimpleItem {
+      id: number
+      username: string
+      nickname: string
+      phone?: string
+      email?: string
+    }
+
+    /** 角色用户查询参数 */
+    interface RoleUserQueryParams {
+      roleCodes: string[]
+    }
+
+    /** 角色用户信息（Map格式，key为角色代码，value为用户列表） */
+    type RoleUserMap = Record<string, UserSimpleItem[]>
+
     /** 更新个人信息参数 */
     interface UserProfileUpdateParams {
       nickname?: string
@@ -205,6 +222,23 @@ declare namespace Api {
       userEmail?: string
       userPhone?: string
     }
+
+    /** 用户简单信息 */
+    interface UserSimpleItem {
+      id: number
+      username: string
+      nickname: string
+      phone?: string
+      email?: string
+    }
+
+    /** 角色用户查询参数 */
+    interface RoleUserQueryParams {
+      roleCodes: string[]
+    }
+
+    /** 角色用户信息（Map格式，key为角色代码，value为用户列表） */
+    type RoleUserMap = Record<string, UserSimpleItem[]>
 
     /** ==================== 角色管理 ==================== */
     /** 角色查询参数 */
@@ -468,6 +502,7 @@ declare namespace Api {
       parentCode?: string
       leader?: string
       phone?: string
+      sort?: number
       status: number
     }
 
@@ -481,6 +516,7 @@ declare namespace Api {
       parentCode?: string
       leader?: string
       phone?: string
+      sort?: number
       status: number
       statusText?: string
       children?: DepartmentListItem[]
@@ -517,6 +553,7 @@ declare namespace Api {
       majorName: string
       deptCode: string
       director?: string
+      type?: string
       duration: string
       goal?: string
     }
@@ -529,6 +566,8 @@ declare namespace Api {
       deptCode: string
       deptName?: string
       director?: string
+      type?: string
+      typeText?: string
       duration: string
       goal?: string
       status?: number

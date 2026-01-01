@@ -224,6 +224,20 @@ export function fetchUpdateRoleStatus(id: number, status: number) {
   })
 }
 
+/**
+ * 根据角色代码列表查询用户列表
+ * @param roleCodes 角色代码列表
+ * @returns Map格式，key为角色代码，value为用户列表
+ */
+export function fetchGetUsersByRoleCodes(roleCodes: string[]) {
+  return request.post<Api.SystemManage.RoleUserMap>({
+    url: '/api/v1/system/user/by-roles',
+    data: {
+      roleCodes: roleCodes
+    }
+  })
+}
+
 /** ==================== 菜单管理 ==================== */
 
 /**

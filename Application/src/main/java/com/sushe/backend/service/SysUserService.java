@@ -2,11 +2,16 @@ package com.sushe.backend.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.sushe.backend.common.result.PageResult;
+import com.sushe.backend.dto.user.RoleUserQueryDTO;
 import com.sushe.backend.dto.user.UserQueryDTO;
 import com.sushe.backend.dto.user.UserResetPasswordDTO;
 import com.sushe.backend.dto.user.UserSaveDTO;
 import com.sushe.backend.entity.SysUser;
+import com.sushe.backend.vo.UserSimpleVO;
 import com.sushe.backend.vo.UserVO;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * 系统用户Service
@@ -95,5 +100,13 @@ public interface SysUserService extends IService<SysUser> {
      * @return 是否成功
      */
     boolean changeCurrentUserPassword(com.sushe.backend.dto.user.ChangePasswordDTO changePasswordDTO);
+
+    /**
+     * 根据角色代码列表查询用户列表
+     * 
+     * @param queryDTO 角色代码查询DTO
+     * @return Map格式，key为角色代码，value为该角色的用户列表
+     */
+    Map<String, List<UserSimpleVO>> getUsersByRoleCodes(RoleUserQueryDTO queryDTO);
 }
 

@@ -41,11 +41,22 @@
           </ElFormItem>
         </ElCol>
         <ElCol :span="12">
-          <ElFormItem label="学制" prop="duration">
-            <ElInput v-model="form.duration" placeholder="如：4年" />
+          <ElFormItem label="学位类型" prop="type">
+            <ElSelect v-model="form.type" placeholder="请选择学位类型" clearable filterable>
+              <ElOption
+                v-for="item in degreeTypeOptions"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+              />
+            </ElSelect>
           </ElFormItem>
         </ElCol>
       </ElRow>
+
+      <ElFormItem label="学制" prop="duration">
+        <ElInput v-model="form.duration" placeholder="如：4年" />
+      </ElFormItem>
 
       <ElFormItem label="培养目标" prop="goal">
         <ElInput v-model="form.goal" type="textarea" :rows="4" placeholder="请输入培养目标" />
@@ -66,6 +77,7 @@
     fetchAddMajor,
     fetchUpdateMajor
   } from '@/api/school-manage'
+  import { fetchGetDictDataList } from '@/api/system-manage'
   import type { FormInstance, FormRules } from 'element-plus'
 
   interface Props {
@@ -89,6 +101,7 @@
   const loading = ref(false)
   const deptLoading = ref(false)
   const deptOptions = ref<Api.SystemManage.DepartmentListItem[]>([])
+  const degreeTypeOptions = ref<Array<{ label: string; value: string }>>([])
 
   const dialogVisible = computed({
     get: () => props.visible,
@@ -104,6 +117,7 @@
     majorName: '',
     deptCode: '',
     director: undefined,
+    type: undefined,
     duration: '',
     goal: undefined
   })
@@ -114,6 +128,23 @@
     deptCode: [{ required: true, message: '请选择所属院系', trigger: 'change' }],
     duration: [{ required: true, message: '请输入学制', trigger: 'blur' }]
   })
+
+  /**
+   * 加载学位类型字典
+   */
+  const loadDegreeTypeOptions = async (): Promise<void> => {
+    try {
+      const data = await fetchGetDictDataList('degree_type')
+      degreeTypeOptions.value = data
+        .filter((item) => item.status === 1)
+        .map((item) => ({
+          label: item.label,
+          value: item.value
+        }))
+    } catch (error) {
+      console.error('加载学位类型字典失败:', error)
+    }
+  }
 
   /**
    * 加载院系列表
@@ -173,6 +204,7 @@
           majorName: detail.majorName,
           deptCode: detail.deptCode,
           director: detail.director || undefined,
+          type: detail.type || undefined,
           duration: detail.duration,
           goal: detail.goal || undefined
         })
@@ -198,6 +230,7 @@
       majorName: '',
       deptCode: '',
       director: undefined,
+      type: undefined,
       duration: '',
       goal: undefined
     })
@@ -241,6 +274,7 @@
     () => props.visible,
     (val) => {
       if (val) {
+        loadDegreeTypeOptions()
         loadDepartmentOptions()
         loadFormData()
       }

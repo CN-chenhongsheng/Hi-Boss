@@ -53,18 +53,27 @@
           </ElFormItem>
         </ElCol>
         <ElCol :span="12">
-          <ElFormItem label="联系电话" prop="phone">
-            <ElInput v-model="form.phone" placeholder="请输入联系电话" />
+          <ElFormItem label="排序" prop="sort">
+            <ElInputNumber v-model="form.sort" :min="0" :max="9999" placeholder="请输入排序值" />
           </ElFormItem>
         </ElCol>
       </ElRow>
 
-      <ElFormItem label="状态" prop="status">
-        <ElRadioGroup v-model="form.status">
-          <ElRadio :label="1">启用</ElRadio>
-          <ElRadio :label="0">停用</ElRadio>
-        </ElRadioGroup>
-      </ElFormItem>
+      <ElRow :gutter="20">
+        <ElCol :span="12">
+          <ElFormItem label="联系电话" prop="phone">
+            <ElInput v-model="form.phone" placeholder="请输入联系电话" />
+          </ElFormItem>
+        </ElCol>
+        <ElCol :span="12">
+          <ElFormItem label="状态" prop="status">
+            <ElRadioGroup v-model="form.status">
+              <ElRadio :label="1">启用</ElRadio>
+              <ElRadio :label="0">停用</ElRadio>
+            </ElRadioGroup>
+          </ElFormItem>
+        </ElCol>
+      </ElRow>
     </ElForm>
 
     <template #footer>
@@ -128,14 +137,14 @@
     parentCode: undefined,
     leader: undefined,
     phone: undefined,
+    sort: 0,
     status: 1
   })
 
   const rules = reactive<FormRules>({
     deptCode: [{ required: true, message: '请输入院系编码', trigger: 'blur' }],
     deptName: [{ required: true, message: '请输入院系名称', trigger: 'blur' }],
-    campusCode: [{ required: true, message: '请选择所属校区', trigger: 'change' }],
-    status: [{ required: true, message: '请选择状态', trigger: 'change' }]
+    campusCode: [{ required: true, message: '请选择所属校区', trigger: 'change' }]
   })
 
   /**
@@ -234,6 +243,7 @@
         parentCode: props.editData.parentCode || undefined,
         leader: props.editData.leader || undefined,
         phone: props.editData.phone || undefined,
+        sort: props.editData.sort || 0,
         status: props.editData.status
       })
       loadDepartmentTree()
@@ -259,6 +269,7 @@
       parentCode: undefined,
       leader: undefined,
       phone: undefined,
+      sort: 0,
       status: 1
     })
     departmentTreeOptions.value = []
