@@ -3,25 +3,27 @@
   <div
     :class="[
       'art-button-table inline-flex items-center justify-center min-w-8 h-8 px-2.5 mr-2.5 text-sm c-p rounded-md align-middle',
-      isCompactMode ? 'compact-mode' : buttonClass
+      isTextMode ? 'text-mode' : isCompactIconMode ? 'compact-icon-mode' : buttonClass
     ]"
     :style="buttonStyle"
     @click="handleClick"
   >
-    <ArtSvgIcon :icon="iconContent" />
+    <ArtSvgIcon v-if="!isTextMode" :icon="iconContent" />
+    <span v-else class="button-text">{{ buttonText }}</span>
   </div>
 </template>
 
 <script setup lang="ts">
   import { storeToRefs } from 'pinia'
   import { useTableStore } from '@/store/modules/table'
+  import { useDictStore } from '@/store/modules/dict'
   import { TableSizeEnum } from '@/enums/formEnum'
 
   defineOptions({ name: 'ArtButtonTable' })
 
   interface Props {
     /** 按钮类型 */
-    type?: 'add' | 'edit' | 'delete' | 'more' | 'view'
+    type?: string
     /** 按钮图标 */
     icon?: string
     /** 按钮样式类 */
@@ -42,36 +44,66 @@
   const tableStore = useTableStore()
   const { tableSize } = storeToRefs(tableStore)
 
-  // 判断是否为紧凑模式（紧凑或默认）
-  const isCompactMode = computed(() => {
-    return tableSize.value === TableSizeEnum.SMALL || tableSize.value === TableSizeEnum.DEFAULT
+  // 获取字典 Store
+  const dictStore = useDictStore()
+
+  // 判断是否为文字模式（仅 SMALL 模式）
+  const isTextMode = computed(() => {
+    return tableSize.value === TableSizeEnum.SMALL
   })
 
-  // 默认按钮配置
-  const defaultButtons = {
-    add: { icon: 'ri:add-fill', class: 'bg-theme/12 text-theme' },
-    edit: { icon: 'ri:pencil-line', class: 'bg-secondary/12 text-secondary' },
-    delete: { icon: 'ri:delete-bin-5-line', class: 'bg-error/12 text-error' },
-    view: { icon: 'ri:eye-line', class: 'bg-info/12 text-info' },
-    more: { icon: 'ri:more-2-fill', class: '' }
-  } as const
+  // 判断是否为紧凑图标模式（DEFAULT 模式）
+  const isCompactIconMode = computed(() => {
+    return tableSize.value === TableSizeEnum.DEFAULT
+  })
+
+  // 从 Store 获取按钮配置（响应式）
+  const buttonConfigs = computed(() => {
+    return dictStore.getButtonConfigs()
+  })
+
+  // 组件挂载时确保配置已加载（首次使用时会触发加载，后续使用缓存）
+  onMounted(() => {
+    dictStore.ensureButtonConfigsLoaded()
+  })
 
   // 获取图标内容
   const iconContent = computed(() => {
-    return props.icon || (props.type ? defaultButtons[props.type]?.icon : '') || ''
+    return props.icon || (props.type ? buttonConfigs.value[props.type]?.icon : '') || ''
+  })
+
+  // 获取按钮文本
+  const buttonText = computed(() => {
+    return props.type ? buttonConfigs.value[props.type]?.text || '' : ''
   })
 
   // 获取按钮样式类
   const buttonClass = computed(() => {
-    return props.iconClass || (props.type ? defaultButtons[props.type]?.class : '') || ''
+    return props.iconClass || (props.type ? buttonConfigs.value[props.type]?.class : '') || ''
   })
 
   // 动态按钮样式
   const buttonStyle = computed(() => {
     const style: Record<string, string> = {}
 
-    if (isCompactMode.value) {
-      // 紧凑模式：背景透明，只显示图标颜色
+    if (isTextMode.value) {
+      // 文字模式（SMALL）：背景透明，只显示文字颜色
+      style.backgroundColor = 'transparent'
+      if (props.iconColor) {
+        style.color = props.iconColor
+      } else if (props.type) {
+        // 根据按钮类型设置文字颜色
+        const typeColors: Record<string, string> = {
+          add: 'var(--el-color-primary)',
+          edit: 'var(--el-color-info)',
+          delete: 'var(--el-color-danger)',
+          view: 'var(--el-color-info)',
+          more: 'var(--el-text-color-regular)'
+        }
+        style.color = typeColors[props.type] || 'var(--el-text-color-regular)'
+      }
+    } else if (isCompactIconMode.value) {
+      // 紧凑图标模式（DEFAULT）：背景透明，只显示图标颜色
       style.backgroundColor = 'transparent'
       if (props.iconColor) {
         style.color = props.iconColor
@@ -87,7 +119,7 @@
         style.color = typeColors[props.type] || 'var(--el-text-color-regular)'
       }
     } else {
-      // 宽松模式：使用原有样式
+      // 宽松模式（LARGE）：使用原有样式
       if (props.buttonBgColor) {
         style.backgroundColor = props.buttonBgColor
       }
@@ -120,10 +152,33 @@
     }
   }
 
-  // 紧凑模式下的透明度效果
-  .art-button-table.compact-mode {
+  // 紧凑图标模式（DEFAULT）：透明背景的小图标
+  .art-button-table.compact-icon-mode {
     transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     background-color: transparent !important;
+
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.05) !important;
+    }
+
+    &.dark-mode:hover {
+      background-color: rgba(255, 255, 255, 0.05) !important;
+    }
+  }
+
+  // 文字模式（SMALL）：显示中文文字
+  .art-button-table.text-mode {
+    transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    background-color: transparent !important;
+    min-width: auto;
+    padding: 0 8px;
+
+    .button-text {
+      white-space: nowrap;
+      user-select: none;
+      font-size: 12px;
+      line-height: 1;
+    }
 
     &:hover {
       background-color: rgba(0, 0, 0, 0.05) !important;

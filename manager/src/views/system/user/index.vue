@@ -216,9 +216,7 @@
             if (hasPermission('system:user:reset-pwd')) {
               buttons.push(
                 h(ArtButtonTable, {
-                  type: 'edit',
-                  icon: 'ri-shield-keyhole-line',
-                  tooltip: '重置密码',
+                  type: 'reset',
                   onClick: () => handleResetPassword(row)
                 })
               )

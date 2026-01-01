@@ -189,9 +189,7 @@
             if (hasPermission('system:role:assign')) {
               buttons.push(
                 h(ArtButtonTable, {
-                  type: 'view',
-                  icon: 'ri-share-line',
-                  tooltip: '分配权限',
+                  type: 'share',
                   onClick: () => showPermissionDialog(row)
                 })
               )
