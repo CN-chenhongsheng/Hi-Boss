@@ -449,6 +449,7 @@ declare namespace Api {
       campusCode: string
       campusName: string
       parentCode?: string
+      parentName?: string
       address: string
       manager?: string
       status: number
@@ -461,6 +462,7 @@ declare namespace Api {
       campusCode: string
       campusName: string
       parentCode?: string
+      parentName?: string
       address: string
       manager?: string
       status: number
@@ -500,6 +502,7 @@ declare namespace Api {
       deptName: string
       campusCode: string
       parentCode?: string
+      parentName?: string
       leader?: string
       phone?: string
       sort?: number
@@ -514,6 +517,7 @@ declare namespace Api {
       campusCode: string
       campusName?: string
       parentCode?: string
+      parentName?: string
       leader?: string
       phone?: string
       sort?: number

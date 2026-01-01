@@ -33,9 +33,9 @@
         </ElSelect>
       </ElFormItem>
 
-      <ElFormItem label="上级院系" prop="parentCode">
+      <ElFormItem label="上级院系" prop="parentName">
         <ElTreeSelect
-          v-model="form.parentCode"
+          v-model="form.parentName"
           :data="departmentTreeOptions"
           :props="{ value: 'deptCode', label: 'deptName', children: 'children' }"
           placeholder="请选择上级院系（不选则为顶级院系）"
@@ -135,6 +135,7 @@
     deptName: '',
     campusCode: '',
     parentCode: undefined,
+    parentName: undefined,
     leader: undefined,
     phone: undefined,
     sort: 0,
@@ -227,6 +228,7 @@
    */
   const handleCampusChange = (): void => {
     form.parentCode = undefined
+    form.parentName = undefined
     loadDepartmentTree()
   }
 
@@ -241,6 +243,7 @@
         deptName: props.editData.deptName,
         campusCode: props.editData.campusCode,
         parentCode: props.editData.parentCode || undefined,
+        parentName: props.editData.parentName || undefined,
         leader: props.editData.leader || undefined,
         phone: props.editData.phone || undefined,
         sort: props.editData.sort || 0,
@@ -252,6 +255,7 @@
       resetForm()
       form.campusCode = props.parentData.campusCode
       form.parentCode = props.parentData.deptCode
+      form.parentName = props.parentData.deptName
       loadDepartmentTree()
     } else {
       resetForm()
@@ -267,6 +271,7 @@
       deptName: '',
       campusCode: '',
       parentCode: undefined,
+      parentName: undefined,
       leader: undefined,
       phone: undefined,
       sort: 0,

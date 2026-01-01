@@ -16,9 +16,9 @@
         <ElInput v-model="form.campusName" placeholder="请输入校区名称" />
       </ElFormItem>
 
-      <ElFormItem label="上级校区" prop="parentCode">
+      <ElFormItem label="上级校区" prop="parentName">
         <ElTreeSelect
-          v-model="form.parentCode"
+          v-model="form.parentName"
           :data="campusTreeOptions"
           :props="{ value: 'campusCode', label: 'campusName', children: 'children' }"
           placeholder="请选择上级校区（不选则为顶级校区）"
@@ -106,6 +106,7 @@
     campusCode: '',
     campusName: '',
     parentCode: undefined,
+    parentName: undefined,
     address: '',
     manager: undefined,
     status: 1,
@@ -168,6 +169,7 @@
         campusCode: props.editData.campusCode,
         campusName: props.editData.campusName,
         parentCode: props.editData.parentCode || undefined,
+        parentName: props.editData.parentName || undefined,
         address: props.editData.address,
         manager: props.editData.manager || undefined,
         status: props.editData.status,
@@ -177,6 +179,7 @@
       // 新增子校区时，默认填充父校区
       resetForm()
       form.parentCode = props.parentData.campusCode
+      form.parentName = props.parentData.campusName
     } else {
       resetForm()
     }
@@ -190,6 +193,7 @@
       campusCode: '',
       campusName: '',
       parentCode: undefined,
+      parentName: undefined,
       address: '',
       manager: undefined,
       status: 1,

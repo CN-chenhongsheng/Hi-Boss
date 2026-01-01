@@ -55,7 +55,17 @@
       </ElRow>
 
       <ElFormItem label="学制" prop="duration">
-        <ElInput v-model="form.duration" placeholder="如：4年" />
+        <ElInputNumber
+          v-model="durationNumber"
+          :min="1"
+          :max="10"
+          :precision="0"
+          placeholder="请输入学制年限"
+          controls-position="right"
+          :formatter="(value: string) => `${value}年制`"
+          :parser="(value: string) => value.replace('年制', '')"
+          style="width: 100%"
+        />
       </ElFormItem>
 
       <ElFormItem label="培养目标" prop="goal">
@@ -103,6 +113,9 @@
   const deptOptions = ref<Api.SystemManage.DepartmentListItem[]>([])
   const degreeTypeOptions = ref<Array<{ label: string; value: string }>>([])
 
+  // 学制数字值（用于数字输入框）
+  const durationNumber = ref<number | null>(null)
+
   const dialogVisible = computed({
     get: () => props.visible,
     set: (val) => emit('update:visible', val)
@@ -126,7 +139,20 @@
     majorCode: [{ required: true, message: '请输入专业编码', trigger: 'blur' }],
     majorName: [{ required: true, message: '请输入专业名称', trigger: 'blur' }],
     deptCode: [{ required: true, message: '请选择所属院系', trigger: 'change' }],
-    duration: [{ required: true, message: '请输入学制', trigger: 'blur' }]
+    type: [{ required: true, message: '请选择学位类型', trigger: 'change' }],
+    duration: [
+      {
+        required: true,
+        validator: (_rule, _value, callback) => {
+          if (durationNumber.value === null || durationNumber.value === undefined) {
+            callback(new Error('请输入学制'))
+          } else {
+            callback()
+          }
+        },
+        trigger: 'blur'
+      }
+    ]
   })
 
   /**
@@ -192,6 +218,22 @@
   }
 
   /**
+   * 从字符串中提取数字（用于从后端数据中解析学制）
+   */
+  const parseDuration = (durationStr: string | undefined): number | null => {
+    if (!durationStr) return null
+    const match = durationStr.match(/^(\d+)/)
+    return match ? Number.parseInt(match[1], 10) : null
+  }
+
+  /**
+   * 将数字转换为学制字符串（用于提交到后端）
+   */
+  const formatDuration = (num: number | null): string => {
+    return num ? `${num}年制` : ''
+  }
+
+  /**
    * 加载表单数据
    */
   const loadFormData = async (): Promise<void> => {
@@ -208,6 +250,8 @@
           duration: detail.duration,
           goal: detail.goal || undefined
         })
+        // 解析学制数字
+        durationNumber.value = parseDuration(detail.duration)
         // 加载该院系到选项列表
         if (detail.deptCode) {
           const list = await fetchGetDepartmentTree({ deptCode: detail.deptCode })
@@ -234,6 +278,7 @@
       duration: '',
       goal: undefined
     })
+    durationNumber.value = null
     formRef.value?.clearValidate()
   }
 
@@ -245,6 +290,9 @@
 
     const valid = await formRef.value.validate().catch(() => false)
     if (!valid) return
+
+    // 将学制数字转换为字符串格式
+    form.duration = formatDuration(durationNumber.value)
 
     loading.value = true
     try {
