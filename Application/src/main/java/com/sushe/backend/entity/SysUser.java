@@ -1,10 +1,12 @@
 package com.sushe.backend.entity;
 
-import com.baomidou.mybatisplus.annotation.*;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableLogic;
+import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
-import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
@@ -14,15 +16,10 @@ import java.time.LocalDateTime;
  * @since 2025-12-30
  */
 @Data
+@EqualsAndHashCode(callSuper = true)
 @TableName("sys_user")
 @Schema(description = "系统用户实体")
-public class SysUser implements Serializable {
-
-    private static final long serialVersionUID = 1L;
-
-    @Schema(description = "主键ID")
-    @TableId(value = "id", type = IdType.AUTO)
-    private Long id;
+public class SysUser extends BaseEntity {
 
     @Schema(description = "用户名")
     @TableField("username")
@@ -81,16 +78,7 @@ public class SysUser implements Serializable {
     @TableLogic(value = "0", delval = "1")
     private Integer delFlag;
 
-    @Schema(description = "创建时间")
-    @TableField(value = "create_time", fill = FieldFill.INSERT)
-    private LocalDateTime createTime;
-
-    @Schema(description = "更新时间")
-    @TableField(value = "update_time", fill = FieldFill.INSERT_UPDATE)
-    private LocalDateTime updateTime;
-
     @Schema(description = "最后登录时间")
     @TableField("last_login_time")
     private LocalDateTime lastLoginTime;
 }
-

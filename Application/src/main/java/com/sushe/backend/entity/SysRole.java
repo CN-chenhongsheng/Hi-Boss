@@ -1,11 +1,10 @@
 package com.sushe.backend.entity;
 
-import com.baomidou.mybatisplus.annotation.*;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
-
-import java.io.Serializable;
-import java.time.LocalDateTime;
+import lombok.EqualsAndHashCode;
 
 /**
  * 系统角色表
@@ -14,15 +13,10 @@ import java.time.LocalDateTime;
  * @since 2025-12-30
  */
 @Data
+@EqualsAndHashCode(callSuper = true)
 @TableName("sys_role")
 @Schema(description = "系统角色实体")
-public class SysRole implements Serializable {
-
-    private static final long serialVersionUID = 1L;
-
-    @Schema(description = "主键ID")
-    @TableId(value = "id", type = IdType.AUTO)
-    private Long id;
+public class SysRole extends BaseEntity {
 
     @Schema(description = "角色编码")
     @TableField("role_code")
@@ -43,13 +37,4 @@ public class SysRole implements Serializable {
     @Schema(description = "备注")
     @TableField("remark")
     private String remark;
-
-    @Schema(description = "创建时间")
-    @TableField(value = "create_time", fill = FieldFill.INSERT)
-    private LocalDateTime createTime;
-
-    @Schema(description = "更新时间")
-    @TableField(value = "update_time", fill = FieldFill.INSERT_UPDATE)
-    private LocalDateTime updateTime;
 }
-

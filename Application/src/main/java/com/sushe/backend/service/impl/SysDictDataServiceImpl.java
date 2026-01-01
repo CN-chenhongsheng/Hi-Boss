@@ -15,6 +15,8 @@ import com.sushe.backend.service.SysDictDataService;
 import com.sushe.backend.util.DictUtils;
 import com.sushe.backend.vo.DictDataVO;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -57,9 +59,10 @@ public class SysDictDataServiceImpl extends ServiceImpl<SysDictDataMapper, SysDi
     }
 
     /**
-     * 根据字典编码获取字典数据列表
+     * 根据字典编码获取字典数据列表（缓存）
      */
     @Override
+    @Cacheable(value = "dict:data", key = "#dictCode", unless = "#result == null || #result.isEmpty()")
     public List<DictDataVO> listByDictCode(String dictCode) {
         LambdaQueryWrapper<SysDictData> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(SysDictData::getDictCode, dictCode)
@@ -90,6 +93,7 @@ public class SysDictDataServiceImpl extends ServiceImpl<SysDictDataMapper, SysDi
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
+    @CacheEvict(value = "dict:data", key = "#saveDTO.dictCode")
     public boolean saveDictData(DictDataSaveDTO saveDTO) {
         // 检查同一字典编码下，字典值是否重复
         LambdaQueryWrapper<SysDictData> wrapper = new LambdaQueryWrapper<>();
@@ -134,15 +138,16 @@ public class SysDictDataServiceImpl extends ServiceImpl<SysDictDataMapper, SysDi
             throw new BusinessException("字典数据ID不能为空");
         }
 
-        // 获取字典编码，用于刷新缓存
+        // 获取字典编码，用于清除缓存
         SysDictData dictData = getById(id);
         String dictCode = dictData != null ? dictData.getDictCode() : null;
 
         boolean success = removeById(id);
 
-        // 刷新字典缓存
+        // 清除字典缓存（Spring Cache会通过DictUtils.refreshCache清除，这里也清除Spring Cache）
         if (success && dictCode != null) {
             DictUtils.refreshCache(dictCode);
+            // Spring Cache会在DictUtils.refreshCache中处理，这里不需要额外处理
         }
 
         return success;

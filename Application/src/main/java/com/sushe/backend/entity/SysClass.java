@@ -1,11 +1,10 @@
 package com.sushe.backend.entity;
 
-import com.baomidou.mybatisplus.annotation.*;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
-
-import java.io.Serializable;
-import java.time.LocalDateTime;
+import lombok.EqualsAndHashCode;
 
 /**
  * 班级实体
@@ -14,15 +13,10 @@ import java.time.LocalDateTime;
  * @since 2025-12-31
  */
 @Data
+@EqualsAndHashCode(callSuper = true)
 @TableName("sys_class")
 @Schema(description = "班级实体")
-public class SysClass implements Serializable {
-
-    private static final long serialVersionUID = 1L;
-
-    @Schema(description = "主键ID")
-    @TableId(value = "id", type = IdType.AUTO)
-    private Long id;
+public class SysClass extends BaseEntity {
 
     @Schema(description = "班级编码")
     @TableField("class_code")
@@ -55,13 +49,4 @@ public class SysClass implements Serializable {
     @Schema(description = "状态：1启用 0停用")
     @TableField("status")
     private Integer status;
-
-    @Schema(description = "创建时间")
-    @TableField(value = "create_time", fill = FieldFill.INSERT)
-    private LocalDateTime createTime;
-
-    @Schema(description = "更新时间")
-    @TableField(value = "update_time", fill = FieldFill.INSERT_UPDATE)
-    private LocalDateTime updateTime;
 }
-

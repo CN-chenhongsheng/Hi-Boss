@@ -1,11 +1,10 @@
 package com.sushe.backend.entity;
 
-import com.baomidou.mybatisplus.annotation.*;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
-
-import java.io.Serializable;
-import java.time.LocalDateTime;
+import lombok.EqualsAndHashCode;
 
 /**
  * 系统菜单表
@@ -14,15 +13,10 @@ import java.time.LocalDateTime;
  * @since 2025-12-30
  */
 @Data
+@EqualsAndHashCode(callSuper = true)
 @TableName("sys_menu")
 @Schema(description = "系统菜单实体")
-public class SysMenu implements Serializable {
-
-    private static final long serialVersionUID = 1L;
-
-    @Schema(description = "主键ID")
-    @TableId(value = "id", type = IdType.AUTO)
-    private Long id;
+public class SysMenu extends BaseEntity {
 
     @Schema(description = "父菜单ID")
     @TableField("parent_id")
@@ -67,13 +61,4 @@ public class SysMenu implements Serializable {
     @Schema(description = "页面缓存：1开启 0关闭")
     @TableField("keep_alive")
     private Integer keepAlive;
-
-    @Schema(description = "创建时间")
-    @TableField(value = "create_time", fill = FieldFill.INSERT)
-    private LocalDateTime createTime;
-
-    @Schema(description = "更新时间")
-    @TableField(value = "update_time", fill = FieldFill.INSERT_UPDATE)
-    private LocalDateTime updateTime;
 }
-

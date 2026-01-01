@@ -1,11 +1,10 @@
 package com.sushe.backend.entity;
 
-import com.baomidou.mybatisplus.annotation.*;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
-
-import java.io.Serializable;
-import java.time.LocalDateTime;
+import lombok.EqualsAndHashCode;
 
 /**
  * 字典数据实体
@@ -14,15 +13,10 @@ import java.time.LocalDateTime;
  * @since 2025-12-30
  */
 @Data
+@EqualsAndHashCode(callSuper = true)
 @TableName("sys_dict_data")
 @Schema(description = "字典数据实体")
-public class SysDictData implements Serializable {
-
-    private static final long serialVersionUID = 1L;
-
-    @Schema(description = "主键ID")
-    @TableId(value = "id", type = IdType.AUTO)
-    private Long id;
+public class SysDictData extends BaseEntity {
 
     @Schema(description = "字典编码")
     @TableField("dict_code")
@@ -59,13 +53,4 @@ public class SysDictData implements Serializable {
     @Schema(description = "备注")
     @TableField("remark")
     private String remark;
-
-    @Schema(description = "创建时间")
-    @TableField(value = "create_time", fill = FieldFill.INSERT)
-    private LocalDateTime createTime;
-
-    @Schema(description = "更新时间")
-    @TableField(value = "update_time", fill = FieldFill.INSERT_UPDATE)
-    private LocalDateTime updateTime;
 }
-

@@ -1,5 +1,6 @@
 package com.sushe.backend.controller;
 
+import com.sushe.backend.common.annotation.RateLimit;
 import com.sushe.backend.common.result.R;
 import com.sushe.backend.dto.auth.LoginDTO;
 import com.sushe.backend.service.AuthService;
@@ -32,6 +33,7 @@ public class AuthController {
      */
     @Operation(summary = "用户登录")
     @PostMapping("/login")
+    @RateLimit(key = "login", time = 60, count = 5, message = "登录请求过于频繁，请稍后再试")
     public R<LoginVO> login(@Valid @RequestBody LoginDTO loginDTO) {
         log.info("========== 收到登录请求 ==========");
         log.info("请求参数 - 用户名: {}", loginDTO.getUsername());

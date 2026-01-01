@@ -1,6 +1,7 @@
 package com.sushe.backend.config;
 
 import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;
+import com.sushe.backend.common.context.UserContext;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.reflection.MetaObject;
 import org.springframework.stereotype.Component;
@@ -29,6 +30,17 @@ public class MyBatisMetaObjectHandler implements MetaObjectHandler {
         
         // 自动填充更新时间
         this.strictInsertFill(metaObject, "updateTime", LocalDateTime.class, LocalDateTime.now());
+        
+        // 自动填充创建人ID
+        Long userId = UserContext.getUserId();
+        if (userId != null) {
+            this.strictInsertFill(metaObject, "createBy", Long.class, userId);
+        }
+        
+        // 自动填充更新人ID
+        if (userId != null) {
+            this.strictInsertFill(metaObject, "updateBy", Long.class, userId);
+        }
     }
 
     /**
@@ -40,6 +52,11 @@ public class MyBatisMetaObjectHandler implements MetaObjectHandler {
         
         // 自动填充更新时间
         this.strictUpdateFill(metaObject, "updateTime", LocalDateTime.class, LocalDateTime.now());
+        
+        // 自动填充更新人ID
+        Long userId = UserContext.getUserId();
+        if (userId != null) {
+            this.strictUpdateFill(metaObject, "updateBy", Long.class, userId);
+        }
     }
 }
-
