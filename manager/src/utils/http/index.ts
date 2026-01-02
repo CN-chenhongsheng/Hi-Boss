@@ -20,6 +20,7 @@ import { ApiStatus } from './status'
 import { HttpError, handleError, showError, showSuccess } from './error'
 import { $t } from '@/locales'
 import { BaseResponse } from '@/types'
+import { fetchLogout } from '@/api/auth'
 
 /** 请求配置常量 */
 const REQUEST_TIMEOUT = 15000
@@ -130,8 +131,20 @@ function resetUnauthorizedError() {
 
 /** 退出登录函数 */
 function logOut() {
+  const userStore = useUserStore()
+  const userId = userStore.info.userId
+  const token = userStore.accessToken
+
+  // 如果有 token，尝试调用 logout API 通知服务器用户离线
+  if (token && userId) {
+    fetchLogout().catch(() => {
+      // 即使失败也继续执行清理，不阻塞退出流程
+      console.warn('[HTTP] Logout API call failed in interceptor')
+    })
+  }
+
   setTimeout(() => {
-    useUserStore().logOut()
+    userStore.logOut()
   }, LOGOUT_DELAY)
 }
 

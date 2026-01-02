@@ -9,6 +9,7 @@ import com.sushe.backend.mapper.SysMenuMapper;
 import com.sushe.backend.mapper.SysRoleMapper;
 import com.sushe.backend.mapper.SysUserMapper;
 import com.sushe.backend.service.AuthService;
+import com.sushe.backend.service.UserOnlineService;
 import com.sushe.backend.vo.LoginVO;
 import com.sushe.backend.vo.UserInfoVO;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +35,7 @@ public class AuthServiceImpl implements AuthService {
     private final SysRoleMapper roleMapper;
     private final SysMenuMapper menuMapper;
     private final BCryptPasswordEncoder passwordEncoder;
+    private final UserOnlineService userOnlineService;
 
     @Override
     public LoginVO login(LoginDTO loginDTO) {
@@ -89,6 +91,7 @@ public class AuthServiceImpl implements AuthService {
         // 4. 执行登录（Sa-Token）
         try {
             StpUtil.login(user.getId());
+            userOnlineService.userOnline(user.getId());
             String token = StpUtil.getTokenValue();
             log.info(">>> 步骤4完成: Sa-Token登录成功，token: {}", token);
         } catch (Exception e) {
@@ -128,7 +131,9 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public void logout() {
+        Long userId = StpUtil.getLoginIdAsLong();
         StpUtil.logout();
+        userOnlineService.userOffline(userId);
     }
 
     @Override
@@ -156,7 +161,7 @@ public class AuthServiceImpl implements AuthService {
                 .avatar(user.getAvatar())
                 .email(user.getEmail())
                 .phone(user.getPhone())
-                .college(user.getCollege())
+                .manageScope(user.getManageScope())
                 .roles(roles)
                 .permissions(permissions)
                 .build();

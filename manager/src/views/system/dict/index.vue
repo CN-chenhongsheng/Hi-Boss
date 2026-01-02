@@ -250,7 +250,7 @@
     {
       prop: 'action',
       label: '操作',
-      width: 150,
+      width: 120,
       fixed: 'right' as const,
       formatter: (row: DictTypeListItem) => {
         const buttons = []
@@ -334,7 +334,7 @@
     {
       prop: 'action',
       label: '操作',
-      width: 150,
+      width: 120,
       fixed: 'right' as const,
       formatter: (row: DictDataListItem) => {
         const buttons = []

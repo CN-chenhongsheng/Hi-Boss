@@ -38,8 +38,8 @@ public class UserVO implements Serializable {
     @Schema(description = "手机号")
     private String phone;
 
-    @Schema(description = "所属学院")
-    private String college;
+    @Schema(description = "管理范围")
+    private String manageScope;
 
     @Schema(description = "状态：1正常 0停用")
     private Integer status;
@@ -82,5 +82,8 @@ public class UserVO implements Serializable {
     @Schema(description = "最后登录时间")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime lastLoginTime;
+
+    @Schema(description = "是否在线")
+    private Boolean isOnline;
 }
 

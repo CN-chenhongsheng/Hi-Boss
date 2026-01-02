@@ -75,6 +75,12 @@ export interface ColumnOption<T = any> {
   checked?: boolean
   // 自定义渲染函数
   formatter?: (row: T) => any
+  // 自定义表头渲染函数
+  renderHeader?: (scope: any) => any
+  // 自定义过滤器渲染函数
+  renderFilter?: (scope: any) => any
+  // 表头提示
+  labelTooltip?: string
   // 插槽相关配置
   // 是否使用插槽渲染内容
   useSlot?: boolean

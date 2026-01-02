@@ -42,6 +42,7 @@ import { setPageTitle } from '@/utils/router'
 import { resetRouterState } from '@/router/guards/beforeEach'
 import { useMenuStore } from './menu'
 import { StorageConfig } from '@/utils/storage/storage-config'
+import { fetchLogout } from '@/api/auth'
 
 /**
  * 用户状态管理
@@ -140,9 +141,22 @@ export const useUserStore = defineStore(
      * 清空所有用户相关状态并跳转到登录页
      * 如果是同一账号重新登录，保留工作台标签页
      */
-    const logOut = () => {
-      // 保存当前用户 ID，用于下次登录时判断是否为同一用户
+    const logOut = async () => {
+      // 保存当前用户 ID 和 token（在清空前）
       const currentUserId = info.value.userId
+      const currentToken = accessToken.value
+
+      // 如果有 token，先调用后端 logout API 通知服务器用户离线
+      if (currentToken && currentUserId) {
+        try {
+          await fetchLogout()
+        } catch (error) {
+          // 即使 API 调用失败，也继续执行清理逻辑
+          console.warn('[UserStore] Logout API call failed:', error)
+        }
+      }
+
+      // 保存当前用户 ID，用于下次登录时判断是否为同一用户
       if (currentUserId) {
         localStorage.setItem(StorageConfig.LAST_USER_ID_KEY, String(currentUserId))
       }

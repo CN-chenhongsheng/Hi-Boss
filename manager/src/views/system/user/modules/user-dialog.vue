@@ -49,8 +49,8 @@
           </ElFormItem>
         </ElCol>
         <ElCol :span="12">
-          <ElFormItem label="所属学院" prop="college">
-            <ElInput v-model="formData.college" placeholder="请输入所属学院" />
+          <ElFormItem label="管理范围" prop="manageScope">
+            <ElInput v-model="formData.manageScope" placeholder="请输入管理范围" />
           </ElFormItem>
         </ElCol>
       </ElRow>
@@ -146,7 +146,7 @@
     password: '',
     email: '',
     phone: '',
-    college: '',
+    manageScope: '',
     status: 1,
     roleIds: []
   })
@@ -205,7 +205,7 @@
         password: '', // 编辑时密码为空
         email: row.email || '',
         phone: row.phone || '',
-        college: row.college || '',
+        manageScope: row.manageScope || '',
         status: row.status ?? 1,
         roleIds: row.roleIds || []
       })
@@ -218,7 +218,7 @@
         password: '',
         email: '',
         phone: '',
-        college: '',
+        manageScope: '',
         status: 1,
         roleIds: []
       })

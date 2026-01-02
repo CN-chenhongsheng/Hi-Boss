@@ -42,8 +42,8 @@ public class UserSaveDTO {
     @Pattern(regexp = "^1[3-9]\\d{9}$", message = "手机号格式不正确")
     private String phone;
 
-    @Schema(description = "所属学院")
-    private String college;
+    @Schema(description = "管理范围")
+    private String manageScope;
 
     @Schema(description = "状态：1正常 0停用")
     private Integer status;

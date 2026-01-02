@@ -30,3 +30,11 @@ export { useChart, useChartComponent, useChartOps } from './core/useChart'
 
 // 布局高度
 export { useLayoutHeight, useAutoLayoutHeight } from './core/useLayoutHeight'
+
+// SSE 连接管理
+export { useSSE } from './core/useSSE'
+export type { UseSSEOptions, UseSSEReturn, SSEEventHandler } from './core/useSSE'
+
+// 用户在线状态
+export { useUserOnlineStatus } from './core/useUserOnlineStatus'
+export type { OnlineStatusUpdate } from './core/useUserOnlineStatus'

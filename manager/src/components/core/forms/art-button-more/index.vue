@@ -2,7 +2,20 @@
 <template>
   <div>
     <ElDropdown v-if="hasAnyAuthItem">
-      <ArtIconButton icon="ri:more-2-fill" class="!size-8 bg-g-200 dark:bg-g-300/45 text-sm" />
+      <div
+        :class="[
+          'art-button-more inline-flex items-center justify-center min-w-8 h-8 px-2.5 mr-2.5 text-sm c-p rounded-md align-middle cursor-pointer',
+          isTextMode
+            ? 'text-mode'
+            : isCompactIconMode
+              ? 'compact-icon-mode'
+              : 'large-mode bg-g-200 dark:bg-g-300/45'
+        ]"
+        :style="buttonStyle"
+      >
+        <ArtSvgIcon v-if="!isTextMode" icon="ri:more-2-fill" />
+        <span v-else class="button-text">更多</span>
+      </div>
       <template #dropdown>
         <ElDropdownMenu>
           <template v-for="item in list" :key="item.key">
@@ -24,11 +37,48 @@
 </template>
 
 <script setup lang="ts">
+  import { storeToRefs } from 'pinia'
+  import { useTableStore } from '@/store/modules/table'
   import { useAuth } from '@/hooks/core/useAuth'
+  import { TableSizeEnum } from '@/enums/formEnum'
 
   defineOptions({ name: 'ArtButtonMore' })
 
   const { hasAuth } = useAuth()
+
+  // 获取表格大小
+  const tableStore = useTableStore()
+  const { tableSize } = storeToRefs(tableStore)
+
+  // 判断是否为文字模式（仅 SMALL 模式）
+  const isTextMode = computed(() => {
+    return tableSize.value === TableSizeEnum.SMALL
+  })
+
+  // 判断是否为紧凑图标模式（DEFAULT 模式）
+  const isCompactIconMode = computed(() => {
+    return tableSize.value === TableSizeEnum.DEFAULT
+  })
+
+  // 动态按钮样式
+  const buttonStyle = computed(() => {
+    const style: Record<string, string> = {}
+
+    if (isTextMode.value) {
+      // 文字模式（SMALL）：背景透明，只显示文字颜色
+      style.backgroundColor = 'transparent'
+      style.color = 'var(--el-text-color-regular)'
+    } else if (isCompactIconMode.value) {
+      // 紧凑图标模式（DEFAULT）：背景透明，只显示图标颜色
+      style.backgroundColor = 'transparent'
+      style.color = 'var(--el-text-color-regular)'
+    } else {
+      // 宽松模式（LARGE）：使用原有样式（bg-g-200）
+      // 样式通过 class 控制，这里不需要额外设置
+    }
+
+    return style
+  })
 
   export interface ButtonMoreItem {
     /** 按钮标识，可用于点击事件 */
@@ -69,3 +119,70 @@
     emit('click', item)
   }
 </script>
+
+<style scoped lang="scss">
+  .art-button-more {
+    :deep(.art-svg-icon) {
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      transform-origin: center;
+    }
+
+    &:hover :deep(.art-svg-icon) {
+      transform: scale(1.1);
+    }
+
+    &:active :deep(.art-svg-icon) {
+      transform: scale(0.95);
+    }
+  }
+
+  // 宽松模式（LARGE）：带背景的图标（样式通过 Tailwind 类控制）
+  .art-button-more.large-mode {
+    transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+    &:hover {
+      background-color: var(--g-300);
+    }
+
+    &.dark-mode:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+  }
+
+  // 紧凑图标模式（DEFAULT）：透明背景的小图标
+  .art-button-more.compact-icon-mode {
+    transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    background-color: transparent !important;
+
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.05) !important;
+    }
+
+    &.dark-mode:hover {
+      background-color: rgba(255, 255, 255, 0.05) !important;
+    }
+  }
+
+  // 文字模式（SMALL）：显示中文文字
+  .art-button-more.text-mode {
+    transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    background-color: transparent !important;
+    min-width: auto;
+    padding: 0 8px;
+
+    .button-text {
+      white-space: nowrap;
+      user-select: none;
+      font-size: 12px;
+      line-height: 1;
+    }
+
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.05) !important;
+    }
+
+    &.dark-mode:hover {
+      background-color: rgba(255, 255, 255, 0.05) !important;
+    }
+  }
+</style>

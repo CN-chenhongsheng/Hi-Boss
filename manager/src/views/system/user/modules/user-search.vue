@@ -63,10 +63,10 @@
       props: { placeholder: '请输入手机号', maxlength: '11', clearable: true }
     },
     {
-      label: '学院',
-      key: 'college',
+      label: '管理范围',
+      key: 'manageScope',
       type: 'input',
-      props: { placeholder: '请输入学院', clearable: true }
+      props: { placeholder: '请输入管理范围', clearable: true }
     },
     {
       label: '状态',

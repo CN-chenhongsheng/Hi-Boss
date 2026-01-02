@@ -85,7 +85,7 @@ declare namespace Api {
       avatar?: string
       email?: string
       phone?: string
-      college?: string
+      manageScope?: string
       roles: string[]
       permissions: string[]
     }
@@ -98,7 +98,7 @@ declare namespace Api {
       avatar?: string
       email?: string
       phone?: string
-      college?: string
+      manageScope?: string
       status: number
       statusText?: string
       gender?: number
@@ -112,6 +112,7 @@ declare namespace Api {
       createTime?: string
       updateTime?: string
       lastLoginTime?: string
+      isOnline?: boolean
     }
 
     /** 用户简单信息 */
@@ -158,7 +159,7 @@ declare namespace Api {
       username?: string
       nickname?: string
       phone?: string
-      college?: string
+      manageScope?: string
       status?: number
       pageNum?: number
       pageSize?: number
@@ -173,7 +174,7 @@ declare namespace Api {
       avatar?: string
       email?: string
       phone?: string
-      college?: string
+      manageScope?: string
       status?: number
       roleIds?: number[]
     }
@@ -202,7 +203,7 @@ declare namespace Api {
       avatar?: string
       email?: string
       phone?: string
-      college?: string
+      manageScope?: string
       status: number
       statusText?: string
       gender?: number
@@ -216,6 +217,7 @@ declare namespace Api {
       createTime?: string
       updateTime?: string
       lastLoginTime?: string
+      isOnline?: boolean
       // 兼容旧字段
       userName?: string
       userGender?: string

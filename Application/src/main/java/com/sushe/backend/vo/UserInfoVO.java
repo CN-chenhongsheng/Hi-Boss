@@ -39,8 +39,8 @@ public class UserInfoVO {
     @Schema(description = "手机号")
     private String phone;
 
-    @Schema(description = "所属学院")
-    private String college;
+    @Schema(description = "管理范围")
+    private String manageScope;
 
     @Schema(description = "角色编码列表")
     private List<String> roles;

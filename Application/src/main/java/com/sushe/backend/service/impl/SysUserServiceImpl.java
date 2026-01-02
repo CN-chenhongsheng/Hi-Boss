@@ -22,6 +22,7 @@ import com.sushe.backend.mapper.SysRoleMapper;
 import com.sushe.backend.mapper.SysUserMapper;
 import com.sushe.backend.mapper.SysUserRoleMapper;
 import com.sushe.backend.service.SysUserService;
+import com.sushe.backend.service.UserOnlineService;
 import com.sushe.backend.util.BusinessRuleUtils;
 import com.sushe.backend.util.DictUtils;
 import com.sushe.backend.vo.UserSimpleVO;
@@ -50,6 +51,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 
     private final SysUserRoleMapper userRoleMapper;
     private final SysRoleMapper roleMapper;
+    private final UserOnlineService userOnlineService;
 
     /**
      * 分页查询用户列表
@@ -61,7 +63,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         wrapper.like(StrUtil.isNotBlank(queryDTO.getUsername()), SysUser::getUsername, queryDTO.getUsername())
                .like(StrUtil.isNotBlank(queryDTO.getNickname()), SysUser::getNickname, queryDTO.getNickname())
                .like(StrUtil.isNotBlank(queryDTO.getPhone()), SysUser::getPhone, queryDTO.getPhone())
-               .eq(StrUtil.isNotBlank(queryDTO.getCollege()), SysUser::getCollege, queryDTO.getCollege())
+               .eq(StrUtil.isNotBlank(queryDTO.getManageScope()), SysUser::getManageScope, queryDTO.getManageScope())
                .eq(queryDTO.getStatus() != null, SysUser::getStatus, queryDTO.getStatus())
                .orderByDesc(SysUser::getCreateTime);
 
@@ -285,6 +287,9 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         // 查询用户角色信息
         vo.setRoleIds(roleMapper.selectRoleIdsByUserId(user.getId()));
         vo.setRoleNames(roleMapper.selectRoleNamesByUserId(user.getId()));
+
+        // 在线状态
+        vo.setIsOnline(userOnlineService.isUserOnline(user.getId()));
 
         return vo;
     }

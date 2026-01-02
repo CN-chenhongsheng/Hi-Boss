@@ -90,7 +90,7 @@
       type: 'select',
       props: {
         placeholder: '请选择业务类型',
-        options: businessTypeOptions,
+        options: businessTypeOptions.value,
         clearable: true
       }
     },

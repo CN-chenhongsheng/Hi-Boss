@@ -176,7 +176,7 @@
         {
           prop: 'sort',
           label: '排序',
-          width: 80,
+          width: 85,
           sortable: true
         },
         {

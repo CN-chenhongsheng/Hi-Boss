@@ -75,10 +75,14 @@
   import { ElTag, ElMessageBox, ElImage } from 'element-plus'
   import ArtSwitch from '@/components/core/forms/art-switch/index.vue'
   import { DialogType } from '@/types'
+  import { useUserOnlineStatus } from '@/hooks/core/useUserOnlineStatus'
+  import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
 
   defineOptions({ name: 'User' })
 
   type UserListItem = Api.SystemManage.UserListItem
+
+  const { onlineStatusMap } = useUserOnlineStatus()
 
   const showSearchBar = ref(false)
   const dialogType = ref<DialogType>('add')
@@ -95,7 +99,7 @@
     username: undefined,
     nickname: undefined,
     phone: undefined,
-    college: undefined,
+    manageScope: undefined,
     status: undefined
   })
 
@@ -133,10 +137,11 @@
         {
           prop: 'userInfo',
           label: '用户信息',
+          minWidth: 250,
           formatter: (row) => {
             return h('div', { class: 'user flex-c' }, [
               h(ElImage, {
-                class: 'size-9.5 rounded-md',
+                class: 'size-9.5 rounded-full',
                 src: row.avatar || '/default-avatar.png',
                 previewSrcList: [row.avatar || '/default-avatar.png'],
                 previewTeleported: true
@@ -149,13 +154,31 @@
           }
         },
         {
+          prop: 'genderText',
+          label: '性别',
+          width: 80,
+          formatter: (row) => {
+            const genderIcon = {
+              1: 'ri-men-line',
+              2: 'ri-women-line'
+            }
+            return h('div', { class: 'flex items-center gap-1' }, [
+              h('span', { class: 'text-g-700 text-sm' }, row.genderText),
+              h(ArtSvgIcon, {
+                icon: genderIcon[row.gender as keyof typeof genderIcon] as string,
+                class: `text-g-700 text-md ${row.gender === 1 ? 'text-primary' : 'text-pink-500'}`
+              })
+            ])
+          }
+        },
+        {
           prop: 'phone',
           label: '手机号',
           width: 125
         },
         {
-          prop: 'college',
-          label: '所属学院',
+          prop: 'manageScope',
+          label: '管理范围',
           width: 150
         },
         {
@@ -182,8 +205,20 @@
           }
         },
         {
+          prop: 'onlineStatus',
+          label: '在线状态',
+          width: 100,
+          formatter: (row) => {
+            const isOnline = onlineStatusMap.value[row.id] ?? (row as any).isOnline
+            console.log('isOnline', isOnline)
+            return h(ElTag, { type: isOnline ? 'success' : 'info', size: 'small' }, () =>
+              isOnline ? '在线' : '离线'
+            )
+          }
+        },
+        {
           prop: 'status',
-          label: '状态',
+          label: '系统状态',
           width: 100,
           formatter: (row) => {
             const isSuperAdmin = row.username === 'superAdmin'
@@ -213,7 +248,7 @@
         {
           prop: 'action',
           label: '操作',
-          width: 200,
+          width: 180,
           fixed: 'right',
           formatter: (row) => [
             { type: 'edit', onClick: () => showDialog('edit', row), auth: 'system:user:edit' },

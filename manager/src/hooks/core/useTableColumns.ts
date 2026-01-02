@@ -32,8 +32,9 @@
  * @author HongSheng_Chen Team
  */
 
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, h } from 'vue'
 import { $t } from '@/locales'
+import { ElTooltip } from 'element-plus'
 import type { ColumnOption } from '@/types/component'
 import { isActionButtonConfig, renderActionButtons } from '@/utils/table/actionButtons'
 
@@ -177,25 +178,45 @@ export function useTableColumns<T = any>(
       .map((c) => colMap.get(getColumnKey(c)))
       .filter(Boolean) as ColumnOption<T>[]
 
-    // 自动处理操作列的 formatter
+    // 自动处理操作列的 formatter 和表头提示
     return visibleColumns.map((col) => {
-      // 如果是操作列且有 formatter
-      if (col.prop === 'action' && col.formatter) {
-        const originalFormatter = col.formatter
-        return {
-          ...col,
-          formatter: (row: T) => {
-            const result = originalFormatter(row)
-            // 如果 formatter 返回的是按钮配置数组，自动渲染
-            if (isActionButtonConfig(result)) {
-              return renderActionButtons(result)
-            }
-            // 否则返回原始结果
-            return result
-          }
+      let processedCol = { ...col }
+
+      // 1. 处理表头提示 (labelTooltip)
+      if (processedCol.labelTooltip) {
+        const originalLabel = processedCol.label
+        processedCol.renderHeader = () => {
+          return h('div', { class: 'flex items-center justify-center gap-1' }, [
+            h('span', originalLabel),
+            h(
+              ElTooltip,
+              {
+                content: processedCol.labelTooltip,
+                placement: 'top'
+              },
+              {
+                default: () =>
+                  h('i', { class: 'i-ri:question-line text-gray-400 cursor-help text-sm' })
+              }
+            )
+          ])
         }
       }
-      return col
+
+      // 2. 处理操作列
+      if (processedCol.prop === 'action' && processedCol.formatter) {
+        const originalFormatter = processedCol.formatter
+        processedCol.formatter = (row: T) => {
+          const result = originalFormatter(row)
+          // 如果 formatter 返回的是按钮配置数组，自动渲染
+          if (isActionButtonConfig(result)) {
+            return renderActionButtons(result)
+          }
+          // 否则返回原始结果
+          return result
+        }
+      }
+      return processedCol
     })
   })
 

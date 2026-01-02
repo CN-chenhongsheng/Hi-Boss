@@ -45,9 +45,9 @@ public class SysUser extends BaseEntity {
     @TableField("phone")
     private String phone;
 
-    @Schema(description = "所属学院（辅导员、院系管理员）")
-    @TableField("college")
-    private String college;
+    @Schema(description = "管理范围")
+    @TableField("manage_scope")
+    private String manageScope;
 
     @Schema(description = "状态：1正常 0停用")
     @TableField("status")

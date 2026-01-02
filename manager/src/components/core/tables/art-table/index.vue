@@ -26,14 +26,21 @@
 
         <!-- 渲染普通列 -->
         <ElTableColumn v-else v-bind="cleanColumnProps(col)">
-          <template v-if="col.useHeaderSlot && col.prop" #header="headerScope">
+          <template v-if="col.renderHeader || col.useHeaderSlot" #header="headerScope">
+            <component :is="col.renderHeader(headerScope)" v-if="col.renderHeader" />
             <slot
+              v-else
               :name="col.headerSlotName || `${col.prop}-header`"
               v-bind="{ ...headerScope, prop: col.prop, label: col.label }"
             >
               {{ col.label }}
             </slot>
           </template>
+
+          <template v-if="col.renderFilter" #filter="filterScope">
+            <component :is="col.renderFilter(filterScope)" />
+          </template>
+
           <template v-if="col.useSlot && col.prop" #default="slotScope">
             <slot
               :name="col.slotName || col.prop"
@@ -255,11 +262,12 @@
   // 清理列属性，移除插槽相关的自定义属性，确保它们不会被 ElTableColumn 错误解释
   const cleanColumnProps = (col: ColumnOption) => {
     const columnProps = { ...col }
-    // 删除自定义的插槽控制属性
+    // 删除自定义的插槽控制属性（但保留 renderFilter 和 renderHeader）
     delete columnProps.useHeaderSlot
     delete columnProps.headerSlotName
     delete columnProps.useSlot
     delete columnProps.slotName
+    // 注意：renderFilter 和 renderHeader 需要保留，它们会在模板中使用
     return columnProps
   }
 
