@@ -174,6 +174,7 @@ declare namespace Api {
       avatar?: string
       email?: string
       phone?: string
+      gender?: number
       manageScope?: string
       status?: number
       roleIds?: number[]
@@ -203,6 +204,8 @@ declare namespace Api {
       avatar?: string
       email?: string
       phone?: string
+      gender?: number
+      genderText?: string
       manageScope?: string
       status: number
       statusText?: string
@@ -638,6 +641,24 @@ declare namespace Api {
       current: number
       size: number
       total: number
+    }
+
+    /** ==================== 学校层级管理 ==================== */
+
+    /** 层级树节点 */
+    interface SchoolHierarchyNode {
+      id: number
+      code: string
+      name: string
+      type: 'campus' | 'department' | 'major' | 'class'
+      parentCode?: string
+      status: number
+      children?: SchoolHierarchyNode[]
+    }
+
+    /** 学校层级树响应 */
+    interface SchoolHierarchyResponse {
+      campuses: SchoolHierarchyNode[]
     }
 
     /** ==================== 操作日志管理 ==================== */

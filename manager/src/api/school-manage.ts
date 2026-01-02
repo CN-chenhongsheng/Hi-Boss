@@ -362,3 +362,15 @@ export function fetchUpdateClassStatus(id: number, status: number) {
     showSuccessMessage: true
   })
 }
+
+/** ==================== 学校层级管理 ==================== */
+
+/**
+ * 获取完整的学校层级树
+ * 包含校区、院系、专业、班级的完整层级结构
+ */
+export function fetchGetSchoolHierarchy() {
+  return request.get<Api.SystemManage.SchoolHierarchyResponse>({
+    url: '/api/v1/system/school/hierarchy'
+  })
+}

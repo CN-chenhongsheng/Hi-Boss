@@ -57,6 +57,13 @@
         :user-data="currentUserData"
         @submit="handleDialogSubmit"
       />
+
+      <!-- 管理范围分配弹窗 -->
+      <UserScopeDialog
+        v-model:visible="scopeDialogVisible"
+        :user-data="currentScopeUser"
+        @submit="handleScopeSubmit"
+      />
     </ElCard>
   </div>
 </template>
@@ -68,15 +75,18 @@
     fetchGetUserList,
     fetchDeleteUser,
     fetchUpdateUserStatus,
-    fetchResetUserPassword
+    fetchResetUserPassword,
+    fetchUpdateUser
   } from '@/api/system-manage'
   import UserSearch from './modules/user-search.vue'
   import UserDialog from './modules/user-dialog.vue'
-  import { ElTag, ElMessageBox, ElImage } from 'element-plus'
+  import UserScopeDialog from './modules/user-scope-dialog.vue'
+  import { ElTag, ElMessageBox, ElImage, ElMessage } from 'element-plus'
   import ArtSwitch from '@/components/core/forms/art-switch/index.vue'
   import { DialogType } from '@/types'
   import { useUserOnlineStatus } from '@/hooks/core/useUserOnlineStatus'
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
+  import { formatManageScopeSync } from '@/utils/school/scopeFormatter'
 
   defineOptions({ name: 'User' })
 
@@ -84,10 +94,19 @@
 
   const { onlineStatusMap } = useUserOnlineStatus()
 
+  // 预加载节点名称缓存（在后台异步加载）
+  import('@/utils/school/scopeFormatter').then((module) => {
+    module.formatManageScope('').catch(() => {
+      // 静默失败，不影响页面显示
+    })
+  })
+
   const showSearchBar = ref(false)
   const dialogType = ref<DialogType>('add')
   const dialogVisible = ref(false)
   const currentUserData = ref<Partial<UserListItem>>({})
+  const scopeDialogVisible = ref(false)
+  const currentScopeUser = ref<Partial<UserListItem>>({})
 
   // 选中行
   const selectedRows = ref<UserListItem[]>([])
@@ -179,14 +198,30 @@
         {
           prop: 'manageScope',
           label: '管理范围',
-          width: 150
+          width: 150,
+          formatter: (row) => {
+            const formatted = formatManageScopeSync(row.manageScope)
+            // 将字符串按"、"拆分，每个部分作为一个 tag
+            const parts = formatted.split('、').filter((part) => part.trim())
+
+            if (parts.length === 0 || formatted === '未设置' || formatted === '格式错误') {
+              return h(ElTag, { type: 'info', size: 'small' }, () => formatted || '未设置')
+            }
+
+            return h(
+              'div',
+              { class: 'flex gap-1 flex-wrap' },
+              parts.map((part: string) =>
+                h(ElTag, { size: 'small', type: 'primary' }, () => part.trim())
+              )
+            )
+          }
         },
         {
           prop: 'roleNames',
           label: '角色',
           width: 200,
           formatter: (row) => {
-            // roleNames can be either string array or comma-separated string
             const roleList = Array.isArray(row.roleNames)
               ? row.roleNames
               : row.roleNames
@@ -195,13 +230,12 @@
             if (roleList.length === 0) {
               return h('span', { class: 'text-gray-400' }, '暂无角色')
             }
-            return h(
-              'div',
-              { class: 'flex gap-1 flex-wrap' },
-              roleList.map((roleName: string) =>
-                h(ElTag, { size: 'small', type: 'primary' }, () => roleName)
-              )
-            )
+            // 最多只显示一个角色 tag，如果有多个角色，显示第一个 + 剩余数量
+            const tags = [h(ElTag, { size: 'small', type: 'primary' }, () => roleList[0])]
+            if (roleList.length > 1) {
+              tags.push(h(ElTag, { size: 'small', type: 'info' }, () => `+${roleList.length - 1}`))
+            }
+            return h('div', { class: 'flex gap-1 flex-wrap' }, tags)
           }
         },
         {
@@ -210,7 +244,6 @@
           width: 100,
           formatter: (row) => {
             const isOnline = onlineStatusMap.value[row.id] ?? (row as any).isOnline
-            console.log('isOnline', isOnline)
             return h(ElTag, { type: isOnline ? 'success' : 'info', size: 'small' }, () =>
               isOnline ? '在线' : '离线'
             )
@@ -251,6 +284,12 @@
           width: 180,
           fixed: 'right',
           formatter: (row) => [
+            {
+              type: 'share',
+              label: '分配',
+              onClick: () => showScopeDialog(row),
+              auth: 'system:user:assign-scope'
+            },
             { type: 'edit', onClick: () => showDialog('edit', row), auth: 'system:user:edit' },
             {
               type: 'reset',
@@ -424,6 +463,47 @@
       await refreshCreate()
     } else {
       await refreshUpdate()
+    }
+  }
+
+  /**
+   * 显示管理范围分配对话框
+   */
+  const showScopeDialog = (row: UserListItem): void => {
+    currentScopeUser.value = { ...row }
+    nextTick(() => {
+      scopeDialogVisible.value = true
+    })
+  }
+
+  /**
+   * 处理管理范围分配提交
+   */
+  const handleScopeSubmit = async (manageScope: string): Promise<void> => {
+    if (!currentScopeUser.value.id) {
+      ElMessage.error('用户ID不存在')
+      return
+    }
+
+    try {
+      // 使用完整的用户数据，只更新 manageScope 字段
+      const updateData: Api.SystemManage.UserSaveParams = {
+        id: currentScopeUser.value.id,
+        username: currentScopeUser.value.username || '',
+        nickname: currentScopeUser.value.nickname || '',
+        email: currentScopeUser.value.email,
+        phone: currentScopeUser.value.phone,
+        gender: currentScopeUser.value.gender,
+        status: currentScopeUser.value.status,
+        roleIds: currentScopeUser.value.roleIds,
+        manageScope // 更新管理范围
+      }
+
+      await fetchUpdateUser(currentScopeUser.value.id, updateData)
+      await refreshUpdate()
+    } catch (error) {
+      console.error('分配管理范围失败:', error)
+      ElMessage.error('分配管理范围失败，请稍后重试')
     }
   }
 

@@ -24,7 +24,9 @@ const BUTTON_LABELS: Record<string, string> = {
   delete: '删除',
   detail: '详情',
   download: '下载',
-  upload: '上传'
+  upload: '上传',
+  assign: '分配',
+  reset: '重置'
 }
 
 /**
@@ -37,7 +39,9 @@ const BUTTON_ICONS: Record<string, string> = {
   delete: 'ri:delete-bin-line',
   detail: 'ri:file-list-line',
   download: 'ri:download-line',
-  upload: 'ri:upload-line'
+  upload: 'ri:upload-line',
+  assign: 'ri:user-settings-line',
+  reset: 'ri:refresh-line'
 }
 
 /**

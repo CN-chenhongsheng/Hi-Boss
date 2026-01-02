@@ -48,11 +48,6 @@
             <ElInput v-model="formData.phone" placeholder="请输入手机号" maxlength="11" />
           </ElFormItem>
         </ElCol>
-        <ElCol :span="12">
-          <ElFormItem label="管理范围" prop="manageScope">
-            <ElInput v-model="formData.manageScope" placeholder="请输入管理范围" />
-          </ElFormItem>
-        </ElCol>
       </ElRow>
 
       <ElRow :gutter="20">
@@ -146,7 +141,6 @@
     password: '',
     email: '',
     phone: '',
-    manageScope: '',
     status: 1,
     roleIds: []
   })
@@ -205,7 +199,6 @@
         password: '', // 编辑时密码为空
         email: row.email || '',
         phone: row.phone || '',
-        manageScope: row.manageScope || '',
         status: row.status ?? 1,
         roleIds: row.roleIds || []
       })
@@ -218,7 +211,6 @@
         password: '',
         email: '',
         phone: '',
-        manageScope: '',
         status: 1,
         roleIds: []
       })
