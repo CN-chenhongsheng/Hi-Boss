@@ -12,9 +12,11 @@ import com.sushe.backend.dto.role.RoleSaveDTO;
 import com.sushe.backend.entity.SysMenu;
 import com.sushe.backend.entity.SysRole;
 import com.sushe.backend.entity.SysRoleMenu;
+import com.sushe.backend.entity.SysUserRole;
 import com.sushe.backend.mapper.SysMenuMapper;
 import com.sushe.backend.mapper.SysRoleMapper;
 import com.sushe.backend.mapper.SysRoleMenuMapper;
+import com.sushe.backend.mapper.SysUserRoleMapper;
 import com.sushe.backend.service.SysRoleService;
 import com.sushe.backend.util.BusinessRuleUtils;
 import com.sushe.backend.util.DictUtils;
@@ -42,6 +44,7 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole> impl
 
     private final SysRoleMenuMapper roleMenuMapper;
     private final SysMenuMapper menuMapper;
+    private final SysUserRoleMapper userRoleMapper;
 
     /**
      * 分页查询角色列表
@@ -163,10 +166,16 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole> impl
         // 不能删除超级管理员角色
         BusinessRuleUtils.validateNotSuperAdminRole(role.getRoleCode(), "不能删除超级管理员角色");
 
-        // TODO: 检查是否有用户使用该角色
-        // 如果有用户使用，则不允许删除
+        // 删除用户角色关联
+        LambdaQueryWrapper<SysUserRole> userRoleWrapper = new LambdaQueryWrapper<>();
+        userRoleWrapper.eq(SysUserRole::getRoleId, id);
+        int deletedUserRoles = userRoleMapper.delete(userRoleWrapper);
+        log.info("删除角色时，清理用户角色关联 {} 条", deletedUserRoles);
 
-        // TODO: 删除角色菜单关联
+        // 删除角色菜单关联
+        LambdaQueryWrapper<SysRoleMenu> roleMenuWrapper = new LambdaQueryWrapper<>();
+        roleMenuWrapper.eq(SysRoleMenu::getRoleId, id);
+        roleMenuMapper.delete(roleMenuWrapper);
 
         return removeById(id);
     }
@@ -189,7 +198,16 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole> impl
             }
         }
 
-        // TODO: 批量检查是否有用户使用这些角色
+        // 批量删除用户角色关联
+        LambdaQueryWrapper<SysUserRole> userRoleWrapper = new LambdaQueryWrapper<>();
+        userRoleWrapper.in(SysUserRole::getRoleId, Arrays.asList(ids));
+        int deletedUserRoles = userRoleMapper.delete(userRoleWrapper);
+        log.info("批量删除角色时，清理用户角色关联 {} 条", deletedUserRoles);
+
+        // 批量删除角色菜单关联
+        LambdaQueryWrapper<SysRoleMenu> roleMenuWrapper = new LambdaQueryWrapper<>();
+        roleMenuWrapper.in(SysRoleMenu::getRoleId, Arrays.asList(ids));
+        roleMenuMapper.delete(roleMenuWrapper);
 
         return removeByIds(Arrays.asList(ids));
     }
@@ -298,6 +316,14 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole> impl
 
         // 使用通用工具类验证超级管理员角色状态
         BusinessRuleUtils.validateSuperAdminRoleStatus(role.getRoleCode(), status);
+
+        // 如果是停用角色，删除所有用户与该角色的关联
+        if (status != null && status == 0) {
+            LambdaQueryWrapper<SysUserRole> wrapper = new LambdaQueryWrapper<>();
+            wrapper.eq(SysUserRole::getRoleId, id);
+            int deletedCount = userRoleMapper.delete(wrapper);
+            log.info("角色停用，已清理 {} 条用户角色关联", deletedCount);
+        }
 
         role.setStatus(status);
         return updateById(role);

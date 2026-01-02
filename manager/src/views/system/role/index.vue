@@ -256,13 +256,19 @@
     }
 
     try {
-      await ElMessageBox.confirm(`确定删除角色"${row.roleName}"吗？此操作不可恢复！`, '删除确认', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      })
+      await ElMessageBox.confirm(
+        `确定要删除角色"${row.roleName}"吗？<br/>提示：删除角色后，该角色下的所有用户关联也会被删除。`,
+        '删除确认',
+        {
+          type: 'warning',
+          confirmButtonText: '确定删除',
+          cancelButtonText: '取消',
+          dangerouslyUseHTMLString: true
+        }
+      )
 
       await fetchDeleteRole(row.id)
+      ElMessage.success('删除成功')
       await refreshRemove()
     } catch (error) {
       if (error !== 'cancel') {
@@ -289,12 +295,13 @@
 
     try {
       await ElMessageBox.confirm(
-        `确定要删除选中的 ${selectedRows.value.length} 个角色吗？此操作不可恢复！`,
+        `确定要删除选中的 ${selectedRows.value.length} 个角色吗？<br/>提示：删除角色后，这些角色下的所有用户关联也会被删除。`,
         '批量删除',
         {
-          confirmButtonText: '确定',
+          type: 'warning',
+          confirmButtonText: '确定删除',
           cancelButtonText: '取消',
-          type: 'warning'
+          dangerouslyUseHTMLString: true
         }
       )
 
@@ -329,6 +336,25 @@
     if (row.roleCode === 'SUPER_ADMIN' && !value) {
       ElMessage.warning('超级管理员角色不允许停用')
       return
+    }
+
+    // 如果是关闭操作（从启用变为停用），需要提示用户级联影响
+    if (!value && row.status === 1) {
+      try {
+        await ElMessageBox.confirm(
+          `确定要停用角色"${row.roleName}"吗？<br/>提示：停用角色后，该角色下的所有用户关联也会被删除。`,
+          '确认停用',
+          {
+            type: 'warning',
+            confirmButtonText: '确认停用',
+            cancelButtonText: '取消',
+            dangerouslyUseHTMLString: true
+          }
+        )
+      } catch {
+        // 用户取消操作，不执行任何更改
+        return
+      }
     }
 
     const originalStatus = row.status
