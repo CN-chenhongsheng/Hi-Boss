@@ -1,21 +1,51 @@
 <!-- LogicFlow 流程图组件 -->
 <template>
-  <div
-    ref="containerRef"
-    class="art-logic-flow-container"
-    :class="{ readonly: props.readonly }"
-    :style="containerStyle"
-  ></div>
+  <div ref="wrapperRef" class="art-logic-flow-wrapper" :class="{ 'is-fullscreen': isFullscreen }">
+    <div
+      ref="containerRef"
+      class="art-logic-flow-container"
+      :class="{ readonly: props.readonly }"
+      :style="containerStyle"
+    ></div>
+
+    <!-- 工具栏 -->
+    <LogicFlowToolbar
+      v-if="showToolbar"
+      :show-zoom-in="props.showZoomIn"
+      :show-zoom-out="props.showZoomOut"
+      :show-reset-zoom="props.showResetZoom"
+      :show-fit-view="props.showFitView"
+      :show-undo="props.showUndo"
+      :show-redo="props.showRedo"
+      :show-mini-map="props.showMiniMap"
+      :show-fullscreen="props.showFullscreen"
+      :show-export="props.showExport"
+      :mini-map-visible="miniMapVisible"
+      :is-fullscreen="isFullscreen"
+      @zoom-in="handleZoomIn"
+      @zoom-out="handleZoomOut"
+      @reset-zoom="handleResetZoom"
+      @fit-view="handleFitView"
+      @undo="handleUndo"
+      @redo="handleRedo"
+      @toggle-minimap="handleToggleMiniMap"
+      @toggle-fullscreen="handleToggleFullscreen"
+      @export-image="handleExportImage"
+    />
+  </div>
 </template>
 
 <script setup lang="ts">
   import LogicFlow from '@logicflow/core'
   import '@logicflow/core/dist/index.css'
+  import { MiniMap, Snapshot } from '@logicflow/extension'
+  import '@logicflow/extension/lib/style/index.css'
   import { onMounted, onUnmounted, watch, nextTick } from 'vue'
-  import { useWindowSize } from '@vueuse/core'
+  import { useWindowSize, useFullscreen } from '@vueuse/core'
   import { useSettingStore } from '@/store/modules/setting'
   import { storeToRefs } from 'pinia'
   import { SystemThemeEnum } from '@/enums/appEnum'
+  import { ElMessage } from 'element-plus'
   import type {
     LogicFlowData,
     LogicFlowConfig,
@@ -24,8 +54,9 @@
     DataChangeEvent
   } from './types'
   import { getDefaultConfig, getReadonlyConfig, getDarkThemeConfig } from './config'
-  import { validateLogicFlowData } from './utils'
+  import { validateLogicFlowData, autoLayout } from './utils'
   import { registerGlassNode } from './custom-nodes'
+  import LogicFlowToolbar from './toolbar.vue'
 
   defineOptions({ name: 'ArtLogicFlow' })
 
@@ -44,6 +75,32 @@
     width?: string | number
     /** 是否自适应容器大小 */
     autoResize?: boolean
+    /** 是否显示工具栏 */
+    showToolbar?: boolean
+    /** 是否显示放大按钮 */
+    showZoomIn?: boolean
+    /** 是否显示缩小按钮 */
+    showZoomOut?: boolean
+    /** 是否显示重置缩放按钮 */
+    showResetZoom?: boolean
+    /** 是否显示适应视图按钮 */
+    showFitView?: boolean
+    /** 是否显示撤销按钮 */
+    showUndo?: boolean
+    /** 是否显示重做按钮 */
+    showRedo?: boolean
+    /** 是否显示小地图按钮 */
+    showMiniMap?: boolean
+    /** 是否显示全屏按钮 */
+    showFullscreen?: boolean
+    /** 是否显示导出图片按钮 */
+    showExport?: boolean
+    /** 布局方向：'vertical' 从上到下，'horizontal' 从左到右 */
+    layoutDirection?: 'vertical' | 'horizontal'
+    /** 节点水平间距（用于布局） */
+    nodeSpacingX?: number
+    /** 节点垂直间距（用于布局） */
+    nodeSpacingY?: number
   }
 
   const props = withDefaults(defineProps<Props>(), {
@@ -53,7 +110,20 @@
     allowEdgeAdjustment: true,
     height: '600px',
     width: '100%',
-    autoResize: true
+    autoResize: true,
+    showToolbar: true,
+    showZoomIn: true,
+    showZoomOut: true,
+    showResetZoom: true,
+    showFitView: true,
+    showUndo: true,
+    showRedo: true,
+    showMiniMap: true,
+    showFullscreen: true,
+    showExport: true,
+    layoutDirection: undefined,
+    nodeSpacingX: 250,
+    nodeSpacingY: 120
   })
 
   interface Emits {
@@ -68,11 +138,20 @@
 
   const emit = defineEmits<Emits>()
 
+  const wrapperRef = ref<HTMLDivElement>()
   const containerRef = ref<HTMLDivElement>()
   let lfInstance: LogicFlow | null = null
   const { width: windowWidth, height: windowHeight } = useWindowSize()
   const settingStore = useSettingStore()
   const { systemThemeType } = storeToRefs(settingStore)
+
+  const miniMapVisible = ref(false)
+  const { isFullscreen, toggle: toggleFullscreen } = useFullscreen(wrapperRef)
+
+  // 历史记录栈
+  const historyStack = ref<LogicFlowData[]>([])
+  const historyIndex = ref(-1)
+  const isHistoryAction = ref(false)
 
   // 容器样式
   const containerStyle = computed(() => {
@@ -120,6 +199,11 @@
     await nextTick()
 
     const config = getMergedConfig()
+
+    // 注册插件
+    LogicFlow.use(Snapshot)
+    LogicFlow.use(MiniMap)
+
     lfInstance = new LogicFlow(config)
 
     // 注册自定义节点
@@ -132,10 +216,23 @@
     if (props.data && props.data.nodes.length > 0) {
       const validation = validateLogicFlowData(props.data)
       if (validation.valid) {
-        lfInstance.render(props.data)
+        // 如果指定了布局方向，先进行自动布局
+        let dataToRender = props.data
+        if (props.layoutDirection) {
+          dataToRender = autoLayout(props.data, {
+            direction: props.layoutDirection,
+            nodeSpacingX: props.nodeSpacingX,
+            nodeSpacingY: props.nodeSpacingY,
+            startX: 100,
+            startY: 100
+          })
+        }
+        lfInstance.render(dataToRender)
         // 渲染后自动居中适应视图
         await nextTick()
         lfInstance.fitView(50) // 50px 边距
+        // 初始化历史记录
+        saveToHistory()
       } else {
         console.warn('[ArtLogicFlow] 数据验证失败:', validation.errors)
       }
@@ -186,6 +283,39 @@
     lfInstance.on('node:mousemove', () => {
       emitDataChange('move')
     })
+
+    // 节点拖拽开始
+    lfInstance.on('node:dragstart', () => {
+      // 添加全局 mouseup 监听，确保在容器外部也能结束拖拽
+      document.addEventListener('mouseup', handleGlobalMouseUp, true)
+    })
+
+    // 节点拖拽结束
+    lfInstance.on('node:dragend', () => {
+      // 移除全局 mouseup 监听
+      document.removeEventListener('mouseup', handleGlobalMouseUp, true)
+    })
+  }
+
+  /**
+   * 处理全局 mouseup 事件，确保拖拽能正确结束
+   */
+  const handleGlobalMouseUp = () => {
+    if (!lfInstance) return
+
+    // 如果 LogicFlow 正在拖拽，强制结束拖拽
+    const graphModel = (lfInstance as any).graphModel
+    if (graphModel && graphModel.dragNode) {
+      // 清除拖拽状态
+      graphModel.dragNode = null
+      // 触发拖拽结束事件
+      lfInstance.emit('node:dragend', {})
+      // 移除全局监听
+      document.removeEventListener('mouseup', handleGlobalMouseUp, true)
+    } else {
+      // 如果没有拖拽状态，也移除监听（防止内存泄漏）
+      document.removeEventListener('mouseup', handleGlobalMouseUp, true)
+    }
   }
 
   /**
@@ -195,6 +325,10 @@
     if (!lfInstance) return
     const data = lfInstance.getGraphData() as any as LogicFlowData
     emit('data:change', { data, type })
+    // 保存历史记录（非移动操作）
+    if (type !== 'move') {
+      saveToHistory()
+    }
   }
 
   /**
@@ -221,7 +355,18 @@
       if (!lfInstance || !newData) return
       const validation = validateLogicFlowData(newData)
       if (validation.valid) {
-        lfInstance.render(newData)
+        // 如果指定了布局方向，先进行自动布局
+        let dataToRender = newData
+        if (props.layoutDirection) {
+          dataToRender = autoLayout(newData, {
+            direction: props.layoutDirection,
+            nodeSpacingX: props.nodeSpacingX,
+            nodeSpacingY: props.nodeSpacingY,
+            startX: 100,
+            startY: 100
+          })
+        }
+        lfInstance.render(dataToRender)
         // 渲染后自动居中
         await nextTick()
         lfInstance.fitView(50)
@@ -243,6 +388,132 @@
       }
     }
   )
+
+  // 监听布局方向变化
+  watch(
+    () => [props.layoutDirection, props.nodeSpacingX, props.nodeSpacingY],
+    async () => {
+      if (!lfInstance || !props.data || !props.layoutDirection) return
+      const validation = validateLogicFlowData(props.data)
+      if (validation.valid) {
+        const dataToRender = autoLayout(props.data, {
+          direction: props.layoutDirection,
+          nodeSpacingX: props.nodeSpacingX,
+          nodeSpacingY: props.nodeSpacingY,
+          startX: 100,
+          startY: 100
+        })
+        lfInstance.render(dataToRender)
+        await nextTick()
+        lfInstance.fitView(50)
+      }
+    }
+  )
+
+  // ============ 历史记录管理 ============
+
+  /**
+   * 保存到历史记录
+   */
+  const saveToHistory = () => {
+    if (!lfInstance || isHistoryAction.value) return
+
+    const data = lfInstance.getGraphData() as any as LogicFlowData
+    // 删除当前位置之后的历史记录
+    historyStack.value = historyStack.value.slice(0, historyIndex.value + 1)
+    // 添加新记录
+    historyStack.value.push(JSON.parse(JSON.stringify(data)))
+    historyIndex.value = historyStack.value.length - 1
+  }
+
+  // ============ 工具栏事件处理 ============
+
+  const handleZoomIn = () => {
+    if (!lfInstance) return
+    lfInstance.zoom(true)
+  }
+
+  const handleZoomOut = () => {
+    if (!lfInstance) return
+    lfInstance.zoom(false)
+  }
+
+  const handleResetZoom = () => {
+    if (!lfInstance) return
+    lfInstance.resetZoom()
+  }
+
+  const handleFitView = () => {
+    if (!lfInstance) return
+    lfInstance.fitView(50)
+  }
+
+  const handleUndo = () => {
+    if (!lfInstance || historyIndex.value <= 0) return
+
+    isHistoryAction.value = true
+    historyIndex.value--
+    const data = historyStack.value[historyIndex.value]
+    lfInstance.render(data)
+    nextTick(() => {
+      isHistoryAction.value = false
+    })
+  }
+
+  const handleRedo = () => {
+    if (!lfInstance || historyIndex.value >= historyStack.value.length - 1) return
+
+    isHistoryAction.value = true
+    historyIndex.value++
+    const data = historyStack.value[historyIndex.value]
+    lfInstance.render(data)
+    nextTick(() => {
+      isHistoryAction.value = false
+    })
+  }
+
+  const handleToggleMiniMap = () => {
+    miniMapVisible.value = !miniMapVisible.value
+    if (lfInstance) {
+      const extension = lfInstance.extension as any
+      if (extension?.miniMap) {
+        if (miniMapVisible.value) {
+          extension.miniMap.show()
+        } else {
+          extension.miniMap.hide()
+        }
+      }
+    }
+  }
+
+  const handleToggleFullscreen = () => {
+    toggleFullscreen()
+  }
+
+  const handleExportImage = async () => {
+    if (!lfInstance) return
+
+    try {
+      const extension = lfInstance.extension as any
+      if (extension?.snapshot) {
+        extension.snapshot.getSnapshot('logicflow-export', 'png')
+        ElMessage.success('图片导出成功')
+      } else {
+        // 备用方案：使用 getSnapshot 方法
+        const snapshot = (lfInstance as any).getSnapshot?.()
+        if (snapshot) {
+          const link = document.createElement('a')
+          link.download = 'logicflow-export.png'
+          link.href = snapshot
+          link.click()
+          ElMessage.success('图片导出成功')
+        }
+      }
+    } catch (error) {
+      console.error('导出图片失败:', error)
+      ElMessage.error('导出图片失败')
+    }
+  }
 
   // 暴露方法
   defineExpose({
@@ -346,6 +617,9 @@
   })
 
   onUnmounted(() => {
+    // 清理全局事件监听器
+    document.removeEventListener('mouseup', handleGlobalMouseUp, true)
+
     if (lfInstance) {
       lfInstance.destroy()
       lfInstance = null
@@ -354,6 +628,28 @@
 </script>
 
 <style scoped lang="scss">
+  .art-logic-flow-wrapper {
+    position: relative;
+    width: 100%;
+    height: 100%;
+
+    // 全屏模式
+    &.is-fullscreen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 9999;
+      background: #fff;
+
+      .art-logic-flow-container {
+        height: 100% !important;
+        border-radius: 0;
+      }
+    }
+  }
+
   .art-logic-flow-container {
     width: 100%;
     height: 100%;
@@ -443,6 +739,18 @@
       :deep(.lf-node) {
         cursor: default;
       }
+    }
+  }
+
+  // 暗色主题适配
+  :global(.dark) {
+    .art-logic-flow-wrapper.is-fullscreen {
+      background: #1a1a1a;
+    }
+
+    .art-logic-flow-container {
+      background-color: #1a1a1a !important;
+      background-image: radial-gradient(circle, #333 1px, transparent 1px) !important;
     }
   }
 </style>

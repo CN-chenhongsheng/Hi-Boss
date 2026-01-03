@@ -110,9 +110,7 @@ export async function formatManageScope(manageScope?: string | null): Promise<st
 
     // 显示校区
     if (selectedNodes.campusIds.length > 0) {
-      const campusNames = selectedNodes.campusIds
-        .map((id) => getNodeName('campus', id))
-        .join('、')
+      const campusNames = selectedNodes.campusIds.map((id) => getNodeName('campus', id)).join('、')
       parts.push(campusNames)
 
       // 统计下级节点数量
@@ -139,15 +137,11 @@ export async function formatManageScope(manageScope?: string | null): Promise<st
         parts.push(deptNames)
       }
       if (selectedNodes.majorIds.length > 0) {
-        const majorNames = selectedNodes.majorIds
-          .map((id) => getNodeName('major', id))
-          .join('、')
+        const majorNames = selectedNodes.majorIds.map((id) => getNodeName('major', id)).join('、')
         parts.push(majorNames)
       }
       if (selectedNodes.classIds.length > 0) {
-        const classNames = selectedNodes.classIds
-          .map((id) => getNodeName('class', id))
-          .join('、')
+        const classNames = selectedNodes.classIds.map((id) => getNodeName('class', id)).join('、')
         parts.push(classNames)
       }
     }
@@ -239,9 +233,7 @@ export function formatManageScopeSync(manageScope?: string | null): string {
     // 使用缓存格式化
     const parts: string[] = []
     if (selectedNodes.campusIds.length > 0) {
-      const campusNames = selectedNodes.campusIds
-        .map((id) => getNodeName('campus', id))
-        .join('、')
+      const campusNames = selectedNodes.campusIds.map((id) => getNodeName('campus', id)).join('、')
       parts.push(campusNames)
 
       const stats: string[] = []
@@ -266,15 +258,11 @@ export function formatManageScopeSync(manageScope?: string | null): string {
         parts.push(deptNames)
       }
       if (selectedNodes.majorIds.length > 0) {
-        const majorNames = selectedNodes.majorIds
-          .map((id) => getNodeName('major', id))
-          .join('、')
+        const majorNames = selectedNodes.majorIds.map((id) => getNodeName('major', id)).join('、')
         parts.push(majorNames)
       }
       if (selectedNodes.classIds.length > 0) {
-        const classNames = selectedNodes.classIds
-          .map((id) => getNodeName('class', id))
-          .join('、')
+        const classNames = selectedNodes.classIds.map((id) => getNodeName('class', id)).join('、')
         parts.push(classNames)
       }
     }
@@ -285,4 +273,3 @@ export function formatManageScopeSync(manageScope?: string | null): string {
     return '格式错误'
   }
 }
-

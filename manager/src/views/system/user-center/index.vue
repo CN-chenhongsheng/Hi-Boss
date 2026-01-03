@@ -28,29 +28,41 @@
               <ArtSvgIcon icon="ri:map-pin-line" class="text-g-700" />
               <span class="ml-2 text-sm">{{ userProfile.address }}</span>
             </div>
-            <div class="mt-2.5" v-if="userProfile?.college">
-              <ArtSvgIcon icon="ri:building-line" class="text-g-700" />
-              <span class="ml-2 text-sm">{{ userProfile.college }}</span>
-            </div>
             <div class="mt-2.5" v-if="userProfile?.phone">
               <ArtSvgIcon icon="ri:phone-line" class="text-g-700" />
               <span class="ml-2 text-sm">{{ userProfile.phone }}</span>
             </div>
+            <div class="mt-2.5" v-if="userProfile?.roleNames">
+              <ArtSvgIcon icon="ri:building-line" class="text-g-700" />
+              <span class="inline-block ml-2 text-sm">
+                <div
+                  v-for="(role, index) in userProfile.roleNames"
+                  :key="role"
+                  :class="[
+                    'py-1 px-1.5 mb-2.5 text-xs border border-g-300 rounded',
+                    index < userProfile.roleNames.length - 1 ? 'mr-2.5' : 'mr-0'
+                  ]"
+                >
+                  {{ role }}
+                </div>
+              </span>
+            </div>
           </div>
 
-          <div class="mt-10" v-if="userProfile?.roleNames && userProfile.roleNames.length > 0">
-            <h3 class="text-sm font-medium">角色</h3>
+          <!-- 管理范围 -->
+          <div class="mt-10" v-if="userProfile?.manageScope">
+            <h3 class="text-sm font-medium">管理范围</h3>
             <div class="flex flex-wrap justify-center mt-3.5">
-              <div
-                v-for="(role, index) in userProfile.roleNames"
-                :key="role"
-                :class="[
-                  'py-1 px-1.5 mb-2.5 text-xs border border-g-300 rounded',
-                  index < userProfile.roleNames.length - 1 ? 'mr-2.5' : 'mr-0'
-                ]"
+              <ElTag
+                v-for="(part, index) in manageScopeTags"
+                :key="index"
+                size="small"
+                type="primary"
+                class="mb-2.5"
+                :class="index < manageScopeTags.length - 1 ? 'mr-2.5' : 'mr-0'"
               >
-                {{ role }}
-              </div>
+                {{ part }}
+              </ElTag>
             </div>
           </div>
         </div>
@@ -188,11 +200,12 @@
 </template>
 
 <script setup lang="ts">
-  import { ElMessage } from 'element-plus'
+  import { ElMessage, ElTag } from 'element-plus'
   import type { FormInstance, FormRules } from 'element-plus'
   import { fetchGetUserProfile, fetchUpdateUserProfile, fetchChangePassword } from '@/api/auth'
   import { fetchGetDictDataList } from '@/api/system-manage'
   import defaultAvatarImg from '@/assets/images/user/avatar.webp'
+  import { formatManageScopeSync } from '@/utils/school/scopeFormatter'
 
   defineOptions({ name: 'UserCenter' })
 
@@ -208,6 +221,14 @@
     { label: '男', value: 1 },
     { label: '女', value: 2 }
   ])
+
+  // 管理范围标签列表
+  const manageScopeTags = computed(() => {
+    if (!userProfile.value?.manageScope) return []
+    const formatted = formatManageScopeSync(userProfile.value.manageScope)
+    if (!formatted || formatted === '未设置' || formatted === '格式错误') return []
+    return formatted.split('、').filter((part) => part.trim())
+  })
 
   // 表单引用
   const profileFormRef = ref<FormInstance>()

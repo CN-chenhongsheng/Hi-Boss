@@ -88,6 +88,7 @@
     "@typescript-eslint/parser": "^8.3.0",
     "@vitejs/plugin-vue": "^6.0.1",
     "@vue/compiler-sfc": "^3.0.5",
+    "@logicflow/extension": "^2.1.9",
     "commitizen": "^4.3.0",
     "cz-git": "^1.11.1",
     "eslint": "^9.9.1",

@@ -99,6 +99,9 @@ importers:
       '@eslint/js':
         specifier: ^9.9.1
         version: 9.36.0
+      '@logicflow/extension':
+        specifier: ^2.1.9
+        version: 2.1.9(@logicflow/core@2.1.7)(@logicflow/vue-node-registry@1.1.8(@logicflow/core@2.1.7)(vue@3.5.22(typescript@5.6.3)))
       '@types/node':
         specifier: ^24.0.5
         version: 24.8.1
@@ -212,6 +215,9 @@ packages:
 
   '@antfu/utils@0.7.10':
     resolution: {integrity: sha512-+562v9k4aI80m1+VuMHehNJWLOFjBnXn3tdOitzD0il5b7smkSBal4+a3oKiQTbrwMmN/TBUMDvbdoWDehgOww==}
+
+  '@antv/hierarchy@0.6.14':
+    resolution: {integrity: sha512-V3uknf7bhynOqQDw2sg+9r9DwZ9pc6k/EcqyTFdfXB1+ydr7urisP0MipIuimucvQKN+Qkd+d6w601r1UIroqQ==}
 
   '@babel/code-frame@7.27.1':
     resolution: {integrity: sha512-cjQ7ZlQ0Mv3b47hABuTevyTuYN4i+loJKGeV9flcCgIK37cCXRh+L1bd3iBHlynerhQ7BhCkn2BPbQUL+rGqFg==}
@@ -762,6 +768,22 @@ packages:
   '@logicflow/core@2.1.7':
     resolution: {integrity: sha512-ZwHJATcFspTl/6F7UnamrUBjaY3FaFxMQKftYiM3urIvpL4aBvscoZZcaNYE8tXg0h/vzhxRKSRy5u8/p396XQ==}
 
+  '@logicflow/extension@2.1.9':
+    resolution: {integrity: sha512-hgUrZOJvy3NZ42LLjp/yPR0wjxmzwGf4+Q0IHsXsEbI6c8uQUVI/istj/DbOoCbjP+YveLMHyjQJ5/buCsgvkw==}
+    peerDependencies:
+      '@logicflow/core': 2.1.7
+      '@logicflow/vue-node-registry': 1.1.8
+
+  '@logicflow/vue-node-registry@1.1.8':
+    resolution: {integrity: sha512-pisDUxAx3UOfgKqJmj+qPbI2+DgxvXWoTF0nduTra+TQDP4tx+jvnFFZ+r0TXQ2NYthdrA7YydVou5BDHdBnSg==}
+    peerDependencies:
+      '@logicflow/core': 2.1.7
+      '@vue/composition-api': ^1.0.0-rc.10
+      vue: ^2.0.0 || >=3.0.0
+    peerDependenciesMeta:
+      '@vue/composition-api':
+        optional: true
+
   '@nodelib/fs.scandir@2.1.5':
     resolution: {integrity: sha512-vq24Bq3ym5HEQm2NKCr3yXDwjc7vTsEThRDnkp2DK9p1uqLR+DHurm/NOTo0KG7HYHU7eppKZj3MyqYuMBf62g==}
     engines: {node: '>= 8'}
@@ -1008,6 +1030,9 @@ packages:
   '@sindresorhus/merge-streams@4.0.0':
     resolution: {integrity: sha512-tlqY9xq5ukxTUZBmoOp+m61cqwQD5pHJtFY3Mn8CA8ps6yghLH/Hw8UPdqg4OLmFW3IFlcXnQNmo/dh8HzXYIQ==}
     engines: {node: '>=18'}
+
+  '@sphinxxxx/color-conversion@2.2.2':
+    resolution: {integrity: sha512-XExJS3cLqgrmNBIP3bBw6+1oQ1ksGjFh0+oClDKFYpCCqx/hlqwWO5KO/S63fzUo67SxI9dMrF0y5T/Ey7h8Zw==}
 
   '@sxzz/popperjs-es@2.11.7':
     resolution: {integrity: sha512-Ccy0NlLkzr0Ex2FKvh2X+OyERHXJ88XJ1MXtsI9y9fGexlaXaVTPzBCRBwIxFkORuOb+uBqeu+RqnpgYTEZRUQ==}
@@ -2798,6 +2823,9 @@ packages:
   mdn-data@2.24.0:
     resolution: {integrity: sha512-i97fklrJl03tL1tdRVw0ZfLLvuDsdb6wxL+TrJ+PKkCbLrp2PCu2+OYdCKychIUm19nSM/35S6qz7pJpnXttoA==}
 
+  medium-editor@5.23.3:
+    resolution: {integrity: sha512-he9/TdjX8f8MGdXGfCs8AllrYnqXJJvjNkDKmPg3aPW/uoIrlRqtkFthrwvmd+u4QyzEiadhCCM0EwTiRdUCJw==}
+
   memoize-one@6.0.0:
     resolution: {integrity: sha512-rkpe71W0N0c0Xz6QD0eJETuWAJGnJ9afsl1srmwPrI+yBCkge5EycXXbYRyvL29zZVUWQCY7InPRCv3GDXuZNw==}
 
@@ -3186,6 +3214,9 @@ packages:
 
   queue-microtask@1.2.3:
     resolution: {integrity: sha512-NuaNSa6flKT5JaSYQzJok04JzTL1CA6aGhv5rfLW3PgqA+M2ChpZQnAC8h8i4ZFkBS8X5RqkDBHA7r4hej3K9A==}
+
+  rangy@1.3.2:
+    resolution: {integrity: sha512-fS1C4MOyk8T+ZJZdLcgrukPWxkyDXa+Hd2Kj+Zg4wIK71yrWgmjzHubzPMY1G+WD9EgGxMp3fIL0zQ1ickmSWA==}
 
   readable-stream@3.6.2:
     resolution: {integrity: sha512-9u/sniCrY3D5WdsERHzHE4G2YCXqoG5FTHUiCC4SIbr6XcLZBY05ya9EKjYek9O5xOAwjGq+1JdGBAS7Q9ScoA==}
@@ -3672,6 +3703,9 @@ packages:
     resolution: {integrity: sha512-b+1eJOlsR9K8HJpow9Ok3fiWOWSIcIzXodvv0rQjVoOVNpWMpxf1wZNpt4y9h10odCNrqnYp1OBzRktckBe3sA==}
     hasBin: true
 
+  vanilla-picker@2.12.3:
+    resolution: {integrity: sha512-qVkT1E7yMbUsB2mmJNFmaXMWE2hF8ffqzMMwe9zdAikd8u2VfnsVY2HQcOUi2F38bgbxzlJBEdS1UUhOXdF9GQ==}
+
   vite-hot-client@2.1.0:
     resolution: {integrity: sha512-7SpgZmU7R+dDnSmvXE1mfDtnHLHQSisdySVR7lO8ceAXvM0otZeuQQ6C8LrS5d/aYyP/QZ0hI0L+dIPrm4YlFQ==}
     peerDependencies:
@@ -3910,6 +3944,8 @@ packages:
 snapshots:
 
   '@antfu/utils@0.7.10': {}
+
+  '@antv/hierarchy@0.6.14': {}
 
   '@babel/code-frame@7.27.1':
     dependencies:
@@ -4501,6 +4537,26 @@ snapshots:
       preact: 10.27.2
       uuid: 9.0.1
 
+  '@logicflow/extension@2.1.9(@logicflow/core@2.1.7)(@logicflow/vue-node-registry@1.1.8(@logicflow/core@2.1.7)(vue@3.5.22(typescript@5.6.3)))':
+    dependencies:
+      '@antv/hierarchy': 0.6.14
+      '@logicflow/core': 2.1.7
+      '@logicflow/vue-node-registry': 1.1.8(@logicflow/core@2.1.7)(vue@3.5.22(typescript@5.6.3))
+      classnames: 2.5.1
+      lodash-es: 4.17.21
+      medium-editor: 5.23.3
+      mobx: 5.15.7
+      preact: 10.27.2
+      rangy: 1.3.2
+      vanilla-picker: 2.12.3
+
+  '@logicflow/vue-node-registry@1.1.8(@logicflow/core@2.1.7)(vue@3.5.22(typescript@5.6.3))':
+    dependencies:
+      '@logicflow/core': 2.1.7
+      lodash-es: 4.17.21
+      vue: 3.5.22(typescript@5.6.3)
+      vue-demi: 0.14.10(vue@3.5.22(typescript@5.6.3))
+
   '@nodelib/fs.scandir@2.1.5':
     dependencies:
       '@nodelib/fs.stat': 2.0.5
@@ -4657,6 +4713,8 @@ snapshots:
   '@sec-ant/readable-stream@0.4.1': {}
 
   '@sindresorhus/merge-streams@4.0.0': {}
+
+  '@sphinxxxx/color-conversion@2.2.2': {}
 
   '@sxzz/popperjs-es@2.11.7': {}
 
@@ -6536,6 +6594,8 @@ snapshots:
 
   mdn-data@2.24.0: {}
 
+  medium-editor@5.23.3: {}
+
   memoize-one@6.0.0: {}
 
   meow@12.1.1: {}
@@ -6862,6 +6922,8 @@ snapshots:
   quansync@0.2.11: {}
 
   queue-microtask@1.2.3: {}
+
+  rangy@1.3.2: {}
 
   readable-stream@3.6.2:
     dependencies:
@@ -7385,6 +7447,10 @@ snapshots:
   util-deprecate@1.0.2: {}
 
   uuid@9.0.1: {}
+
+  vanilla-picker@2.12.3:
+    dependencies:
+      '@sphinxxxx/color-conversion': 2.2.2
 
   vite-hot-client@2.1.0(vite@7.1.7(@types/node@24.8.1)(jiti@2.6.0)(lightningcss@1.30.1)(sass@1.93.2)(terser@5.44.0)(tsx@4.20.6)(yaml@2.8.1)):
     dependencies:

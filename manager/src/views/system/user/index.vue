@@ -81,7 +81,7 @@
   import UserSearch from './modules/user-search.vue'
   import UserDialog from './modules/user-dialog.vue'
   import UserScopeDialog from './modules/user-scope-dialog.vue'
-  import { ElTag, ElMessageBox, ElImage, ElMessage } from 'element-plus'
+  import { ElTag, ElMessageBox, ElImage, ElMessage, ElTooltip } from 'element-plus'
   import ArtSwitch from '@/components/core/forms/art-switch/index.vue'
   import { DialogType } from '@/types'
   import { useUserOnlineStatus } from '@/hooks/core/useUserOnlineStatus'
@@ -208,12 +208,28 @@
               return h(ElTag, { type: 'info', size: 'small' }, () => formatted || '未设置')
             }
 
+            // 如果只有一个标签，直接显示
+            if (parts.length === 1) {
+              return h(ElTag, { size: 'small', type: 'primary' }, () => parts[0])
+            }
+
+            // 多个标签：显示第一个 + [+N]，hover 显示全部
+            const tooltipContent = parts.join('、')
+            const displayTags = [
+              h(ElTag, { size: 'small', type: 'primary' }, () => parts[0]),
+              h(ElTag, { size: 'small', type: 'info' }, () => `+${parts.length - 1}`)
+            ]
+
             return h(
-              'div',
-              { class: 'flex gap-1 flex-wrap' },
-              parts.map((part: string) =>
-                h(ElTag, { size: 'small', type: 'primary' }, () => part.trim())
-              )
+              ElTooltip,
+              {
+                content: tooltipContent,
+                placement: 'top',
+                effect: 'dark'
+              },
+              {
+                default: () => h('div', { class: 'flex gap-1' }, displayTags)
+              }
             )
           }
         },
@@ -230,12 +246,30 @@
             if (roleList.length === 0) {
               return h('span', { class: 'text-gray-400' }, '暂无角色')
             }
-            // 最多只显示一个角色 tag，如果有多个角色，显示第一个 + 剩余数量
-            const tags = [h(ElTag, { size: 'small', type: 'primary' }, () => roleList[0])]
-            if (roleList.length > 1) {
-              tags.push(h(ElTag, { size: 'small', type: 'info' }, () => `+${roleList.length - 1}`))
+
+            // 如果只有一个角色，直接显示
+            if (roleList.length === 1) {
+              return h(ElTag, { size: 'small', type: 'primary' }, () => roleList[0])
             }
-            return h('div', { class: 'flex gap-1 flex-wrap' }, tags)
+
+            // 多个角色：显示第一个 + [+N]，hover 显示全部
+            const tooltipContent = roleList.join('、')
+            const displayTags = [
+              h(ElTag, { size: 'small', type: 'primary' }, () => roleList[0]),
+              h(ElTag, { size: 'small', type: 'info' }, () => `+${roleList.length - 1}`)
+            ]
+
+            return h(
+              ElTooltip,
+              {
+                content: tooltipContent,
+                placement: 'top',
+                effect: 'dark'
+              },
+              {
+                default: () => h('div', { class: 'flex gap-1' }, displayTags)
+              }
+            )
           }
         },
         {
