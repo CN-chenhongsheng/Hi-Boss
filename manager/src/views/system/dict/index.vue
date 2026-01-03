@@ -7,7 +7,10 @@
         <ElCard shadow="never" class="panel-card">
           <template #header>
             <div class="panel-header">
-              <span class="panel-title">字典类型</span>
+              <span class="panel-title">
+                <ArtSvgIcon icon="ri:bookmark-line" class="text-primary text-lg" />
+                字典类型
+              </span>
               <ElButton
                 type="primary"
                 size="small"
@@ -54,7 +57,10 @@
         <ElCard shadow="never" class="panel-card">
           <template #header>
             <div class="panel-header">
-              <span class="panel-title">字典数据</span>
+              <span class="panel-title">
+                <ArtSvgIcon icon="ri:list-check" class="text-primary text-lg" />
+                字典数据
+              </span>
               <ElButton
                 type="primary"
                 size="small"
@@ -141,6 +147,7 @@
   import { h } from 'vue'
   import { hasPermission } from '@/directives/core/permission'
   import ArtSwitch from '@/components/core/forms/art-switch/index.vue'
+  import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
 
   defineOptions({ name: 'Dict' })
 
@@ -564,6 +571,7 @@
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    border-radius: calc(var(--custom-radius) / 2 + 2px) !important;
 
     :deep(.el-card__body) {
       flex: 1;

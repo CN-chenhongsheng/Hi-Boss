@@ -66,7 +66,11 @@
               <ElOption
                 v-for="user in teacherOptions"
                 :key="user.id"
-                :label="user.nickname ? `${user.nickname} (${user.username})` : user.username"
+                :label="
+                  user.nickname && user.phone
+                    ? `${user.nickname} (${user.phone})`
+                    : user.nickname || user.username
+                "
                 :value="user.username"
               />
             </ElSelect>

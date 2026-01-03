@@ -26,10 +26,6 @@ public class SysCampus extends BaseEntity {
     @TableField("campus_name")
     private String campusName;
 
-    @Schema(description = "上级校区编码")
-    @TableField("parent_code")
-    private String parentCode;
-
     @Schema(description = "校区地址")
     @TableField("address")
     private String address;

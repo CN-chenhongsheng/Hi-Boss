@@ -30,9 +30,6 @@ public class DepartmentSaveDTO {
     @NotBlank(message = "所属校区编码不能为空")
     private String campusCode;
 
-    @Schema(description = "上级院系编码")
-    private String parentCode;
-
     @Schema(description = "院系领导")
     private String leader;
 

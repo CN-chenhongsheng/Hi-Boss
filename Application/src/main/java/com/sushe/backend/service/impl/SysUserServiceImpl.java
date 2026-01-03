@@ -15,6 +15,7 @@ import com.sushe.backend.dto.user.UserProfileDTO;
 import com.sushe.backend.dto.user.UserQueryDTO;
 import com.sushe.backend.dto.user.UserResetPasswordDTO;
 import com.sushe.backend.dto.user.UserSaveDTO;
+import com.sushe.backend.dto.user.UserWithRoleCodeDTO;
 import com.sushe.backend.entity.SysUser;
 import com.sushe.backend.entity.SysUserRole;
 import com.sushe.backend.entity.SysRole;
@@ -385,21 +386,21 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     @Override
     public Map<String, List<UserSimpleVO>> getUsersByRoleCodes(RoleUserQueryDTO queryDTO) {
         Map<String, List<UserSimpleVO>> result = new HashMap<>();
-        
+
         if (queryDTO == null || queryDTO.getRoleCodes() == null || queryDTO.getRoleCodes().isEmpty()) {
             return result;
         }
 
         // 查询所有指定角色的用户
-        List<SysUserMapper.UserWithRoleCode> userWithRoleCodes = baseMapper.selectUsersByRoleCodes(queryDTO.getRoleCodes());
+        List<UserWithRoleCodeDTO> userWithRoleCodes = baseMapper.selectUsersByRoleCodes(queryDTO.getRoleCodes());
 
         // 按角色代码分组
-        Map<String, List<SysUserMapper.UserWithRoleCode>> userGroupByRole = userWithRoleCodes.stream()
-                .collect(Collectors.groupingBy(SysUserMapper.UserWithRoleCode::getRoleCode));
+        Map<String, List<UserWithRoleCodeDTO>> userGroupByRole = userWithRoleCodes.stream()
+                .collect(Collectors.groupingBy(UserWithRoleCodeDTO::getRoleCode));
 
         // 构建返回结果，key为角色代码，value为用户列表
         for (String roleCode : queryDTO.getRoleCodes()) {
-            List<SysUserMapper.UserWithRoleCode> users = userGroupByRole.get(roleCode);
+            List<UserWithRoleCodeDTO> users = userGroupByRole.get(roleCode);
             if (users != null && !users.isEmpty()) {
                 List<UserSimpleVO> userList = users.stream().map(userWithRole -> {
                     UserSimpleVO userVO = new UserSimpleVO();

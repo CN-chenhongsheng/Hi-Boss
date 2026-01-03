@@ -30,10 +30,6 @@ public class SysDepartment extends BaseEntity {
     @TableField("campus_code")
     private String campusCode;
 
-    @Schema(description = "上级院系编码")
-    @TableField("parent_code")
-    private String parentCode;
-
     @Schema(description = "院系领导")
     @TableField("leader")
     private String leader;

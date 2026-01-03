@@ -27,30 +27,17 @@
             <ElButton @click="handleAdd" v-ripple v-permission="'system:department:add'"
               >新增院系</ElButton
             >
-            <ElButton @click="toggleExpand" v-ripple>
-              {{ isExpanded ? '收起全部' : '展开全部' }}
-            </ElButton>
           </ElSpace>
         </template>
       </ArtTableHeader>
 
-      <ArtTable
-        ref="tableRef"
-        row-key="id"
-        :loading="loading"
-        :columns="columns"
-        :data="data"
-        :stripe="false"
-        :tree-props="{ children: 'children', hasChildren: 'hasChildren' }"
-        :default-expand-all="false"
-      />
+      <ArtTable :loading="loading" :columns="columns" :data="data" :stripe="false" />
 
       <!-- 院系弹窗 -->
       <DepartmentDialog
         v-model:visible="dialogVisible"
         :type="dialogType"
         :edit-data="editData"
-        :parent-data="parentData"
         @submit="handleSubmit"
       />
 
@@ -88,21 +75,17 @@
   import { ElMessageBox, ElMessage } from 'element-plus'
   import DepartmentSearch from './modules/department-search.vue'
   import ArtSwitch from '@/components/core/forms/art-switch/index.vue'
-  import { h, nextTick } from 'vue'
+  import { h } from 'vue'
 
   defineOptions({ name: 'Department' })
 
   type DepartmentListItem = Api.SystemManage.DepartmentListItem & { _statusLoading?: boolean }
 
   // 状态管理
-  const isExpanded = ref(false)
-  const tableRef = ref()
-
   const showSearchBar = ref(false)
   const dialogVisible = ref(false)
-  const dialogType = ref<'add' | 'edit' | 'addChild'>('add')
+  const dialogType = ref<'add' | 'edit'>('add')
   const editData = ref<DepartmentListItem | null>(null)
-  const parentData = ref<DepartmentListItem | null>(null)
 
   // 下钻弹框相关
   const drillDownVisible = ref(false)
@@ -206,7 +189,6 @@
           fixed: 'right' as const,
           formatter: (row: DepartmentListItem) => [
             { type: 'view', onClick: () => handleViewMajors(row) },
-            { type: 'add', onClick: () => handleAddChild(row), auth: 'system:department:add' },
             { type: 'edit', onClick: () => handleEdit(row), auth: 'system:department:edit' },
             {
               type: 'delete',
@@ -220,30 +202,6 @@
       immediate: true
     }
   })
-
-  /**
-   * 切换展开/收起
-   */
-  const toggleExpand = (): void => {
-    isExpanded.value = !isExpanded.value
-    toggleAllExpansion(data.value, isExpanded.value)
-  }
-
-  /**
-   * 递归展开/收起所有节点
-   */
-  const toggleAllExpansion = (treeData: DepartmentListItem[], expand: boolean): void => {
-    nextTick(() => {
-      treeData.forEach((item) => {
-        if (tableRef.value?.elTableRef) {
-          tableRef.value.elTableRef.toggleRowExpansion(item, expand)
-        }
-        if (item.children && item.children.length > 0) {
-          toggleAllExpansion(item.children, expand)
-        }
-      })
-    })
-  }
 
   /**
    * 搜索
@@ -273,17 +231,6 @@
   const handleAdd = (): void => {
     dialogType.value = 'add'
     editData.value = null
-    parentData.value = null
-    dialogVisible.value = true
-  }
-
-  /**
-   * 新增子院系
-   */
-  const handleAddChild = (row: DepartmentListItem): void => {
-    dialogType.value = 'addChild'
-    editData.value = null
-    parentData.value = row
     dialogVisible.value = true
   }
 
@@ -293,7 +240,6 @@
   const handleEdit = (row: DepartmentListItem): void => {
     dialogType.value = 'edit'
     editData.value = { ...row }
-    parentData.value = null
     dialogVisible.value = true
   }
 
@@ -328,7 +274,7 @@
   const handleSubmit = async (): Promise<void> => {
     dialogVisible.value = false
     // 根据 dialogType 判断是新增还是编辑
-    if (dialogType.value === 'add' || dialogType.value === 'addChild') {
+    if (dialogType.value === 'add') {
       await refreshCreate()
     } else {
       await refreshUpdate()
@@ -362,9 +308,6 @@
    * 更新院系状态
    */
   const handleStatusChange = async (row: DepartmentListItem, value: boolean): Promise<void> => {
-    // 检查是否有子节点
-    const hasChildren = row.children && row.children.length > 0
-
     // 如果是关闭操作（从启用变为停用），需要提示用户级联影响
     if (!value && row.status === 1) {
       try {
@@ -386,11 +329,6 @@
       row._statusLoading = true
       row.status = value ? 1 : 0
       await fetchUpdateDepartmentStatus(row.id, value ? 1 : 0)
-      // 如果有子节点，需要刷新表格以同步子院系状态
-      // 如果是叶子节点，只更新当前行状态即可，不需要刷新表格
-      if (hasChildren) {
-        await refreshData()
-      }
     } catch (error) {
       console.error('更新院系状态失败:', error)
       ElMessage.error('更新院系状态失败')

@@ -17,13 +17,7 @@
       </ElFormItem>
 
       <ElFormItem label="所属校区" prop="campusCode">
-        <ElSelect
-          v-model="form.campusCode"
-          placeholder="请选择所属校区"
-          filterable
-          :disabled="isAddChild"
-          @change="handleCampusChange"
-        >
+        <ElSelect v-model="form.campusCode" placeholder="请选择所属校区" filterable>
           <ElOption
             v-for="campus in campusOptions"
             :key="campus.campusCode"
@@ -31,19 +25,6 @@
             :value="campus.campusCode"
           />
         </ElSelect>
-      </ElFormItem>
-
-      <ElFormItem label="上级院系" prop="parentName">
-        <ElTreeSelect
-          v-model="form.parentName"
-          :data="departmentTreeOptions"
-          :props="{ value: 'deptCode', label: 'deptName', children: 'children' }"
-          placeholder="请选择上级院系（不选则为顶级院系）"
-          clearable
-          check-strictly
-          :render-after-expand="false"
-          :disabled="isAddChild || !form.campusCode"
-        />
       </ElFormItem>
 
       <ElRow :gutter="20">
@@ -86,7 +67,6 @@
 <script setup lang="ts">
   import {
     fetchGetCampusTree,
-    fetchGetDepartmentTree,
     fetchAddDepartment,
     fetchUpdateDepartment
   } from '@/api/school-manage'
@@ -94,9 +74,8 @@
 
   interface Props {
     visible: boolean
-    type: 'add' | 'edit' | 'addChild'
+    type: 'add' | 'edit'
     editData?: Api.SystemManage.DepartmentListItem | null
-    parentData?: Api.SystemManage.DepartmentListItem | null
   }
 
   interface Emits {
@@ -105,8 +84,7 @@
   }
 
   const props = withDefaults(defineProps<Props>(), {
-    editData: null,
-    parentData: null
+    editData: null
   })
 
   const emit = defineEmits<Emits>()
@@ -114,7 +92,6 @@
   const formRef = ref<FormInstance>()
   const loading = ref(false)
   const campusOptions = ref<Api.SystemManage.CampusListItem[]>([])
-  const departmentTreeOptions = ref<Api.SystemManage.DepartmentListItem[]>([])
 
   const dialogVisible = computed({
     get: () => props.visible,
@@ -122,11 +99,9 @@
   })
 
   const isEdit = computed(() => props.type === 'edit')
-  const isAddChild = computed(() => props.type === 'addChild')
 
   const dialogTitle = computed(() => {
     if (isEdit.value) return '编辑院系'
-    if (isAddChild.value) return '新增子院系'
     return '新增院系'
   })
 
@@ -134,8 +109,6 @@
     deptCode: '',
     deptName: '',
     campusCode: '',
-    parentCode: undefined,
-    parentName: undefined,
     leader: undefined,
     phone: undefined,
     sort: 0,
@@ -161,75 +134,12 @@
   }
 
   /**
-   * 扁平化校区树
+   * 获取校区列表（已为平铺结构，无需扁平化）
    */
   const flattenCampusTree = (
     list: Api.SystemManage.CampusListItem[]
   ): Api.SystemManage.CampusListItem[] => {
-    const result: Api.SystemManage.CampusListItem[] = []
-    const flatten = (items: Api.SystemManage.CampusListItem[]) => {
-      items.forEach((item) => {
-        result.push(item)
-        if (item.children && item.children.length > 0) {
-          flatten(item.children)
-        }
-      })
-    }
-    flatten(list)
-    return result
-  }
-
-  /**
-   * 加载院系树（用于上级院系选择）
-   */
-  const loadDepartmentTree = async (): Promise<void> => {
-    try {
-      const params: Api.SystemManage.DepartmentSearchParams = {}
-      if (form.campusCode) {
-        params.campusCode = form.campusCode
-      }
-      const list = await fetchGetDepartmentTree(params)
-      // 编辑时，排除自己和自己的子院系
-      if (isEdit.value && props.editData) {
-        departmentTreeOptions.value = filterDepartmentTree(list, props.editData.deptCode)
-      } else if (isAddChild.value && props.parentData) {
-        // 新增子院系时，排除父院系及其子院系
-        departmentTreeOptions.value = filterDepartmentTree(list, props.parentData.deptCode)
-      } else {
-        departmentTreeOptions.value = list
-      }
-    } catch (error) {
-      console.error('加载院系树失败:', error)
-    }
-  }
-
-  /**
-   * 过滤院系树（排除指定院系及其子院系）
-   */
-  const filterDepartmentTree = (
-    list: Api.SystemManage.DepartmentListItem[],
-    excludeCode: string
-  ): Api.SystemManage.DepartmentListItem[] => {
     return list
-      .filter((item) => item.deptCode !== excludeCode)
-      .map((item) => {
-        if (item.children && item.children.length > 0) {
-          return {
-            ...item,
-            children: filterDepartmentTree(item.children, excludeCode)
-          }
-        }
-        return item
-      })
-  }
-
-  /**
-   * 校区变化时重新加载院系树
-   */
-  const handleCampusChange = (): void => {
-    form.parentCode = undefined
-    form.parentName = undefined
-    loadDepartmentTree()
   }
 
   /**
@@ -242,21 +152,11 @@
         deptCode: props.editData.deptCode,
         deptName: props.editData.deptName,
         campusCode: props.editData.campusCode,
-        parentCode: props.editData.parentCode || undefined,
-        parentName: props.editData.parentName || undefined,
         leader: props.editData.leader || undefined,
         phone: props.editData.phone || undefined,
         sort: props.editData.sort || 0,
         status: props.editData.status
       })
-      loadDepartmentTree()
-    } else if (isAddChild.value && props.parentData) {
-      // 新增子院系时，默认填充父院系信息
-      resetForm()
-      form.campusCode = props.parentData.campusCode
-      form.parentCode = props.parentData.deptCode
-      form.parentName = props.parentData.deptName
-      loadDepartmentTree()
     } else {
       resetForm()
     }
@@ -270,14 +170,11 @@
       deptCode: '',
       deptName: '',
       campusCode: '',
-      parentCode: undefined,
-      parentName: undefined,
       leader: undefined,
       phone: undefined,
       sort: 0,
       status: 1
     })
-    departmentTreeOptions.value = []
     formRef.value?.clearValidate()
   }
 

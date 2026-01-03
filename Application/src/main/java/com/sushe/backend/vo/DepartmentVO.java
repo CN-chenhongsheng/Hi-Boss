@@ -6,7 +6,6 @@ import lombok.Data;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.List;
 
 /**
  * 院系展示VO
@@ -35,9 +34,6 @@ public class DepartmentVO implements Serializable {
     @Schema(description = "所属校区名称")
     private String campusName;
 
-    @Schema(description = "上级院系编码")
-    private String parentCode;
-
     @Schema(description = "院系领导")
     private String leader;
 
@@ -52,9 +48,6 @@ public class DepartmentVO implements Serializable {
 
     @Schema(description = "状态文本")
     private String statusText;
-
-    @Schema(description = "子院系列表（树形结构）")
-    private List<DepartmentVO> children;
 
     @Schema(description = "创建时间")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")

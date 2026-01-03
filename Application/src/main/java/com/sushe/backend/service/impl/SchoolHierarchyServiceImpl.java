@@ -78,9 +78,8 @@ public class SchoolHierarchyServiceImpl implements SchoolHierarchyService {
                 .filter(cls -> cls.getMajorCode() != null && !cls.getMajorCode().isEmpty())
                 .collect(Collectors.groupingBy(SysClass::getMajorCode));
 
-        // 6. 构建校区树（只包含根校区，即parentCode为null的）
+        // 6. 构建校区列表
         List<SchoolHierarchyNodeVO> campusNodes = allCampuses.stream()
-                .filter(campus -> campus.getParentCode() == null || campus.getParentCode().isEmpty())
                 .map(campus -> buildCampusNode(campus, deptMapByCampus, majorMapByDept, classMapByMajor))
                 .collect(Collectors.toList());
 
@@ -102,7 +101,6 @@ public class SchoolHierarchyServiceImpl implements SchoolHierarchyService {
         node.setCode(campus.getCampusCode());
         node.setName(campus.getCampusName());
         node.setType("campus");
-        node.setParentCode(campus.getParentCode());
         node.setStatus(campus.getStatus());
 
         // 构建院系节点

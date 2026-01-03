@@ -74,11 +74,9 @@ public class SysCampusServiceImpl extends ServiceImpl<SysCampusMapper, SysCampus
                .orderByAsc(SysCampus::getId);
 
         List<SysCampus> allCampuses = list(wrapper);
-        List<CampusVO> allCampusVOs = allCampuses.stream()
+        return allCampuses.stream()
                 .map(this::convertToVO)
                 .collect(Collectors.toList());
-
-        return buildCampusTree(allCampusVOs, null);
     }
 
     @Override
@@ -101,23 +99,6 @@ public class SysCampusServiceImpl extends ServiceImpl<SysCampusMapper, SysCampus
         }
         if (count(wrapper) > 0) {
             throw new BusinessException("校区编码已存在");
-        }
-
-        // 检查父校区是否存在
-        if (StrUtil.isNotBlank(saveDTO.getParentCode())) {
-            LambdaQueryWrapper<SysCampus> parentWrapper = new LambdaQueryWrapper<>();
-            parentWrapper.eq(SysCampus::getCampusCode, saveDTO.getParentCode());
-            if (saveDTO.getId() != null) {
-                parentWrapper.ne(SysCampus::getId, saveDTO.getId());
-            }
-            if (count(parentWrapper) == 0) {
-                throw new BusinessException("上级校区不存在");
-            }
-
-            // 检查循环引用：不能将父校区设置为自己或自己的子校区
-            if (saveDTO.getId() != null) {
-                checkCircularReference(saveDTO.getId(), saveDTO.getParentCode());
-            }
         }
 
         SysCampus campus = new SysCampus();
@@ -144,19 +125,15 @@ public class SysCampusServiceImpl extends ServiceImpl<SysCampusMapper, SysCampus
             throw new BusinessException("校区不存在");
         }
 
-        // 获取该校区及其所有子校区的编码列表
-        List<String> campusCodes = getAllCampusCodes(campus.getCampusCode());
-
-        // 查询所有属于这些校区的院系
+        // 查询所有属于该校区的院系
         LambdaQueryWrapper<SysDepartment> deptWrapper = new LambdaQueryWrapper<>();
-        deptWrapper.in(SysDepartment::getCampusCode, campusCodes);
+        deptWrapper.eq(SysDepartment::getCampusCode, campus.getCampusCode());
         List<SysDepartment> departments = departmentMapper.selectList(deptWrapper);
 
-        // 获取这些院系及其所有子院系的编码列表
-        List<String> deptCodes = new ArrayList<>();
-        for (SysDepartment dept : departments) {
-            deptCodes.addAll(getAllDepartmentCodes(dept.getDeptCode()));
-        }
+        // 获取这些院系的编码列表
+        List<String> deptCodes = departments.stream()
+                .map(SysDepartment::getDeptCode)
+                .collect(Collectors.toList());
 
         if (!deptCodes.isEmpty()) {
             // 查询所有属于这些院系的专业
@@ -178,25 +155,12 @@ public class SysCampusServiceImpl extends ServiceImpl<SysCampusMapper, SysCampus
 
             // 删除所有专业
             majorMapper.delete(majorWrapper);
+
+            // 删除所有院系
+            departmentMapper.delete(deptWrapper);
         }
 
-        // 删除所有院系（包括子院系）
-        if (!deptCodes.isEmpty()) {
-            LambdaQueryWrapper<SysDepartment> deleteDeptWrapper = new LambdaQueryWrapper<>();
-            deleteDeptWrapper.in(SysDepartment::getDeptCode, deptCodes);
-            departmentMapper.delete(deleteDeptWrapper);
-        }
-
-        // 删除所有子校区（递归删除）
-        for (String campusCode : campusCodes) {
-            if (!campusCode.equals(campus.getCampusCode())) {
-                LambdaQueryWrapper<SysCampus> childWrapper = new LambdaQueryWrapper<>();
-                childWrapper.eq(SysCampus::getCampusCode, campusCode);
-                remove(childWrapper);
-            }
-        }
-
-        // 最后删除当前校区
+        // 删除当前校区
         return removeById(id);
     }
 
@@ -207,41 +171,6 @@ public class SysCampusServiceImpl extends ServiceImpl<SysCampusMapper, SysCampus
             throw new BusinessException("校区ID不能为空");
         }
         return removeByIds(Arrays.asList(ids));
-    }
-
-    /**
-     * 构建校区树形结构
-     */
-    private List<CampusVO> buildCampusTree(List<CampusVO> allCampuses, String parentCode) {
-        List<CampusVO> tree = new ArrayList<>();
-        for (CampusVO campus : allCampuses) {
-            String currentParentCode = campus.getParentCode();
-            if ((parentCode == null && currentParentCode == null) ||
-                (parentCode != null && parentCode.equals(currentParentCode))) {
-                List<CampusVO> children = buildCampusTree(allCampuses, campus.getCampusCode());
-                campus.setChildren(children);
-                tree.add(campus);
-            }
-        }
-        return tree;
-    }
-
-    /**
-     * 检查循环引用
-     */
-    private void checkCircularReference(Long id, String parentCode) {
-        SysCampus campus = getById(id);
-        if (campus.getCampusCode().equals(parentCode)) {
-            throw new BusinessException("不能将上级校区设置为自己");
-        }
-
-        // 递归检查父校区是否是当前校区的子校区
-        LambdaQueryWrapper<SysCampus> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(SysCampus::getCampusCode, parentCode);
-        SysCampus parent = getOne(wrapper);
-        if (parent != null && campus.getCampusCode().equals(parent.getParentCode())) {
-            throw new BusinessException("不能将下级校区设置为上级校区");
-        }
     }
 
     /**
@@ -256,27 +185,14 @@ public class SysCampusServiceImpl extends ServiceImpl<SysCampusMapper, SysCampus
             throw new BusinessException("校区不存在");
         }
 
-        // 如果要启用校区，需要检查父校区是否启用（如果存在父校区）
-        if (status == 1 && StrUtil.isNotBlank(campus.getParentCode())) {
-            LambdaQueryWrapper<SysCampus> parentWrapper = new LambdaQueryWrapper<>();
-            parentWrapper.eq(SysCampus::getCampusCode, campus.getParentCode());
-            SysCampus parentCampus = getOne(parentWrapper);
-            if (parentCampus != null && parentCampus.getStatus() != null && parentCampus.getStatus() == 0) {
-                throw new BusinessException("上级校区处于停用状态，不允许启用校区");
-            }
-        }
-
         campus.setStatus(status);
         boolean result = updateById(campus);
 
         // 如果状态改为关闭（0），则级联关闭下级数据
         if (status == 0) {
-            // 获取该校区及其所有子校区的编码列表
-            List<String> campusCodes = getAllCampusCodes(campus.getCampusCode());
-
-            // 更新所有属于这些校区的院系状态（批量更新）
+            // 更新所有属于该校区的院系状态（批量更新）
             LambdaQueryWrapper<SysDepartment> deptWrapper = new LambdaQueryWrapper<>();
-            deptWrapper.in(SysDepartment::getCampusCode, campusCodes);
+            deptWrapper.eq(SysDepartment::getCampusCode, campus.getCampusCode());
             SysDepartment deptUpdate = new SysDepartment();
             deptUpdate.setStatus(0);
             departmentMapper.update(deptUpdate, deptWrapper);
@@ -284,11 +200,10 @@ public class SysCampusServiceImpl extends ServiceImpl<SysCampusMapper, SysCampus
             // 重新查询更新后的院系列表，用于后续级联更新
             List<SysDepartment> departments = departmentMapper.selectList(deptWrapper);
 
-            // 获取这些院系的所有编码（包括子院系）
-            List<String> deptCodes = new ArrayList<>();
-            for (SysDepartment dept : departments) {
-                deptCodes.addAll(getAllDepartmentCodes(dept.getDeptCode()));
-            }
+            // 获取这些院系的编码列表
+            List<String> deptCodes = departments.stream()
+                    .map(SysDepartment::getDeptCode)
+                    .collect(Collectors.toList());
 
             if (!deptCodes.isEmpty()) {
                 // 更新所有属于这些院系的专业状态（批量更新）
@@ -318,42 +233,6 @@ public class SysCampusServiceImpl extends ServiceImpl<SysCampusMapper, SysCampus
         }
 
         return result;
-    }
-
-    /**
-     * 递归获取校区及其所有子校区的编码列表
-     */
-    private List<String> getAllCampusCodes(String campusCode) {
-        List<String> codes = new ArrayList<>();
-        codes.add(campusCode);
-
-        LambdaQueryWrapper<SysCampus> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(SysCampus::getParentCode, campusCode);
-        List<SysCampus> children = list(wrapper);
-
-        for (SysCampus child : children) {
-            codes.addAll(getAllCampusCodes(child.getCampusCode()));
-        }
-
-        return codes;
-    }
-
-    /**
-     * 递归获取院系及其所有子院系的编码列表
-     */
-    private List<String> getAllDepartmentCodes(String deptCode) {
-        List<String> codes = new ArrayList<>();
-        codes.add(deptCode);
-
-        LambdaQueryWrapper<SysDepartment> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(SysDepartment::getParentCode, deptCode);
-        List<SysDepartment> children = departmentMapper.selectList(wrapper);
-
-        for (SysDepartment child : children) {
-            codes.addAll(getAllDepartmentCodes(child.getDeptCode()));
-        }
-
-        return codes;
     }
 
     /**

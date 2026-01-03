@@ -26,9 +26,6 @@ public class CampusSaveDTO {
     @NotBlank(message = "校区名称不能为空")
     private String campusName;
 
-    @Schema(description = "上级校区编码")
-    private String parentCode;
-
     @Schema(description = "校区地址", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "校区地址不能为空")
     private String address;
