@@ -651,6 +651,202 @@ declare namespace Api {
       campuses: SchoolHierarchyNode[]
     }
 
+    /** ==================== 楼层管理 ==================== */
+    /** 楼层查询参数 */
+    interface FloorSearchParams {
+      floorCode?: string
+      floorName?: string
+      campusCode?: string
+      genderType?: number
+      status?: number
+      pageNum?: number
+      pageSize?: number
+    }
+
+    /** 楼层保存参数 */
+    interface FloorSaveParams {
+      id?: number
+      floorCode: string
+      floorName?: string
+      floorNumber: number
+      campusCode: string
+      genderType: number
+      sort?: number
+      status: number
+      remark?: string
+    }
+
+    /** 楼层列表项 */
+    interface FloorListItem {
+      id: number
+      floorCode: string
+      floorName?: string
+      floorNumber: number
+      campusCode: string
+      campusName?: string
+      genderType: number
+      genderTypeText?: string
+      totalRooms?: number
+      totalBeds?: number
+      currentOccupancy?: number
+      sort?: number
+      status: number
+      statusText?: string
+      remark?: string
+      createTime?: string
+      updateTime?: string
+    }
+
+    /** 楼层分页响应 */
+    interface FloorPageResponse extends Api.Common.PaginatedResponse<FloorListItem> {
+      records: FloorListItem[]
+      current: number
+      size: number
+      total: number
+    }
+
+    /** ==================== 房间管理 ==================== */
+    /** 房间查询参数 */
+    interface RoomSearchParams {
+      roomCode?: string
+      roomNumber?: string
+      floorId?: number
+      floorCode?: string
+      campusCode?: string
+      roomType?: string
+      roomStatus?: number
+      status?: number
+      pageNum?: number
+      pageSize?: number
+    }
+
+    /** 房间保存参数 */
+    interface RoomSaveParams {
+      id?: number
+      roomCode: string
+      roomNumber: string
+      floorId: number
+      roomType?: string
+      bedCount?: number
+      maxOccupancy?: number
+      area?: number
+      hasAirConditioner?: number
+      hasBathroom?: number
+      hasBalcony?: number
+      roomStatus?: number
+      sort?: number
+      status: number
+      remark?: string
+    }
+
+    /** 房间列表项 */
+    interface RoomListItem {
+      id: number
+      roomCode: string
+      roomNumber: string
+      floorId: number
+      floorCode?: string
+      floorName?: string
+      campusCode?: string
+      campusName?: string
+      roomType?: string
+      roomTypeText?: string
+      bedCount?: number
+      currentOccupancy?: number
+      maxOccupancy?: number
+      area?: number
+      hasAirConditioner?: number
+      hasBathroom?: number
+      hasBalcony?: number
+      roomStatus?: number
+      roomStatusText?: string
+      sort?: number
+      status: number
+      statusText?: string
+      remark?: string
+      createTime?: string
+      updateTime?: string
+    }
+
+    /** 房间分页响应 */
+    interface RoomPageResponse extends Api.Common.PaginatedResponse<RoomListItem> {
+      records: RoomListItem[]
+      current: number
+      size: number
+      total: number
+    }
+
+    /** ==================== 床位管理 ==================== */
+    /** 床位查询参数 */
+    interface BedSearchParams {
+      bedCode?: string
+      bedNumber?: string
+      roomId?: number
+      roomCode?: string
+      floorId?: number
+      floorCode?: string
+      campusCode?: string
+      bedPosition?: string
+      bedStatus?: number
+      status?: number
+      pageNum?: number
+      pageSize?: number
+    }
+
+    /** 床位保存参数 */
+    interface BedSaveParams {
+      id?: number
+      bedCode: string
+      bedNumber: string
+      roomId: number | undefined
+      bedPosition?: string
+      bedStatus?: number
+      studentId?: number
+      studentName?: string
+      checkInDate?: string
+      checkOutDate?: string
+      sort?: number
+      status: number
+      remark?: string
+    }
+
+    /** 床位列表项 */
+    interface BedListItem {
+      id: number
+      bedCode: string
+      bedNumber: string
+      roomId: number
+      roomCode?: string
+      roomNumber?: string
+      floorId?: number
+      floorCode?: string
+      floorName?: string
+      campusCode?: string
+      campusName?: string
+      bedPosition?: string
+      bedPositionText?: string
+      bedStatus?: number
+      bedStatusText?: string
+      studentId?: number
+      studentName?: string
+      checkInDate?: string
+      checkOutDate?: string
+      sort?: number
+      status: number
+      statusText?: string
+      remark?: string
+      createTime?: string
+      updateTime?: string
+    }
+
+    /** 床位分页响应 */
+    interface BedPageResponse extends Api.Common.PaginatedResponse<BedListItem> {
+      records: BedListItem[]
+      current: number
+      size: number
+      total: number
+    }
+
     /** ==================== 操作日志管理 ==================== */
     /** 操作日志查询参数 */
     interface OperLogSearchParams {

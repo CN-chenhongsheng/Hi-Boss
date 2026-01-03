@@ -51,6 +51,32 @@
           @pagination:current-change="handleCurrentChange"
         />
       </template>
+
+      <!-- 房间表格 -->
+      <template v-else-if="drillType === 'room'">
+        <ArtTable
+          :loading="loading"
+          :data="data"
+          :columns="roomColumns"
+          :pagination="pagination"
+          height="400px"
+          @pagination:size-change="handleSizeChange"
+          @pagination:current-change="handleCurrentChange"
+        />
+      </template>
+
+      <!-- 床位表格 -->
+      <template v-else-if="drillType === 'bed'">
+        <ArtTable
+          :loading="loading"
+          :data="data"
+          :columns="bedColumns"
+          :pagination="pagination"
+          height="400px"
+          @pagination:size-change="handleSizeChange"
+          @pagination:current-change="handleCurrentChange"
+        />
+      </template>
     </div>
   </ElDialog>
 </template>
@@ -60,12 +86,13 @@
   import ArtButtonTable from '@/components/core/forms/art-button-table/index.vue'
   import { useTable } from '@/hooks/core/useTable'
   import { fetchGetDepartmentPage, fetchGetMajorPage, fetchGetClassPage } from '@/api/school-manage'
+  import { fetchGetRoomPage, fetchGetBedPage } from '@/api/dormitory-manage'
   import { defaultResponseAdapter } from '@/utils/table/tableUtils'
   import { h } from 'vue'
 
   defineOptions({ name: 'DrillDownDialog' })
 
-  type DrillDownType = 'department' | 'major' | 'class'
+  type DrillDownType = 'department' | 'major' | 'class' | 'room' | 'bed'
 
   interface Props {
     visible: boolean
@@ -95,7 +122,9 @@
     const typeMap = {
       department: '查看院系',
       major: '查看专业',
-      class: '查看班级'
+      class: '查看班级',
+      room: '查看房间',
+      bed: '查看床位'
     }
     const title = typeMap[props.drillType] || '查看数据'
     return props.parentName ? `${title} - ${props.parentName}` : title
@@ -109,6 +138,10 @@
   type MajorListItem = Api.SystemManage.MajorListItem
   // 班级列表项类型
   type ClassListItem = Api.SystemManage.ClassListItem
+  // 房间列表项类型
+  type RoomListItem = Api.SystemManage.RoomListItem
+  // 床位列表项类型
+  type BedListItem = Api.SystemManage.BedListItem
 
   /**
    * 处理下钻
@@ -293,6 +326,129 @@
     }
   ]
 
+  /**
+   * 获取房间表格列配置
+   */
+  const getRoomColumns = () => [
+    {
+      prop: 'roomCode',
+      label: '房间编码',
+      minWidth: 120
+    },
+    {
+      prop: 'roomNumber',
+      label: '房间号',
+      minWidth: 120
+    },
+    {
+      prop: 'floorName',
+      label: '所属楼层',
+      minWidth: 120
+    },
+    {
+      prop: 'campusName',
+      label: '所属校区',
+      minWidth: 120
+    },
+    {
+      prop: 'roomTypeText',
+      label: '房间类型',
+      width: 100
+    },
+    {
+      prop: 'bedCount',
+      label: '床位数',
+      width: 100
+    },
+    {
+      prop: 'currentOccupancy',
+      label: '入住人数',
+      width: 100
+    },
+    {
+      prop: 'roomStatusText',
+      label: '房间状态',
+      width: 100
+    },
+    {
+      prop: 'status',
+      label: '状态',
+      width: 100,
+      formatter: (row: RoomListItem) => {
+        return row.status === 1 ? '启用' : '停用'
+      }
+    },
+    {
+      prop: 'createTime',
+      label: '创建时间',
+      width: 180
+    }
+  ]
+
+  /**
+   * 获取床位表格列配置
+   */
+  const getBedColumns = () => [
+    {
+      prop: 'bedCode',
+      label: '床位编码',
+      minWidth: 120
+    },
+    {
+      prop: 'bedNumber',
+      label: '床位号',
+      width: 100
+    },
+    {
+      prop: 'roomNumber',
+      label: '所属房间',
+      minWidth: 120
+    },
+    {
+      prop: 'floorName',
+      label: '所属楼层',
+      minWidth: 120
+    },
+    {
+      prop: 'campusName',
+      label: '所属校区',
+      minWidth: 120
+    },
+    {
+      prop: 'bedPositionText',
+      label: '床位位置',
+      width: 100
+    },
+    {
+      prop: 'bedStatusText',
+      label: '床位状态',
+      width: 100
+    },
+    {
+      prop: 'studentName',
+      label: '入住学生',
+      minWidth: 120
+    },
+    {
+      prop: 'checkInDate',
+      label: '入住日期',
+      width: 120
+    },
+    {
+      prop: 'status',
+      label: '状态',
+      width: 100,
+      formatter: (row: BedListItem) => {
+        return row.status === 1 ? '启用' : '停用'
+      }
+    },
+    {
+      prop: 'createTime',
+      label: '创建时间',
+      width: 180
+    }
+  ]
+
   // 根据类型选择API和配置
   const getApiConfig = () => {
     switch (props.drillType) {
@@ -340,6 +496,36 @@
             size: 'pageSize'
           },
           columnsFactory: () => getClassColumns()
+        }
+      case 'room':
+        return {
+          apiFn: fetchGetRoomPage,
+          apiParams: computed(
+            () =>
+              ({
+                ...props.filterParams
+              }) as Partial<Api.SystemManage.RoomSearchParams>
+          ),
+          paginationKey: {
+            current: 'pageNum',
+            size: 'pageSize'
+          },
+          columnsFactory: () => getRoomColumns()
+        }
+      case 'bed':
+        return {
+          apiFn: fetchGetBedPage,
+          apiParams: computed(
+            () =>
+              ({
+                ...props.filterParams
+              }) as Partial<Api.SystemManage.BedSearchParams>
+          ),
+          paginationKey: {
+            current: 'pageNum',
+            size: 'pageSize'
+          },
+          columnsFactory: () => getBedColumns()
         }
       default:
         throw new Error(`Unknown drill type: ${props.drillType}`)
@@ -399,6 +585,46 @@
             const list = actualResponse?.list || response?.list || []
             return {
               records: list,
+              total: actualResponse?.total || response?.total || 0,
+              current:
+                actualResponse?.current ||
+                actualResponse?.pageNum ||
+                response?.current ||
+                response?.pageNum ||
+                1,
+              size:
+                actualResponse?.size ||
+                actualResponse?.pageSize ||
+                response?.size ||
+                response?.pageSize ||
+                20
+            }
+          }
+          // 房间分页响应使用 records 字段
+          if (props.drillType === 'room') {
+            const records = actualResponse?.records || response?.records || []
+            return {
+              records: records,
+              total: actualResponse?.total || response?.total || 0,
+              current:
+                actualResponse?.current ||
+                actualResponse?.pageNum ||
+                response?.current ||
+                response?.pageNum ||
+                1,
+              size:
+                actualResponse?.size ||
+                actualResponse?.pageSize ||
+                response?.size ||
+                response?.pageSize ||
+                20
+            }
+          }
+          // 床位分页响应使用 records 字段
+          if (props.drillType === 'bed') {
+            const records = actualResponse?.records || response?.records || []
+            return {
+              records: records,
               total: actualResponse?.total || response?.total || 0,
               current:
                 actualResponse?.current ||

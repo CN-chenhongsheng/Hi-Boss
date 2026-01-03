@@ -1,20 +1,325 @@
 <!-- 床位管理页面 -->
 <template>
   <div class="bed-page art-full-height">
-    <ElCard class="art-table-card" shadow="never">
-      <ElEmpty description="功能开发中..." />
+    <!-- 搜索栏 -->
+    <BedSearch
+      v-show="showSearchBar"
+      v-model="formFilters"
+      @reset="handleReset"
+      @search="handleSearch"
+    />
+
+    <ElCard
+      class="art-table-card"
+      shadow="never"
+      :style="{ 'margin-top': showSearchBar ? '12px' : '0' }"
+    >
+      <!-- 表格头部 -->
+      <ArtTableHeader
+        :showZebra="false"
+        :loading="loading"
+        v-model:columns="columnChecks"
+        v-model:showSearchBar="showSearchBar"
+        @refresh="handleRefresh"
+      >
+        <template #left>
+          <ElSpace wrap>
+            <ElButton @click="handleAdd" v-ripple v-permission="'system:bed:add'"
+              >新增床位</ElButton
+            >
+          </ElSpace>
+        </template>
+      </ArtTableHeader>
+
+      <ArtTable
+        :loading="loading"
+        :columns="columns"
+        :data="data"
+        :stripe="false"
+        :pagination="pagination"
+        @pagination:size-change="handleSizeChange"
+        @pagination:current-change="handleCurrentChange"
+      />
+
+      <!-- 床位弹窗 -->
+      <BedDialog
+        v-model:visible="dialogVisible"
+        :type="dialogType"
+        :edit-data="editData"
+        @submit="handleSubmit"
+      />
     </ElCard>
   </div>
 </template>
 
 <script setup lang="ts">
-  defineOptions({ name: 'Bed' })
-</script>
+  import { useTable } from '@/hooks/core/useTable'
+  import BedDialog from './modules/bed-dialog.vue'
+  import BedSearch from './modules/bed-search.vue'
+  import { fetchGetBedPage, fetchDeleteBed, fetchUpdateBedStatus } from '@/api/dormitory-manage'
+  import { ElMessageBox, ElMessage } from 'element-plus'
+  import ArtSwitch from '@/components/core/forms/art-switch/index.vue'
+  import { h } from 'vue'
 
-<style scoped lang="scss">
-  .bed-page {
-    :deep(.el-empty) {
-      padding: 60px 0;
+  defineOptions({ name: 'Bed' })
+
+  type BedListItem = Api.SystemManage.BedListItem & { _statusLoading?: boolean }
+
+  // 状态管理
+  const showSearchBar = ref(false)
+
+  // 弹窗相关
+  const dialogVisible = ref(false)
+  const dialogType = ref<'add' | 'edit'>('add')
+  const editData = ref<BedListItem | null>(null)
+
+  // 搜索相关
+  const initialSearchState = {
+    bedCode: '',
+    bedNumber: '',
+    roomCode: '',
+    floorCode: '',
+    campusCode: '',
+    bedPosition: '',
+    bedStatus: undefined,
+    status: undefined,
+    pageNum: 1,
+    pageSize: 20
+  }
+
+  const formFilters = reactive({ ...initialSearchState })
+
+  // 使用 useTable 管理表格数据
+  const {
+    columns,
+    columnChecks,
+    data,
+    loading,
+    pagination,
+    getData,
+    resetSearchParams,
+    refreshData,
+    refreshCreate,
+    refreshUpdate,
+    refreshRemove,
+    handleSizeChange,
+    handleCurrentChange
+  } = useTable<typeof fetchGetBedPage>({
+    core: {
+      apiFn: fetchGetBedPage,
+      apiParams: computed(() => {
+        return {
+          bedCode: formFilters.bedCode || undefined,
+          bedNumber: formFilters.bedNumber || undefined,
+          roomCode: formFilters.roomCode || undefined,
+          floorCode: formFilters.floorCode || undefined,
+          campusCode: formFilters.campusCode || undefined,
+          bedPosition: formFilters.bedPosition || undefined,
+          bedStatus: formFilters.bedStatus,
+          status: formFilters.status,
+          pageNum: formFilters.pageNum,
+          pageSize: formFilters.pageSize
+        } as Partial<Api.SystemManage.BedSearchParams>
+      }),
+      paginationKey: {
+        current: 'pageNum',
+        size: 'pageSize'
+      },
+      columnsFactory: () => [
+        {
+          prop: 'bedCode',
+          label: '床位编码',
+          minWidth: 120
+        },
+        {
+          prop: 'bedNumber',
+          label: '床位号',
+          width: 100
+        },
+        {
+          prop: 'roomNumber',
+          label: '所属房间',
+          minWidth: 120
+        },
+        {
+          prop: 'floorName',
+          label: '所属楼层',
+          minWidth: 120
+        },
+        {
+          prop: 'campusName',
+          label: '所属校区',
+          minWidth: 120
+        },
+        {
+          prop: 'bedPositionText',
+          label: '床位位置',
+          width: 100
+        },
+        {
+          prop: 'bedStatusText',
+          label: '床位状态',
+          width: 100
+        },
+        {
+          prop: 'studentName',
+          label: '入住学生',
+          minWidth: 120
+        },
+        {
+          prop: 'checkInDate',
+          label: '入住日期',
+          width: 120
+        },
+        {
+          prop: 'status',
+          label: '状态',
+          width: 100,
+          formatter: (row: BedListItem) => {
+            return h(ArtSwitch, {
+              modelValue: row.status === 1,
+              loading: row._statusLoading || false,
+              inlinePrompt: true,
+              onChange: (value: string | number | boolean) => {
+                handleStatusChange(row, value === true || value === 1)
+              }
+            })
+          }
+        },
+        {
+          prop: 'sort',
+          label: '排序',
+          width: 85,
+          sortable: true
+        },
+        {
+          prop: 'createTime',
+          label: '创建时间',
+          width: 180
+        },
+        {
+          prop: 'action',
+          label: '操作',
+          width: 150,
+          fixed: 'right' as const,
+          formatter: (row: BedListItem) => [
+            { type: 'edit', onClick: () => handleEdit(row), auth: 'system:bed:edit' },
+            {
+              type: 'delete',
+              onClick: () => handleDelete(row),
+              auth: 'system:bed:delete',
+              danger: true
+            }
+          ]
+        }
+      ],
+      immediate: true
+    }
+  })
+
+  /**
+   * 搜索
+   */
+  const handleSearch = async (): Promise<void> => {
+    formFilters.pageNum = 1
+    await getData()
+  }
+
+  /**
+   * 重置搜索
+   */
+  const handleReset = async (): Promise<void> => {
+    Object.assign(formFilters, { ...initialSearchState, pageNum: 1, pageSize: 20 })
+    await resetSearchParams()
+  }
+
+  /**
+   * 刷新数据
+   */
+  const handleRefresh = (): void => {
+    refreshData()
+  }
+
+  /**
+   * 新增床位
+   */
+  const handleAdd = (): void => {
+    dialogType.value = 'add'
+    editData.value = null
+    dialogVisible.value = true
+  }
+
+  /**
+   * 编辑床位
+   */
+  const handleEdit = (row: BedListItem): void => {
+    dialogType.value = 'edit'
+    editData.value = { ...row }
+    dialogVisible.value = true
+  }
+
+  /**
+   * 删除床位
+   */
+  const handleDelete = async (row: BedListItem): Promise<void> => {
+    try {
+      await ElMessageBox.confirm(
+        `确定要删除床位"${row.bedNumber || row.bedCode}"吗？`,
+        '删除确认',
+        {
+          type: 'warning',
+          confirmButtonText: '确定删除',
+          cancelButtonText: '取消'
+        }
+      )
+      await fetchDeleteBed(row.id)
+      ElMessage.success('删除成功')
+      await refreshRemove()
+    } catch (error) {
+      if (error !== 'cancel') {
+        console.error('删除床位失败:', error)
+      }
     }
   }
-</style>
+
+  /**
+   * 状态切换
+   */
+  const handleStatusChange = async (row: BedListItem, enabled: boolean): Promise<void> => {
+    try {
+      row._statusLoading = true
+      const status = enabled ? 1 : 0
+      await ElMessageBox.confirm(
+        `确定要${enabled ? '启用' : '停用'}床位"${row.bedNumber || row.bedCode}"吗？`,
+        '状态确认',
+        {
+          type: 'warning',
+          confirmButtonText: '确定',
+          cancelButtonText: '取消'
+        }
+      )
+      await fetchUpdateBedStatus(row.id, status)
+      ElMessage.success(`${enabled ? '启用' : '停用'}成功`)
+      await refreshData()
+    } catch (error) {
+      if (error !== 'cancel') {
+        console.error('状态切换失败:', error)
+        await refreshData()
+      }
+    } finally {
+      row._statusLoading = false
+    }
+  }
+
+  /**
+   * 弹窗提交
+   */
+  const handleSubmit = async (): Promise<void> => {
+    dialogVisible.value = false
+    if (dialogType.value === 'add') {
+      await refreshCreate()
+    } else {
+      await refreshUpdate()
+    }
+  }
+</script>
