@@ -18,10 +18,11 @@
           :loading="loading"
           :columns="departmentColumns"
           :data="data"
+          :pagination="pagination"
           :stripe="false"
-          :tree-props="{ children: 'children', hasChildren: 'hasChildren' }"
-          :default-expand-all="false"
           height="400px"
+          @pagination:size-change="handleSizeChange"
+          @pagination:current-change="handleCurrentChange"
         />
       </template>
 
@@ -58,7 +59,7 @@
   import ArtTable from '@/components/core/tables/art-table/index.vue'
   import ArtButtonTable from '@/components/core/forms/art-button-table/index.vue'
   import { useTable } from '@/hooks/core/useTable'
-  import { fetchGetDepartmentTree, fetchGetMajorPage, fetchGetClassPage } from '@/api/school-manage'
+  import { fetchGetDepartmentPage, fetchGetMajorPage, fetchGetClassPage } from '@/api/school-manage'
   import { defaultResponseAdapter } from '@/utils/table/tableUtils'
   import { h } from 'vue'
 
@@ -297,13 +298,17 @@
     switch (props.drillType) {
       case 'department':
         return {
-          apiFn: fetchGetDepartmentTree,
+          apiFn: fetchGetDepartmentPage,
           apiParams: computed(
             () =>
               ({
                 ...props.filterParams
               }) as Partial<Api.SystemManage.DepartmentSearchParams>
           ),
+          paginationKey: {
+            current: 'pageNum',
+            size: 'pageSize'
+          },
           columnsFactory: () => getDepartmentColumns()
         }
       case 'major':
@@ -312,8 +317,6 @@
           apiParams: computed(
             () =>
               ({
-                pageNum: 1,
-                pageSize: 20,
                 ...props.filterParams
               }) as Partial<Api.SystemManage.MajorSearchParams>
           ),
@@ -329,8 +332,6 @@
           apiParams: computed(
             () =>
               ({
-                pageNum: 1,
-                pageSize: 20,
                 ...props.filterParams
               }) as Partial<Api.SystemManage.ClassSearchParams>
           ),
@@ -353,6 +354,26 @@
           // 处理可能的嵌套 data 字段
           const actualResponse = response?.data || response
 
+          // 院系分页响应
+          if (props.drillType === 'department') {
+            const list = actualResponse?.list || response?.list || []
+            return {
+              records: list,
+              total: actualResponse?.total || response?.total || 0,
+              current:
+                actualResponse?.current ||
+                actualResponse?.pageNum ||
+                response?.current ||
+                response?.pageNum ||
+                1,
+              size:
+                actualResponse?.size ||
+                actualResponse?.pageSize ||
+                response?.size ||
+                response?.pageSize ||
+                20
+            }
+          }
           // 专业分页响应使用 list 字段
           if (props.drillType === 'major') {
             const list = actualResponse?.list || response?.list || []

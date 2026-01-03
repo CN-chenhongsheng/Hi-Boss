@@ -31,7 +31,15 @@
         </template>
       </ArtTableHeader>
 
-      <ArtTable :loading="loading" :columns="columns" :data="data" :stripe="false" />
+      <ArtTable
+        :loading="loading"
+        :columns="columns"
+        :data="data"
+        :pagination="pagination"
+        :stripe="false"
+        @pagination:size-change="handleSizeChange"
+        @pagination:current-change="handleCurrentChange"
+      />
 
       <!-- 院系弹窗 -->
       <DepartmentDialog
@@ -67,7 +75,7 @@
   import { useTable } from '@/hooks/core/useTable'
   import DepartmentDialog from './modules/department-dialog.vue'
   import {
-    fetchGetDepartmentTree,
+    fetchGetDepartmentPage,
     fetchDeleteDepartment,
     fetchUpdateDepartmentStatus
   } from '@/api/school-manage'
@@ -77,7 +85,7 @@
   import ArtSwitch from '@/components/core/forms/art-switch/index.vue'
   import { h } from 'vue'
 
-  defineOptions({ name: 'Department' })
+  defineOptions({ name: 'OrganizationDepartment' })
 
   type DepartmentListItem = Api.SystemManage.DepartmentListItem & { _statusLoading?: boolean }
 
@@ -99,13 +107,15 @@
 
   // 搜索相关
   const initialSearchState = {
+    pageNum: 1,
+    pageSize: 20,
     deptCode: '',
     deptName: '',
     campusCode: '',
     status: undefined
   }
 
-  const formFilters = reactive({ ...initialSearchState })
+  const formFilters = reactive<Api.SystemManage.DepartmentSearchParams>({ ...initialSearchState })
 
   // 使用 useTable 管理表格数据
   const {
@@ -113,23 +123,32 @@
     columnChecks,
     data,
     loading,
+    pagination,
     getData,
     resetSearchParams,
+    handleSizeChange,
+    handleCurrentChange,
     refreshData,
     refreshCreate,
     refreshUpdate,
     refreshRemove
-  } = useTable<typeof fetchGetDepartmentTree>({
+  } = useTable<typeof fetchGetDepartmentPage>({
     core: {
-      apiFn: fetchGetDepartmentTree,
+      apiFn: fetchGetDepartmentPage,
       apiParams: computed(() => {
         return {
+          pageNum: formFilters.pageNum,
+          pageSize: formFilters.pageSize,
           deptCode: formFilters.deptCode || undefined,
           deptName: formFilters.deptName || undefined,
           campusCode: formFilters.campusCode || undefined,
           status: formFilters.status
         } as Partial<Api.SystemManage.DepartmentSearchParams>
       }),
+      paginationKey: {
+        current: 'pageNum',
+        size: 'pageSize'
+      },
       columnsFactory: () => [
         {
           prop: 'deptCode',
@@ -214,7 +233,11 @@
    * 重置搜索
    */
   const handleReset = async (): Promise<void> => {
-    Object.assign(formFilters, initialSearchState)
+    Object.assign(formFilters, {
+      ...initialSearchState,
+      pageNum: 1,
+      pageSize: 20
+    })
     await resetSearchParams()
   }
 

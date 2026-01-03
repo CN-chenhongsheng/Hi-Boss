@@ -1,8 +1,8 @@
-<!-- 专业管理页面 -->
+<!-- 班级管理页面 -->
 <template>
-  <div class="major-page art-full-height">
+  <div class="class-page art-full-height">
     <!-- 搜索栏 -->
-    <MajorSearch
+    <ClassSearch
       v-show="showSearchBar"
       v-model="formFilters"
       @reset="handleReset"
@@ -23,14 +23,14 @@
       >
         <template #left>
           <ElSpace wrap>
-            <ElButton @click="handleAdd" v-ripple v-permission="'system:major:add'"
-              >新增专业</ElButton
+            <ElButton @click="handleAdd" v-ripple v-permission="'system:class:add'"
+              >新增班级</ElButton
             >
             <ElButton
               :disabled="selectedRows.length === 0"
               @click="handleBatchDelete"
               v-ripple
-              v-permission="'system:major:delete'"
+              v-permission="'system:class:delete'"
             >
               批量删除
             </ElButton>
@@ -48,21 +48,12 @@
         @pagination:current-change="handleCurrentChange"
       />
 
-      <!-- 专业弹窗 -->
-      <MajorDialog
+      <!-- 班级弹窗 -->
+      <ClassDialog
         v-model:visible="dialogVisible"
         :type="dialogType"
-        :edit-data="currentMajorData"
+        :edit-data="currentClassData"
         @submit="handleDialogSubmit"
-      />
-
-      <!-- 下钻弹框 -->
-      <DrillDownDialog
-        v-model:visible="drillDownVisible"
-        :drill-type="drillDownType"
-        :parent-name="drillDownParentName"
-        :filter-params="drillDownFilterParams"
-        :key="`${drillDownType}-${drillDownVisible}`"
       />
     </ElCard>
   </div>
@@ -71,43 +62,38 @@
 <script setup lang="ts">
   import { useTable } from '@/hooks/core/useTable'
   import {
-    fetchGetMajorPage,
-    fetchDeleteMajor,
-    fetchBatchDeleteMajor,
-    fetchUpdateMajorStatus
+    fetchGetClassPage,
+    fetchDeleteClass,
+    fetchBatchDeleteClass,
+    fetchUpdateClassStatus
   } from '@/api/school-manage'
-  import DrillDownDialog from '@/components/school/DrillDownDialog.vue'
   import ArtSwitch from '@/components/core/forms/art-switch/index.vue'
-  import MajorDialog from './modules/major-dialog.vue'
-  import MajorSearch from './modules/major-search.vue'
+  import ClassDialog from './modules/class-dialog.vue'
+  import ClassSearch from './modules/class-search.vue'
   import { ElMessageBox, ElMessage } from 'element-plus'
   import { DialogType } from '@/types'
   import { h } from 'vue'
 
-  defineOptions({ name: 'Major' })
+  defineOptions({ name: 'OrganizationClass' })
 
-  type MajorListItem = Api.SystemManage.MajorListItem & { _statusLoading?: boolean }
+  type ClassListItem = Api.SystemManage.ClassListItem & { _statusLoading?: boolean }
 
   // 弹窗相关
   const dialogType = ref<DialogType>('add')
   const dialogVisible = ref(false)
-  const currentMajorData = ref<Partial<MajorListItem>>({})
-  const selectedRows = ref<MajorListItem[]>([])
+  const currentClassData = ref<Partial<ClassListItem>>({})
+  const selectedRows = ref<ClassListItem[]>([])
   const showSearchBar = ref(false)
 
-  // 下钻弹框相关
-  const drillDownVisible = ref(false)
-  const drillDownType = ref<'department' | 'major' | 'class'>('class')
-  const drillDownParentName = ref('')
-  const drillDownFilterParams = ref<Record<string, any>>({})
-
   // 搜索栏表单数据（使用 reactive 以确保双向绑定正常工作）
-  const formFilters = reactive<Api.SystemManage.MajorSearchParams>({
+  const formFilters = reactive<Api.SystemManage.ClassSearchParams>({
     pageNum: 1,
     pageSize: 20,
+    classCode: undefined,
+    className: undefined,
     majorCode: undefined,
-    majorName: undefined,
-    deptCode: undefined,
+    grade: undefined,
+    enrollmentYear: undefined,
     status: undefined
   })
 
@@ -125,16 +111,18 @@
     refreshCreate,
     refreshUpdate,
     refreshRemove
-  } = useTable<typeof fetchGetMajorPage>({
+  } = useTable<typeof fetchGetClassPage>({
     core: {
-      apiFn: fetchGetMajorPage,
+      apiFn: fetchGetClassPage,
       apiParams: computed(() => {
         return {
+          classCode: formFilters.classCode || undefined,
+          className: formFilters.className || undefined,
           majorCode: formFilters.majorCode || undefined,
-          majorName: formFilters.majorName || undefined,
-          deptCode: formFilters.deptCode || undefined,
+          grade: formFilters.grade || undefined,
+          enrollmentYear: formFilters.enrollmentYear,
           status: formFilters.status
-        } as Partial<Api.SystemManage.MajorSearchParams>
+        } as Partial<Api.SystemManage.ClassSearchParams>
       }),
       paginationKey: {
         current: 'pageNum',
@@ -146,40 +134,45 @@
           width: 55
         },
         {
-          prop: 'majorCode',
-          label: '专业编码',
+          prop: 'classCode',
+          label: '班级编码',
           minWidth: 120
+        },
+        {
+          prop: 'className',
+          label: '班级名称',
+          minWidth: 150
         },
         {
           prop: 'majorName',
-          label: '专业名称',
+          label: '所属专业',
           minWidth: 150
         },
         {
-          prop: 'deptName',
-          label: '所属院系',
-          minWidth: 150
-        },
-        {
-          prop: 'director',
-          label: '专业负责人',
-          minWidth: 120
-        },
-        {
-          prop: 'typeText',
-          label: '类型',
+          prop: 'grade',
+          label: '年级',
           width: 100
         },
         {
-          prop: 'duration',
-          label: '学制',
+          prop: 'enrollmentYear',
+          label: '入学年份',
+          width: 100
+        },
+        {
+          prop: 'teacher',
+          label: '负责人',
+          minWidth: 120
+        },
+        {
+          prop: 'currentCount',
+          label: '当前人数',
           width: 100
         },
         {
           prop: 'status',
           label: '状态',
           width: 100,
-          formatter: (row: MajorListItem) => {
+          formatter: (row: ClassListItem) => {
             return h(ArtSwitch, {
               modelValue: row.status === 1,
               loading: row._statusLoading || false,
@@ -200,13 +193,12 @@
           label: '操作',
           width: 180,
           fixed: 'right' as const,
-          formatter: (row: MajorListItem) => [
-            { type: 'view', onClick: () => handleViewClasses(row) },
-            { type: 'edit', onClick: () => handleEdit(row), auth: 'system:major:edit' },
+          formatter: (row: ClassListItem) => [
+            { type: 'edit', onClick: () => handleEdit(row), auth: 'system:class:edit' },
             {
               type: 'delete',
               onClick: () => handleDelete(row),
-              auth: 'system:major:delete',
+              auth: 'system:class:delete',
               danger: true
             }
           ]
@@ -227,9 +219,11 @@
    */
   const handleReset = async (): Promise<void> => {
     Object.assign(formFilters, {
+      classCode: undefined,
+      className: undefined,
       majorCode: undefined,
-      majorName: undefined,
-      deptCode: undefined,
+      grade: undefined,
+      enrollmentYear: undefined,
       status: undefined
     })
     await resetSearchParams()
@@ -243,44 +237,43 @@
   }
 
   /**
-   * 新增专业
+   * 新增班级
    */
   const handleAdd = (): void => {
     dialogType.value = 'add'
-    currentMajorData.value = {}
+    currentClassData.value = {}
     dialogVisible.value = true
   }
 
   /**
-   * 编辑专业
+   * 编辑班级
    */
-  const handleEdit = (row: MajorListItem): void => {
+  const handleEdit = (row: ClassListItem): void => {
     dialogType.value = 'edit'
-    currentMajorData.value = { ...row }
+    currentClassData.value = { ...row }
     dialogVisible.value = true
   }
 
   /**
-   * 删除专业
+   * 删除班级
    */
-  const handleDelete = async (row: MajorListItem): Promise<void> => {
+  const handleDelete = async (row: ClassListItem): Promise<void> => {
     try {
       await ElMessageBox.confirm(
-        `确定要删除专业"${row.majorName}"吗？<br/>提示：删除专业后，该专业下的所有班级也会被删除。`,
+        `确定要删除班级"${row.className}"吗？此操作不可恢复！`,
         '删除确认',
         {
           type: 'warning',
           confirmButtonText: '确定删除',
-          cancelButtonText: '取消',
-          dangerouslyUseHTMLString: true
+          cancelButtonText: '取消'
         }
       )
-      await fetchDeleteMajor(row.id)
+      await fetchDeleteClass(row.id)
       ElMessage.success('删除成功')
       await refreshRemove()
     } catch (error) {
       if (error !== 'cancel') {
-        console.error('删除专业失败:', error)
+        console.error('删除班级失败:', error)
       }
     }
   }
@@ -290,23 +283,22 @@
    */
   const handleBatchDelete = async (): Promise<void> => {
     if (selectedRows.value.length === 0) {
-      ElMessage.warning('请选择要删除的专业')
+      ElMessage.warning('请选择要删除的班级')
       return
     }
 
     try {
       await ElMessageBox.confirm(
-        `确定要删除选中的 ${selectedRows.value.length} 个专业吗？<br/>提示：删除专业后，这些专业下的所有班级也会被删除。`,
+        `确定要删除选中的 ${selectedRows.value.length} 个班级吗？此操作不可恢复！`,
         '批量删除确认',
         {
           type: 'warning',
           confirmButtonText: '确定删除',
-          cancelButtonText: '取消',
-          dangerouslyUseHTMLString: true
+          cancelButtonText: '取消'
         }
       )
       const ids = selectedRows.value.map((item) => item.id)
-      await fetchBatchDeleteMajor(ids)
+      await fetchBatchDeleteClass(ids)
       ElMessage.success('批量删除成功')
       selectedRows.value = []
       await refreshRemove()
@@ -320,7 +312,7 @@
   /**
    * 选择变化
    */
-  const handleSelectionChange = (selection: MajorListItem[]): void => {
+  const handleSelectionChange = (selection: ClassListItem[]): void => {
     selectedRows.value = selection
   }
 
@@ -338,46 +330,17 @@
   }
 
   /**
-   * 查看班级
+   * 更新班级状态
    */
-  const handleViewClasses = (row: MajorListItem): void => {
-    drillDownType.value = 'class'
-    drillDownParentName.value = row.majorName
-    drillDownFilterParams.value = { majorCode: row.majorCode }
-    drillDownVisible.value = true
-  }
-
-  /**
-   * 更新专业状态
-   */
-  const handleStatusChange = async (row: MajorListItem, value: boolean): Promise<void> => {
-    // 如果是关闭操作（从启用变为停用），需要提示用户级联影响
-    if (!value && row.status === 1) {
-      try {
-        await ElMessageBox.confirm(
-          `确定要停用专业"${row.majorName}"吗？<br/>提示：停用专业后，该专业下的所有班级也会被停用。`,
-          '确认停用',
-          {
-            type: 'warning',
-            confirmButtonText: '确认停用',
-            cancelButtonText: '取消',
-            dangerouslyUseHTMLString: true
-          }
-        )
-      } catch {
-        // 用户取消操作，不执行任何更改
-        return
-      }
-    }
-
+  const handleStatusChange = async (row: ClassListItem, value: boolean): Promise<void> => {
     const originalStatus = row.status
     try {
       row._statusLoading = true
       row.status = value ? 1 : 0
-      await fetchUpdateMajorStatus(row.id, value ? 1 : 0)
+      await fetchUpdateClassStatus(row.id, value ? 1 : 0)
     } catch (error) {
-      console.error('更新专业状态失败:', error)
-      ElMessage.error('更新专业状态失败')
+      console.error('更新班级状态失败:', error)
+      ElMessage.error('更新班级状态失败')
       row.status = originalStatus
     } finally {
       row._statusLoading = false

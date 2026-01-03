@@ -41,7 +41,7 @@
         @submit="handleSubmit"
       />
 
-      <!-- 下钻弹框 -->
+      <!-- 下钻弹框（院系） -->
       <DrillDownDialog
         v-model:visible="drillDownVisible"
         :drill-type="drillDownType"
