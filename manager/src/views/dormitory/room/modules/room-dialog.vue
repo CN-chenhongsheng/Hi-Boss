@@ -3,7 +3,7 @@
   <ElDialog
     v-model="dialogVisible"
     :title="dialogTitle"
-    width="700px"
+    width="720px"
     :close-on-click-modal="false"
     @close="handleClose"
   >
@@ -86,25 +86,45 @@
         </ElCol>
       </ElRow>
 
-      <ElRow :gutter="20">
-        <ElCol :span="8">
+      <ElRow :gutter="16">
+        <ElCol :span="12">
           <ElFormItem label="床位数" prop="bedCount">
-            <ElInputNumber v-model="form.bedCount" :min="1" :max="20" placeholder="床位数" />
+            <ElInputNumber
+              v-model="form.bedCount"
+              :min="1"
+              :max="20"
+              placeholder="请输入床位数"
+              class="w-full"
+            />
           </ElFormItem>
         </ElCol>
-        <ElCol :span="8">
+        <ElCol :span="12">
           <ElFormItem label="最大入住人数" prop="maxOccupancy">
             <ElInputNumber
               v-model="form.maxOccupancy"
               :min="1"
               :max="20"
-              placeholder="最大入住人数"
+              placeholder="请输入最大入住人数"
+              class="w-full"
             />
           </ElFormItem>
         </ElCol>
-        <ElCol :span="8">
+      </ElRow>
+      <ElRow :gutter="16">
+        <ElCol :span="12">
           <ElFormItem label="房间面积(㎡)" prop="area">
-            <ElInputNumber v-model="form.area" :min="0" :precision="2" placeholder="房间面积" />
+            <ElInputNumber
+              v-model="form.area"
+              :min="0"
+              :precision="2"
+              placeholder="请输入房间面积"
+              class="w-full"
+            />
+          </ElFormItem>
+        </ElCol>
+        <ElCol :span="12">
+          <ElFormItem label="排序序号" prop="sort">
+            <ElInputNumber v-model="form.sort" :min="0" :max="9999" />
           </ElFormItem>
         </ElCol>
       </ElRow>
@@ -124,11 +144,6 @@
               <ElRadio :label="1">启用</ElRadio>
               <ElRadio :label="0">停用</ElRadio>
             </ElRadioGroup>
-          </ElFormItem>
-        </ElCol>
-        <ElCol :span="12">
-          <ElFormItem label="排序序号" prop="sort">
-            <ElInputNumber v-model="form.sort" :min="0" :max="9999" />
           </ElFormItem>
         </ElCol>
       </ElRow>
@@ -235,7 +250,7 @@
     }
     try {
       const res = await fetchGetFloorPage({ campusCode, pageNum: 1, pageSize: 1000 })
-      floorList.value = res?.records || []
+      floorList.value = res?.list || []
     } catch (error) {
       console.error('加载楼层列表失败:', error)
     }

@@ -28,7 +28,7 @@ public class FloorVO implements Serializable {
     @Schema(description = "楼层名称")
     private String floorName;
 
-    @Schema(description = "楼层号（数字）")
+    @Schema(description = "楼层数（数字）")
     private Integer floorNumber;
 
     @Schema(description = "所属校区编码")

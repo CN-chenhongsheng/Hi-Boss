@@ -26,7 +26,7 @@ public class SysFloor extends BaseEntity {
     @TableField("floor_name")
     private String floorName;
 
-    @Schema(description = "楼层号（数字）")
+    @Schema(description = "楼层数（数字）")
     @TableField("floor_number")
     private Integer floorNumber;
 

@@ -510,6 +510,11 @@ html.dark .el-card {
   outline: none !important;
 }
 
+// 修改 el-input-number 样式
+.el-input-number {
+  width: 100% !important;
+}
+
 // 数字输入组件右侧按钮高度跟随自定义组件高度
 .el-input-number--default.is-controls-right {
   .el-input-number__decrease,

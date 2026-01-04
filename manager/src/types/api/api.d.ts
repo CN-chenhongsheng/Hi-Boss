@@ -699,10 +699,11 @@ declare namespace Api {
 
     /** 楼层分页响应 */
     interface FloorPageResponse extends Api.Common.PaginatedResponse<FloorListItem> {
-      records: FloorListItem[]
-      current: number
-      size: number
+      list: FloorListItem[]
       total: number
+      pageNum: number
+      pageSize: number
+      totalPages: number
     }
 
     /** ==================== 房间管理 ==================== */
@@ -770,10 +771,11 @@ declare namespace Api {
 
     /** 房间分页响应 */
     interface RoomPageResponse extends Api.Common.PaginatedResponse<RoomListItem> {
-      records: RoomListItem[]
-      current: number
-      size: number
+      list: RoomListItem[]
       total: number
+      pageNum: number
+      pageSize: number
+      totalPages: number
     }
 
     /** ==================== 床位管理 ==================== */
@@ -841,10 +843,11 @@ declare namespace Api {
 
     /** 床位分页响应 */
     interface BedPageResponse extends Api.Common.PaginatedResponse<BedListItem> {
-      records: BedListItem[]
-      current: number
-      size: number
+      list: BedListItem[]
       total: number
+      pageNum: number
+      pageSize: number
+      totalPages: number
     }
 
     /** ==================== 操作日志管理 ==================== */

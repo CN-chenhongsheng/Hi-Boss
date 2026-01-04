@@ -22,12 +22,12 @@
 
       <ElRow :gutter="20">
         <ElCol :span="12">
-          <ElFormItem label="楼层号" prop="floorNumber">
+          <ElFormItem label="楼层数" prop="floorNumber">
             <ElInputNumber
               v-model="form.floorNumber"
               :min="1"
               :max="999"
-              placeholder="请输入楼层号"
+              placeholder="请输入楼层数"
             />
           </ElFormItem>
         </ElCol>
@@ -132,7 +132,7 @@
 
   const rules = reactive<FormRules>({
     floorCode: [{ required: true, message: '请输入楼层编码', trigger: 'blur' }],
-    floorNumber: [{ required: true, message: '请输入楼层号', trigger: 'blur' }],
+    floorNumber: [{ required: true, message: '请输入楼层数', trigger: 'blur' }],
     campusCode: [{ required: true, message: '请选择所属校区', trigger: 'change' }],
     genderType: [{ required: true, message: '请选择适用性别', trigger: 'change' }]
   })

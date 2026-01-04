@@ -152,7 +152,7 @@
         },
         {
           prop: 'floorNumber',
-          label: '楼层号',
+          label: '楼层数',
           width: 100
         },
         {

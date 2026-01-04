@@ -25,8 +25,8 @@ public class FloorSaveDTO {
     @Schema(description = "楼层名称")
     private String floorName;
 
-    @Schema(description = "楼层号（数字）", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "楼层号不能为空")
+    @Schema(description = "楼层数（数字）", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "楼层数不能为空")
     private Integer floorNumber;
 
     @Schema(description = "所属校区编码", requiredMode = Schema.RequiredMode.REQUIRED)

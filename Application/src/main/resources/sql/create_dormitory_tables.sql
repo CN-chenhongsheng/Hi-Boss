@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS `sys_floor` (
     `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '主键ID',
     `floor_code` VARCHAR(50) NOT NULL COMMENT '楼层编码（如：F1、F2）',
     `floor_name` VARCHAR(100) DEFAULT NULL COMMENT '楼层名称（如：1楼、2楼）',
-    `floor_number` INT NOT NULL COMMENT '楼层号（数字，如：1、2、3）',
+    `floor_number` INT NOT NULL COMMENT '楼层数（数字，如：1、2、3）',
     `campus_code` VARCHAR(50) NOT NULL COMMENT '所属校区编码（关联sys_campus）',
     `gender_type` TINYINT NOT NULL DEFAULT 3 COMMENT '适用性别：1男 2女 3混合',
     `total_rooms` INT NOT NULL DEFAULT 0 COMMENT '该楼层房间数（统计字段）',
