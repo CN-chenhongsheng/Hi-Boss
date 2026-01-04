@@ -15,32 +15,32 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserWithRoleCodeDTO {
-    
+
     /**
      * 用户ID
      */
     private Long id;
-    
+
     /**
      * 用户名
      */
     private String username;
-    
+
     /**
      * 昵称
      */
     private String nickname;
-    
+
     /**
      * 手机号
      */
     private String phone;
-    
+
     /**
      * 邮箱
      */
     private String email;
-    
+
     /**
      * 角色代码
      */
