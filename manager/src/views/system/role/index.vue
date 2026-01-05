@@ -25,12 +25,12 @@
               新增角色
             </ElButton>
             <ElButton
-              :disabled="selectedRows.length === 0"
+              :disabled="selectedCount === 0"
               @click="handleBatchDelete"
               v-ripple
               v-permission="'system:role:delete'"
             >
-              批量删除
+              批量删除{{ selectedCount > 0 ? `(${selectedCount})` : '' }}
             </ElButton>
           </ElSpace>
         </template>
@@ -68,7 +68,12 @@
 
 <script setup lang="ts">
   import { useTable } from '@/hooks/core/useTable'
-  import { fetchGetRoleList, fetchDeleteRole, fetchUpdateRoleStatus } from '@/api/system-manage'
+  import {
+    fetchGetRoleList,
+    fetchDeleteRole,
+    fetchBatchDeleteRole,
+    fetchUpdateRoleStatus
+  } from '@/api/system-manage'
   import RoleSearch from './modules/role-search.vue'
   import RoleEditDialog from './modules/role-edit-dialog.vue'
   import RolePermissionDialog from './modules/role-permission-dialog.vue'
@@ -93,6 +98,7 @@
   const permissionDialog = ref(false)
   const currentRoleData = ref<RoleListItem | undefined>(undefined)
   const selectedRows = ref<RoleListItem[]>([])
+  const selectedCount = computed(() => selectedRows.value.length)
 
   const {
     columns,
@@ -281,7 +287,7 @@
    * 批量删除
    */
   const handleBatchDelete = async () => {
-    if (selectedRows.value.length === 0) {
+    if (selectedCount.value === 0) {
       ElMessage.warning('请先选择要删除的角色')
       return
     }
@@ -295,7 +301,7 @@
 
     try {
       await ElMessageBox.confirm(
-        `确定要删除选中的 ${selectedRows.value.length} 个角色吗？<br/>提示：删除角色后，这些角色下的所有用户关联也会被删除。`,
+        `确定要删除选中的 ${selectedCount.value} 个角色吗？<br/>提示：删除角色后，这些角色下的所有用户关联也会被删除。`,
         '批量删除',
         {
           type: 'warning',
@@ -305,10 +311,8 @@
         }
       )
 
-      // 逐个删除
-      for (const role of selectedRows.value) {
-        await fetchDeleteRole(role.id)
-      }
+      const ids = selectedRows.value.map((role) => role.id)
+      await fetchBatchDeleteRole(ids)
 
       ElMessage.success('批量删除成功')
       selectedRows.value = []

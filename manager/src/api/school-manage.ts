@@ -374,3 +374,18 @@ export function fetchGetSchoolHierarchy() {
     url: '/api/v1/system/school/hierarchy'
   })
 }
+
+/** ==================== 学年管理 ==================== */
+
+/**
+ * 批量删除学年
+ * @param ids 学年ID数组
+ * @note 后端接口待实现
+ */
+export function fetchBatchDeleteAcademicYear(ids: number[]) {
+  return request.del({
+    url: '/api/v1/system/academic-year/batch',
+    data: ids,
+    showSuccessMessage: true
+  })
+}

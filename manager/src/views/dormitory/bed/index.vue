@@ -27,6 +27,14 @@
             <ElButton @click="handleAdd" v-ripple v-permission="'system:bed:add'"
               >新增床位</ElButton
             >
+            <ElButton
+              :disabled="selectedCount === 0"
+              @click="handleBatchDelete"
+              v-ripple
+              v-permission="'system:bed:delete'"
+            >
+              批量删除{{ selectedCount > 0 ? `(${selectedCount})` : '' }}
+            </ElButton>
           </ElSpace>
         </template>
       </ArtTableHeader>
@@ -37,6 +45,8 @@
         :data="data"
         :stripe="false"
         :pagination="pagination"
+        row-key="id"
+        @selection-change="handleSelectionChange"
         @pagination:size-change="handleSizeChange"
         @pagination:current-change="handleCurrentChange"
       />
@@ -56,7 +66,12 @@
   import { useTable } from '@/hooks/core/useTable'
   import BedDialog from './modules/bed-dialog.vue'
   import BedSearch from './modules/bed-search.vue'
-  import { fetchGetBedPage, fetchDeleteBed, fetchUpdateBedStatus } from '@/api/dormitory-manage'
+  import {
+    fetchGetBedPage,
+    fetchDeleteBed,
+    fetchBatchDeleteBed,
+    fetchUpdateBedStatus
+  } from '@/api/dormitory-manage'
   import { ElMessageBox, ElMessage } from 'element-plus'
   import ArtSwitch from '@/components/core/forms/art-switch/index.vue'
   import { h } from 'vue'
@@ -72,6 +87,11 @@
   const dialogVisible = ref(false)
   const dialogType = ref<'add' | 'edit'>('add')
   const editData = ref<BedListItem | null>(null)
+
+  // 批量选择
+  const selectedRows = ref<BedListItem[]>([])
+  const selectedIds = computed(() => selectedRows.value.map((item) => item.id))
+  const selectedCount = computed(() => selectedRows.value.length)
 
   // 搜索相关
   const initialSearchState = {
@@ -126,6 +146,11 @@
         size: 'pageSize'
       },
       columnsFactory: () => [
+        {
+          type: 'selection',
+          width: 50,
+          reserveSelection: true
+        },
         {
           prop: 'bedCode',
           label: '床位编码',
@@ -278,6 +303,43 @@
     } catch (error) {
       if (error !== 'cancel') {
         console.error('删除床位失败:', error)
+      }
+    }
+  }
+
+  /**
+   * 处理表格行选择变化
+   */
+  const handleSelectionChange = (selection: BedListItem[]): void => {
+    selectedRows.value = selection
+  }
+
+  /**
+   * 批量删除床位
+   */
+  const handleBatchDelete = async (): Promise<void> => {
+    if (selectedCount.value === 0) {
+      ElMessage.warning('请至少选择一条数据')
+      return
+    }
+
+    try {
+      await ElMessageBox.confirm(
+        `确定要批量删除选中的 ${selectedCount.value} 条床位数据吗？`,
+        '批量删除确认',
+        {
+          type: 'warning',
+          confirmButtonText: '确定删除',
+          cancelButtonText: '取消'
+        }
+      )
+      await fetchBatchDeleteBed(selectedIds.value as number[])
+      ElMessage.success('批量删除成功')
+      selectedRows.value = []
+      await getData()
+    } catch (error) {
+      if (error !== 'cancel') {
+        console.error('批量删除床位失败:', error)
       }
     }
   }

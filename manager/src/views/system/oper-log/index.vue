@@ -24,12 +24,12 @@
         <template #left>
           <ElSpace wrap>
             <ElButton
-              :disabled="selectedRows.length === 0"
+              :disabled="selectedCount === 0"
               @click="handleBatchDelete"
               v-ripple
               v-permission="'system:operlog:delete'"
             >
-              批量删除
+              批量删除{{ selectedCount > 0 ? `(${selectedCount})` : '' }}
             </ElButton>
             <ElButton @click="handleClean" v-ripple v-permission="'system:operlog:clean'">
               清空日志
@@ -78,6 +78,7 @@
 
   // 选中行
   const selectedRows = ref<OperLogListItem[]>([])
+  const selectedCount = computed(() => selectedRows.value.length)
 
   // 搜索表单
   const searchForm = ref<Api.SystemManage.OperLogSearchParams>({
@@ -249,12 +250,12 @@
    * 批量删除
    */
   const handleBatchDelete = () => {
-    if (selectedRows.value.length === 0) {
+    if (selectedCount.value === 0) {
       ElMessage.warning('请选择要删除的日志')
       return
     }
 
-    ElMessageBox.confirm(`确定要删除选中的 ${selectedRows.value.length} 条操作日志吗？`, '提示', {
+    ElMessageBox.confirm(`确定要删除选中的 ${selectedCount.value} 条操作日志吗？`, '提示', {
       type: 'warning',
       confirmButtonText: '确定',
       cancelButtonText: '取消'

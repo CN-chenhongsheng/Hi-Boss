@@ -27,12 +27,12 @@
               新增用户
             </ElButton>
             <ElButton
-              :disabled="selectedRows.length === 0"
+              :disabled="selectedCount === 0"
               @click="handleBatchDelete"
               v-ripple
               v-permission="'system:user:delete'"
             >
-              批量删除
+              批量删除{{ selectedCount > 0 ? `(${selectedCount})` : '' }}
             </ElButton>
           </ElSpace>
         </template>
@@ -74,6 +74,7 @@
   import {
     fetchGetUserList,
     fetchDeleteUser,
+    fetchBatchDeleteUser,
     fetchUpdateUserStatus,
     fetchResetUserPassword,
     fetchUpdateUser
@@ -110,6 +111,7 @@
 
   // 选中行
   const selectedRows = ref<UserListItem[]>([])
+  const selectedCount = computed(() => selectedRows.value.length)
 
   // 搜索表单
   const searchForm = ref<Api.SystemManage.UserSearchParams>({
@@ -409,14 +411,14 @@
    * 批量删除
    */
   const handleBatchDelete = async (): Promise<void> => {
-    if (selectedRows.value.length === 0) {
+    if (selectedCount.value === 0) {
       ElMessage.warning('请先选择要删除的用户')
       return
     }
 
     try {
       await ElMessageBox.confirm(
-        `确定要删除选中的 ${selectedRows.value.length} 个用户吗？此操作不可恢复！`,
+        `确定要删除选中的 ${selectedCount.value} 个用户吗？此操作不可恢复！`,
         '批量删除',
         {
           confirmButtonText: '确定',
@@ -425,10 +427,8 @@
         }
       )
 
-      // 逐个删除（如果后端支持批量删除接口，可以改为批量调用）
-      for (const user of selectedRows.value) {
-        await fetchDeleteUser(user.id)
-      }
+      const ids = selectedRows.value.map((user) => user.id)
+      await fetchBatchDeleteUser(ids)
 
       ElMessage.success('批量删除成功')
       selectedRows.value = []

@@ -27,12 +27,12 @@
               >新增专业</ElButton
             >
             <ElButton
-              :disabled="selectedRows.length === 0"
+              :disabled="selectedCount === 0"
               @click="handleBatchDelete"
               v-ripple
               v-permission="'system:major:delete'"
             >
-              批量删除
+              批量删除{{ selectedCount > 0 ? `(${selectedCount})` : '' }}
             </ElButton>
           </ElSpace>
         </template>
@@ -93,6 +93,7 @@
   const dialogVisible = ref(false)
   const currentMajorData = ref<Partial<MajorListItem>>({})
   const selectedRows = ref<MajorListItem[]>([])
+  const selectedCount = computed(() => selectedRows.value.length)
   const showSearchBar = ref(false)
 
   // 下钻弹框相关
@@ -289,14 +290,14 @@
    * 批量删除
    */
   const handleBatchDelete = async (): Promise<void> => {
-    if (selectedRows.value.length === 0) {
+    if (selectedCount.value === 0) {
       ElMessage.warning('请选择要删除的专业')
       return
     }
 
     try {
       await ElMessageBox.confirm(
-        `确定要删除选中的 ${selectedRows.value.length} 个专业吗？<br/>提示：删除专业后，这些专业下的所有班级也会被删除。`,
+        `确定要删除选中的 ${selectedCount.value} 个专业吗？<br/>提示：删除专业后，这些专业下的所有班级也会被删除。`,
         '批量删除确认',
         {
           type: 'warning',

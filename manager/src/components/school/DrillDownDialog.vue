@@ -676,13 +676,14 @@
     () => [props.visible, props.filterParams],
     ([newVisible, newParams], oldValue) => {
       const [oldVisible, oldParams] = oldValue || [undefined, undefined]
+      // 只在弹窗打开时加载数据
       if (newVisible && (!oldVisible || JSON.stringify(newParams) !== JSON.stringify(oldParams))) {
         nextTick(() => {
           getData()
         })
       }
     },
-    { immediate: true, deep: true }
+    { deep: true }
   )
 </script>
 

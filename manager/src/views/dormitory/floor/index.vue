@@ -27,6 +27,14 @@
             <ElButton @click="handleAdd" v-ripple v-permission="'system:floor:add'"
               >新增楼层</ElButton
             >
+            <ElButton
+              :disabled="selectedCount === 0"
+              @click="handleBatchDelete"
+              v-ripple
+              v-permission="'system:floor:delete'"
+            >
+              批量删除{{ selectedCount > 0 ? `(${selectedCount})` : '' }}
+            </ElButton>
           </ElSpace>
         </template>
       </ArtTableHeader>
@@ -37,6 +45,8 @@
         :data="data"
         :stripe="false"
         :pagination="pagination"
+        row-key="id"
+        @selection-change="handleSelectionChange"
         @pagination:size-change="handleSizeChange"
         @pagination:current-change="handleCurrentChange"
       />
@@ -68,6 +78,7 @@
   import {
     fetchGetFloorPage,
     fetchDeleteFloor,
+    fetchBatchDeleteFloor,
     fetchUpdateFloorStatus
   } from '@/api/dormitory-manage'
   import DrillDownDialog from '@/components/school/DrillDownDialog.vue'
@@ -92,6 +103,11 @@
   const drillDownType = ref<'room'>('room')
   const drillDownParentName = ref('')
   const drillDownFilterParams = ref<Record<string, any>>({})
+
+  // 批量选择
+  const selectedRows = ref<FloorListItem[]>([])
+  const selectedIds = computed(() => selectedRows.value.map((item) => item.id))
+  const selectedCount = computed(() => selectedRows.value.length)
 
   // 搜索相关
   const initialSearchState = {
@@ -140,6 +156,11 @@
         size: 'pageSize'
       },
       columnsFactory: () => [
+        {
+          type: 'selection',
+          width: 50,
+          reserveSelection: true
+        },
         {
           prop: 'floorCode',
           label: '楼层编码',
@@ -288,6 +309,43 @@
     } catch (error) {
       if (error !== 'cancel') {
         console.error('删除楼层失败:', error)
+      }
+    }
+  }
+
+  /**
+   * 处理表格行选择变化
+   */
+  const handleSelectionChange = (selection: FloorListItem[]): void => {
+    selectedRows.value = selection
+  }
+
+  /**
+   * 批量删除楼层
+   */
+  const handleBatchDelete = async (): Promise<void> => {
+    if (selectedCount.value === 0) {
+      ElMessage.warning('请至少选择一条数据')
+      return
+    }
+
+    try {
+      await ElMessageBox.confirm(
+        `确定要批量删除选中的 ${selectedCount.value} 条楼层数据吗？`,
+        '批量删除确认',
+        {
+          type: 'warning',
+          confirmButtonText: '确定删除',
+          cancelButtonText: '取消'
+        }
+      )
+      await fetchBatchDeleteFloor(selectedIds.value as number[])
+      ElMessage.success('批量删除成功')
+      selectedRows.value = []
+      await getData()
+    } catch (error) {
+      if (error !== 'cancel') {
+        console.error('批量删除楼层失败:', error)
       }
     }
   }

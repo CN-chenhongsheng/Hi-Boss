@@ -27,11 +27,26 @@
             <ElButton @click="handleAdd" v-ripple v-permission="'system:campus:add'"
               >新增校区</ElButton
             >
+            <ElButton
+              :disabled="selectedCount === 0"
+              @click="handleBatchDelete"
+              v-ripple
+              v-permission="'system:campus:delete'"
+            >
+              批量删除{{ selectedCount > 0 ? `(${selectedCount})` : '' }}
+            </ElButton>
           </ElSpace>
         </template>
       </ArtTableHeader>
 
-      <ArtTable :loading="loading" :columns="columns" :data="data" :stripe="false" />
+      <ArtTable
+        :loading="loading"
+        :columns="columns"
+        :data="data"
+        :stripe="false"
+        row-key="id"
+        @selection-change="handleSelectionChange"
+      />
 
       <!-- 校区弹窗 -->
       <CampusDialog
@@ -80,6 +95,7 @@
   import {
     fetchGetCampusTree,
     fetchDeleteCampus,
+    fetchBatchDeleteCampus,
     fetchUpdateCampusStatus
   } from '@/api/school-manage'
   import DrillDownDialog from '@/components/school/DrillDownDialog.vue'
@@ -98,6 +114,11 @@
   const dialogVisible = ref(false)
   const dialogType = ref<'add' | 'edit'>('add')
   const editData = ref<CampusListItem | null>(null)
+
+  // 批量选择
+  const selectedRows = ref<CampusListItem[]>([])
+  const selectedIds = computed(() => selectedRows.value.map((item) => item.id))
+  const selectedCount = computed(() => selectedRows.value.length)
 
   // 下钻弹框相关
   const drillDownVisible = ref(false)
@@ -145,6 +166,11 @@
         } as Partial<Api.SystemManage.CampusSearchParams>
       }),
       columnsFactory: () => [
+        {
+          type: 'selection',
+          width: 50,
+          reserveSelection: true
+        },
         {
           prop: 'campusCode',
           label: '校区编码',
@@ -278,6 +304,37 @@
   }
 
   /**
+   * 批量删除校区
+   */
+  const handleBatchDelete = async (): Promise<void> => {
+    if (selectedCount.value === 0) {
+      ElMessage.warning('请至少选择一条数据')
+      return
+    }
+
+    try {
+      await ElMessageBox.confirm(
+        `确定要批量删除选中的 ${selectedCount.value} 条校区数据吗？<br/>提示：删除校区后，这些校区下的所有院系、专业和班级也会被删除。`,
+        '批量删除确认',
+        {
+          type: 'warning',
+          confirmButtonText: '确定删除',
+          cancelButtonText: '取消',
+          dangerouslyUseHTMLString: true
+        }
+      )
+      await fetchBatchDeleteCampus(selectedIds.value as number[])
+      ElMessage.success('批量删除成功')
+      selectedRows.value = []
+      await getData()
+    } catch (error) {
+      if (error !== 'cancel') {
+        console.error('批量删除校区失败:', error)
+      }
+    }
+  }
+
+  /**
    * 弹窗提交
    */
   const handleSubmit = async (): Promise<void> => {
@@ -301,9 +358,19 @@
   }
 
   /**
+   * 处理表格行选择变化
+   */
+  const handleSelectionChange = (selection: CampusListItem[]): void => {
+    selectedRows.value = selection
+  }
+
+  /**
    * 处理下钻事件
    */
-  const handleDrillDown = (type: 'department' | 'major' | 'class', row: any): void => {
+  const handleDrillDown = (
+    type: 'department' | 'major' | 'class' | 'room' | 'bed',
+    row: any
+  ): void => {
     if (type === 'major') {
       // 从院系下钻到专业
       nestedDrillDownType.value = 'major'
@@ -322,7 +389,10 @@
   /**
    * 处理嵌套下钻事件（从专业下钻到班级）
    */
-  const handleNestedDrillDown = (type: 'department' | 'major' | 'class', row: any): void => {
+  const handleNestedDrillDown = (
+    type: 'department' | 'major' | 'class' | 'room' | 'bed',
+    row: any
+  ): void => {
     if (type === 'class') {
       // 从专业下钻到班级
       thirdLevelDrillDownType.value = 'class'

@@ -78,9 +78,7 @@
               </ElCol>
             </ElRow>
           </div>
-          <ElButton type="primary" :icon="Plus" @click="addSemester" style="margin-top: 10px">
-            添加学期
-          </ElButton>
+          <ElButton type="primary" :icon="Plus" @click="addSemester"> 添加学期 </ElButton>
         </div>
       </ElFormItem>
     </ElForm>
@@ -257,7 +255,7 @@
       margin-bottom: 10px;
       padding: 10px;
       background-color: var(--el-fill-color-lighter);
-      border-radius: 4px;
+      border-radius: calc(var(--custom-radius) / 1.2 + 2px) !important;
     }
   }
 </style>

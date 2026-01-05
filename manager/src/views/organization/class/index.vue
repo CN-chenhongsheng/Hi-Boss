@@ -27,12 +27,12 @@
               >新增班级</ElButton
             >
             <ElButton
-              :disabled="selectedRows.length === 0"
+              :disabled="selectedCount === 0"
               @click="handleBatchDelete"
               v-ripple
               v-permission="'system:class:delete'"
             >
-              批量删除
+              批量删除{{ selectedCount > 0 ? `(${selectedCount})` : '' }}
             </ElButton>
           </ElSpace>
         </template>
@@ -83,6 +83,7 @@
   const dialogVisible = ref(false)
   const currentClassData = ref<Partial<ClassListItem>>({})
   const selectedRows = ref<ClassListItem[]>([])
+  const selectedCount = computed(() => selectedRows.value.length)
   const showSearchBar = ref(false)
 
   // 搜索栏表单数据（使用 reactive 以确保双向绑定正常工作）
@@ -282,14 +283,14 @@
    * 批量删除
    */
   const handleBatchDelete = async (): Promise<void> => {
-    if (selectedRows.value.length === 0) {
+    if (selectedCount.value === 0) {
       ElMessage.warning('请选择要删除的班级')
       return
     }
 
     try {
       await ElMessageBox.confirm(
-        `确定要删除选中的 ${selectedRows.value.length} 个班级吗？此操作不可恢复！`,
+        `确定要删除选中的 ${selectedCount.value} 个班级吗？此操作不可恢复！`,
         '批量删除确认',
         {
           type: 'warning',

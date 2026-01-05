@@ -11,6 +11,7 @@ import com.sushe.backend.dto.floor.FloorQueryDTO;
 import com.sushe.backend.dto.floor.FloorSaveDTO;
 import com.sushe.backend.entity.SysFloor;
 import com.sushe.backend.entity.SysRoom;
+import com.sushe.backend.mapper.SysCampusMapper;
 import com.sushe.backend.mapper.SysFloorMapper;
 import com.sushe.backend.mapper.SysRoomMapper;
 import com.sushe.backend.service.SysFloorService;
@@ -37,6 +38,7 @@ import java.util.stream.Collectors;
 public class SysFloorServiceImpl extends ServiceImpl<SysFloorMapper, SysFloor> implements SysFloorService {
 
     private final SysRoomMapper roomMapper;
+    private final SysCampusMapper campusMapper;
 
     @Override
     public PageResult<FloorVO> pageList(FloorQueryDTO queryDTO) {
@@ -158,7 +160,15 @@ public class SysFloorServiceImpl extends ServiceImpl<SysFloorMapper, SysFloor> i
         FloorVO vo = new FloorVO();
         BeanUtil.copyProperties(floor, vo);
         vo.setStatusText(DictUtils.getLabel("sys_common_status", floor.getStatus(), "未知"));
-        
+
+        // 查询校区名称
+        if (floor.getCampusCode() != null) {
+            com.sushe.backend.entity.SysCampus campus = campusMapper.selectByCampusCode(floor.getCampusCode());
+            if (campus != null) {
+                vo.setCampusName(campus.getCampusName());
+            }
+        }
+
         // 性别类型文本映射
         if (floor.getGenderType() != null) {
             switch (floor.getGenderType()) {
@@ -175,7 +185,7 @@ public class SysFloorServiceImpl extends ServiceImpl<SysFloorMapper, SysFloor> i
                     vo.setGenderTypeText("未知");
             }
         }
-        
+
         return vo;
     }
 }

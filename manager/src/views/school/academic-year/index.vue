@@ -27,11 +27,26 @@
             <ElButton @click="handleAdd" v-ripple v-permission="'system:academic-year:add'"
               >新增学年</ElButton
             >
+            <ElButton
+              :disabled="selectedCount === 0"
+              @click="handleBatchDelete"
+              v-ripple
+              v-permission="'system:academic-year:delete'"
+            >
+              批量删除{{ selectedCount > 0 ? `(${selectedCount})` : '' }}
+            </ElButton>
           </ElSpace>
         </template>
       </ArtTableHeader>
 
-      <ArtTable :loading="loading" :columns="columns" :data="data" :stripe="false" />
+      <ArtTable
+        :loading="loading"
+        :columns="columns"
+        :data="data"
+        :stripe="false"
+        row-key="id"
+        @selection-change="handleSelectionChange"
+      />
 
       <!-- 学年弹窗 -->
       <AcademicYearDialog
@@ -48,6 +63,7 @@
   import { useTable } from '@/hooks/core/useTable'
   import AcademicYearDialog from './modules/academic-year-dialog.vue'
   import AcademicYearSearch from './modules/academic-year-search.vue'
+  import { fetchBatchDeleteAcademicYear } from '@/api/school-manage'
   import { ElMessageBox, ElMessage } from 'element-plus'
   import ArtSwitch from '@/components/core/forms/art-switch/index.vue'
   import { h } from 'vue'
@@ -79,6 +95,11 @@
   const dialogVisible = ref(false)
   const dialogType = ref<'add' | 'edit'>('add')
   const editData = ref<AcademicYearListItem | null>(null)
+
+  // 批量选择
+  const selectedRows = ref<AcademicYearListItem[]>([])
+  const selectedIds = computed(() => selectedRows.value.map((item) => item.id))
+  const selectedCount = computed(() => selectedRows.value.length)
 
   // 搜索相关
   const initialSearchState = {
@@ -112,6 +133,11 @@
         }
       }),
       columnsFactory: () => [
+        {
+          type: 'selection',
+          width: 50,
+          reserveSelection: true
+        },
         {
           prop: 'yearCode',
           label: '学年编码',
@@ -233,6 +259,43 @@
     } catch (error) {
       if (error !== 'cancel') {
         console.error('删除学年失败:', error)
+      }
+    }
+  }
+
+  /**
+   * 处理表格行选择变化
+   */
+  const handleSelectionChange = (selection: AcademicYearListItem[]): void => {
+    selectedRows.value = selection
+  }
+
+  /**
+   * 批量删除学年
+   */
+  const handleBatchDelete = async (): Promise<void> => {
+    if (selectedCount.value === 0) {
+      ElMessage.warning('请至少选择一条数据')
+      return
+    }
+
+    try {
+      await ElMessageBox.confirm(
+        `确定要批量删除选中的 ${selectedCount.value} 条学年数据吗？此操作不可恢复！`,
+        '批量删除确认',
+        {
+          type: 'warning',
+          confirmButtonText: '确定删除',
+          cancelButtonText: '取消'
+        }
+      )
+      await fetchBatchDeleteAcademicYear(selectedIds.value as number[])
+      ElMessage.success('批量删除成功')
+      selectedRows.value = []
+      await getData()
+    } catch (error) {
+      if (error !== 'cancel') {
+        console.error('批量删除学年失败:', error)
       }
     }
   }

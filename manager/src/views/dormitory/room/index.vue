@@ -27,6 +27,14 @@
             <ElButton @click="handleAdd" v-ripple v-permission="'system:room:add'"
               >新增房间</ElButton
             >
+            <ElButton
+              :disabled="selectedCount === 0"
+              @click="handleBatchDelete"
+              v-ripple
+              v-permission="'system:room:delete'"
+            >
+              批量删除{{ selectedCount > 0 ? `(${selectedCount})` : '' }}
+            </ElButton>
           </ElSpace>
         </template>
       </ArtTableHeader>
@@ -37,6 +45,8 @@
         :data="data"
         :stripe="false"
         :pagination="pagination"
+        row-key="id"
+        @selection-change="handleSelectionChange"
         @pagination:size-change="handleSizeChange"
         @pagination:current-change="handleCurrentChange"
       />
@@ -65,7 +75,12 @@
   import { useTable } from '@/hooks/core/useTable'
   import RoomDialog from './modules/room-dialog.vue'
   import RoomSearch from './modules/room-search.vue'
-  import { fetchGetRoomPage, fetchDeleteRoom, fetchUpdateRoomStatus } from '@/api/dormitory-manage'
+  import {
+    fetchGetRoomPage,
+    fetchDeleteRoom,
+    fetchBatchDeleteRoom,
+    fetchUpdateRoomStatus
+  } from '@/api/dormitory-manage'
   import DrillDownDialog from '@/components/school/DrillDownDialog.vue'
   import { ElMessageBox, ElMessage } from 'element-plus'
   import ArtSwitch from '@/components/core/forms/art-switch/index.vue'
@@ -83,11 +98,16 @@
   const dialogType = ref<'add' | 'edit'>('add')
   const editData = ref<RoomListItem | null>(null)
 
-  // 下钻弹框相关
+  // 下钻���框相关
   const drillDownVisible = ref(false)
   const drillDownType = ref<'bed'>('bed')
   const drillDownParentName = ref('')
   const drillDownFilterParams = ref<Record<string, any>>({})
+
+  // 批量选择
+  const selectedRows = ref<RoomListItem[]>([])
+  const selectedIds = computed(() => selectedRows.value.map((item) => item.id))
+  const selectedCount = computed(() => selectedRows.value.length)
 
   // 搜索相关
   const initialSearchState = {
@@ -140,6 +160,11 @@
         size: 'pageSize'
       },
       columnsFactory: () => [
+        {
+          type: 'selection',
+          width: 50,
+          reserveSelection: true
+        },
         {
           prop: 'roomCode',
           label: '房间编码',
@@ -300,6 +325,43 @@
     } catch (error) {
       if (error !== 'cancel') {
         console.error('删除房间失败:', error)
+      }
+    }
+  }
+
+  /**
+   * 处理表格行选择变化
+   */
+  const handleSelectionChange = (selection: RoomListItem[]): void => {
+    selectedRows.value = selection
+  }
+
+  /**
+   * 批量删除房间
+   */
+  const handleBatchDelete = async (): Promise<void> => {
+    if (selectedCount.value === 0) {
+      ElMessage.warning('请至少选择一条数据')
+      return
+    }
+
+    try {
+      await ElMessageBox.confirm(
+        `确定要批量删除选中的 ${selectedCount.value} 条房间数据吗？`,
+        '批量删除确认',
+        {
+          type: 'warning',
+          confirmButtonText: '确定删除',
+          cancelButtonText: '取消'
+        }
+      )
+      await fetchBatchDeleteRoom(selectedIds.value as number[])
+      ElMessage.success('批量删除成功')
+      selectedRows.value = []
+      await getData()
+    } catch (error) {
+      if (error !== 'cancel') {
+        console.error('批量删除房间失败:', error)
       }
     }
   }
