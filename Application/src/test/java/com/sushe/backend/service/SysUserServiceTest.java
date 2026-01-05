@@ -1,10 +1,13 @@
 package com.sushe.backend.service;
 
+import com.sushe.backend.common.context.UserContext;
+import com.sushe.backend.dto.user.ChangePasswordDTO;
 import com.sushe.backend.dto.user.UserSaveDTO;
 import com.sushe.backend.entity.SysUser;
 import com.sushe.backend.mapper.SysUserMapper;
 import com.sushe.backend.service.impl.SysUserServiceImpl;
 import com.sushe.backend.vo.UserVO;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -12,17 +15,18 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * 用户服务测试类
@@ -39,9 +43,6 @@ public class SysUserServiceTest {
 
     @Mock
     private SysUserMapper userMapper;
-
-    @Mock
-    private BCryptPasswordEncoder passwordEncoder;
 
     @InjectMocks
     private SysUserServiceImpl userService;
@@ -73,21 +74,27 @@ public class SysUserServiceTest {
         userSaveDTO.setStatus(1);
     }
 
+    @AfterEach
+    void tearDown() {
+        // 清理 UserContext，防止测试之间的干扰
+        UserContext.clear();
+    }
+
     @Test
     @DisplayName("创建用户-成功")
     void testCreateUser_Success() {
         // Given
-        when(userMapper.selectByUsername(anyString())).thenReturn(null);
-        when(passwordEncoder.encode(anyString())).thenReturn("$2a$10$encodedPassword");
+        // 使用 spy 来 mock count 方法（因为 count 是 ServiceImpl 的方法）
+        SysUserServiceImpl spyService = org.mockito.Mockito.spy(userService);
+        doReturn(0L).when(spyService).count(any());
         when(userMapper.insert(any(SysUser.class))).thenReturn(1);
 
         // When
-        boolean result = userService.saveUser(userSaveDTO);
+        boolean result = spyService.saveUser(userSaveDTO);
 
         // Then
         assertThat(result).isTrue();
-        verify(userMapper, times(1)).selectByUsername("testuser");
-        verify(passwordEncoder, times(1)).encode("password123");
+        verify(spyService, times(1)).count(any());
         verify(userMapper, times(1)).insert(any(SysUser.class));
     }
 
@@ -95,14 +102,16 @@ public class SysUserServiceTest {
     @DisplayName("创建用户-用户名已存在")
     void testCreateUser_UsernameExists() {
         // Given
-        when(userMapper.selectByUsername(anyString())).thenReturn(testUser);
+        // 使用 spy 来 mock count 方法返回 1（表示用户名已存在）
+        SysUserServiceImpl spyService = org.mockito.Mockito.spy(userService);
+        doReturn(1L).when(spyService).count(any());
 
         // When & Then
-        assertThatThrownBy(() -> userService.saveUser(userSaveDTO))
+        assertThatThrownBy(() -> spyService.saveUser(userSaveDTO))
             .isInstanceOf(RuntimeException.class)
             .hasMessageContaining("用户名已存在");
 
-        verify(userMapper, times(1)).selectByUsername("testuser");
+        verify(spyService, times(1)).count(any());
         verify(userMapper, never()).insert(any(SysUser.class));
     }
 
@@ -197,20 +206,30 @@ public class SysUserServiceTest {
         // Given
         String oldPassword = "password123";
         String newPassword = "newPassword456";
+
+        // 设置 UserContext
+        UserContext.LoginUser loginUser = new UserContext.LoginUser();
+        loginUser.setUserId(1L);
+        UserContext.setUser(loginUser);
+
+        // 使用真实的 BCrypt 加密旧密码（Hutool 的 BCrypt）
+        testUser.setPassword(cn.hutool.crypto.digest.BCrypt.hashpw(oldPassword));
+
         when(userMapper.selectById(1L)).thenReturn(testUser);
-        when(passwordEncoder.matches(oldPassword, testUser.getPassword())).thenReturn(true);
-        when(passwordEncoder.encode(newPassword)).thenReturn("$2a$10$newEncodedPassword");
         when(userMapper.updateById(any(SysUser.class))).thenReturn(1);
 
+        // 创建 ChangePasswordDTO
+        ChangePasswordDTO changePasswordDTO = new ChangePasswordDTO();
+        changePasswordDTO.setOldPassword(oldPassword);
+        changePasswordDTO.setNewPassword(newPassword);
+        changePasswordDTO.setConfirmPassword(newPassword);
+
         // When
-        boolean result = userService.changeCurrentUserPassword(
-            new com.sushe.backend.dto.user.ChangePasswordDTO(1L, oldPassword, newPassword));
+        boolean result = userService.changeCurrentUserPassword(changePasswordDTO);
 
         // Then
         assertThat(result).isTrue();
         verify(userMapper, times(1)).selectById(1L);
-        verify(passwordEncoder, times(1)).matches(oldPassword, testUser.getPassword());
-        verify(passwordEncoder, times(1)).encode(newPassword);
         verify(userMapper, times(1)).updateById(any(SysUser.class));
     }
 
@@ -218,20 +237,32 @@ public class SysUserServiceTest {
     @DisplayName("修改密码-旧密码错误")
     void testChangePassword_OldPasswordIncorrect() {
         // Given
-        String oldPassword = "wrongPassword";
+        String correctPassword = "password123";
+        String wrongPassword = "wrongPassword";
         String newPassword = "newPassword456";
+
+        // 设置 UserContext
+        UserContext.LoginUser loginUser = new UserContext.LoginUser();
+        loginUser.setUserId(1L);
+        UserContext.setUser(loginUser);
+
+        // 使用真实的 BCrypt 加密正确密码（Hutool 的 BCrypt）
+        testUser.setPassword(cn.hutool.crypto.digest.BCrypt.hashpw(correctPassword));
+
         when(userMapper.selectById(1L)).thenReturn(testUser);
-        when(passwordEncoder.matches(oldPassword, testUser.getPassword())).thenReturn(false);
+
+        // 创建 ChangePasswordDTO（使用错误的旧密码）
+        ChangePasswordDTO changePasswordDTO = new ChangePasswordDTO();
+        changePasswordDTO.setOldPassword(wrongPassword);
+        changePasswordDTO.setNewPassword(newPassword);
+        changePasswordDTO.setConfirmPassword(newPassword);
 
         // When & Then
-        assertThatThrownBy(() -> userService.changeCurrentUserPassword(
-            new com.sushe.backend.dto.user.ChangePasswordDTO(1L, oldPassword, newPassword)))
+        assertThatThrownBy(() -> userService.changeCurrentUserPassword(changePasswordDTO))
             .isInstanceOf(RuntimeException.class)
-            .hasMessageContaining("旧密码错误");
+            .hasMessageContaining("当前密码错误");
 
         verify(userMapper, times(1)).selectById(1L);
-        verify(passwordEncoder, times(1)).matches(oldPassword, testUser.getPassword());
-        verify(passwordEncoder, never()).encode(anyString());
         verify(userMapper, never()).updateById(any(SysUser.class));
     }
 }
