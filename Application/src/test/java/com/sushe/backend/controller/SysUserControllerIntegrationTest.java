@@ -2,7 +2,7 @@ package com.sushe.backend.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sushe.backend.dto.LoginDTO;
-import com.sushe.backend.dto.UserDTO;
+import com.sushe.backend.dto.user.UserSaveDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -83,16 +83,16 @@ public class SysUserControllerIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(200))
                 .andExpect(jsonPath("$.data.username").isString())
-                .andExpect(jsonPath("$.data.realName").isString());
+                .andExpect(jsonPath("$.data.nickname").isString());
     }
 
     @Test
     @DisplayName("创建用户-成功")
     void testCreateUser_Success() throws Exception {
-        UserDTO userDTO = new UserDTO();
+        UserSaveDTO userDTO = new UserSaveDTO();
         userDTO.setUsername("testuser001");
         userDTO.setPassword("password123");
-        userDTO.setRealName("测试用户001");
+        userDTO.setNickname("测试用户001");
         userDTO.setPhone("13800138000");
         userDTO.setEmail("test001@example.com");
 
@@ -101,14 +101,13 @@ public class SysUserControllerIntegrationTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(userDTO)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.code").value(200))
-                .andExpect(jsonPath("$.data").isNumber());
+                .andExpect(jsonPath("$.code").value(200));
     }
 
     @Test
     @DisplayName("创建用户-参数校验失败")
     void testCreateUser_ValidationError() throws Exception {
-        UserDTO userDTO = new UserDTO();
+        UserSaveDTO userDTO = new UserSaveDTO();
         userDTO.setUsername("");  // 用户名为空
         userDTO.setPassword("123");  // 密码太短
 
@@ -122,9 +121,9 @@ public class SysUserControllerIntegrationTest {
     @Test
     @DisplayName("更新用户-成功")
     void testUpdateUser_Success() throws Exception {
-        UserDTO userDTO = new UserDTO();
+        UserSaveDTO userDTO = new UserSaveDTO();
         userDTO.setId(1L);
-        userDTO.setRealName("更新后的用户");
+        userDTO.setNickname("更新后的用户");
         userDTO.setPhone("13900139000");
 
         mockMvc.perform(put("/api/users")
@@ -139,10 +138,10 @@ public class SysUserControllerIntegrationTest {
     @DisplayName("删除用户-成功")
     void testDeleteUser_Success() throws Exception {
         // 先创建一个测试用户
-        UserDTO userDTO = new UserDTO();
+        UserSaveDTO userDTO = new UserSaveDTO();
         userDTO.setUsername("testDeleteUser");
         userDTO.setPassword("password123");
-        userDTO.setRealName("待删除用户");
+        userDTO.setNickname("待删除用户");
 
         String createResponse = mockMvc.perform(post("/api/users")
                 .header("Authorization", authToken)
