@@ -52,6 +52,19 @@
         />
       </template>
 
+      <!-- 楼层表格 -->
+      <template v-else-if="drillType === 'floor'">
+        <ArtTable
+          :loading="loading"
+          :data="data"
+          :columns="floorColumns"
+          :pagination="pagination"
+          height="400px"
+          @pagination:size-change="handleSizeChange"
+          @pagination:current-change="handleCurrentChange"
+        />
+      </template>
+
       <!-- 房间表格 -->
       <template v-else-if="drillType === 'room'">
         <ArtTable
@@ -86,13 +99,13 @@
   import ArtButtonTable from '@/components/core/forms/art-button-table/index.vue'
   import { useTable } from '@/hooks/core/useTable'
   import { fetchGetDepartmentPage, fetchGetMajorPage, fetchGetClassPage } from '@/api/school-manage'
-  import { fetchGetRoomPage, fetchGetBedPage } from '@/api/dormitory-manage'
+  import { fetchGetFloorPage, fetchGetRoomPage, fetchGetBedPage } from '@/api/dormitory-manage'
   import { defaultResponseAdapter } from '@/utils/table/tableUtils'
   import { h } from 'vue'
 
   defineOptions({ name: 'DrillDownDialog' })
 
-  type DrillDownType = 'department' | 'major' | 'class' | 'room' | 'bed'
+  type DrillDownType = 'department' | 'major' | 'class' | 'floor' | 'room' | 'bed'
 
   interface Props {
     visible: boolean
@@ -123,6 +136,7 @@
       department: '查看院系',
       major: '查看专业',
       class: '查看班级',
+      floor: '查看楼层',
       room: '查看房间',
       bed: '查看床位'
     }
@@ -138,6 +152,8 @@
   type MajorListItem = Api.SystemManage.MajorListItem
   // 班级列表项类型
   type ClassListItem = Api.SystemManage.ClassListItem
+  // 楼层列表项类型
+  type FloorListItem = Api.SystemManage.FloorListItem
   // 房间列表项类型
   type RoomListItem = Api.SystemManage.RoomListItem
   // 床位列表项类型
@@ -327,6 +343,79 @@
   ]
 
   /**
+   * 获取楼层表格列配置
+   */
+  const getFloorColumns = () => [
+    {
+      prop: 'floorCode',
+      label: '楼层编码',
+      minWidth: 120
+    },
+    {
+      prop: 'floorName',
+      label: '楼层名称',
+      minWidth: 120
+    },
+    {
+      prop: 'floorNumber',
+      label: '楼层数',
+      width: 100
+    },
+    {
+      prop: 'campusName',
+      label: '所属校区',
+      minWidth: 120
+    },
+    {
+      prop: 'genderTypeText',
+      label: '性别类型',
+      width: 100
+    },
+    {
+      prop: 'totalRooms',
+      label: '房间数',
+      width: 100
+    },
+    {
+      prop: 'totalBeds',
+      label: '床位数',
+      width: 100
+    },
+    {
+      prop: 'currentOccupancy',
+      label: '入住人数',
+      width: 100
+    },
+    {
+      prop: 'status',
+      label: '状态',
+      width: 100,
+      formatter: (row: FloorListItem) => {
+        return row.status === 1 ? '启用' : '停用'
+      }
+    },
+    {
+      prop: 'createTime',
+      label: '创建时间',
+      width: 180
+    },
+    {
+      prop: 'action',
+      label: '操作',
+      width: 120,
+      fixed: 'right' as const,
+      formatter: (row: FloorListItem) => {
+        return h('div', { class: 'flex gap-1' }, [
+          h(ArtButtonTable, {
+            type: 'view',
+            onClick: () => handleDrillDown('room', row)
+          })
+        ])
+      }
+    }
+  ]
+
+  /**
    * 获取房间表格列配置
    */
   const getRoomColumns = () => [
@@ -382,6 +471,20 @@
       prop: 'createTime',
       label: '创建时间',
       width: 180
+    },
+    {
+      prop: 'action',
+      label: '操作',
+      width: 120,
+      fixed: 'right' as const,
+      formatter: (row: RoomListItem) => {
+        return h('div', { class: 'flex gap-1' }, [
+          h(ArtButtonTable, {
+            type: 'view',
+            onClick: () => handleDrillDown('bed', row)
+          })
+        ])
+      }
     }
   ]
 
@@ -497,6 +600,21 @@
           },
           columnsFactory: () => getClassColumns()
         }
+      case 'floor':
+        return {
+          apiFn: fetchGetFloorPage,
+          apiParams: computed(
+            () =>
+              ({
+                ...props.filterParams
+              }) as Partial<Api.SystemManage.FloorSearchParams>
+          ),
+          paginationKey: {
+            current: 'pageNum',
+            size: 'pageSize'
+          },
+          columnsFactory: () => getFloorColumns()
+        }
       case 'room':
         return {
           apiFn: fetchGetRoomPage,
@@ -600,11 +718,11 @@
                 20
             }
           }
-          // 房间分页响应使用 records 字段
-          if (props.drillType === 'room') {
-            const records = actualResponse?.records || response?.records || []
+          // 楼层分页响应使用 list 字段
+          if (props.drillType === 'floor') {
+            const list = actualResponse?.list || response?.list || []
             return {
-              records: records,
+              records: list,
               total: actualResponse?.total || response?.total || 0,
               current:
                 actualResponse?.current ||
@@ -620,11 +738,31 @@
                 20
             }
           }
-          // 床位分页响应使用 records 字段
-          if (props.drillType === 'bed') {
-            const records = actualResponse?.records || response?.records || []
+          // 房间分页响应使用 list 字段
+          if (props.drillType === 'room') {
+            const list = actualResponse?.list || response?.records || []
             return {
-              records: records,
+              records: list,
+              total: actualResponse?.total || response?.total || 0,
+              current:
+                actualResponse?.current ||
+                actualResponse?.pageNum ||
+                response?.current ||
+                response?.pageNum ||
+                1,
+              size:
+                actualResponse?.size ||
+                actualResponse?.pageSize ||
+                response?.size ||
+                response?.pageSize ||
+                20
+            }
+          }
+          // 床位分页响应使用 list 字段
+          if (props.drillType === 'bed') {
+            const list = actualResponse?.list || response?.list || []
+            return {
+              records: list,
               total: actualResponse?.total || response?.total || 0,
               current:
                 actualResponse?.current ||
@@ -662,6 +800,24 @@
   const classColumns = computed(() => {
     if (props.drillType !== 'class') return []
     return getClassColumns()
+  })
+
+  // 楼层表格列配置
+  const floorColumns = computed(() => {
+    if (props.drillType !== 'floor') return []
+    return getFloorColumns()
+  })
+
+  // 房间表格列配置
+  const roomColumns = computed(() => {
+    if (props.drillType !== 'room') return []
+    return getRoomColumns()
+  })
+
+  // 床位表格列配置
+  const bedColumns = computed(() => {
+    if (props.drillType !== 'bed') return []
+    return getBedColumns()
   })
 
   /**

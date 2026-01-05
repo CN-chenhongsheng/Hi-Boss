@@ -28,6 +28,7 @@
               placeholder="请选择校区"
               filterable
               clearable
+              :disabled="isEdit"
               @change="handleCampusChange"
             >
               <ElOption
@@ -46,7 +47,7 @@
               placeholder="请选择楼层"
               filterable
               clearable
-              :disabled="!selectedCampusCode"
+              :disabled="isEdit || !selectedCampusCode"
               @change="handleFloorChange"
             >
               <ElOption
@@ -67,7 +68,7 @@
               placeholder="请选择房间"
               filterable
               clearable
-              :disabled="!selectedFloorId"
+              :disabled="isEdit || !selectedFloorId"
             >
               <ElOption
                 v-for="item in roomList"
@@ -107,7 +108,7 @@
         </ElCol>
         <ElCol :span="12">
           <ElFormItem label="入住学生" prop="studentName">
-            <ElInput v-model="form.studentName" placeholder="请输入学生姓名（可选）" />
+            <ElInput v-model="form.studentName" disabled placeholder="如有学生入住，则自动显示" />
           </ElFormItem>
         </ElCol>
       </ElRow>
@@ -137,21 +138,9 @@
         </ElCol>
       </ElRow>
 
-      <ElRow :gutter="20">
-        <ElCol :span="12">
-          <ElFormItem label="状态" prop="status">
-            <ElRadioGroup v-model="form.status">
-              <ElRadio :label="1">启用</ElRadio>
-              <ElRadio :label="0">停用</ElRadio>
-            </ElRadioGroup>
-          </ElFormItem>
-        </ElCol>
-        <ElCol :span="12">
-          <ElFormItem label="排序序号" prop="sort">
-            <ElInputNumber v-model="form.sort" :min="0" :max="9999" />
-          </ElFormItem>
-        </ElCol>
-      </ElRow>
+      <ElFormItem label="排序序号" prop="sort">
+        <ElInputNumber v-model="form.sort" :min="0" :max="9999" />
+      </ElFormItem>
 
       <ElFormItem label="备注" prop="remark">
         <ElInput v-model="form.remark" type="textarea" :rows="3" placeholder="请输入备注" />
@@ -263,7 +252,7 @@
     }
     try {
       const res = await fetchGetFloorPage({ campusCode, pageNum: 1, pageSize: 1000 })
-      floorList.value = res?.records || []
+      floorList.value = res?.list || []
     } catch (error) {
       console.error('加载楼层列表失败:', error)
     }
@@ -279,7 +268,7 @@
     }
     try {
       const res = await fetchGetRoomPage({ floorId, pageNum: 1, pageSize: 1000 })
-      roomList.value = res?.records || []
+      roomList.value = res?.list || []
     } catch (error) {
       console.error('加载房间列表失败:', error)
     }
@@ -337,11 +326,24 @@
    */
   const loadFormData = async (): Promise<void> => {
     if (isEdit.value && props.editData) {
-      selectedCampusCode.value = props.editData.campusCode || ''
-      await loadFloorList(props.editData.campusCode)
+      // 先加载校区列表（如果还没有加载）
+      if (campusList.value.length === 0) {
+        await loadCampusList()
+      }
 
-      // 根据楼层编码查找楼层ID
-      if (props.editData.floorCode) {
+      // 设置校区并加载楼层列表
+      selectedCampusCode.value = props.editData.campusCode || ''
+      if (props.editData.campusCode) {
+        await loadFloorList(props.editData.campusCode)
+      }
+
+      // 根据楼层ID或楼层编码查找楼层
+      if (props.editData.floorId) {
+        // 优先使用 floorId
+        selectedFloorId.value = props.editData.floorId
+        await loadRoomList(props.editData.floorId)
+      } else if (props.editData.floorCode && floorList.value.length > 0) {
+        // 如果没有 floorId，使用 floorCode 查找
         const floor = floorList.value.find((f) => f.floorCode === props.editData?.floorCode)
         if (floor) {
           selectedFloorId.value = floor.id

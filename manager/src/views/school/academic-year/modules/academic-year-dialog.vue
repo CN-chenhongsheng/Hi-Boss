@@ -39,13 +39,6 @@
         </ElCol>
       </ElRow>
 
-      <ElFormItem label="状态" prop="status">
-        <ElRadioGroup v-model="form.status">
-          <ElRadio :label="1">启用</ElRadio>
-          <ElRadio :label="0">停用</ElRadio>
-        </ElRadioGroup>
-      </ElFormItem>
-
       <!-- 学期列表 -->
       <ElFormItem label="学期管理">
         <div class="semester-list">

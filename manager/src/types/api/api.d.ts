@@ -603,7 +603,7 @@ declare namespace Api {
       className: string
       majorCode: string
       grade: string
-      teacher?: string
+      teacherId?: number
       enrollmentYear: number
       currentCount?: number
     }
@@ -616,7 +616,8 @@ declare namespace Api {
       majorCode: string
       majorName?: string
       grade: string
-      teacher?: string
+      teacherName?: string
+      teacherId?: number
       enrollmentYear: number
       currentCount?: number
       status?: number
@@ -689,6 +690,7 @@ declare namespace Api {
       totalRooms?: number
       totalBeds?: number
       currentOccupancy?: number
+      hasRooms?: boolean
       sort?: number
       status: number
       statusText?: string
@@ -727,6 +729,7 @@ declare namespace Api {
       roomCode: string
       roomNumber: string
       floorId: number
+      floorNumber: number
       roomType?: string
       bedCount?: number
       maxOccupancy?: number
@@ -740,12 +743,30 @@ declare namespace Api {
       remark?: string
     }
 
+    /** 房间批量创建参数 */
+    interface RoomBatchCreateParams {
+      floorId: number
+      floorNumbers: number[]
+      generateCount: number
+      roomType?: string
+      roomStatus?: number
+      bedCount?: number
+      area?: number
+      maxOccupancy?: number
+      status: number
+      hasAirConditioner?: number
+      hasBathroom?: number
+      hasBalcony?: number
+      remark?: string
+    }
+
     /** 房间列表项 */
     interface RoomListItem {
       id: number
       roomCode: string
       roomNumber: string
       floorId: number
+      floorNumber?: number
       floorCode?: string
       floorName?: string
       campusCode?: string
@@ -808,6 +829,18 @@ declare namespace Api {
       checkInDate?: string
       checkOutDate?: string
       sort?: number
+      status: number
+      remark?: string
+    }
+
+    /** 床位批量创建参数 */
+    interface BedBatchCreateParams {
+      roomId: number
+      generateCount: number
+      bedPosition?: string
+      bedStatus?: number
+      checkInDate?: string
+      checkOutDate?: string
       status: number
       remark?: string
     }

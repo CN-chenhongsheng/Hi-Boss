@@ -111,9 +111,9 @@ export function renderActionButtons(buttons: ActionButtonConfig[], maxVisible: n
   const directButtons = visibleButtons.slice(0, maxVisible - 1)
   const moreButtons = visibleButtons.slice(maxVisible - 1)
 
-  // 构建"更多"菜单项
-  const moreItems: ButtonMoreItem[] = moreButtons.map((btn) => ({
-    key: btn.type,
+  // 构建"更多"菜单项 - 使用索引作为 key，避免相同 type 的按钮冲突
+  const moreItems: ButtonMoreItem[] = moreButtons.map((btn, index) => ({
+    key: `more-${index}`, // 使用索引作为唯一标识
     label: btn.label || getButtonLabel(btn.type),
     icon: btn.icon || getButtonIcon(btn.type),
     color: btn.danger ? 'var(--el-color-danger)' : undefined,
@@ -133,10 +133,15 @@ export function renderActionButtons(buttons: ActionButtonConfig[], maxVisible: n
     h(ArtButtonMore, {
       list: moreItems,
       onClick: (item: ButtonMoreItem) => {
-        // 找到对应的按钮配置并执行 onClick
-        const button = moreButtons.find((btn) => btn.type === item.key)
-        if (button && button.onClick) {
-          button.onClick()
+        // 通过索引找到对应的按钮配置并执行 onClick
+        // item.key 格式为 "more-{index}"
+        const indexMatch = item.key.toString().match(/^more-(\d+)$/)
+        if (indexMatch) {
+          const index = parseInt(indexMatch[1], 10)
+          const button = moreButtons[index]
+          if (button && button.onClick) {
+            button.onClick()
+          }
         }
       }
     })

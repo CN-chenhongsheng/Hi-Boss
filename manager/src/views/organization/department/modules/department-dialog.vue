@@ -34,24 +34,16 @@
           </ElFormItem>
         </ElCol>
         <ElCol :span="12">
-          <ElFormItem label="排序" prop="sort">
-            <ElInputNumber v-model="form.sort" :min="0" :max="9999" placeholder="请输入排序值" />
+          <ElFormItem label="联系电话" prop="phone">
+            <ElInput v-model="form.phone" placeholder="请输入联系电话" />
           </ElFormItem>
         </ElCol>
       </ElRow>
 
       <ElRow :gutter="20">
         <ElCol :span="12">
-          <ElFormItem label="联系电话" prop="phone">
-            <ElInput v-model="form.phone" placeholder="请输入联系电话" />
-          </ElFormItem>
-        </ElCol>
-        <ElCol :span="12">
-          <ElFormItem label="状态" prop="status">
-            <ElRadioGroup v-model="form.status">
-              <ElRadio :label="1">启用</ElRadio>
-              <ElRadio :label="0">停用</ElRadio>
-            </ElRadioGroup>
+          <ElFormItem label="排序" prop="sort">
+            <ElInputNumber v-model="form.sort" :min="0" :max="9999" placeholder="请输入排序值" />
           </ElFormItem>
         </ElCol>
       </ElRow>

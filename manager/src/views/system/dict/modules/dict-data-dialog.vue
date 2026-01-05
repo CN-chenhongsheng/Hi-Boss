@@ -83,14 +83,6 @@
             </ElRadioGroup>
           </ElFormItem>
         </ElCol>
-        <ElCol :span="12">
-          <ElFormItem label="状态" prop="status">
-            <ElRadioGroup v-model="form.status">
-              <ElRadio :label="1">正常</ElRadio>
-              <ElRadio :label="0">停用</ElRadio>
-            </ElRadioGroup>
-          </ElFormItem>
-        </ElCol>
       </ElRow>
 
       <ElFormItem label="备注" prop="remark">

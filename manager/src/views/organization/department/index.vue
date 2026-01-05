@@ -376,7 +376,7 @@
    * 处理下钻事件
    */
   const handleDrillDown = (
-    type: 'department' | 'major' | 'class' | 'room' | 'bed',
+    type: 'department' | 'major' | 'class' | 'floor' | 'room' | 'bed',
     row: any
   ): void => {
     if (type === 'class') {

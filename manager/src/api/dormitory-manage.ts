@@ -93,6 +93,16 @@ export function fetchUpdateFloorStatus(id: number, status: number) {
   })
 }
 
+/**
+ * 检查楼层是否被房间关联
+ * @param id 楼层ID
+ */
+export function fetchCheckFloorHasRooms(id: number) {
+  return request.get<boolean>({
+    url: `/api/v1/system/floor/${id}/check-rooms`
+  })
+}
+
 /** ==================== 房间管理 ==================== */
 
 /**
@@ -177,6 +187,18 @@ export function fetchUpdateRoomStatus(id: number, status: number) {
   })
 }
 
+/**
+ * 批量创建房间
+ * @param data 批量创建参数
+ */
+export function fetchBatchCreateRooms(data: Api.SystemManage.RoomBatchCreateParams) {
+  return request.post<number>({
+    url: '/api/v1/system/room/batch-create',
+    data,
+    showSuccessMessage: true
+  })
+}
+
 /** ==================== 床位管理 ==================== */
 
 /**
@@ -257,6 +279,18 @@ export function fetchUpdateBedStatus(id: number, status: number) {
   return request.put({
     url: `/api/v1/system/bed/${id}/status`,
     params: { status },
+    showSuccessMessage: true
+  })
+}
+
+/**
+ * 批量创建床位
+ * @param data 批量创建参数
+ */
+export function fetchBatchCreateBeds(data: Api.SystemManage.BedBatchCreateParams) {
+  return request.post<number>({
+    url: '/api/v1/system/bed/batch-create',
+    data,
     showSuccessMessage: true
   })
 }

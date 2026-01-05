@@ -67,6 +67,13 @@
         :filter-params="drillDownFilterParams"
         :key="`${drillDownType}-${drillDownVisible}`"
       />
+
+      <!-- 批量增加床位弹框 -->
+      <BatchBedDialog
+        v-model:visible="batchBedDialogVisible"
+        :room-data="batchBedRoomData"
+        @submit="handleBatchBedSubmit"
+      />
     </ElCard>
   </div>
 </template>
@@ -75,6 +82,7 @@
   import { useTable } from '@/hooks/core/useTable'
   import RoomDialog from './modules/room-dialog.vue'
   import RoomSearch from './modules/room-search.vue'
+  import BatchBedDialog from './modules/batch-bed-dialog.vue'
   import {
     fetchGetRoomPage,
     fetchDeleteRoom,
@@ -103,6 +111,10 @@
   const drillDownType = ref<'bed'>('bed')
   const drillDownParentName = ref('')
   const drillDownFilterParams = ref<Record<string, any>>({})
+
+  // 批量增加床位弹框相关
+  const batchBedDialogVisible = ref(false)
+  const batchBedRoomData = ref<RoomListItem | null>(null)
 
   // 批量选择
   const selectedRows = ref<RoomListItem[]>([])
@@ -186,6 +198,14 @@
           minWidth: 120
         },
         {
+          prop: 'floorNumber',
+          label: '楼层数',
+          width: 100,
+          formatter: (row: RoomListItem) => {
+            return row.floorNumber ? `${row.floorNumber}层` : '-'
+          }
+        },
+        {
           prop: 'roomTypeText',
           label: '房间类型',
           width: 100
@@ -246,11 +266,12 @@
         {
           prop: 'action',
           label: '操作',
-          width: 200,
+          width: 180,
           fixed: 'right' as const,
           formatter: (row: RoomListItem) => [
             { type: 'view', onClick: () => handleViewBeds(row), label: '查看床位' },
             { type: 'edit', onClick: () => handleEdit(row), auth: 'system:room:edit' },
+            { type: 'add', onClick: () => handleBatchAddBeds(row), label: '批量增加' },
             {
               type: 'delete',
               onClick: () => handleDelete(row),
@@ -415,5 +436,22 @@
     drillDownParentName.value = row.roomNumber || row.roomCode
     drillDownFilterParams.value = { roomCode: row.roomCode, pageNum: 1, pageSize: 20 }
     drillDownVisible.value = true
+  }
+
+  /**
+   * 批量增加床位
+   */
+  const handleBatchAddBeds = (row: RoomListItem): void => {
+    batchBedRoomData.value = { ...row }
+    batchBedDialogVisible.value = true
+  }
+
+  /**
+   * 批量增加床位提交回调
+   */
+  const handleBatchBedSubmit = async (): Promise<void> => {
+    batchBedDialogVisible.value = false
+    // 刷新房间数据
+    await refreshData()
   }
 </script>

@@ -28,13 +28,6 @@
         <div class="form-tip">编码唯一，编辑后不可修改</div>
       </ElFormItem>
 
-      <ElFormItem label="状态" prop="status">
-        <ElRadioGroup v-model="form.status">
-          <ElRadio :label="1">正常</ElRadio>
-          <ElRadio :label="0">停用</ElRadio>
-        </ElRadioGroup>
-      </ElFormItem>
-
       <ElFormItem label="备注" prop="remark">
         <ElInput
           v-model="form.remark"

@@ -36,17 +36,6 @@
             />
           </ElFormItem>
         </ElCol>
-        <ElCol :span="12">
-          <ElFormItem label="状态" prop="status">
-            <ElRadioGroup v-model="form.status" :disabled="isSuperAdmin">
-              <ElRadio :value="1">正常</ElRadio>
-              <ElRadio :value="0" :disabled="isSuperAdmin">停用</ElRadio>
-            </ElRadioGroup>
-            <ElText v-if="isSuperAdmin" type="warning" size="small" class="ml-2">
-              超级管理员不允许停用
-            </ElText>
-          </ElFormItem>
-        </ElCol>
       </ElRow>
 
       <ElFormItem label="备注" prop="remark">

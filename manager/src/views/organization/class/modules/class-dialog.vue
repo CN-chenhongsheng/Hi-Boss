@@ -54,9 +54,9 @@
 
       <ElRow :gutter="20">
         <ElCol :span="12">
-          <ElFormItem label="负责人" prop="teacher">
+          <ElFormItem label="负责人" prop="teacherId">
             <ElSelect
-              v-model="form.teacher"
+              v-model="form.teacherId"
               placeholder="请选择负责人"
               filterable
               clearable
@@ -71,7 +71,7 @@
                     ? `${user.nickname} (${user.phone})`
                     : user.nickname || user.username
                 "
-                :value="user.username"
+                :value="user.id"
               />
             </ElSelect>
           </ElFormItem>
@@ -139,7 +139,7 @@
     className: '',
     majorCode: '',
     grade: '',
-    teacher: undefined,
+    teacherId: undefined,
     enrollmentYear: new Date().getFullYear(),
     currentCount: 0
   })
@@ -216,7 +216,7 @@
           className: detail.className,
           majorCode: detail.majorCode,
           grade: detail.grade,
-          teacher: detail.teacher || undefined,
+          teacherId: detail.teacherId || undefined,
           enrollmentYear: detail.enrollmentYear,
           currentCount: detail.currentCount || 0
         })
@@ -246,7 +246,7 @@
       className: '',
       majorCode: '',
       grade: '',
-      teacher: undefined,
+      teacherId: undefined,
       enrollmentYear: new Date().getFullYear(),
       currentCount: 0
     })

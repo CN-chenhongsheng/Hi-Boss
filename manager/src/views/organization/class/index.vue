@@ -160,7 +160,7 @@
           width: 100
         },
         {
-          prop: 'teacher',
+          prop: 'teacherName',
           label: '负责人',
           minWidth: 120
         },
@@ -192,7 +192,7 @@
         {
           prop: 'action',
           label: '操作',
-          width: 180,
+          width: 150,
           fixed: 'right' as const,
           formatter: (row: ClassListItem) => [
             { type: 'edit', onClick: () => handleEdit(row), auth: 'system:class:edit' },

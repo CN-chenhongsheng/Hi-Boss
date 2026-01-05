@@ -24,21 +24,9 @@
         <ElInput v-model="form.manager" placeholder="请输入负责人姓名" />
       </ElFormItem>
 
-      <ElRow :gutter="20">
-        <ElCol :span="12">
-          <ElFormItem label="状态" prop="status">
-            <ElRadioGroup v-model="form.status">
-              <ElRadio :label="1">启用</ElRadio>
-              <ElRadio :label="0">停用</ElRadio>
-            </ElRadioGroup>
-          </ElFormItem>
-        </ElCol>
-        <ElCol :span="12">
-          <ElFormItem label="排序序号" prop="sort">
-            <ElInputNumber v-model="form.sort" :min="0" :max="9999" />
-          </ElFormItem>
-        </ElCol>
-      </ElRow>
+      <ElFormItem label="排序序号" prop="sort">
+        <ElInputNumber v-model="form.sort" :min="0" :max="9999" />
+      </ElFormItem>
     </ElForm>
 
     <template #footer>

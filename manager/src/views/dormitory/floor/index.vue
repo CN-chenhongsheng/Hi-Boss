@@ -28,7 +28,9 @@
               >新增楼层</ElButton
             >
             <ElButton
-              :disabled="selectedCount === 0"
+              :disabled="
+                selectedCount === 0 || selectedRows.some((row) => (row.totalRooms || 0) > 0)
+              "
               @click="handleBatchDelete"
               v-ripple
               v-permission="'system:floor:delete'"
@@ -67,6 +69,13 @@
         :filter-params="drillDownFilterParams"
         :key="`${drillDownType}-${drillDownVisible}`"
       />
+
+      <!-- 批量增加房间弹框 -->
+      <BatchRoomDialog
+        v-model:visible="batchRoomDialogVisible"
+        :floor-data="batchRoomFloorData"
+        @submit="handleBatchRoomSubmit"
+      />
     </ElCard>
   </div>
 </template>
@@ -75,6 +84,7 @@
   import { useTable } from '@/hooks/core/useTable'
   import FloorDialog from './modules/floor-dialog.vue'
   import FloorSearch from './modules/floor-search.vue'
+  import BatchRoomDialog from './modules/batch-room-dialog.vue'
   import {
     fetchGetFloorPage,
     fetchDeleteFloor,
@@ -103,6 +113,10 @@
   const drillDownType = ref<'room'>('room')
   const drillDownParentName = ref('')
   const drillDownFilterParams = ref<Record<string, any>>({})
+
+  // 批量增加房间弹框相关
+  const batchRoomDialogVisible = ref(false)
+  const batchRoomFloorData = ref<FloorListItem | null>(null)
 
   // 批量选择
   const selectedRows = ref<FloorListItem[]>([])
@@ -230,21 +244,36 @@
         {
           prop: 'action',
           label: '操作',
-          width: 200,
+          width: 180,
           fixed: 'right' as const,
           formatter: (row: FloorListItem) => [
             { type: 'view', onClick: () => handleViewRooms(row), label: '查看房间' },
-            { type: 'edit', onClick: () => handleEdit(row), auth: 'system:floor:edit' },
+            {
+              type: 'edit',
+              onClick: () => handleEdit(row),
+              auth: 'system:floor:edit',
+              disabled: (row.totalRooms || 0) > 0
+            },
+            { type: 'add', onClick: () => handleBatchAddRooms(row), label: '批量增加' },
             {
               type: 'delete',
               onClick: () => handleDelete(row),
               auth: 'system:floor:delete',
-              danger: true
+              danger: true,
+              disabled: (row.totalRooms || 0) > 0
             }
           ]
         }
       ],
       immediate: true
+    },
+    transform: {
+      dataTransformer: (records: FloorListItem[]) => {
+        // 同步返回，异步检查在后台进行
+        // 注意：这里不能使用 async，因为 dataTransformer 必须是同步函数
+        // 关联检查将在列表加载后通过 watch 或 computed 进行
+        return records
+      }
     }
   })
 
@@ -329,6 +358,13 @@
       return
     }
 
+    // 检查是否有选中项包含房间
+    const hasRoomsInSelection = selectedRows.value.some((row) => (row.totalRooms || 0) > 0)
+    if (hasRoomsInSelection) {
+      ElMessage.warning('选中的楼层中包含有房间的楼层，无法删除')
+      return
+    }
+
     try {
       await ElMessageBox.confirm(
         `确定要批量删除选中的 ${selectedCount.value} 条楼层数据吗？`,
@@ -399,5 +435,22 @@
     drillDownParentName.value = row.floorName || row.floorCode
     drillDownFilterParams.value = { floorCode: row.floorCode, pageNum: 1, pageSize: 20 }
     drillDownVisible.value = true
+  }
+
+  /**
+   * 批量增加房间
+   */
+  const handleBatchAddRooms = (row: FloorListItem): void => {
+    batchRoomFloorData.value = { ...row }
+    batchRoomDialogVisible.value = true
+  }
+
+  /**
+   * 批量增加房间提交回调
+   */
+  const handleBatchRoomSubmit = async (): Promise<void> => {
+    batchRoomDialogVisible.value = false
+    // 刷新楼层数据（因为房间数量会更新）
+    await refreshData()
   }
 </script>

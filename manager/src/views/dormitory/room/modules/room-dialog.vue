@@ -24,7 +24,7 @@
         <ElCol :span="12">
           <ElFormItem label="所属校区" prop="campusCode">
             <ElSelect
-              v-model="selectedCampusCode"
+              v-model="form.campusCode"
               placeholder="请选择校区"
               filterable
               clearable
@@ -47,6 +47,7 @@
               filterable
               clearable
               :disabled="!selectedCampusCode"
+              @change="handleFloorChange"
             >
               <ElOption
                 v-for="item in floorList"
@@ -61,6 +62,24 @@
 
       <ElRow :gutter="20">
         <ElCol :span="12">
+          <ElFormItem label="楼层数" prop="floorNumber">
+            <ElSelect
+              v-model="form.floorNumber"
+              placeholder="请选择楼层数"
+              filterable
+              clearable
+              :disabled="!form.floorId"
+            >
+              <ElOption
+                v-for="num in floorNumberOptions"
+                :key="num"
+                :label="`${num}层`"
+                :value="num"
+              />
+            </ElSelect>
+          </ElFormItem>
+        </ElCol>
+        <ElCol :span="12">
           <ElFormItem label="房间类型" prop="roomType">
             <ElSelect v-model="form.roomType" placeholder="请选择房间类型" filterable clearable>
               <ElOption
@@ -72,6 +91,9 @@
             </ElSelect>
           </ElFormItem>
         </ElCol>
+      </ElRow>
+
+      <ElRow :gutter="20">
         <ElCol :span="12">
           <ElFormItem label="房间状态" prop="roomStatus">
             <ElSelect v-model="form.roomStatus" placeholder="请选择房间状态" filterable clearable>
@@ -84,9 +106,6 @@
             </ElSelect>
           </ElFormItem>
         </ElCol>
-      </ElRow>
-
-      <ElRow :gutter="16">
         <ElCol :span="12">
           <ElFormItem label="床位数" prop="bedCount">
             <ElInputNumber
@@ -98,18 +117,8 @@
             />
           </ElFormItem>
         </ElCol>
-        <ElCol :span="12">
-          <ElFormItem label="最大入住人数" prop="maxOccupancy">
-            <ElInputNumber
-              v-model="form.maxOccupancy"
-              :min="1"
-              :max="form.bedCount || 1"
-              placeholder="请输入最大入住人数"
-              class="w-full"
-            />
-          </ElFormItem>
-        </ElCol>
       </ElRow>
+
       <ElRow :gutter="16">
         <ElCol :span="12">
           <ElFormItem label="房间面积(㎡)" prop="area">
@@ -117,17 +126,27 @@
               v-model="form.area"
               :min="0"
               :precision="2"
-              placeholder="请输入房间面积"
+              placeholder="房间面积"
               class="w-full"
             />
           </ElFormItem>
         </ElCol>
         <ElCol :span="12">
-          <ElFormItem label="排序序号" prop="sort">
-            <ElInputNumber v-model="form.sort" :min="0" :max="9999" />
+          <ElFormItem label="最多入住人数" prop="maxOccupancy">
+            <ElInputNumber
+              v-model="form.maxOccupancy"
+              :min="1"
+              :max="form.bedCount || 1"
+              placeholder="最多入住人数"
+              class="w-full"
+            />
           </ElFormItem>
         </ElCol>
       </ElRow>
+
+      <ElFormItem label="排序序号" prop="sort">
+        <ElInputNumber v-model="form.sort" :min="0" :max="9999" />
+      </ElFormItem>
 
       <ElFormItem label="房间设施">
         <ElCheckboxGroup v-model="facilityValues">
@@ -136,17 +155,6 @@
           </ElCheckbox>
         </ElCheckboxGroup>
       </ElFormItem>
-
-      <ElRow :gutter="20">
-        <ElCol :span="12">
-          <ElFormItem label="状态" prop="status">
-            <ElRadioGroup v-model="form.status">
-              <ElRadio :label="1">启用</ElRadio>
-              <ElRadio :label="0">停用</ElRadio>
-            </ElRadioGroup>
-          </ElFormItem>
-        </ElCol>
-      </ElRow>
 
       <ElFormItem label="备注" prop="remark">
         <ElInput v-model="form.remark" type="textarea" :rows="3" placeholder="请输入备注" />
@@ -189,6 +197,8 @@
   const campusList = ref<Api.SystemManage.CampusListItem[]>([])
   const floorList = ref<Api.SystemManage.FloorListItem[]>([])
   const selectedCampusCode = ref<string>('')
+  const selectedFloor = ref<Api.SystemManage.FloorListItem | null>(null)
+  const floorNumberOptions = ref<number[]>([])
   const roomTypeOptions = ref<Array<{ label: string; value: string }>>([])
   const roomStatusOptions = ref<Array<{ label: string; value: number }>>([])
   const facilityOptions = ref<Array<{ label: string; value: string }>>([])
@@ -209,13 +219,20 @@
     return '新增房间'
   })
 
-  const form = reactive<Partial<Api.SystemManage.RoomSaveParams>>({
+  // 扩展表单类型，包含 campusCode 用于验证（但提交时不发送）
+  type RoomFormData = Partial<Api.SystemManage.RoomSaveParams> & {
+    campusCode?: string
+  }
+
+  const form = reactive<RoomFormData>({
     roomCode: '',
     roomNumber: '',
+    campusCode: undefined,
     floorId: undefined,
+    floorNumber: undefined,
     roomType: undefined,
     bedCount: 4,
-    maxOccupancy: undefined,
+    maxOccupancy: 4,
     area: undefined,
     hasAirConditioner: 0,
     hasBathroom: 0,
@@ -227,9 +244,11 @@
   })
 
   const rules = reactive<FormRules>({
+    campusCode: [{ required: true, message: '请选择所属校区', trigger: 'change' }],
     roomCode: [{ required: true, message: '请输入房间编码', trigger: 'blur' }],
     roomNumber: [{ required: true, message: '请输入房间号', trigger: 'blur' }],
-    floorId: [{ required: true, message: '请选择所属楼层', trigger: 'change' }]
+    floorId: [{ required: true, message: '请选择所属楼层', trigger: 'change' }],
+    floorNumber: [{ required: true, message: '请选择楼层数', trigger: 'change' }]
   })
 
   /**
@@ -305,8 +324,37 @@
    */
   const handleCampusChange = (campusCode: string): void => {
     selectedCampusCode.value = campusCode
+    form.campusCode = campusCode // 同步到 form，用于表单验证
     form.floorId = undefined
+    form.floorNumber = undefined
+    selectedFloor.value = null
+    floorNumberOptions.value = []
     loadFloorList(campusCode)
+  }
+
+  /**
+   * 楼层变更处理
+   */
+  const handleFloorChange = (floorId: number | undefined): void => {
+    if (!floorId) {
+      selectedFloor.value = null
+      floorNumberOptions.value = []
+      form.floorNumber = undefined
+      return
+    }
+
+    // 查找选中的楼层信息
+    const floor = floorList.value.find((item) => item.id === floorId)
+    if (floor) {
+      selectedFloor.value = floor
+      // 生成楼层数选项：从1层到该楼的楼层数
+      const maxFloor = floor.floorNumber || 10
+      floorNumberOptions.value = Array.from({ length: maxFloor }, (_, i) => i + 1)
+    } else {
+      selectedFloor.value = null
+      floorNumberOptions.value = []
+    }
+    form.floorNumber = undefined
   }
 
   /**
@@ -314,17 +362,24 @@
    */
   const loadFormData = async (): Promise<void> => {
     if (isEdit.value && props.editData) {
-      selectedCampusCode.value = props.editData.campusCode || ''
-      await loadFloorList(props.editData.campusCode)
+      const campusCode = props.editData.campusCode || ''
+      selectedCampusCode.value = campusCode
+      await loadFloorList(campusCode)
+      // 编辑时，需要触发楼层变更处理，以加载楼层数选项
+      if (props.editData.floorId) {
+        handleFloorChange(props.editData.floorId)
+      }
 
       Object.assign(form, {
         id: props.editData.id,
         roomCode: props.editData.roomCode,
         roomNumber: props.editData.roomNumber,
+        campusCode: campusCode,
         floorId: props.editData.floorId,
+        floorNumber: props.editData.floorNumber || undefined,
         roomType: props.editData.roomType || undefined,
         bedCount: props.editData.bedCount || 4,
-        maxOccupancy: props.editData.maxOccupancy || undefined,
+        maxOccupancy: props.editData.maxOccupancy || 4,
         area: props.editData.area || undefined,
         hasAirConditioner: props.editData.hasAirConditioner || 0,
         hasBathroom: props.editData.hasBathroom || 0,
@@ -352,10 +407,12 @@
     Object.assign(form, {
       roomCode: '',
       roomNumber: '',
+      campusCode: undefined,
       floorId: undefined,
+      floorNumber: undefined,
       roomType: undefined,
       bedCount: 4,
-      maxOccupancy: undefined,
+      maxOccupancy: 4,
       area: undefined,
       hasAirConditioner: 0,
       hasBathroom: 0,
@@ -366,6 +423,8 @@
       remark: undefined
     })
     selectedCampusCode.value = ''
+    selectedFloor.value = null
+    floorNumberOptions.value = []
     facilityValues.value = []
     floorList.value = []
     formRef.value?.clearValidate()
@@ -393,10 +452,13 @@
 
     loading.value = true
     try {
+      // 提交时排除 campusCode（后端会根据 floorId 自动填充）
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { campusCode: _campusCode, ...submitData } = form
       if (isEdit.value) {
-        await fetchUpdateRoom(form.id!, form as Api.SystemManage.RoomSaveParams)
+        await fetchUpdateRoom(form.id!, submitData as Api.SystemManage.RoomSaveParams)
       } else {
-        await fetchAddRoom(form as Api.SystemManage.RoomSaveParams)
+        await fetchAddRoom(submitData as Api.SystemManage.RoomSaveParams)
       }
       emit('submit')
       handleClose()
@@ -429,11 +491,28 @@
 
   /**
    * 监听床位数变化，自动调整最大入住人数
+   * 床位数增加时，最多入住人数自动同步增加
+   * 床位数减少时，如果最多入住人数超过床位数，则自动调整为床位数
    */
   watch(
     () => form.bedCount,
-    (newBedCount) => {
-      if (newBedCount && form.maxOccupancy && form.maxOccupancy > newBedCount) {
+    (newBedCount, oldBedCount) => {
+      if (!newBedCount) return
+
+      // 如果床位数增加，且最多入住人数未设置或小于床位数，则自动设置为床位数
+      if (oldBedCount !== undefined && newBedCount > oldBedCount) {
+        if (!form.maxOccupancy || form.maxOccupancy < newBedCount) {
+          form.maxOccupancy = newBedCount
+        }
+      }
+      // 如果床位数减少，且最多入住人数超过床位数，则自动调整为床位数
+      else if (oldBedCount !== undefined && newBedCount < oldBedCount) {
+        if (form.maxOccupancy && form.maxOccupancy > newBedCount) {
+          form.maxOccupancy = newBedCount
+        }
+      }
+      // 初始化时，如果最多入住人数未设置，则设置为床位数
+      else if (oldBedCount === undefined && !form.maxOccupancy) {
         form.maxOccupancy = newBedCount
       }
     }
