@@ -117,6 +117,7 @@
     type FormInstance
   } from 'element-plus'
   import { calculateResponsiveSpan, type ResponsiveBreakpoint } from '@/utils/form/responsive'
+  import ArtSwitch from '@/components/core/forms/art-switch/index.vue'
 
   defineOptions({ name: 'ArtForm' })
 

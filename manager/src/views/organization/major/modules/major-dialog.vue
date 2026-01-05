@@ -87,7 +87,7 @@
     fetchAddMajor,
     fetchUpdateMajor
   } from '@/api/school-manage'
-  import { fetchGetDictDataList } from '@/api/system-manage'
+  import { useDictStore } from '@/store/modules/dict'
   import type { FormInstance, FormRules } from 'element-plus'
 
   interface Props {
@@ -112,6 +112,9 @@
   const deptLoading = ref(false)
   const deptOptions = ref<Api.SystemManage.DepartmentListItem[]>([])
   const degreeTypeOptions = ref<Array<{ label: string; value: string }>>([])
+
+  // 使用字典 store
+  const dictStore = useDictStore()
 
   // 学制数字值（用于数字输入框）
   const durationNumber = ref<number | null>(null)
@@ -160,7 +163,8 @@
    */
   const loadDegreeTypeOptions = async (): Promise<void> => {
     try {
-      const data = await fetchGetDictDataList('degree_type')
+      // 使用 store 加载字典数据（自动缓存）
+      const data = await dictStore.loadDictData('degree_type')
       degreeTypeOptions.value = data
         .filter((item) => item.status === 1)
         .map((item) => ({

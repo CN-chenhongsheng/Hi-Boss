@@ -5,7 +5,7 @@
  * @author HongSheng_Chen Team
  */
 
-import { parseManageScope, type SelectedNodes } from './scopeSelector'
+import { parseManageScope } from './scopeSelector'
 import type { FullHierarchyTree, HierarchyNode } from './scopeDataLoader'
 import { loadFullHierarchy } from './scopeDataLoader'
 

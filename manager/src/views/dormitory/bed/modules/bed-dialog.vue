@@ -169,7 +169,7 @@
     fetchGetFloorPage,
     fetchGetRoomPage
   } from '@/api/dormitory-manage'
-  import { fetchGetDictDataList } from '@/api/system-manage'
+  import { useDictStore } from '@/store/modules/dict'
   import type { FormInstance, FormRules } from 'element-plus'
 
   interface Props {
@@ -198,6 +198,9 @@
   const selectedFloorId = ref<number | undefined>(undefined)
   const bedPositionOptions = ref<Array<{ label: string; value: string }>>([])
   const bedStatusOptions = ref<Array<{ label: string; value: number }>>([])
+
+  // 使用字典 store
+  const dictStore = useDictStore()
 
   const dialogVisible = computed({
     get: () => props.visible,
@@ -283,16 +286,20 @@
    */
   const loadDictData = async (): Promise<void> => {
     try {
-      // 加载床位位置字典
-      const bedPositionRes = await fetchGetDictDataList('dormitory_bed_position')
-      bedPositionOptions.value = (bedPositionRes || []).map((item) => ({
+      // 使用 store 批量加载字典数据（一个接口请求）
+      const dictRes = await dictStore.loadDictDataBatch([
+        'dormitory_bed_position',
+        'dormitory_bed_status'
+      ])
+
+      // 解析床位位置字典
+      bedPositionOptions.value = (dictRes.dormitory_bed_position || []).map((item) => ({
         label: item.label,
         value: item.value
       }))
 
-      // 加载床位状态字典
-      const bedStatusRes = await fetchGetDictDataList('dormitory_bed_status')
-      bedStatusOptions.value = (bedStatusRes || []).map((item) => ({
+      // 解析床位状态字典
+      bedStatusOptions.value = (dictRes.dormitory_bed_status || []).map((item) => ({
         label: item.label,
         value: Number(item.value)
       }))

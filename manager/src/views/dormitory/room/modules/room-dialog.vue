@@ -103,7 +103,7 @@
             <ElInputNumber
               v-model="form.maxOccupancy"
               :min="1"
-              :max="20"
+              :max="form.bedCount || 1"
               placeholder="请输入最大入住人数"
               class="w-full"
             />
@@ -131,9 +131,9 @@
 
       <ElFormItem label="房间设施">
         <ElCheckboxGroup v-model="facilityValues">
-          <ElCheckbox :label="1">空调</ElCheckbox>
-          <ElCheckbox :label="2">独立卫生间</ElCheckbox>
-          <ElCheckbox :label="3">阳台</ElCheckbox>
+          <ElCheckbox v-for="item in facilityOptions" :key="item.value" :label="Number(item.value)">
+            {{ item.label }}
+          </ElCheckbox>
         </ElCheckboxGroup>
       </ElFormItem>
 
@@ -163,7 +163,7 @@
 <script setup lang="ts">
   import { fetchGetCampusTree } from '@/api/school-manage'
   import { fetchAddRoom, fetchUpdateRoom, fetchGetFloorPage } from '@/api/dormitory-manage'
-  import { fetchGetDictDataList } from '@/api/system-manage'
+  import { useDictStore } from '@/store/modules/dict'
   import { ElMessage } from 'element-plus'
   import type { FormInstance, FormRules } from 'element-plus'
 
@@ -191,7 +191,11 @@
   const selectedCampusCode = ref<string>('')
   const roomTypeOptions = ref<Array<{ label: string; value: string }>>([])
   const roomStatusOptions = ref<Array<{ label: string; value: number }>>([])
+  const facilityOptions = ref<Array<{ label: string; value: string }>>([])
   const facilityValues = ref<number[]>([])
+
+  // 使用字典 store
+  const dictStore = useDictStore()
 
   const dialogVisible = computed({
     get: () => props.visible,
@@ -261,21 +265,34 @@
    */
   const loadDictData = async (): Promise<void> => {
     try {
-      // 加载房间类型字典
-      const roomTypeRes = await fetchGetDictDataList('dormitory_room_type')
-      roomTypeOptions.value = (roomTypeRes || []).map(
+      // 使用 store 批量加载字典数据（一个接口请求）
+      const dictRes = await dictStore.loadDictDataBatch([
+        'dormitory_room_type',
+        'dormitory_room_status',
+        'dormitory_room_facility'
+      ])
+
+      // 解析房间类型字典
+      roomTypeOptions.value = (dictRes.dormitory_room_type || []).map(
         (item: Api.SystemManage.DictDataListItem) => ({
           label: item.label,
           value: item.value
         })
       )
 
-      // 加载房间状态字典
-      const roomStatusRes = await fetchGetDictDataList('dormitory_room_status')
-      roomStatusOptions.value = (roomStatusRes || []).map(
+      // 解析房间状态字典
+      roomStatusOptions.value = (dictRes.dormitory_room_status || []).map(
         (item: Api.SystemManage.DictDataListItem) => ({
           label: item.label,
           value: Number(item.value)
+        })
+      )
+
+      // 解析房间设施字典
+      facilityOptions.value = (dictRes.dormitory_room_facility || []).map(
+        (item: Api.SystemManage.DictDataListItem) => ({
+          label: item.label,
+          value: item.value
         })
       )
     } catch (error) {
@@ -408,5 +425,17 @@
       }
     },
     { immediate: true }
+  )
+
+  /**
+   * 监听床位数变化，自动调整最大入住人数
+   */
+  watch(
+    () => form.bedCount,
+    (newBedCount) => {
+      if (newBedCount && form.maxOccupancy && form.maxOccupancy > newBedCount) {
+        form.maxOccupancy = newBedCount
+      }
+    }
   )
 </script>

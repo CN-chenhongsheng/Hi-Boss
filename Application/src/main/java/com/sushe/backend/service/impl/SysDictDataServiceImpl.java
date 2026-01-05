@@ -20,7 +20,9 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -74,6 +76,26 @@ public class SysDictDataServiceImpl extends ServiceImpl<SysDictDataMapper, SysDi
         return list.stream()
                 .map(this::convertToVO)
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * 根据字典编码批量获取字典数据
+     */
+    @Override
+    public Map<String, List<DictDataVO>> listByDictCodes(List<String> dictCodes) {
+        if (dictCodes == null || dictCodes.isEmpty()) {
+            return new HashMap<>();
+        }
+
+        Map<String, List<DictDataVO>> result = new HashMap<>();
+
+        // 批量查询每个字典编码的数据
+        for (String dictCode : dictCodes) {
+            List<DictDataVO> dictDataList = listByDictCode(dictCode);
+            result.put(dictCode, dictDataList);
+        }
+
+        return result;
     }
 
     /**

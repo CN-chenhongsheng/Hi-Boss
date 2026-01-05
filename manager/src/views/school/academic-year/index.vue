@@ -54,7 +54,8 @@
 
   defineOptions({ name: 'AcademicYear' })
 
-  // 临时使用空函数，等后端API准备好后替换
+  // 临时使用空函数，等后端API准备好后替���
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const fetchGetAcademicYearPage = async (params: any) => {
     return {
       list: [],

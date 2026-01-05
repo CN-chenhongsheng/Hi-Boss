@@ -180,7 +180,7 @@ export function useTableColumns<T = any>(
 
     // 自动处理操作列的 formatter 和表头提示
     return visibleColumns.map((col) => {
-      let processedCol = { ...col }
+      const processedCol = { ...col }
 
       // 1. 处理表头提示 (labelTooltip)
       if (processedCol.labelTooltip) {

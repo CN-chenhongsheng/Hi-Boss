@@ -45,7 +45,7 @@ export const useDictStore = defineStore('dictStore', () => {
   const dictCache = reactive<Map<string, DictDataCache>>(new Map())
 
   /**
-   * 加载字典数据
+   * 加载字典数据（单个）
    * @param dictCode 字典编码
    * @param force 是否强制重新加载（忽略缓存）
    * @returns 字典数据列表
@@ -87,9 +87,16 @@ export const useDictStore = defineStore('dictStore', () => {
     // 创建加载 Promise
     const loadPromise = fetchGetDictDataList(dictCode)
       .then((response) => {
-        if (response && Array.isArray(response)) {
-          currentCache.data = response
-          currentCache.timestamp = Date.now()
+        // 新的 API 返回格式是 Record<string, DictDataList>
+        // 需要从响应对象中提取对应字典编码的数据
+        if (response && typeof response === 'object') {
+          const data = response[dictCode]
+          if (data && Array.isArray(data)) {
+            currentCache.data = data
+            currentCache.timestamp = Date.now()
+          } else {
+            currentCache.data = []
+          }
         } else {
           currentCache.data = []
         }
@@ -109,6 +116,63 @@ export const useDictStore = defineStore('dictStore', () => {
     currentCache.loadPromise = loadPromise
 
     return loadPromise
+  }
+
+  /**
+   * 批量加载字典数据
+   * @param dictCodes 字典编码数组
+   * @param force 是否强制重新加载（忽略缓存）
+   * @returns 字典数据Map，key为字典编码，value为对应的字典数据列表
+   */
+  const loadDictDataBatch = async (
+    dictCodes: string[],
+    force = false
+  ): Promise<Record<string, Api.SystemManage.DictDataListItem[]>> => {
+    if (dictCodes.length === 0) {
+      return {}
+    }
+
+    // 检查是否所有字典都已有缓存
+    const allCached = dictCodes.every((code) => {
+      const cache = dictCache.get(code)
+      return cache && !force && cache.data.length > 0
+    })
+
+    // 如果全部缓存且不强制刷新，直接从缓存返回
+    if (allCached) {
+      const result: Record<string, Api.SystemManage.DictDataListItem[]> = {}
+      dictCodes.forEach((code) => {
+        result[code] = dictCache.get(code)!.data
+      })
+      return result
+    }
+
+    // 批量加载（一个接口请求）
+    const response = await fetchGetDictDataList(dictCodes)
+
+    // 更新缓存
+    if (response && typeof response === 'object') {
+      dictCodes.forEach((code) => {
+        const data = response[code]
+        if (data && Array.isArray(data)) {
+          // 更新或创建缓存
+          const cache = dictCache.get(code)
+          if (cache) {
+            cache.data = data
+            cache.timestamp = Date.now()
+          } else {
+            dictCache.set(code, {
+              data: data,
+              loading: false,
+              loadPromise: null,
+              timestamp: Date.now()
+            })
+          }
+        }
+      })
+    }
+
+    return response || {}
   }
 
   /**
@@ -201,6 +265,7 @@ export const useDictStore = defineStore('dictStore', () => {
   return {
     dictCache,
     loadDictData,
+    loadDictDataBatch,
     getDictData,
     refreshDictData,
     clearDictCache,

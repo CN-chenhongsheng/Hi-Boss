@@ -8,6 +8,7 @@ import com.sushe.backend.entity.SysDictData;
 import com.sushe.backend.vo.DictDataVO;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 字典数据Service
@@ -27,11 +28,19 @@ public interface SysDictDataService extends IService<SysDictData> {
 
     /**
      * 根据字典编码获取字典数据列表
-     * 
+     *
      * @param dictCode 字典编码
      * @return 字典数据列表
      */
     List<DictDataVO> listByDictCode(String dictCode);
+
+    /**
+     * 根据字典编码批量获取字典数据
+     *
+     * @param dictCodes 字典编码列表
+     * @return 字典数据Map，key为字典编码，value为对应的字典数据列表
+     */
+    Map<String, List<DictDataVO>> listByDictCodes(List<String> dictCodes);
 
     /**
      * 根据ID获取字典数据详情

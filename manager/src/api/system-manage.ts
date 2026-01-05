@@ -447,11 +447,17 @@ export function fetchGetDictDataPage(params: Api.SystemManage.DictDataSearchPara
 
 /**
  * 根据字典编码获取字典数据列表
- * @param dictCode 字典编码
+ * @param dictCodes 字典编码或字典编码数组
  */
-export function fetchGetDictDataList(dictCode: string) {
-  return request.get<Api.SystemManage.DictDataList>({
-    url: `/api/v1/system/dict/data/list/${dictCode}`
+export function fetchGetDictDataList(dictCodes: string | string[]) {
+  // 如果是单个字符串，转换为数组
+  const codes = Array.isArray(dictCodes) ? dictCodes : [dictCodes]
+
+  return request.post<Record<string, Api.SystemManage.DictDataList>>({
+    url: '/api/v1/system/dict/type/batch',
+    data: {
+      dictCodes: codes
+    }
   })
 }
 

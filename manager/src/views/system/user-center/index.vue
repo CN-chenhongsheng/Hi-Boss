@@ -203,7 +203,7 @@
   import { ElMessage, ElTag } from 'element-plus'
   import type { FormInstance, FormRules } from 'element-plus'
   import { fetchGetUserProfile, fetchUpdateUserProfile, fetchChangePassword } from '@/api/auth'
-  import { fetchGetDictDataList } from '@/api/system-manage'
+  import { useDictStore } from '@/store/modules/dict'
   import defaultAvatarImg from '@/assets/images/user/avatar.webp'
   import { formatManageScopeSync } from '@/utils/school/scopeFormatter'
 
@@ -221,6 +221,9 @@
     { label: '男', value: 1 },
     { label: '女', value: 2 }
   ])
+
+  // 使用字典 store
+  const dictStore = useDictStore()
 
   // 管理范围标签列表
   const manageScopeTags = computed(() => {
@@ -324,7 +327,8 @@
    */
   const loadGenderDict = async () => {
     try {
-      const data = await fetchGetDictDataList('sys_user_sex')
+      // 使用 store 加载字典数据（自动缓存）
+      const data = await dictStore.loadDictData('sys_user_sex')
       if (data && data.length > 0) {
         genderOptions.value = data.map((item: Api.SystemManage.DictDataListItem) => ({
           label: item.label,
