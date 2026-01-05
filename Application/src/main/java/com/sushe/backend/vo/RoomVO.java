@@ -32,6 +32,9 @@ public class RoomVO implements Serializable {
     @Schema(description = "所属楼层ID")
     private Long floorId;
 
+    @Schema(description = "所属楼层数")
+    private Integer floorNumber;
+
     @Schema(description = "所属楼层编码")
     private String floorCode;
 

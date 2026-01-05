@@ -2,6 +2,7 @@ package com.sushe.backend.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.sushe.backend.common.result.PageResult;
+import com.sushe.backend.dto.bed.BedBatchCreateDTO;
 import com.sushe.backend.dto.bed.BedQueryDTO;
 import com.sushe.backend.dto.bed.BedSaveDTO;
 import com.sushe.backend.entity.SysBed;
@@ -63,5 +64,13 @@ public interface SysBedService extends IService<SysBed> {
      * @return 是否成功
      */
     boolean updateStatus(Long id, Integer status);
+
+    /**
+     * 批量创建床位
+     * 
+     * @param dto 批量创建参数
+     * @return 创建的床位数量
+     */
+    int batchCreateBeds(BedBatchCreateDTO dto);
 }
 

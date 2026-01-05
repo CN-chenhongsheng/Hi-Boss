@@ -37,8 +37,11 @@ public class ClassVO implements Serializable {
     @Schema(description = "年级")
     private String grade;
 
-    @Schema(description = "负责人")
-    private String teacher;
+    @Schema(description = "负责人姓名（冗余字段）")
+    private String teacherName;
+
+    @Schema(description = "负责人ID（关联sys_user）")
+    private Long teacherId;
 
     @Schema(description = "入学年份")
     private Integer enrollmentYear;

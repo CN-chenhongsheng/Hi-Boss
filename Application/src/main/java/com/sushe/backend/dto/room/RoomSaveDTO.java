@@ -32,6 +32,10 @@ public class RoomSaveDTO {
     @NotNull(message = "所属楼层不能为空")
     private Long floorId;
 
+    @Schema(description = "所属楼层数", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "所属楼层数不能为空")
+    private Integer floorNumber;
+
     @Schema(description = "房间类型（字典room_type）")
     private String roomType;
 

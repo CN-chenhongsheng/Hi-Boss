@@ -11,8 +11,10 @@ import com.sushe.backend.dto.classes.ClassQueryDTO;
 import com.sushe.backend.dto.classes.ClassSaveDTO;
 import com.sushe.backend.entity.SysClass;
 import com.sushe.backend.entity.SysMajor;
+import com.sushe.backend.entity.SysUser;
 import com.sushe.backend.mapper.SysClassMapper;
 import com.sushe.backend.mapper.SysMajorMapper;
+import com.sushe.backend.mapper.SysUserMapper;
 import com.sushe.backend.service.SysClassService;
 import com.sushe.backend.util.DictUtils;
 import com.sushe.backend.vo.ClassVO;
@@ -37,6 +39,7 @@ import java.util.stream.Collectors;
 public class SysClassServiceImpl extends ServiceImpl<SysClassMapper, SysClass> implements SysClassService {
 
     private final SysMajorMapper majorMapper;
+    private final SysUserMapper userMapper;
 
     @Override
     public PageResult<ClassVO> pageList(ClassQueryDTO queryDTO) {
@@ -91,6 +94,19 @@ public class SysClassServiceImpl extends ServiceImpl<SysClassMapper, SysClass> i
 
         SysClass classEntity = new SysClass();
         BeanUtil.copyProperties(saveDTO, classEntity);
+
+        // 根据 teacherId 查询用户信息，填充 teacherName
+        if (saveDTO.getTeacherId() != null) {
+            SysUser user = userMapper.selectById(saveDTO.getTeacherId());
+            if (user == null) {
+                throw new BusinessException("负责人不存在");
+            }
+            // 优先使用 nickname，如果没有则使用 username
+            classEntity.setTeacherName(StrUtil.isNotBlank(user.getNickname()) ? user.getNickname() : user.getUsername());
+        } else {
+            // 如果没有 teacherId，清空 teacherName
+            classEntity.setTeacherName(null);
+        }
 
         if (saveDTO.getId() == null) {
             classEntity.setCurrentCount(classEntity.getCurrentCount() != null ? classEntity.getCurrentCount() : 0);
@@ -161,6 +177,8 @@ public class SysClassServiceImpl extends ServiceImpl<SysClassMapper, SysClass> i
                 vo.setMajorName(major.getMajorName());
             }
         }
+
+        // teacherName 和 teacherId 已经通过 BeanUtil.copyProperties 复制，无需额外处理
 
         return vo;
     }

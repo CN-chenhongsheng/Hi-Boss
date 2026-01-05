@@ -4,8 +4,14 @@ import com.sushe.backend.common.result.PageResult;
 import com.sushe.backend.controller.base.BaseCrudController;
 import com.sushe.backend.controller.base.BatchDeleteController;
 import com.sushe.backend.controller.base.StatusUpdateController;
+import com.sushe.backend.common.result.R;
+import com.sushe.backend.dto.bed.BedBatchCreateDTO;
 import com.sushe.backend.dto.bed.BedQueryDTO;
 import com.sushe.backend.dto.bed.BedSaveDTO;
+import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import com.sushe.backend.service.SysBedService;
 import com.sushe.backend.vo.BedVO;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -63,6 +69,12 @@ public class SysBedController extends BaseCrudController<BedVO, BedQueryDTO, Bed
     @Override
     public boolean callUpdateStatus(Long id, Integer status) {
         return bedService.updateStatus(id, status);
+    }
+
+    @PostMapping("/batch-create")
+    @Operation(summary = "批量创建床位")
+    public R<Integer> batchCreate(@RequestBody @Valid BedBatchCreateDTO dto) {
+        return R.ok(bedService.batchCreateBeds(dto));
     }
 }
 

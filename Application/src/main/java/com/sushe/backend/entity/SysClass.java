@@ -34,9 +34,13 @@ public class SysClass extends BaseEntity {
     @TableField("grade")
     private String grade;
 
-    @Schema(description = "负责人")
-    @TableField("teacher")
-    private String teacher;
+    @Schema(description = "负责人姓名（冗余字段）")
+    @TableField("teacher_name")
+    private String teacherName;
+
+    @Schema(description = "负责人ID（关联sys_user）")
+    @TableField("teacher_id")
+    private Long teacherId;
 
     @Schema(description = "入学年份")
     @TableField("enrollment_year")

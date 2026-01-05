@@ -4,8 +4,14 @@ import com.sushe.backend.common.result.PageResult;
 import com.sushe.backend.controller.base.BaseCrudController;
 import com.sushe.backend.controller.base.BatchDeleteController;
 import com.sushe.backend.controller.base.StatusUpdateController;
+import com.sushe.backend.common.result.R;
+import com.sushe.backend.dto.room.RoomBatchCreateDTO;
 import com.sushe.backend.dto.room.RoomQueryDTO;
 import com.sushe.backend.dto.room.RoomSaveDTO;
+import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import com.sushe.backend.service.SysRoomService;
 import com.sushe.backend.vo.RoomVO;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -63,6 +69,12 @@ public class SysRoomController extends BaseCrudController<RoomVO, RoomQueryDTO, 
     @Override
     public boolean callUpdateStatus(Long id, Integer status) {
         return roomService.updateStatus(id, status);
+    }
+
+    @PostMapping("/batch-create")
+    @Operation(summary = "批量创建房间")
+    public R<Integer> batchCreate(@RequestBody @Valid RoomBatchCreateDTO dto) {
+        return R.ok(roomService.batchCreateRooms(dto));
     }
 }
 

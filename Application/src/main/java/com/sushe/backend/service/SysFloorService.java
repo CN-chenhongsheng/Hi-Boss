@@ -63,5 +63,13 @@ public interface SysFloorService extends IService<SysFloor> {
      * @return 是否成功
      */
     boolean updateStatus(Long id, Integer status);
+
+    /**
+     * 检查楼层是否被房间关联
+     * 
+     * @param floorId 楼层ID
+     * @return true-有房间关联，false-无房间关联
+     */
+    boolean checkFloorHasRooms(Long floorId);
 }
 

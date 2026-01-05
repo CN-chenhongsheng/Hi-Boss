@@ -32,6 +32,10 @@ public class SysRoom extends BaseEntity {
     @TableField("floor_id")
     private Long floorId;
 
+    @Schema(description = "所属楼层数（冗余字段）")
+    @TableField("floor_number")
+    private Integer floorNumber;
+
     @Schema(description = "所属楼层编码（冗余字段）")
     @TableField("floor_code")
     private String floorCode;

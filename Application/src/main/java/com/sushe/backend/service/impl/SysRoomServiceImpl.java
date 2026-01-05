@@ -7,12 +7,15 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.sushe.backend.common.exception.BusinessException;
 import com.sushe.backend.common.result.PageResult;
+import com.sushe.backend.dto.room.RoomBatchCreateDTO;
 import com.sushe.backend.dto.room.RoomQueryDTO;
 import com.sushe.backend.dto.room.RoomSaveDTO;
 import com.sushe.backend.entity.SysBed;
 import com.sushe.backend.entity.SysFloor;
 import com.sushe.backend.entity.SysRoom;
+import com.sushe.backend.entity.SysCampus;
 import com.sushe.backend.mapper.SysBedMapper;
+import com.sushe.backend.mapper.SysCampusMapper;
 import com.sushe.backend.mapper.SysFloorMapper;
 import com.sushe.backend.mapper.SysRoomMapper;
 import com.sushe.backend.service.SysRoomService;
@@ -23,8 +26,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -40,6 +47,7 @@ public class SysRoomServiceImpl extends ServiceImpl<SysRoomMapper, SysRoom> impl
 
     private final SysFloorMapper floorMapper;
     private final SysBedMapper bedMapper;
+    private final SysCampusMapper campusMapper;
 
     @Override
     public PageResult<RoomVO> pageList(RoomQueryDTO queryDTO) {
@@ -99,6 +107,10 @@ public class SysRoomServiceImpl extends ServiceImpl<SysRoomMapper, SysRoom> impl
         // 自动填充冗余字段
         room.setFloorCode(floor.getFloorCode());
         room.setCampusCode(floor.getCampusCode());
+        // floorNumber 从 saveDTO 中获取，如果为空则从楼层信息中获取
+        if (room.getFloorNumber() == null) {
+            room.setFloorNumber(floor.getFloorNumber());
+        }
 
         if (saveDTO.getId() == null) {
             room.setStatus(room.getStatus() != null ? room.getStatus() : 1);
@@ -213,7 +225,123 @@ public class SysRoomServiceImpl extends ServiceImpl<SysRoomMapper, SysRoom> impl
             }
         }
         
+        // 查询校区信息填充校区名称
+        if (StrUtil.isNotBlank(room.getCampusCode())) {
+            SysCampus campus = campusMapper.selectByCampusCode(room.getCampusCode());
+            if (campus != null) {
+                vo.setCampusName(campus.getCampusName());
+            }
+        }
+        
+        // floorNumber 已经在 BeanUtil.copyProperties 中复制了
+        
         return vo;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public int batchCreateRooms(RoomBatchCreateDTO dto) {
+        // 验证楼层是否存在
+        SysFloor floor = floorMapper.selectById(dto.getFloorId());
+        if (floor == null) {
+            throw new BusinessException("所属楼层不存在");
+        }
+
+        // 验证楼层数是否超出楼层的最大层数
+        int maxFloorNumber = floor.getFloorNumber() != null ? floor.getFloorNumber() : 1;
+        for (Integer floorNum : dto.getFloorNumbers()) {
+            if (floorNum > maxFloorNumber) {
+                throw new BusinessException("楼层数 " + floorNum + " 超出该楼最大层数 " + maxFloorNumber);
+            }
+        }
+
+        // 查询该楼层每个楼层数已有房间的最大序号
+        Map<Integer, Integer> maxSeqMap = new HashMap<>();
+        for (Integer floorNum : dto.getFloorNumbers()) {
+            // 查询该楼层数下所有房间编码，找出最大序号
+            LambdaQueryWrapper<SysRoom> wrapper = new LambdaQueryWrapper<>();
+            wrapper.eq(SysRoom::getFloorId, dto.getFloorId())
+                   .eq(SysRoom::getFloorNumber, floorNum);
+            List<SysRoom> existingRooms = list(wrapper);
+            
+            int maxSeq = 0;
+            for (SysRoom existingRoom : existingRooms) {
+                String roomCode = existingRoom.getRoomCode();
+                if (roomCode != null && roomCode.length() >= 3) {
+                    try {
+                        // 尝试解析最后两位作为序号
+                        int seq = Integer.parseInt(roomCode.substring(roomCode.length() - 2));
+                        maxSeq = Math.max(maxSeq, seq);
+                    } catch (NumberFormatException e) {
+                        // 忽略解析失败的编码
+                    }
+                }
+            }
+            maxSeqMap.put(floorNum, maxSeq);
+        }
+
+        // 获取当前最大排序值
+        LambdaQueryWrapper<SysRoom> sortWrapper = new LambdaQueryWrapper<>();
+        sortWrapper.eq(SysRoom::getFloorId, dto.getFloorId())
+                   .orderByDesc(SysRoom::getSort)
+                   .last("LIMIT 1");
+        SysRoom lastRoom = getOne(sortWrapper);
+        int currentSort = lastRoom != null && lastRoom.getSort() != null ? lastRoom.getSort() : 0;
+
+        // 批量生成房间
+        List<SysRoom> roomsToCreate = new ArrayList<>();
+        List<Integer> sortedFloorNumbers = new ArrayList<>(dto.getFloorNumbers());
+        Collections.sort(sortedFloorNumbers);
+
+        for (Integer floorNum : sortedFloorNumbers) {
+            int startSeq = maxSeqMap.get(floorNum) + 1;
+            
+            for (int i = 0; i < dto.getGenerateCount(); i++) {
+                int seq = startSeq + i;
+                // 生成房间编码：楼层数 * 100 + 序号，如 1层第1间 = 101
+                String roomCode = String.valueOf(floorNum * 100 + seq);
+                String roomNumber = roomCode; // 房间号与编码相同
+
+                // 检查编码是否已存在
+                LambdaQueryWrapper<SysRoom> checkWrapper = new LambdaQueryWrapper<>();
+                checkWrapper.eq(SysRoom::getRoomCode, roomCode);
+                if (count(checkWrapper) > 0) {
+                    throw new BusinessException("房间编码 " + roomCode + " 已存在");
+                }
+
+                SysRoom room = new SysRoom();
+                room.setRoomCode(roomCode);
+                room.setRoomNumber(roomNumber);
+                room.setFloorId(dto.getFloorId());
+                room.setFloorCode(floor.getFloorCode());
+                room.setCampusCode(floor.getCampusCode());
+                room.setFloorNumber(floorNum);
+                room.setRoomType(dto.getRoomType());
+                room.setRoomStatus(dto.getRoomStatus() != null ? dto.getRoomStatus() : 1);
+                room.setBedCount(dto.getBedCount() != null ? dto.getBedCount() : 4);
+                room.setArea(dto.getArea());
+                room.setMaxOccupancy(dto.getMaxOccupancy());
+                room.setStatus(dto.getStatus() != null ? dto.getStatus() : 1);
+                room.setHasAirConditioner(dto.getHasAirConditioner() != null ? dto.getHasAirConditioner() : 0);
+                room.setHasBathroom(dto.getHasBathroom() != null ? dto.getHasBathroom() : 0);
+                room.setHasBalcony(dto.getHasBalcony() != null ? dto.getHasBalcony() : 0);
+                room.setRemark(dto.getRemark());
+                room.setCurrentOccupancy(0);
+                room.setSort(++currentSort);
+
+                roomsToCreate.add(room);
+            }
+        }
+
+        // 批量插入
+        boolean result = saveBatch(roomsToCreate);
+        
+        // 更新楼层统计字段
+        if (result) {
+            updateFloorStatistics(dto.getFloorId());
+        }
+
+        return roomsToCreate.size();
     }
 
     /**

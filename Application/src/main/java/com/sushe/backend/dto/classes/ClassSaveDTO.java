@@ -34,8 +34,8 @@ public class ClassSaveDTO {
     @NotBlank(message = "年级不能为空")
     private String grade;
 
-    @Schema(description = "负责人")
-    private String teacher;
+    @Schema(description = "负责人ID（关联sys_user）")
+    private Long teacherId;
 
     @Schema(description = "入学年份", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "入学年份不能为空")

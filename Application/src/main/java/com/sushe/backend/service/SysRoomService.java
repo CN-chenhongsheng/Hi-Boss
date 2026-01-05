@@ -2,6 +2,7 @@ package com.sushe.backend.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.sushe.backend.common.result.PageResult;
+import com.sushe.backend.dto.room.RoomBatchCreateDTO;
 import com.sushe.backend.dto.room.RoomQueryDTO;
 import com.sushe.backend.dto.room.RoomSaveDTO;
 import com.sushe.backend.entity.SysRoom;
@@ -63,5 +64,13 @@ public interface SysRoomService extends IService<SysRoom> {
      * @return 是否成功
      */
     boolean updateStatus(Long id, Integer status);
+
+    /**
+     * 批量创建房间
+     * 
+     * @param dto 批量创建参数
+     * @return 创建的房间数量
+     */
+    int batchCreateRooms(RoomBatchCreateDTO dto);
 }
 

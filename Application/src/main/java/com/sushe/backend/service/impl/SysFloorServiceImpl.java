@@ -83,6 +83,13 @@ public class SysFloorServiceImpl extends ServiceImpl<SysFloorMapper, SysFloor> i
             throw new BusinessException("楼层编码已存在");
         }
 
+        // 编辑时，检查是否有房间关联
+        if (saveDTO.getId() != null) {
+            if (checkFloorHasRooms(saveDTO.getId())) {
+                throw new BusinessException("该楼层下存在房间，无法编辑");
+            }
+        }
+
         SysFloor floor = new SysFloor();
         BeanUtil.copyProperties(saveDTO, floor);
 
@@ -127,6 +134,16 @@ public class SysFloorServiceImpl extends ServiceImpl<SysFloorMapper, SysFloor> i
         if (ids == null || ids.length == 0) {
             throw new BusinessException("楼层ID不能为空");
         }
+
+        // 检查是否有房间关联
+        for (Long id : ids) {
+            if (checkFloorHasRooms(id)) {
+                SysFloor floor = getById(id);
+                String floorName = floor != null ? floor.getFloorName() : String.valueOf(id);
+                throw new BusinessException("楼层\"" + floorName + "\"下存在房间，无法删除");
+            }
+        }
+
         return removeByIds(Arrays.asList(ids));
     }
 
@@ -169,24 +186,26 @@ public class SysFloorServiceImpl extends ServiceImpl<SysFloorMapper, SysFloor> i
             }
         }
 
-        // 性别类型文本映射
-        if (floor.getGenderType() != null) {
-            switch (floor.getGenderType()) {
-                case 1:
-                    vo.setGenderTypeText("男");
-                    break;
-                case 2:
-                    vo.setGenderTypeText("女");
-                    break;
-                case 3:
-                    vo.setGenderTypeText("混合");
-                    break;
-                default:
-                    vo.setGenderTypeText("未知");
-            }
-        }
+        // 性别类型文本映射（使用字典）
+        vo.setGenderTypeText(DictUtils.getLabel("dormitory_gender_type", floor.getGenderType(), "未知"));
 
         return vo;
+    }
+
+    /**
+     * 检查楼层是否被房间关联
+     * 
+     * @param floorId 楼层ID
+     * @return true-有房间关联，false-无房间关联
+     */
+    public boolean checkFloorHasRooms(Long floorId) {
+        if (floorId == null) {
+            return false;
+        }
+        LambdaQueryWrapper<SysRoom> roomWrapper = new LambdaQueryWrapper<>();
+        roomWrapper.eq(SysRoom::getFloorId, floorId);
+        long roomCount = roomMapper.selectCount(roomWrapper);
+        return roomCount > 0;
     }
 }
 
