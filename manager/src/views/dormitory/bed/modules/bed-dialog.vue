@@ -59,25 +59,25 @@
           </ElFormItem>
         </ElCol>
       </ElRow>
-
-      <ElFormItem label="所属房间" prop="roomId">
-        <ElSelect
-          v-model="form.roomId"
-          placeholder="请选择房间"
-          filterable
-          clearable
-          :disabled="!selectedFloorId"
-        >
-          <ElOption
-            v-for="item in roomList"
-            :key="item.id"
-            :label="item.roomNumber || item.roomCode"
-            :value="item.id"
-          />
-        </ElSelect>
-      </ElFormItem>
-
       <ElRow :gutter="20">
+        <ElCol :span="12">
+          <ElFormItem label="所属房间" prop="roomId">
+            <ElSelect
+              v-model="form.roomId"
+              placeholder="请选择房间"
+              filterable
+              clearable
+              :disabled="!selectedFloorId"
+            >
+              <ElOption
+                v-for="item in roomList"
+                :key="item.id"
+                :label="item.roomNumber || item.roomCode"
+                :value="item.id"
+              />
+            </ElSelect>
+          </ElFormItem>
+        </ElCol>
         <ElCol :span="12">
           <ElFormItem label="床位位置" prop="bedPosition">
             <ElSelect v-model="form.bedPosition" placeholder="请选择床位位置" filterable clearable>
@@ -90,6 +90,9 @@
             </ElSelect>
           </ElFormItem>
         </ElCol>
+      </ElRow>
+
+      <ElRow :gutter="20">
         <ElCol :span="12">
           <ElFormItem label="床位状态" prop="bedStatus">
             <ElSelect v-model="form.bedStatus" placeholder="请选择床位状态" filterable clearable>
@@ -102,14 +105,14 @@
             </ElSelect>
           </ElFormItem>
         </ElCol>
-      </ElRow>
-
-      <ElRow :gutter="20">
         <ElCol :span="12">
           <ElFormItem label="入住学生" prop="studentName">
             <ElInput v-model="form.studentName" placeholder="请输入学生姓名（可选）" />
           </ElFormItem>
         </ElCol>
+      </ElRow>
+
+      <ElRow :gutter="20">
         <ElCol :span="12">
           <ElFormItem label="入住日期" prop="checkInDate">
             <ElDatePicker
@@ -121,17 +124,18 @@
             />
           </ElFormItem>
         </ElCol>
+        <ElCol :span="12">
+          <ElFormItem label="退宿日期" prop="checkOutDate">
+            <ElDatePicker
+              v-model="form.checkOutDate"
+              type="date"
+              placeholder="请选择退宿日期"
+              value-format="YYYY-MM-DD"
+              style="width: 100%"
+            />
+          </ElFormItem>
+        </ElCol>
       </ElRow>
-
-      <ElFormItem label="退宿日期" prop="checkOutDate">
-        <ElDatePicker
-          v-model="form.checkOutDate"
-          type="date"
-          placeholder="请选择退宿日期"
-          value-format="YYYY-MM-DD"
-          style="width: 100%"
-        />
-      </ElFormItem>
 
       <ElRow :gutter="20">
         <ElCol :span="12">
