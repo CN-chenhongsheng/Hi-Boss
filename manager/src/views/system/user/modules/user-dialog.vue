@@ -83,8 +83,9 @@
 </template>
 
 <script setup lang="ts">
-  import { fetchGetAllRoles, fetchAddUser, fetchUpdateUser } from '@/api/system-manage'
-  import { ElText, ElMessage } from 'element-plus'
+  import { fetchAddUser, fetchUpdateUser } from '@/api/system-manage'
+  import { useReferenceStore } from '@/store/modules/reference'
+  import { ElMessage } from 'element-plus'
   import type { FormInstance, FormRules } from 'element-plus'
 
   interface Props {
@@ -104,6 +105,9 @@
   // 角色列表数据
   const roleList = ref<Api.SystemManage.RoleListItem[]>([])
   const submitLoading = ref(false)
+
+  // 使用参考数据 store
+  const referenceStore = useReferenceStore()
 
   // 对话框显示控制
   const dialogVisible = computed({
@@ -165,11 +169,11 @@
   }
 
   /**
-   * 加载角色列表
+   * 加载角色列表（使用 store 缓存）
    */
   const loadRoles = async () => {
     try {
-      roleList.value = await fetchGetAllRoles()
+      roleList.value = await referenceStore.loadAllRoles()
     } catch (error) {
       console.error('加载角色列表失败:', error)
     }

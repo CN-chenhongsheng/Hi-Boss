@@ -1,7 +1,7 @@
 package com.sushe.backend.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sushe.backend.dto.LoginDTO;
+import com.sushe.backend.dto.auth.LoginDTO;
 import com.sushe.backend.dto.user.UserSaveDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

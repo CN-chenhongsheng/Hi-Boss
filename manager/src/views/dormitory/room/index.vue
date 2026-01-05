@@ -89,10 +89,14 @@
     fetchBatchDeleteRoom,
     fetchUpdateRoomStatus
   } from '@/api/dormitory-manage'
+  import { useReferenceStore } from '@/store/modules/reference'
   import DrillDownDialog from '@/components/school/DrillDownDialog.vue'
   import { ElMessageBox, ElMessage } from 'element-plus'
   import ArtSwitch from '@/components/core/forms/art-switch/index.vue'
   import { h } from 'vue'
+
+  // 使用参考数据 store（用于缓存失效）
+  const referenceStore = useReferenceStore()
 
   defineOptions({ name: 'Room' })
 
@@ -342,6 +346,8 @@
       )
       await fetchDeleteRoom(row.id)
       ElMessage.success('删除成功')
+      // 刷新房间列表缓存
+      await referenceStore.refreshRoomList()
       await refreshRemove()
     } catch (error) {
       if (error !== 'cancel') {
@@ -378,6 +384,8 @@
       )
       await fetchBatchDeleteRoom(selectedIds.value as number[])
       ElMessage.success('批量删除成功')
+      // 刷新房间列表缓存
+      await referenceStore.refreshRoomList()
       selectedRows.value = []
       await getData()
     } catch (error) {
@@ -421,6 +429,8 @@
    */
   const handleSubmit = async (): Promise<void> => {
     dialogVisible.value = false
+    // 刷新房间列表缓存
+    await referenceStore.refreshRoomList()
     if (dialogType.value === 'add') {
       await refreshCreate()
     } else {

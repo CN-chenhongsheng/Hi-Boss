@@ -144,6 +144,38 @@ export interface MenuState {
   collapsed: boolean
 }
 
+// 参考数据缓存项
+export interface ReferenceCache<T> {
+  /** 缓存数据 */
+  data: T
+  /** 是否正在加载 */
+  loading: boolean
+  /** 加载 Promise（用于防止重复请求） */
+  loadPromise: Promise<T> | null
+  /** 加载时间戳 */
+  timestamp: number
+}
+
+// 参考数据Store状态
+export interface ReferenceState {
+  /** 校区树缓存 */
+  campusTreeCache: ReferenceCache<Api.SystemManage.CampusTreeList>
+  /** 楼层列表缓存（按校区代码） */
+  floorListCache: Map<string, ReferenceCache<Api.SystemManage.FloorListItem[]>>
+  /** 房间列表缓存（按楼层ID） */
+  roomListCache: Map<number, ReferenceCache<Api.SystemManage.RoomListItem[]>>
+  /** 角色列表缓存 */
+  allRolesCache: ReferenceCache<Api.SystemManage.RoleListItem[]>
+  /** 用户列表缓存（按角色代码） */
+  usersByRoleCodesCache: Map<string, ReferenceCache<Api.SystemManage.UserSimpleItem[]>>
+  /** 专业列表缓存 */
+  majorListCache: ReferenceCache<Api.SystemManage.MajorListItem[]>
+  /** 院系树缓存 */
+  departmentTreeCache: ReferenceCache<Api.SystemManage.DepartmentTreeList>
+  /** 菜单树缓存 */
+  menuTreeSelectCache: ReferenceCache<Api.SystemManage.MenuTreeList>
+}
+
 // 根Store状态类型
 export interface RootState {
   /** 用户状态 */
@@ -154,4 +186,6 @@ export interface RootState {
   workTab: WorkTabState
   /** 菜单状态 */
   menu: MenuState
+  /** 参考数据状态 */
+  reference: ReferenceState
 }

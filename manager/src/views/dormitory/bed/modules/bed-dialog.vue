@@ -155,14 +155,9 @@
 </template>
 
 <script setup lang="ts">
-  import { fetchGetCampusTree } from '@/api/school-manage'
-  import {
-    fetchAddBed,
-    fetchUpdateBed,
-    fetchGetFloorPage,
-    fetchGetRoomPage
-  } from '@/api/dormitory-manage'
+  import { fetchAddBed, fetchUpdateBed } from '@/api/dormitory-manage'
   import { useDictStore } from '@/store/modules/dict'
+  import { useReferenceStore } from '@/store/modules/reference'
   import type { FormInstance, FormRules } from 'element-plus'
 
   interface Props {
@@ -194,6 +189,8 @@
 
   // 使用字典 store
   const dictStore = useDictStore()
+  // 使用参考数据 store
+  const referenceStore = useReferenceStore()
 
   const dialogVisible = computed({
     get: () => props.visible,
@@ -229,19 +226,18 @@
   })
 
   /**
-   * 加载校区列表
+   * 加载校区列表（使用 store 缓存）
    */
   const loadCampusList = async (): Promise<void> => {
     try {
-      const res = await fetchGetCampusTree()
-      campusList.value = res || []
+      campusList.value = await referenceStore.loadCampusTree()
     } catch (error) {
       console.error('加载校区列表失败:', error)
     }
   }
 
   /**
-   * 加载楼层列表
+   * 加载楼层列表（使用 store 缓存）
    */
   const loadFloorList = async (campusCode?: string): Promise<void> => {
     if (!campusCode) {
@@ -251,15 +247,14 @@
       return
     }
     try {
-      const res = await fetchGetFloorPage({ campusCode, pageNum: 1, pageSize: 1000 })
-      floorList.value = res?.list || []
+      floorList.value = await referenceStore.loadFloorList(campusCode)
     } catch (error) {
       console.error('加载楼层列表失败:', error)
     }
   }
 
   /**
-   * 加载房间列表
+   * 加载房间列表（使用 store 缓存）
    */
   const loadRoomList = async (floorId?: number): Promise<void> => {
     if (!floorId) {
@@ -267,8 +262,7 @@
       return
     }
     try {
-      const res = await fetchGetRoomPage({ floorId, pageNum: 1, pageSize: 1000 })
-      roomList.value = res?.list || []
+      roomList.value = await referenceStore.loadRoomList(floorId)
     } catch (error) {
       console.error('加载房间列表失败:', error)
     }

@@ -68,11 +68,8 @@
 </template>
 
 <script setup lang="ts">
-  import {
-    fetchGetMenuList,
-    fetchGetRolePermissions,
-    fetchAssignRolePermissions
-  } from '@/api/system-manage'
+  import { fetchGetRolePermissions, fetchAssignRolePermissions } from '@/api/system-manage'
+  import { useReferenceStore } from '@/store/modules/reference'
 
   type RoleListItem = Api.SystemManage.RoleListItem
   type MenuListItem = Api.SystemManage.MenuListItem
@@ -103,6 +100,9 @@
   const checkedMenuIds = ref<number[]>([])
   // 菜单状态映射：menuId -> status（用于禁用判断）
   const menuStatusMap = ref<Map<number, number>>(new Map())
+
+  // 使用参考数据 store
+  const referenceStore = useReferenceStore()
 
   /**
    * 弹窗显示状态双向绑定
@@ -160,12 +160,12 @@
   }
 
   /**
-   * 加载菜单树
+   * 加载菜单树（使用 store 缓存）
    */
   const loadMenuTree = async () => {
     try {
       loading.value = true
-      menuTree.value = await fetchGetMenuList()
+      menuTree.value = await referenceStore.loadMenuTreeSelect()
     } catch (error) {
       console.error('加载菜单树失败:', error)
       ElMessage.error('加载菜单树失败')

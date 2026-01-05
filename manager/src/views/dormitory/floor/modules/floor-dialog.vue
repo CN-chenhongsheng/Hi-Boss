@@ -94,9 +94,9 @@
 </template>
 
 <script setup lang="ts">
-  import { fetchGetCampusTree } from '@/api/school-manage'
   import { fetchAddFloor, fetchUpdateFloor, fetchCheckFloorHasRooms } from '@/api/dormitory-manage'
   import { useDictStore } from '@/store/modules/dict'
+  import { useReferenceStore } from '@/store/modules/reference'
   import { ElMessage } from 'element-plus'
   import type { FormInstance, FormRules } from 'element-plus'
 
@@ -125,6 +125,8 @@
 
   // 使用字典 store
   const dictStore = useDictStore()
+  // 使用参考数据 store
+  const referenceStore = useReferenceStore()
 
   const dialogVisible = computed({
     get: () => props.visible,
@@ -157,12 +159,11 @@
   })
 
   /**
-   * 加载校区列表
+   * 加载校区列表（使用 store 缓存）
    */
   const loadCampusList = async (): Promise<void> => {
     try {
-      const res = await fetchGetCampusTree()
-      campusList.value = res || []
+      campusList.value = await referenceStore.loadCampusTree()
     } catch (error) {
       console.error('加载校区列表失败:', error)
     }

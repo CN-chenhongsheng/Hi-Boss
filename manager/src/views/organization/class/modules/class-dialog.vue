@@ -92,13 +92,8 @@
 </template>
 
 <script setup lang="ts">
-  import {
-    fetchGetMajorPage,
-    fetchGetClassDetail,
-    fetchAddClass,
-    fetchUpdateClass
-  } from '@/api/school-manage'
-  import { fetchGetUsersByRoleCodes } from '@/api/system-manage'
+  import { fetchGetClassDetail, fetchAddClass, fetchUpdateClass } from '@/api/school-manage'
+  import { useReferenceStore } from '@/store/modules/reference'
   import type { FormInstance, FormRules } from 'element-plus'
 
   interface Props {
@@ -124,6 +119,9 @@
   const majorOptions = ref<Api.SystemManage.MajorListItem[]>([])
   const teacherLoading = ref(false)
   const teacherOptions = ref<Api.SystemManage.UserSimpleItem[]>([])
+
+  // 使用参考数据 store
+  const referenceStore = useReferenceStore()
 
   const dialogVisible = computed({
     get: () => props.visible,
@@ -153,13 +151,12 @@
   })
 
   /**
-   * 加载专业列表
+   * 加载专业列表（使用 store 缓存）
    */
   const loadMajorOptions = async (): Promise<void> => {
     majorLoading.value = true
     try {
-      const result = await fetchGetMajorPage({ pageNum: 1, pageSize: 1000 })
-      majorOptions.value = result.list || []
+      majorOptions.value = await referenceStore.loadMajorList()
     } catch (error) {
       console.error('加载专业列表失败:', error)
     } finally {
@@ -177,18 +174,14 @@
   }
 
   /**
-   * 加载负责人列表（辅导员角色）
+   * 加载负责人列表（辅导员角色）（使用 store 缓存）
    */
   const loadTeacherOptions = async (): Promise<void> => {
     if (teacherOptions.value.length > 0) return
 
     teacherLoading.value = true
     try {
-      const result = await fetchGetUsersByRoleCodes(['COUNSELOR'])
-      // 直接从结果中获取COUNSELOR角色的用户列表
-      if (result.COUNSELOR && result.COUNSELOR.length > 0) {
-        teacherOptions.value = result.COUNSELOR
-      }
+      teacherOptions.value = await referenceStore.loadUsersByRoleCodes(['COUNSELOR'])
     } catch (error) {
       console.error('加载负责人列表失败:', error)
     } finally {
@@ -220,14 +213,9 @@
           enrollmentYear: detail.enrollmentYear,
           currentCount: detail.currentCount || 0
         })
-        // 加载该专业到选项列表
+        // 加载专业列表到选项列表（使用 store 缓存）
         if (detail.majorCode) {
-          const result = await fetchGetMajorPage({
-            pageNum: 1,
-            pageSize: 100,
-            majorCode: detail.majorCode
-          })
-          majorOptions.value = result.list || []
+          majorOptions.value = await referenceStore.loadMajorList()
         }
       } catch (error) {
         console.error('加载班级详情失败:', error)

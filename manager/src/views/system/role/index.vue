@@ -74,11 +74,15 @@
     fetchBatchDeleteRole,
     fetchUpdateRoleStatus
   } from '@/api/system-manage'
+  import { useReferenceStore } from '@/store/modules/reference'
   import RoleSearch from './modules/role-search.vue'
   import RoleEditDialog from './modules/role-edit-dialog.vue'
   import RolePermissionDialog from './modules/role-permission-dialog.vue'
   import { ElMessageBox, ElMessage } from 'element-plus'
   import ArtSwitch from '@/components/core/forms/art-switch/index.vue'
+
+  // 使用参考数据 store（用于缓存失效）
+  const referenceStore = useReferenceStore()
 
   defineOptions({ name: 'Role' })
 
@@ -243,6 +247,8 @@
    * 处理编辑弹窗成功事件
    */
   const handleEditDialogSuccess = async () => {
+    // 刷新角色列表缓存
+    await referenceStore.refreshAllRoles()
     // 根据 dialogType 判断是新增还是编辑
     if (dialogType.value === 'add') {
       await refreshCreate()
@@ -275,6 +281,8 @@
 
       await fetchDeleteRole(row.id)
       ElMessage.success('删除成功')
+      // 刷新角色列表缓存
+      await referenceStore.refreshAllRoles()
       await refreshRemove()
     } catch (error) {
       if (error !== 'cancel') {
@@ -315,6 +323,8 @@
       await fetchBatchDeleteRole(ids)
 
       ElMessage.success('批量删除成功')
+      // 刷新角色列表缓存
+      await referenceStore.refreshAllRoles()
       selectedRows.value = []
       await refreshRemove()
     } catch (error) {

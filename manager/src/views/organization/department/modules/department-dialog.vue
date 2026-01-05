@@ -57,11 +57,8 @@
 </template>
 
 <script setup lang="ts">
-  import {
-    fetchGetCampusTree,
-    fetchAddDepartment,
-    fetchUpdateDepartment
-  } from '@/api/school-manage'
+  import { fetchAddDepartment, fetchUpdateDepartment } from '@/api/school-manage'
+  import { useReferenceStore } from '@/store/modules/reference'
   import type { FormInstance, FormRules } from 'element-plus'
 
   interface Props {
@@ -84,6 +81,9 @@
   const formRef = ref<FormInstance>()
   const loading = ref(false)
   const campusOptions = ref<Api.SystemManage.CampusListItem[]>([])
+
+  // 使用参考数据 store
+  const referenceStore = useReferenceStore()
 
   const dialogVisible = computed({
     get: () => props.visible,
@@ -114,24 +114,14 @@
   })
 
   /**
-   * 加载校区列表
+   * 加载校区列表（使用 store 缓存）
    */
   const loadCampusOptions = async (): Promise<void> => {
     try {
-      const list = await fetchGetCampusTree()
-      campusOptions.value = flattenCampusTree(list)
+      campusOptions.value = await referenceStore.loadCampusTree()
     } catch (error) {
       console.error('加载校区列表失败:', error)
     }
-  }
-
-  /**
-   * 获取校区列表（已为平铺结构，无需扁平化）
-   */
-  const flattenCampusTree = (
-    list: Api.SystemManage.CampusListItem[]
-  ): Api.SystemManage.CampusListItem[] => {
-    return list
   }
 
   /**

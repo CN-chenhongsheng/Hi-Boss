@@ -76,6 +76,7 @@
     fetchBatchDeleteMajor,
     fetchUpdateMajorStatus
   } from '@/api/school-manage'
+  import { useReferenceStore } from '@/store/modules/reference'
   import DrillDownDialog from '@/components/school/DrillDownDialog.vue'
   import ArtSwitch from '@/components/core/forms/art-switch/index.vue'
   import MajorDialog from './modules/major-dialog.vue'
@@ -83,6 +84,9 @@
   import { ElMessageBox, ElMessage } from 'element-plus'
   import { DialogType } from '@/types'
   import { h } from 'vue'
+
+  // 使用参考数据 store（用于缓存失效）
+  const referenceStore = useReferenceStore()
 
   defineOptions({ name: 'OrganizationMajor' })
 
@@ -278,6 +282,8 @@
       )
       await fetchDeleteMajor(row.id)
       ElMessage.success('删除成功')
+      // 刷新专业列表缓存
+      await referenceStore.refreshMajorList()
       await refreshRemove()
     } catch (error) {
       if (error !== 'cancel') {
@@ -309,6 +315,8 @@
       const ids = selectedRows.value.map((item) => item.id)
       await fetchBatchDeleteMajor(ids)
       ElMessage.success('批量删除成功')
+      // 刷新专业列表缓存
+      await referenceStore.refreshMajorList()
       selectedRows.value = []
       await refreshRemove()
     } catch (error) {
@@ -330,6 +338,8 @@
    */
   const handleDialogSubmit = async (): Promise<void> => {
     dialogVisible.value = false
+    // 刷新专业列表缓存
+    await referenceStore.refreshMajorList()
     // 根据 dialogType 判断是新增还是编辑
     if (dialogType.value === 'add') {
       await refreshCreate()

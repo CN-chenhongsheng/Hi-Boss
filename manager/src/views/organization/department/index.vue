@@ -90,11 +90,15 @@
     fetchBatchDeleteDepartment,
     fetchUpdateDepartmentStatus
   } from '@/api/school-manage'
+  import { useReferenceStore } from '@/store/modules/reference'
   import DrillDownDialog from '@/components/school/DrillDownDialog.vue'
   import { ElMessageBox, ElMessage } from 'element-plus'
   import DepartmentSearch from './modules/department-search.vue'
   import ArtSwitch from '@/components/core/forms/art-switch/index.vue'
   import { h } from 'vue'
+
+  // 使用参考数据 store（用于缓存失效）
+  const referenceStore = useReferenceStore()
 
   defineOptions({ name: 'OrganizationDepartment' })
 
@@ -304,6 +308,8 @@
       )
       await fetchDeleteDepartment(row.id)
       ElMessage.success('删除成功')
+      // 刷新院系树缓存
+      await referenceStore.refreshDepartmentTree()
       await refreshRemove()
     } catch (error) {
       if (error !== 'cancel') {
@@ -340,6 +346,8 @@
       )
       await fetchBatchDeleteDepartment(selectedIds.value as number[])
       ElMessage.success('批量删除成功')
+      // 刷新院系树缓存
+      await referenceStore.refreshDepartmentTree()
       selectedRows.value = []
       await getData()
     } catch (error) {
@@ -354,6 +362,8 @@
    */
   const handleSubmit = async (): Promise<void> => {
     dialogVisible.value = false
+    // 刷新院系树缓存
+    await referenceStore.refreshDepartmentTree()
     // 根据 dialogType 判断是新增还是编辑
     if (dialogType.value === 'add') {
       await refreshCreate()

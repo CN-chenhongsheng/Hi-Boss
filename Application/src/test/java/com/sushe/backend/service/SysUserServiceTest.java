@@ -56,13 +56,13 @@ public class SysUserServiceTest {
         testUser.setId(1L);
         testUser.setUsername("testuser");
         testUser.setPassword("$2a$10$encodedPassword");
-        testUser.setRealName("测试用户");
+        testUser.setNickname("测试用户");
         testUser.setPhone("13800138000");
         testUser.setEmail("test@example.com");
         testUser.setStatus(1);
         testUser.setCreateTime(LocalDateTime.now());
         testUser.setUpdateTime(LocalDateTime.now());
-        testUser.setDeleted(0);
+        testUser.setDelFlag(0);
 
         userSaveDTO = new UserSaveDTO();
         userSaveDTO.setUsername("testuser");
