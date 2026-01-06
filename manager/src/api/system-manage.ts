@@ -306,6 +306,15 @@ export function fetchGetMenuTreeSelect() {
 }
 
 /**
+ * 获取菜单树用于权限分配（包含所有类型，不包含顶级菜单）
+ */
+export function fetchGetMenuTreeForPermission() {
+  return request.get<Api.SystemManage.MenuTreeList>({
+    url: '/api/v1/system/menu/tree-permission'
+  })
+}
+
+/**
  * 获取当前用户菜单树
  * 根据当前登录用户的角色权限返回有权限查看的菜单树
  */

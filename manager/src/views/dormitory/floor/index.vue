@@ -276,7 +276,12 @@
               auth: 'system:floor:edit',
               disabled: (row.totalRooms || 0) > 0
             },
-            { type: 'add', onClick: () => handleBatchAddRooms(row), label: '批量增加' },
+            {
+              type: 'add',
+              onClick: () => handleBatchAddRooms(row),
+              label: '批量增加',
+              auth: 'system:floor:batchAdd'
+            },
             {
               type: 'delete',
               onClick: () => handleDelete(row),

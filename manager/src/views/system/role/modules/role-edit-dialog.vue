@@ -61,7 +61,7 @@
 
 <script setup lang="ts">
   import { fetchAddRole, fetchUpdateRole } from '@/api/system-manage'
-  import { ElText, ElMessage } from 'element-plus'
+  import { ElMessage } from 'element-plus'
   import type { FormInstance, FormRules } from 'element-plus'
 
   type RoleListItem = Api.SystemManage.RoleListItem

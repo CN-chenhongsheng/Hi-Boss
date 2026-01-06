@@ -282,7 +282,12 @@
               auth: 'system:room:edit',
               disabled: (row.totalBeds || 0) > 0
             },
-            { type: 'add', onClick: () => handleBatchAddBeds(row), label: '批量增加' },
+            {
+              type: 'add',
+              onClick: () => handleBatchAddBeds(row),
+              label: '批量增加',
+              auth: 'system:room:batchAdd'
+            },
             {
               type: 'delete',
               onClick: () => handleDelete(row),

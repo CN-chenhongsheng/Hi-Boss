@@ -68,8 +68,11 @@
 </template>
 
 <script setup lang="ts">
-  import { fetchGetRolePermissions, fetchAssignRolePermissions } from '@/api/system-manage'
-  import { useReferenceStore } from '@/store/modules/reference'
+  import {
+    fetchGetRolePermissions,
+    fetchAssignRolePermissions,
+    fetchGetMenuTreeForPermission
+  } from '@/api/system-manage'
 
   type RoleListItem = Api.SystemManage.RoleListItem
   type MenuListItem = Api.SystemManage.MenuListItem
@@ -100,9 +103,6 @@
   const checkedMenuIds = ref<number[]>([])
   // 菜单状态映射：menuId -> status（用于禁用判断）
   const menuStatusMap = ref<Map<number, number>>(new Map())
-
-  // 使用参考数据 store
-  const referenceStore = useReferenceStore()
 
   /**
    * 弹窗显示状态双向绑定
@@ -160,18 +160,37 @@
   }
 
   /**
-   * 加载菜单树（使用 store 缓存）
+   * 加载菜单树（用于权限分配，包含所有类型，不包含顶级菜单）
    */
   const loadMenuTree = async () => {
     try {
       loading.value = true
-      menuTree.value = await referenceStore.loadMenuTreeSelect()
+      const tree = await fetchGetMenuTreeForPermission()
+      // 过滤掉 id=0 的"顶级菜单"节点（虽然后端已不返回，但为了安全还是过滤）
+      menuTree.value = filterTopMenu(tree)
     } catch (error) {
       console.error('加载菜单树失败:', error)
       ElMessage.error('加载菜单树失败')
     } finally {
       loading.value = false
     }
+  }
+
+  /**
+   * 过滤掉顶级菜单节点（id=0）
+   */
+  const filterTopMenu = (menus: MenuListItem[]): MenuListItem[] => {
+    return menus
+      .filter((menu) => menu.id !== 0)
+      .map((menu) => {
+        if (menu.children && menu.children.length > 0) {
+          return {
+            ...menu,
+            children: filterTopMenu(menu.children)
+          }
+        }
+        return menu
+      })
   }
 
   /**

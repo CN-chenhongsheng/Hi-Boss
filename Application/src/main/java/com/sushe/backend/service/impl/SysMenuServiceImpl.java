@@ -179,6 +179,27 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
     }
 
     /**
+     * 获取菜单树用于权限分配（包含所有类型，不包含顶级菜单）
+     */
+    @Override
+    public List<MenuVO> getMenuTreeForPermission() {
+        // 查询所有正常状态的菜单（包括目录、菜单和按钮）
+        LambdaQueryWrapper<SysMenu> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(SysMenu::getStatus, 1)
+               .in(SysMenu::getMenuType, "M", "C", "F") // 包含所有类型：目录、菜单和按钮
+               .orderByAsc(SysMenu::getSort)
+               .orderByAsc(SysMenu::getId);
+
+        List<SysMenu> allMenus = list(wrapper);
+        List<MenuVO> allMenuVOs = allMenus.stream()
+                .map(this::convertToVO)
+                .collect(Collectors.toList());
+
+        // 构建菜单树（不包含顶级菜单节点）
+        return buildMenuTree(allMenuVOs, 0L);
+    }
+
+    /**
      * 获取当前登录用户的菜单树
      */
     @Override

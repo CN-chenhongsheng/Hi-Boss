@@ -57,6 +57,14 @@ public class SysMenuController {
         return R.ok(tree);
     }
 
+    @GetMapping("/tree-permission")
+    @Operation(summary = "获取菜单树用于权限分配", description = "包含所有类型（目录、菜单、按钮），不包含顶级菜单")
+    public R<List<MenuVO>> getTreeForPermission() {
+        log.info("获取菜单树用于权限分配");
+        List<MenuVO> tree = menuService.getMenuTreeForPermission();
+        return R.ok(tree);
+    }
+
     @GetMapping("/user-tree")
     @Operation(summary = "获取当前用户菜单树", description = "根据当前登录用户的角色权限返回有权限查看的菜单树")
     public R<List<MenuVO>> getUserMenuTree() {
@@ -108,7 +116,7 @@ public class SysMenuController {
     @Parameter(name = "status", description = "状态：1正常 0停用", required = true)
     public R<Void> updateStatus(@PathVariable Long id, @PathVariable Integer status) {
         log.info("修改菜单状态，ID：{}，状态：{}", id, status);
-        boolean success = menuService.updateStatus(id, status);
+        menuService.updateStatus(id, status);
         return R.ok(status == 1 ? "菜单已启用" : "菜单已停用", null);
     }
 }

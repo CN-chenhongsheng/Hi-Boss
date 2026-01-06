@@ -56,6 +56,13 @@ public interface SysMenuService extends IService<SysMenu> {
     List<MenuVO> getMenuTreeSelect();
 
     /**
+     * 获取菜单树用于权限分配（包含所有类型，不包含顶级菜单）
+     * 
+     * @return 菜单树形列表
+     */
+    List<MenuVO> getMenuTreeForPermission();
+
+    /**
      * 获取当前登录用户的菜单树
      * 根据用户的角色权限返回有权限查看的菜单
      * 
