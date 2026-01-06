@@ -1,140 +1,29 @@
-# ==================== 依赖 ====================
-node_modules/
-.pnp
-.pnp.js
-
-# ==================== uni-app 编译输出 ====================
-# uni-app 编译后的文件，不应提交到版本控制
-unpackage/
-dist/
-dist-ssr/
-
-# ==================== 日志文件 ====================
+# Logs
+logs
 *.log
-*.log.*
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-# ==================== 环境变量 ====================
-.env
-.env.local
-.env.*.local
-.env.development.local
-.env.test.local
-.env.production.local
-
-# ==================== IDE 和编辑器 ====================
-# VSCode
-.vscode/
-!.vscode/extensions.json
-!.vscode/settings.json
-
-# IntelliJ IDEA / WebStorm
-.idea/
-*.iml
-*.iws
-*.ipr
-out/
-
-# HBuilderX
-.hbuilderx/
-
-# Sublime Text
-*.sublime-project
-*.sublime-workspace
-
-# ==================== 操作系统文件 ====================
-# macOS
+node_modules
 .DS_Store
-.AppleDouble
-.LSOverride
-._*
+dist
+*.local
 
-# Windows
-Thumbs.db
-Thumbs.db:encryptable
-ehthumbs.db
-ehthumbs_vista.db
-Desktop.ini
-$RECYCLE.BIN/
-*.cab
-*.msi
-*.msix
-*.msm
-*.msp
-*.lnk
+# Editor directories and files
+.idea
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
 
-# Linux
-*~
-.directory
-.Trash-*
-
-# ==================== 压缩文件 ====================
-.zip
-.rar
-.7z
-.tar
-.tar.gz
-.tar.bz2
-.tar.xz
-.tar.lzma
-.tar.lz
-.tar.lz4
-
-# ==================== 测试覆盖率 ====================
-coverage/
-*.lcov
-.nyc_output/
-
-# ==================== 临时文件 ====================
-*.tmp
-*.temp
-*.swp
-*.swo
-*~
-.cache/
-.temp/
-.tmp/
-
-# ==================== 构建工具 ====================
-# TypeScript
-*.tsbuildinfo
-
-# ESLint
-.eslintcache
-
-# Prettier
-.prettierignore
-
-# ==================== 小程序相关 ====================
-# 微信开发者工具生成的配置文件（在 unpackage 中）
-# project.config.json 如果在根目录，可能需要保留
-# 但 unpackage 中的应该被忽略
-
-# 小程序上传密钥（如果放在项目中）
-*.key
-*.pem
-
-# ==================== 其他 ====================
-# Cursor AI
-.cursorrules
-.cursor
-.shared
-.mcp.json
-.skills
-
-# 锁文件（根据团队需要选择是否提交）
-# pnpm-lock.yaml  # 通常建议提交，取消注释则不提交
-# package-lock.json
-# yarn.lock
-
-# 备份文件
-*.bak
-*.backup
-*~
-
-# 调试文件
-.vscode-test/
+#user
+.hbuilderx
+unpackage
+/stats.html
+# pnpm-lock.yaml
+yarn.lock
+package-lock.json

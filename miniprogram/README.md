@@ -1,184 +1,257 @@
-# 宿舍管理系统小程序
+### 使用uniapp+vite+vue3+uview-plus3.0 搭建的微信小程序快速开发模版
 
-基于 uni-app + Vue 3 + Pinia + Vue I18n + Vant 构建的宿舍管理系统小程序。
+使用uniapp+vite+vue3+typescript+uview-plus3.0 搭建的H5和微信小程序快速开发模版
 
-## 项目结构
+[uview-plus官方文档](https://uiadmin.net/uview-plus/)
 
+本项目集众多项目的优点，打造最适合团队协作开发的项目模板。
+
+在线预览地址：[https://oyjt.github.io/uniapp-vue3-template/](https://oyjt.github.io/uniapp-vue3-template/)
+
+### 特性
+
+- [x] 集成uview-plus3.0 ui库
+- [x] 支持多环境打包构建
+- [x] 使用pinia状态管理
+- [x] 封装网络请求，并支持Typescript
+- [x] 支持路径别名
+- [x] 支持自动加载组件和API
+- [x] 自动校验git提交代码格式
+- [x] 集成ESLint、StyleLint、EditorConfig代码格式规范
+- [x] Typescript支持
+- [x] 集成UnoCSS
+- [x] 集成iconify图标库
+- [x] 集成z-paging下拉刷新功能
+- [x] 添加页面跳转拦截，登录权限校验
+- [x] 支持token无痛刷新
+- [x] 支持持续集成
+- [x] 项目分包
+- [x] 集成小程序隐私协议授权组件
+- [x] 项目构建自动删除本地图片并替换本地图片路径为线上图片
+- [x] 集成包体积视图分析插件
+
+### VScode插件推荐
+- 可以为pages.json、manifest.json等提供语法提示和校验工作。[uni-app-schemas](https://marketplace.visualstudio.com/items?itemName=uni-helper.uni-app-schemas-vscode)
+- uni-app 基本能力代码片段。[uni-app-snippets](https://marketplace.visualstudio.com/items?itemName=uni-helper.uni-app-snippets-vscode)
+- 一键创建页面、组件、分包，个人用不习惯。uni-create-view(https://marketplace.visualstudio.com/items?itemName=mrmaoddxxaa.create-uniapp-view)
+
+### 目录结构
+项目中采用目前最新的技术方案来实现，目录结构清晰。
 ```
-miniprogram/
-├── api/                    # API 接口定义
-├── components/             # 组件目录
-│   └── common/            # 公共组件
-├── store/                  # Pinia 状态管理
-│   ├── index.js           # Pinia 实例
-│   └── modules/           # 状态模块
-│       ├── user.js        # 用户状态
-│       └── app.js         # 应用状态
-├── utils/                  # 工具函数
-│   ├── config.js          # 配置文件
-│   ├── request.js         # 请求封装
-│   ├── auth.js            # 认证工具
-│   └── storage.js         # 存储工具
-├── locales/                # 国际化
-│   ├── index.js           # i18n 配置
-│   └── lang/              # 语言包
-│       ├── zh-CN.js       # 中文
-│       └── en-US.js       # 英文
-├── pages/                  # 页面
-├── static/                 # 静态资源
-└── [配置文件]
-```
-
-## 技术栈
-
-- **框架**: uni-app (Vue 3)
-- **状态管理**: Pinia
-- **国际化**: Vue I18n
-- **UI 组件库**: Vant Weapp
-- **HTTP 请求**: uni.request (已封装)
-
-## 快速开始
-
-### 1. 安装依赖
-
-```bash
-cd miniprogram
-npm install
-# 或
-pnpm install
-```
-
-### 2. 配置
-
-#### API 地址配置
-
-编辑 `utils/config.js`，修改 API 基础地址：
-
-```javascript
-const config = {
-  development: {
-    baseURL: 'http://localhost:8080/api' // 开发环境
-  },
-  production: {
-    baseURL: 'https://your-domain.com/api' // 生产环境
-  }
-}
-```
-
-#### 小程序 AppID 配置
-
-编辑 `manifest.json`，填入小程序 AppID：
-
-```json
-{
-  "mp-weixin": {
-    "appid": "你的小程序AppID"
-  }
-}
+uniapp-vue3-project
+├ build                 vite插件统一管理
+│  ├ vite
+│  └ constant.ts
+├ scripts               一些脚本
+│  └ verifyCommit.js
+├ src
+│  ├ api                接口管理
+│  ├ components         公共组件
+│  ├ hooks              常用hooks封装
+│  ├ pages              页面管理
+│  ├ static             静态资源
+│  ├ store              状态管理
+│  ├ utils              一些工具
+│  ├ App.vue
+│  ├ main.ts
+│  ├ manifest.json
+│  ├ pages.json
+│  ├ permission.ts      页面访问权限控制
+│  └ uni.scss
+├ types                 全局typescript类型文件
+│  ├ auto-imports.d.ts
+│  ├ components.d.ts
+│  ├ global.d.ts
+│  └ module.d.ts
+├ README.md
+├ eslint.config.js
+├ index.html
+├ package.json
+├ pnpm-lock.yaml
+├ tsconfig.json
+├ uno.config.ts
+└ vite.config.ts
 ```
 
-### 3. 运行
+#### vite插件管理
+```
+build
+├ vite
+│  ├ plugins
+│  │  ├ autoImport.ts  自动导入api
+│  │  ├ component.ts   自动导入组件
+│  │  ├ imagemin.ts    图片压缩
+│  │  ├ index.ts       入口文件
+│  │  └ unocss.ts      unocss插件
+│  └ proxy.ts          跨域代理配置
+└ constant.ts          一些常量
+```
 
-#### 方式一：使用 HBuilderX（推荐）
+#### 接口管理
+```
+api
+├ common       通用api
+│  ├ index.ts
+│  └ types.ts
+├ user         用户相关api
+│  ├ index.ts
+│  └ types.ts
+└ index.ts     入口文件
+```
 
-1. 下载并安装 [HBuilderX](https://www.dcloud.io/hbuilderx.html)
-2. 在 HBuilderX 中打开 `miniprogram` 文件夹
-3. 点击菜单：**运行** → **运行到小程序模拟器** → **微信开发者工具**
-4. 首次运行需要配置微信开发者工具的安装路径
+#### hooks管理
+```
+hooks
+├ use-clipboard  剪切板
+│  └ index.ts
+├ use-loading    loading
+│  └ index.ts
+├ use-modal      模态框
+│  └ index.ts
+├ use-share      分享
+│  └ index.ts
+└ index.ts       入口文件
+```
 
-#### 方式二：使用命令行
+### 页面管理
+```
+pages
+├ common           公共页面（分包common）
+│  ├ login
+│  │  └ index.vue
+│  └ webview
+│     └ index.vue
+└ tab              主页面（主包）
+   ├ home
+   │  └ index.vue
+   ├ list
+   │  └ index.vue
+   └ user
+      └ index.vue
+```
+
+#### 状态管理
+```
+store
+├ modules
+│  ├ app          app状态
+│  │  ├ index.ts
+│  │  └ types.ts
+│  └ user         用户状态
+│     ├ index.ts
+│     └ types.ts
+└ index.ts        入口文件
+```
+
+### 工具方法
+```
+utils
+├ auth                token相关方法
+│  └ index.ts
+├ common              通用方法
+│  └ index.ts
+├ modals              弹窗相关方法
+│  └ index.ts
+├ request             网络请求相关方法
+│  ├ index.ts
+│  ├ interceptors.ts
+│  ├ status.ts
+│  └ type.ts
+└ index.ts            入口文件
+```
+
+### 使用方法
 
 ```bash
 # 安装依赖
 pnpm install
 
-# 开发模式（需要先全局安装 @dcloudio/uni-app-cli）
-npm install -g @dcloudio/uni-app-cli
-pnpm dev:mp-weixin
+# 启动H5
+pnpm dev:h5
 
-# 或使用 HBuilderX 内置的 CLI
+# 启动微信小程序
+pnpm dev:mp-weixin
 ```
 
-**注意**：推荐使用 HBuilderX 开发，因为它内置了所有必要的工具，无需额外配置。
-
-### 4. 构建
+### 发布
 
 ```bash
-npm run build:mp-weixin
+# 构建测试环境
+pnpm build:h5
+pnpm build:mp-weixin
+
+# 构建生产环境
+pnpm build:h5-prod
+pnpm build:mp-weixin-prod
 ```
 
-## 功能特性
-
-### 已配置功能
-
-- ✅ Pinia 状态管理
-- ✅ Vue I18n 国际化（中英文）
-- ✅ Vant UI 组件库（easycom 自动引入）
-- ✅ HTTP 请求封装（自动添加 token、错误处理）
-- ✅ 认证工具（登录、登出、用户信息）
-- ✅ 本地存储工具
-- ✅ 路径别名 `@` 支持
-
-### 使用示例
-
-#### 状态管理
-
-```javascript
-import { useUserStore } from '@/store/modules/user.js'
-
-const userStore = useUserStore()
-// 登录
-await userStore.login(username, password)
-// 获取用户信息
-await userStore.fetchUserInfo()
+### 代码提交
+```bash
+pnpm cz
 ```
 
-#### 国际化
+### 更新uniapp版本
 
-```javascript
-import { useI18n } from 'vue-i18n'
-
-const { t } = useI18n()
-const message = t('auth.login')
+更新uniapp相关依赖到最新正式版
+```bash
+npx @dcloudio/uvm@latest
+```
+或者执行下面的命令
+```bash
+pnpm uvm
 ```
 
-#### API 请求
-
-```javascript
-import { authApi } from '@/api/index.js'
-
-// 登录
-await authApi.login({ username, password })
+在升级完后，会自动添加很多无用依赖，执行下面的代码减小保体积
+```
+pnpm uvm-rm
 ```
 
-#### Vant 组件
+### 注意事项
+1. 如果项目中不需要压缩图片，可以移除`vite-plugin-imagemin`插件后再初始化，以避免由于网路问题造成初始化报错的情况
+2. 微信小程序开发者工具中内置的打包分析不准确，本项目使用了`rollup-plugin-visualizer`来分析小程序包体积，默认不开启，有需要的移除相关注释即可
+3. 自动构建处理本地图片资源，使用了`vite-plugin-clean-build`和`vite-plugin-replace-image-url`这两个插件，默认不开启相关功能，如果需要使用再`build/vite/plugins/index.ts`文件中移除相关注释即可
+4. 使用`vite-plugin-replace-image-url`插件，想要图片自动替换生效，需要在项目中使用绝对路径引入图片资源，如下示例所示。
 
-直接使用，无需导入（easycom 自动引入）：
+    示例一：style中的图片使用
+    ```
+    <template>
+      <view :style="`background-image: url('${bgImg}')`">
+        ...
+      </view>
+    </template>
+    <script setup lang="ts">
+    import bgImg from '@/static/images/bg_img.png';
+    </script>
+    ```
 
-```vue
-<template>
-  <van-button type="primary">按钮</van-button>
-</template>
-```
+    示例二：js中的图片使用
 
-## 注意事项
+    ```
+    <script setup lang="ts">
+    import walletIcon from '@/static/images/icon_wallet.png';
+    const menuList = [
+      {
+        name: 'wallet',
+        title: '钱包',
+        icon: walletIcon,
+      },
+      ...
+    ];
+    </script>
+    ```
 
-1. **域名白名单**: 小程序需要在微信公众平台配置服务器域名白名单
-2. **开发环境**: 开发阶段可在微信开发者工具中关闭域名校验
-3. **Token 管理**: Token 自动存储在本地，请求时自动添加到 header
-4. **401 处理**: Token 过期会自动跳转到登录页
+    示例二：css中的图片使用
+    ```
+    <style lang="scss">
+    .icon {
+      background-image: url('@/static/images/icon.png')
+    }
+    </style>
+    ```
+5. 本项目中`permission.ts`中的拦截代码在小程序中的`tab`切换中无效，下面是官方给出的回复及解决方案。
 
-## 开发规范
+> 拦截uni.switchTab本身没有问题。但是在微信小程序端点击tabbar的底层逻辑并不是触发uni.switchTab。所以误认为拦截无效，此类场景的解决方案是在tabbar页面的页面生命周期onShow中处理。
 
-- 使用 `@` 别名引用项目文件
-- API 接口统一在 `api/index.js` 中定义
-- 状态管理使用 Pinia
-- 国际化文案在 `locales/lang/` 中维护
-- 公共组件放在 `components/common/` 中
+### 捐赠
 
-## 后续开发
-
-1. 创建登录页面
-2. 创建首页
-3. 实现住宿相关功能页面
-4. 实现个人中心页面
+如果你觉得这个项目对你有帮助，你可以请作者喝饮料🍹

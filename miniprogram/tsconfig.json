@@ -1,23 +1,35 @@
 {
   "compilerOptions": {
-    "target": "ESNext",
-    "module": "ESNext",
-    "moduleResolution": "node",
-    "strict": true,
+    "target": "es2016",
     "jsx": "preserve",
-    "sourceMap": true,
-    "resolveJsonModule": true,
-    "esModuleInterop": true,
-    "lib": ["ESNext", "DOM"],
-    "types": ["@dcloudio/types"],
-    "skipLibCheck": true,
+    "lib": ["DOM", "ESNext"],
     "baseUrl": ".",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
     "paths": {
-      "@/*": ["./*"]
+      "@/*": ["src/*"]
     },
+    "resolveJsonModule": true,
+    "types": ["@dcloudio/types", "@uni-helper/uni-app-types", "miniprogram-api-typings"],
     "allowJs": true,
-    "noEmit": true
+    "strict": true,
+    "strictNullChecks": true,
+    "noUnusedLocals": true,
+    "sourceMap": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true
   },
-  "include": ["**/*.ts", "**/*.tsx", "**/*.vue", "types/**/*.d.ts"],
-  "exclude": ["node_modules", "dist", "unpackage"]
+  "vueCompilerOptions": {
+    "plugins": ["@uni-helper/uni-app-types/volar-plugin"]
+  },
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.d.ts",
+    "src/**/*.tsx",
+    "src/**/*.vue",
+    "types/**/*.d.ts",
+    "types/**/*.ts"
+  ],
+  "exclude": ["dist", "node_modules", "uni_modules"]
 }
