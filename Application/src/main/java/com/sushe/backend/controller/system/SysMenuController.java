@@ -1,5 +1,6 @@
 package com.sushe.backend.controller.system;
 
+import com.sushe.backend.common.annotation.Log;
 import com.sushe.backend.common.result.R;
 import com.sushe.backend.dto.menu.MenuQueryDTO;
 import com.sushe.backend.dto.menu.MenuSaveDTO;
@@ -46,7 +47,11 @@ public class SysMenuController {
         queryDTO.setStatus(status);
 
         List<MenuVO> tree = menuService.treeList(queryDTO);
-        return R.ok(tree);
+        if (tree != null) {
+            return R.ok(tree);
+        } else {
+            return R.fail("菜单树形列表为空");
+        }
     }
 
     @GetMapping("/tree-select")
@@ -54,7 +59,11 @@ public class SysMenuController {
     public R<List<MenuVO>> getTreeSelect() {
         log.info("获取菜单树形选择器");
         List<MenuVO> tree = menuService.getMenuTreeSelect();
-        return R.ok(tree);
+        if (tree != null) {
+            return R.ok(tree);
+        } else {
+            return R.fail("菜单树形选择器为空");
+        }
     }
 
     @GetMapping("/tree-permission")
@@ -62,7 +71,11 @@ public class SysMenuController {
     public R<List<MenuVO>> getTreeForPermission() {
         log.info("获取菜单树用于权限分配");
         List<MenuVO> tree = menuService.getMenuTreeForPermission();
-        return R.ok(tree);
+        if (tree != null) {
+            return R.ok(tree);
+        } else {
+            return R.fail("菜单树用于权限分配为空");
+        }
     }
 
     @GetMapping("/user-tree")
@@ -79,45 +92,69 @@ public class SysMenuController {
     public R<MenuVO> getDetail(@PathVariable Long id) {
         log.info("查询菜单详情，ID：{}", id);
         MenuVO menuVO = menuService.getDetailById(id);
-        return R.ok(menuVO);
+        if (menuVO != null) {
+            return R.ok(menuVO);
+        } else {
+            return R.fail("菜单不存在");
+        }
     }
 
     @PostMapping
     @Operation(summary = "新增菜单")
+    @Log(title = "新增菜单", businessType = 1)
     public R<Void> add(@Valid @RequestBody MenuSaveDTO saveDTO) {
         log.info("新增菜单，参数：{}", saveDTO);
         saveDTO.setId(null); // 确保ID为空
         boolean success = menuService.saveMenu(saveDTO);
-        return R.status(success);
+        if (success) {
+            return R.ok("菜单新增成功", null);
+        } else {
+            return R.fail("菜单新增失败");
+        }
     }
 
     @PutMapping("/{id}")
     @Operation(summary = "编辑菜单")
     @Parameter(name = "id", description = "菜单ID", required = true)
+    @Log(title = "编辑菜单", businessType = 2)
     public R<Void> update(@PathVariable Long id, @Valid @RequestBody MenuSaveDTO saveDTO) {
         log.info("编辑菜单，ID：{}，参数：{}", id, saveDTO);
         saveDTO.setId(id);
         boolean success = menuService.saveMenu(saveDTO);
-        return R.status(success);
+        if (success) {
+            return R.ok("菜单编辑成功", null);
+        } else {
+            return R.fail("菜单编辑失败");
+        }
     }
 
     @DeleteMapping("/{id}")
     @Operation(summary = "删除菜单")
     @Parameter(name = "id", description = "菜单ID", required = true)
+    @Log(title = "删除菜单", businessType = 3)
     public R<Void> delete(@PathVariable Long id) {
         log.info("删除菜单，ID：{}", id);
         boolean success = menuService.deleteMenu(id);
-        return R.status(success);
+        if (success) {
+            return R.ok("菜单删除成功", null);
+        } else {
+            return R.fail("菜单删除失败");
+        }
     }
 
     @PutMapping("/{id}/status/{status}")
     @Operation(summary = "修改菜单状态")
     @Parameter(name = "id", description = "菜单ID", required = true)
     @Parameter(name = "status", description = "状态：1正常 0停用", required = true)
+    @Log(title = "修改菜单状态", businessType = 2)
     public R<Void> updateStatus(@PathVariable Long id, @PathVariable Integer status) {
         log.info("修改菜单状态，ID：{}，状态：{}", id, status);
-        menuService.updateStatus(id, status);
-        return R.ok(status == 1 ? "菜单已启用" : "菜单已停用", null);
+        boolean success = menuService.updateStatus(id, status);
+        if (success) {
+            return R.ok(status == 1 ? "菜单已启用" : "菜单已停用", null);
+        } else {
+            return R.fail(status == 1 ? "菜单启用失败" : "菜单停用失败");
+        }
     }
 }
 

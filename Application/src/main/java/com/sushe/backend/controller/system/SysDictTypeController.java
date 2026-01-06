@@ -79,6 +79,10 @@ public class SysDictTypeController extends BaseCrudController<DictTypeVO, DictTy
         }
 
         Map<String, List<DictDataVO>> result = dictDataService.listByDictCodes(dictCodes);
-        return R.ok(result);
+        if (result != null) {
+            return R.ok(result);
+        } else {
+            return R.fail("字典数据列表为空");
+        }
     }
 }

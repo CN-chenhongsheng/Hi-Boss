@@ -8,7 +8,6 @@ import com.sushe.backend.controller.base.TreeController;
 import com.sushe.backend.dto.campus.CampusQueryDTO;
 import com.sushe.backend.dto.campus.CampusSaveDTO;
 import com.sushe.backend.service.SysCampusService;
-import com.sushe.backend.common.annotation.Log;
 import com.sushe.backend.vo.CampusVO;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -30,8 +29,8 @@ import java.util.List;
 @RequiredArgsConstructor
 @Tag(name = "校区管理", description = "校区增删改查、树形列表等")
 public class SysCampusController extends BaseCrudController<CampusVO, CampusQueryDTO, CampusSaveDTO>
-        implements TreeController<CampusVO, CampusQueryDTO>, 
-                   BatchDeleteController, 
+        implements TreeController<CampusVO, CampusQueryDTO>,
+                   BatchDeleteController,
                    StatusUpdateController {
 
     private final SysCampusService campusService;

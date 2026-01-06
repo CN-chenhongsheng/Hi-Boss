@@ -1,5 +1,6 @@
 package com.sushe.backend.controller.base;
 
+import com.sushe.backend.common.annotation.Log;
 import com.sushe.backend.common.result.R;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -53,6 +54,7 @@ public interface StatusUpdateController {
     @Operation(summary = "修改状态")
     @Parameter(name = "id", description = "主键ID", required = true)
     @Parameter(name = "status", description = "状态：1启用 0停用", required = true)
+    @Log(title = "修改状态", businessType = 2)
     default R<Void> updateStatus(@PathVariable Long id, @PathVariable Integer status) {
         callUpdateStatus(id, status);
         String message = getStatusUpdateMessage(status);

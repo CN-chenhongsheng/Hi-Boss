@@ -1,5 +1,6 @@
 package com.sushe.backend.controller.system;
 
+import com.sushe.backend.common.annotation.Log;
 import com.sushe.backend.common.result.PageResult;
 import com.sushe.backend.common.result.R;
 import com.sushe.backend.dto.user.RoleUserQueryDTO;
@@ -41,7 +42,11 @@ public class SysUserController {
     public R<PageResult<UserVO>> list(UserQueryDTO queryDTO) {
         log.info("查询用户列表，参数：{}", queryDTO);
         PageResult<UserVO> result = userService.pageList(queryDTO);
-        return R.ok(result);
+        if (result != null) {
+            return R.ok(result);
+        } else {
+            return R.fail("用户列表为空");
+        }
     }
 
     @GetMapping("/{id}")
@@ -50,63 +55,97 @@ public class SysUserController {
     public R<UserVO> getDetail(@PathVariable Long id) {
         log.info("查询用户详情，ID：{}", id);
         UserVO userVO = userService.getDetailById(id);
-        return R.ok(userVO);
+        if (userVO != null) {
+            return R.ok(userVO);
+        } else {
+            return R.fail("用户不存在");
+        }
     }
 
     @PostMapping
     @Operation(summary = "新增用户")
+    @Log(title = "新增用户", businessType = 1)
     public R<Void> add(@Valid @RequestBody UserSaveDTO saveDTO) {
         log.info("新增用户，参数：{}", saveDTO);
         saveDTO.setId(null); // 确保ID为空
         boolean success = userService.saveUser(saveDTO);
-        return R.status(success);
+        if (success) {
+            return R.ok("用户新增成功", null);
+        } else {
+            return R.fail("用户新增失败");
+        }
     }
 
     @PutMapping("/{id}")
     @Operation(summary = "编辑用户")
     @Parameter(name = "id", description = "用户ID", required = true)
+    @Log(title = "编辑用户", businessType = 2)
     public R<Void> update(@PathVariable Long id, @Valid @RequestBody UserSaveDTO saveDTO) {
         log.info("编辑用户，ID：{}，参数：{}", id, saveDTO);
         saveDTO.setId(id);
         boolean success = userService.saveUser(saveDTO);
-        return R.status(success);
+        if (success) {
+            return R.ok("用户编辑成功", null);
+        } else {
+            return R.fail("用户编辑失败");
+        }
     }
 
     @DeleteMapping("/{id}")
     @Operation(summary = "删除用户")
     @Parameter(name = "id", description = "用户ID", required = true)
+    @Log(title = "删除用户", businessType = 3)
     public R<Void> delete(@PathVariable Long id) {
         log.info("删除用户，ID：{}", id);
         boolean success = userService.deleteUser(id);
-        return R.status(success);
+        if (success) {
+            return R.ok("用户删除成功", null);
+        } else {
+            return R.fail("用户删除失败");
+        }
     }
 
     @DeleteMapping("/batch")
     @Operation(summary = "批量删除用户")
+    @Log(title = "批量删除用户", businessType = 3)
     public R<Void> batchDelete(@RequestBody Long[] ids) {
         log.info("批量删除用户，IDs：{}", (Object) ids);
         boolean success = userService.batchDelete(ids);
-        return R.status(success);
+        if (success) {
+            return R.ok("用户批量删除成功", null);
+        } else {
+            return R.fail("用户批量删除失败");
+        }
     }
 
     @PutMapping("/{id}/reset-password")
     @Operation(summary = "重置用户密码")
     @Parameter(name = "id", description = "用户ID", required = true)
+    @Log(title = "重置用户密码", businessType = 0)
     public R<Void> resetPassword(@PathVariable Long id, @Valid @RequestBody UserResetPasswordDTO resetDTO) {
         log.info("重置用户密码，ID：{}", id);
         resetDTO.setUserId(id);
-        userService.resetPassword(resetDTO);
-        return R.ok("密码重置成功", null);
+        boolean success = userService.resetPassword(resetDTO);
+        if (success) {
+            return R.ok("密码重置成功", null);
+        } else {
+            return R.fail("密码重置失败");
+        }
     }
 
     @PutMapping("/{id}/status/{status}")
     @Operation(summary = "修改用户状态")
     @Parameter(name = "id", description = "用户ID", required = true)
     @Parameter(name = "status", description = "状态：1正常 0停用", required = true)
+    @Log(title = "修改用户状态", businessType = 2)
     public R<Void> updateStatus(@PathVariable Long id, @PathVariable Integer status) {
         log.info("修改用户状态，ID：{}，状态：{}", id, status);
-        userService.updateStatus(id, status);
-        return R.ok(status == 1 ? "用户已启用" : "用户已停用", null);
+        boolean success = userService.updateStatus(id, status);
+        if (success) {
+            return R.ok(status == 1 ? "用户已启用" : "用户已停用", null);
+        } else {
+            return R.fail(status == 1 ? "用户启用失败" : "用户停用失败");
+        }
     }
 
     @PostMapping("/by-roles")
@@ -114,7 +153,11 @@ public class SysUserController {
     public R<Map<String, List<UserSimpleVO>>> getUsersByRoleCodes(@Valid @RequestBody RoleUserQueryDTO queryDTO) {
         log.info("根据角色代码查询用户列表，角色代码：{}", queryDTO.getRoleCodes());
         Map<String, List<UserSimpleVO>> result = userService.getUsersByRoleCodes(queryDTO);
-        return R.ok(result);
+        if (result != null) {
+            return R.ok(result);
+        } else {
+            return R.fail("用户列表为空");
+        }
     }
 
     @GetMapping("/{id}/permissions")
@@ -123,16 +166,25 @@ public class SysUserController {
     public R<List<UserPermissionVO>> getUserPermissions(@PathVariable Long id) {
         log.info("获取用户权限列表，用户ID：{}", id);
         List<UserPermissionVO> permissions = userService.getUserPermissions(id);
-        return R.ok(permissions);
+        if (permissions != null) {
+            return R.ok(permissions);
+        } else {
+            return R.fail("用户权限列表为空");
+        }
     }
 
     @PutMapping("/{id}/permissions")
     @Operation(summary = "分配用户权限", description = "分配用户菜单权限，权限范围必须是用户所有角色的权限并集")
     @Parameter(name = "id", description = "用户ID", required = true)
+    @Log(title = "分配用户权限", businessType = 0)
     public R<Void> assignUserPermissions(@PathVariable Long id, @RequestBody Long[] menuIds) {
         log.info("分配用户权限，用户ID：{}，菜单IDs：{}", id, menuIds);
         boolean success = userService.assignMenus(id, menuIds);
-        return R.status(success);
+        if (success) {
+            return R.ok("权限分配成功", null);
+        } else {
+            return R.fail("权限分配失败");
+        }
     }
 
     @GetMapping("/{id}/available-menus")
@@ -141,7 +193,11 @@ public class SysUserController {
     public R<List<Long>> getUserAvailableMenus(@PathVariable Long id) {
         log.info("获取用户可选菜单列表，用户ID：{}", id);
         List<Long> menuIds = userService.getUserAvailableMenuIds(id);
-        return R.ok(menuIds);
+        if (menuIds != null) {
+            return R.ok(menuIds);
+        } else {
+            return R.fail("用户可选菜单列表为空");
+        }
     }
 }
 

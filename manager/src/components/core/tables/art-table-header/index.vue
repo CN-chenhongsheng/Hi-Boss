@@ -322,18 +322,18 @@
   @reference '@styles/core/tailwind.css';
 
   .button {
-    @apply ml-2 
-    size-8 
-    flex 
-    items-center 
-    justify-center 
-    cursor-pointer 
-    rounded-md 
+    @apply ml-2
+    size-8
+    flex
+    items-center
+    justify-center
+    cursor-pointer
+    rounded-md
     bg-g-300/55
     dark:bg-g-300/40
-    text-g-700  
-    hover:bg-g-300 
-    md:ml-0 
+    text-g-700
+    hover:bg-g-300
+    md:ml-0
     md:mr-2.5;
   }
 </style>

@@ -1,5 +1,6 @@
 package com.sushe.backend.controller.base;
 
+import com.sushe.backend.common.annotation.Log;
 import com.sushe.backend.common.result.R;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -34,6 +35,7 @@ public interface BatchDeleteController {
      */
     @DeleteMapping("/batch")
     @Operation(summary = "批量删除")
+    @Log(title = "批量删除", businessType = 3)
     default R<Void> batchDelete(@RequestBody Long[] ids) {
         boolean success = callBatchDelete(ids);
         if (success) {

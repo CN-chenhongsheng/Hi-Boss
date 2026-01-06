@@ -1,5 +1,6 @@
 package com.sushe.backend.controller.system;
 
+import com.sushe.backend.common.annotation.Log;
 import com.sushe.backend.common.result.PageResult;
 import com.sushe.backend.common.result.R;
 import com.sushe.backend.dto.role.RoleQueryDTO;
@@ -37,7 +38,11 @@ public class SysRoleController {
     public R<PageResult<RoleVO>> list(RoleQueryDTO queryDTO) {
         log.info("查询角色列表，参数：{}", queryDTO);
         PageResult<RoleVO> result = roleService.pageList(queryDTO);
-        return R.ok(result);
+        if (result != null) {
+            return R.ok(result);
+        } else {
+            return R.fail("角色列表为空");
+        }
     }
 
     @GetMapping("/all")
@@ -45,7 +50,11 @@ public class SysRoleController {
     public R<List<RoleVO>> listAll() {
         log.info("查询所有角色");
         List<RoleVO> list = roleService.listAll();
-        return R.ok(list);
+        if (list != null) {
+            return R.ok(list);
+        } else {
+            return R.fail("角色列表为空");
+        }
     }
 
     @GetMapping("/{id}")
@@ -54,52 +63,81 @@ public class SysRoleController {
     public R<RoleVO> getDetail(@PathVariable Long id) {
         log.info("查询角色详情，ID：{}", id);
         RoleVO roleVO = roleService.getDetailById(id);
-        return R.ok(roleVO);
+        if (roleVO != null) {
+            return R.ok(roleVO);
+        } else {
+            return R.fail("角色不存在");
+        }
     }
 
     @PostMapping
     @Operation(summary = "新增角色")
+    @Log(title = "新增角色", businessType = 1)
     public R<Void> add(@Valid @RequestBody RoleSaveDTO saveDTO) {
         log.info("新增角色，参数：{}", saveDTO);
         saveDTO.setId(null); // 确保ID为空
         boolean success = roleService.saveRole(saveDTO);
-        return R.status(success);
+        if (success) {
+            return R.ok("角色新增成功", null);
+        } else {
+            return R.fail("角色新增失败");
+        }
     }
 
     @PutMapping("/{id}")
     @Operation(summary = "编辑角色")
     @Parameter(name = "id", description = "角色ID", required = true)
+    @Log(title = "编辑角色", businessType = 2)
     public R<Void> update(@PathVariable Long id, @Valid @RequestBody RoleSaveDTO saveDTO) {
         log.info("编辑角色，ID：{}，参数：{}", id, saveDTO);
         saveDTO.setId(id);
         boolean success = roleService.saveRole(saveDTO);
-        return R.status(success);
+        if (success) {
+            return R.ok("角色编辑成功", null);
+        } else {
+            return R.fail("角色编辑失败");
+        }
     }
 
     @DeleteMapping("/{id}")
     @Operation(summary = "删除角色")
     @Parameter(name = "id", description = "角色ID", required = true)
+    @Log(title = "删除角色", businessType = 3)
     public R<Void> delete(@PathVariable Long id) {
         log.info("删除角色，ID：{}", id);
         boolean success = roleService.deleteRole(id);
-        return R.status(success);
+        if (success) {
+            return R.ok("角色删除成功", null);
+        } else {
+            return R.fail("角色删除失败");
+        }
     }
 
     @DeleteMapping("/batch")
     @Operation(summary = "批量删除角色")
+    @Log(title = "批量删除角色", businessType = 3)
     public R<Void> batchDelete(@RequestBody Long[] ids) {
         log.info("批量删除角色，IDs：{}", (Object) ids);
         boolean success = roleService.batchDelete(ids);
-        return R.status(success);
+        if (success) {
+            return R.ok("角色批量删除成功", null);
+        } else {
+            return R.fail("角色批量删除失败");
+        }
     }
 
     @PutMapping("/{id}/permissions")
     @Operation(summary = "分配角色菜单权限")
     @Parameter(name = "id", description = "角色ID", required = true)
+    @Log(title = "分配角色权限", businessType = 0)
     public R<Void> assignPermissions(@PathVariable Long id, @RequestBody Long[] menuIds) {
         log.info("分配角色菜单权限，角色ID：{}，菜单IDs：{}", id, (Object) menuIds);
         boolean success = roleService.assignMenus(id, menuIds);
-        return R.ok("权限分配成功", null);
+        if (success) {
+            return R.ok("权限分配成功", null);
+        } else {
+            return R.fail("权限分配失败");
+        }
     }
 
     @GetMapping("/{id}/permissions")
@@ -108,17 +146,26 @@ public class SysRoleController {
     public R<List<RolePermissionVO>> getPermissions(@PathVariable Long id) {
         log.info("获取角色菜单权限，角色ID：{}", id);
         List<RolePermissionVO> permissions = roleService.getRolePermissions(id);
-        return R.ok(permissions);
+        if (permissions != null) {
+            return R.ok(permissions);
+        } else {
+            return R.fail("角色权限列表为空");
+        }
     }
 
     @PutMapping("/{id}/status/{status}")
     @Operation(summary = "修改角色状态")
     @Parameter(name = "id", description = "角色ID", required = true)
     @Parameter(name = "status", description = "状态：1正常 0停用", required = true)
+    @Log(title = "修改角色状态", businessType = 2)
     public R<Void> updateStatus(@PathVariable Long id, @PathVariable Integer status) {
         log.info("修改角色状态，ID：{}，状态：{}", id, status);
         boolean success = roleService.updateStatus(id, status);
-        return R.ok(status == 1 ? "角色已启用" : "角色已停用", null);
+        if (success) {
+            return R.ok(status == 1 ? "角色已启用" : "角色已停用", null);
+        } else {
+            return R.fail(status == 1 ? "角色启用失败" : "角色停用失败");
+        }
     }
 }
 

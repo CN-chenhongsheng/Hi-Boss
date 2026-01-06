@@ -33,7 +33,11 @@ public class SysOperLogController implements BatchDeleteController {
     public R<PageResult<OperLogVO>> page(OperLogQueryDTO queryDTO) {
         log.info("分页查询操作日志，参数：{}", queryDTO);
         PageResult<OperLogVO> result = operLogService.pageList(queryDTO);
-        return R.ok(result);
+        if (result != null) {
+            return R.ok(result);
+        } else {
+            return R.fail("操作日志列表为空");
+        }
     }
 
     @GetMapping("/{id}")
@@ -42,7 +46,11 @@ public class SysOperLogController implements BatchDeleteController {
     public R<OperLogVO> getDetail(@PathVariable Long id) {
         log.info("查询操作日志详情，ID：{}", id);
         OperLogVO operLogVO = operLogService.getDetailById(id);
-        return R.ok(operLogVO);
+        if (operLogVO != null) {
+            return R.ok(operLogVO);
+        } else {
+            return R.fail("操作日志不存在");
+        }
     }
 
     @DeleteMapping("/batch")
@@ -50,7 +58,11 @@ public class SysOperLogController implements BatchDeleteController {
     public R<Void> batchDelete(@RequestBody Long[] ids) {
         log.info("批量删除操作日志，IDs：{}", (Object) ids);
         boolean success = operLogService.batchDelete(ids);
-        return R.status(success);
+        if (success) {
+            return R.ok("操作日志批量删除成功", null);
+        } else {
+            return R.fail("操作日志批量删除失败");
+        }
     }
 
     @DeleteMapping("/clean")
@@ -58,7 +70,11 @@ public class SysOperLogController implements BatchDeleteController {
     public R<Void> clean() {
         log.info("清空操作日志");
         boolean success = operLogService.clean();
-        return R.status(success);
+        if (success) {
+            return R.ok("操作日志清空成功", null);
+        } else {
+            return R.fail("操作日志清空失败");
+        }
     }
 
     @Override
