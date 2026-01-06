@@ -62,7 +62,7 @@
   import MenuSearch from './modules/menu-search.vue'
   import { fetchGetMenuList, fetchDeleteMenu, fetchUpdateMenuStatus } from '@/api/system-manage'
   import { useReferenceStore } from '@/store/modules/reference'
-  import { ElTag, ElMessageBox, ElMessage } from 'element-plus'
+  import { ElTag, ElMessageBox } from 'element-plus'
   import ArtSwitch from '@/components/core/forms/art-switch/index.vue'
   import { h, nextTick } from 'vue'
 

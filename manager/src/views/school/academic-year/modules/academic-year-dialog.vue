@@ -85,7 +85,7 @@
 
 <script setup lang="ts">
   import { Plus, Delete } from '@element-plus/icons-vue'
-  import { ElDatePicker, ElMessage } from 'element-plus'
+  import { ElDatePicker } from 'element-plus'
   import type { FormInstance, FormRules } from 'element-plus'
   import { fetchAddAcademicYear, fetchUpdateAcademicYear } from '@/api/school-manage'
 

@@ -143,7 +143,7 @@
   import ArtButtonTable from '@/components/core/forms/art-button-table/index.vue'
   import DictTypeDialog from './modules/dict-type-dialog.vue'
   import DictDataDialog from './modules/dict-data-dialog.vue'
-  import { ElTag, ElMessageBox, ElMessage } from 'element-plus'
+  import { ElTag, ElMessageBox } from 'element-plus'
   import { h } from 'vue'
   import { hasPermission } from '@/directives/core/permission'
   import ArtSwitch from '@/components/core/forms/art-switch/index.vue'

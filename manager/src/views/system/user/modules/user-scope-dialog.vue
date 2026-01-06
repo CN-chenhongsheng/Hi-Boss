@@ -46,7 +46,7 @@
 
 <script setup lang="ts">
   import { nextTick } from 'vue'
-  import { ElDialog, ElButton, ElAlert, ElEmpty, ElMessage } from 'element-plus'
+  import { ElDialog, ElButton, ElAlert, ElEmpty } from 'element-plus'
   import ArtLogicFlow from '@/components/core/charts/art-logic-flow/index.vue'
   import type { LogicFlowData } from '@/components/core/charts/art-logic-flow/types'
   import {

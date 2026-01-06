@@ -1,6 +1,5 @@
 package com.sushe.backend.controller.system;
 
-import com.sushe.backend.common.annotation.Log;
 import com.sushe.backend.common.result.R;
 import com.sushe.backend.service.SchoolHierarchyService;
 import com.sushe.backend.vo.SchoolHierarchyVO;
@@ -35,7 +34,11 @@ public class SysSchoolHierarchyController {
     @Operation(summary = "获取完整的学校层级树")
     public R<SchoolHierarchyVO> getFullHierarchy() {
         SchoolHierarchyVO hierarchy = schoolHierarchyService.getFullHierarchy();
-        return R.ok(hierarchy);
+        if (hierarchy != null) {
+            return R.ok(hierarchy);
+        } else {
+            return R.fail("学校层级树为空");
+        }
     }
 }
 

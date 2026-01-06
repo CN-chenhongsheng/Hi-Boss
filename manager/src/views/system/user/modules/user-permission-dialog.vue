@@ -65,7 +65,12 @@
           {{ isSelectAll ? '取消全选' : '全部选择' }}
         </ElButton>
         <ElButton @click="handleClose">取消</ElButton>
-        <ElButton type="primary" :loading="submitLoading" @click="savePermission" :disabled="!hasRoles">
+        <ElButton
+          type="primary"
+          :loading="submitLoading"
+          @click="savePermission"
+          :disabled="!hasRoles"
+        >
           {{ submitLoading ? '保存中...' : '保存' }}
         </ElButton>
       </ElSpace>
@@ -435,4 +440,3 @@
     min-height: 200px;
   }
 </style>
-
