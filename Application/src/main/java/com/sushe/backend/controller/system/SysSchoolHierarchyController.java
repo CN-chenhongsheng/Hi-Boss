@@ -33,7 +33,6 @@ public class SysSchoolHierarchyController {
      */
     @GetMapping("/hierarchy")
     @Operation(summary = "获取完整的学校层级树")
-    @Log(title = "学校层级管理", businessType = 0)
     public R<SchoolHierarchyVO> getFullHierarchy() {
         SchoolHierarchyVO hierarchy = schoolHierarchyService.getFullHierarchy();
         return R.ok(hierarchy);
