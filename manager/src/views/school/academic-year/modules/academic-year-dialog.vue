@@ -234,7 +234,6 @@
       } else {
         await fetchAddAcademicYear(submitData)
       }
-      ElMessage.success(isEdit.value ? '编辑成功' : '新增成功')
       emit('submit')
       handleClose()
     } catch (error) {

@@ -126,6 +126,17 @@ public class SysClassServiceImpl extends ServiceImpl<SysClassMapper, SysClass> i
         if (id == null) {
             throw new BusinessException("班级ID不能为空");
         }
+
+        // 如果学生表存在且有 class_id 字段关联班级，需要先清空学生的班级关联关系
+        // 示例代码（如果学生表存在）：
+        // LambdaQueryWrapper<Student> studentWrapper = new LambdaQueryWrapper<>();
+        // studentWrapper.eq(Student::getClassId, id);
+        // List<Student> students = studentMapper.selectList(studentWrapper);
+        // for (Student student : students) {
+        //     student.setClassId(null);
+        //     studentMapper.updateById(student);
+        // }
+
         return removeById(id);
     }
 

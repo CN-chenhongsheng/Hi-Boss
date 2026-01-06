@@ -402,7 +402,6 @@
       )
 
       await fetchDeleteDictType(row.id)
-      ElMessage.success('删除成功')
       handleTypeRefresh()
       // 如果删除的是当前选中的类型，清空右侧数据
       if (selectedTypeId.value === row.id) {
@@ -442,7 +441,6 @@
       })
     } catch (error) {
       console.error('更新字典类型状态失败:', error)
-      ElMessage.error('更新字典类型状态失败')
       // 恢复原状态
       row.status = originalStatus
     } finally {
@@ -476,7 +474,6 @@
       })
 
       await fetchDeleteDictData(row.id)
-      ElMessage.success('删除成功')
       handleDataRefresh()
     } catch (error) {
       if (error !== 'cancel') {
@@ -516,7 +513,6 @@
       })
     } catch (error) {
       console.error('更新字典数据状态失败:', error)
-      ElMessage.error('更新字典数据状态失败')
       // 恢复原状态
       row.status = originalStatus
     } finally {

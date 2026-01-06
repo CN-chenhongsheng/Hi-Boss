@@ -9,8 +9,11 @@ import com.sushe.backend.common.exception.BusinessException;
 import com.sushe.backend.common.result.PageResult;
 import com.sushe.backend.dto.floor.FloorQueryDTO;
 import com.sushe.backend.dto.floor.FloorSaveDTO;
+import com.sushe.backend.entity.SysBed;
+import com.sushe.backend.entity.SysCampus;
 import com.sushe.backend.entity.SysFloor;
 import com.sushe.backend.entity.SysRoom;
+import com.sushe.backend.mapper.SysBedMapper;
 import com.sushe.backend.mapper.SysCampusMapper;
 import com.sushe.backend.mapper.SysFloorMapper;
 import com.sushe.backend.mapper.SysRoomMapper;
@@ -22,7 +25,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -38,6 +40,7 @@ import java.util.stream.Collectors;
 public class SysFloorServiceImpl extends ServiceImpl<SysFloorMapper, SysFloor> implements SysFloorService {
 
     private final SysRoomMapper roomMapper;
+    private final SysBedMapper bedMapper;
     private final SysCampusMapper campusMapper;
 
     @Override
@@ -83,12 +86,6 @@ public class SysFloorServiceImpl extends ServiceImpl<SysFloorMapper, SysFloor> i
             throw new BusinessException("楼层编码已存在");
         }
 
-        // 编辑时，检查是否有房间关联
-        if (saveDTO.getId() != null) {
-            if (checkFloorHasRooms(saveDTO.getId())) {
-                throw new BusinessException("该楼层下存在房间，无法编辑");
-            }
-        }
 
         SysFloor floor = new SysFloor();
         BeanUtil.copyProperties(saveDTO, floor);
@@ -117,14 +114,43 @@ public class SysFloorServiceImpl extends ServiceImpl<SysFloorMapper, SysFloor> i
             throw new BusinessException("楼层不存在");
         }
 
-        // 检查是否存在房间
+        // ========== 级联删除房间、床位 ==========
+        // 查询所有属于该楼层的房间
         LambdaQueryWrapper<SysRoom> roomWrapper = new LambdaQueryWrapper<>();
         roomWrapper.eq(SysRoom::getFloorId, id);
-        long roomCount = roomMapper.selectCount(roomWrapper);
-        if (roomCount > 0) {
-            throw new BusinessException("该楼层下存在房间，无法删除");
+        List<SysRoom> rooms = roomMapper.selectList(roomWrapper);
+
+        // 获取所有房间ID
+        List<Long> roomIds = rooms.stream()
+                .map(SysRoom::getId)
+                .collect(Collectors.toList());
+
+        if (!roomIds.isEmpty()) {
+            // 查询所有属于这些房间的床位
+            LambdaQueryWrapper<SysBed> bedWrapper = new LambdaQueryWrapper<>();
+            bedWrapper.in(SysBed::getRoomId, roomIds);
+            List<SysBed> beds = bedMapper.selectList(bedWrapper);
+
+            // 处理床位的学生关联关系：清空学生关联字段，但不删除学生
+            for (SysBed bed : beds) {
+                if (bed.getStudentId() != null) {
+                    bed.setStudentId(null);
+                    bed.setStudentName(null);
+                    bed.setCheckInDate(null);
+                    bed.setCheckOutDate(null);
+                    bed.setBedStatus(1); // 设为空闲状态
+                    bedMapper.updateById(bed);
+                }
+            }
+
+            // 删除所有床位
+            bedMapper.delete(bedWrapper);
         }
 
+        // 删除所有房间
+        roomMapper.delete(roomWrapper);
+
+        // 删除当前楼层
         return removeById(id);
     }
 
@@ -135,16 +161,11 @@ public class SysFloorServiceImpl extends ServiceImpl<SysFloorMapper, SysFloor> i
             throw new BusinessException("楼层ID不能为空");
         }
 
-        // 检查是否有房间关联
+        // 批量删除时，对每个ID调用单个删除方法，确保级联删除逻辑被执行
         for (Long id : ids) {
-            if (checkFloorHasRooms(id)) {
-                SysFloor floor = getById(id);
-                String floorName = floor != null ? floor.getFloorName() : String.valueOf(id);
-                throw new BusinessException("楼层\"" + floorName + "\"下存在房间，无法删除");
-            }
+            deleteFloor(id);
         }
-
-        return removeByIds(Arrays.asList(ids));
+        return true;
     }
 
     @Override
@@ -155,21 +176,42 @@ public class SysFloorServiceImpl extends ServiceImpl<SysFloorMapper, SysFloor> i
             throw new BusinessException("楼层不存在");
         }
 
-        // 检查楼层是否有关联的房间
-        if (checkFloorHasRooms(id)) {
-            throw new BusinessException("该楼层下存在房间，不允许修改状态");
+        // 如果要启用楼层，需要检查所属校区是否启用
+        if (status == 1 && StrUtil.isNotBlank(floor.getCampusCode())) {
+            LambdaQueryWrapper<SysCampus> campusWrapper = new LambdaQueryWrapper<>();
+            campusWrapper.eq(SysCampus::getCampusCode, floor.getCampusCode());
+            SysCampus campus = campusMapper.selectOne(campusWrapper);
+            if (campus != null && campus.getStatus() != null && campus.getStatus() == 0) {
+                throw new BusinessException("该校区处于停用状态，不允许启用楼层");
+            }
         }
 
         floor.setStatus(status);
         boolean result = updateById(floor);
 
-        // 如果状态改为停用（0），则级联更新该楼层下所有房间的状态为停用
+        // 如果状态改为停用（0），则级联停用该楼层下的所有房间和床位
         if (status == 0) {
+            // 查询所有属于该楼层的房间ID
             LambdaQueryWrapper<SysRoom> roomWrapper = new LambdaQueryWrapper<>();
             roomWrapper.eq(SysRoom::getFloorId, id);
-            SysRoom roomUpdate = new SysRoom();
-            roomUpdate.setStatus(0);
-            roomMapper.update(roomUpdate, roomWrapper);
+            List<SysRoom> rooms = roomMapper.selectList(roomWrapper);
+            List<Long> roomIds = rooms.stream()
+                    .map(SysRoom::getId)
+                    .collect(Collectors.toList());
+
+            // 级联停用所有房间
+            if (!roomIds.isEmpty()) {
+                SysRoom roomUpdate = new SysRoom();
+                roomUpdate.setStatus(0);
+                roomMapper.update(roomUpdate, roomWrapper);
+
+                // 级联停用所有床位
+                LambdaQueryWrapper<SysBed> bedWrapper = new LambdaQueryWrapper<>();
+                bedWrapper.in(SysBed::getRoomId, roomIds);
+                SysBed bedUpdate = new SysBed();
+                bedUpdate.setStatus(0);
+                bedMapper.update(bedUpdate, bedWrapper);
+            }
         }
 
         return result;

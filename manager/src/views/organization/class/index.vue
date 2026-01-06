@@ -270,7 +270,6 @@
         }
       )
       await fetchDeleteClass(row.id)
-      ElMessage.success('删除成功')
       await refreshRemove()
     } catch (error) {
       if (error !== 'cancel') {
@@ -300,7 +299,6 @@
       )
       const ids = selectedRows.value.map((item) => item.id)
       await fetchBatchDeleteClass(ids)
-      ElMessage.success('批量删除成功')
       selectedRows.value = []
       await refreshRemove()
     } catch (error) {
@@ -341,7 +339,6 @@
       await fetchUpdateClassStatus(row.id, value ? 1 : 0)
     } catch (error) {
       console.error('更新班级状态失败:', error)
-      ElMessage.error('更新班级状态失败')
       row.status = originalStatus
     } finally {
       row._statusLoading = false

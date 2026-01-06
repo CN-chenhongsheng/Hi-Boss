@@ -249,7 +249,6 @@
         }
       )
       await fetchDeleteAcademicYear(row.id)
-      ElMessage.success('删除成功')
       await refreshRemove()
     } catch (error) {
       if (error !== 'cancel') {
@@ -285,7 +284,6 @@
         }
       )
       await fetchBatchDeleteAcademicYear(selectedIds.value as number[])
-      ElMessage.success('批量删除成功')
       selectedRows.value = []
       await getData()
     } catch (error) {
@@ -317,10 +315,8 @@
       row._statusLoading = true
       row.status = value ? 1 : 0
       await fetchUpdateAcademicYearStatus(row.id, value ? 1 : 0)
-      ElMessage.success('状态更新成功')
     } catch (error) {
       console.error('更新学年状态失败:', error)
-      ElMessage.error('更新学年状态失败')
       row.status = originalStatus
     } finally {
       row._statusLoading = false

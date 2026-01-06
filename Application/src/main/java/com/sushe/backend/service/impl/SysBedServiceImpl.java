@@ -198,16 +198,30 @@ public class SysBedServiceImpl extends ServiceImpl<SysBedMapper, SysBed> impleme
             throw new BusinessException("床位不存在");
         }
 
+        // 如果要启用床位，需要检查所属房间是否启用
+        if (status == 1 && bed.getRoomId() != null) {
+            SysRoom room = roomMapper.selectById(bed.getRoomId());
+            if (room != null && room.getStatus() != null && room.getStatus() == 0) {
+                throw new BusinessException("该房间处于停用状态，不允许启用床位");
+            }
+        }
+
         bed.setStatus(status);
         boolean result = updateById(bed);
 
-        // 如果床位状态变更，更新统计字段
+        // 如果床位状态变更，更新统计字段（使用try-catch确保不影响主操作）
         if (result) {
-            if (bed.getRoomId() != null) {
-                updateRoomStatistics(bed.getRoomId());
-            }
-            if (bed.getFloorId() != null) {
-                updateFloorStatistics(bed.getFloorId());
+            try {
+                if (bed.getRoomId() != null) {
+                    updateRoomStatistics(bed.getRoomId());
+                }
+                if (bed.getFloorId() != null) {
+                    updateFloorStatistics(bed.getFloorId());
+                }
+            } catch (Exception e) {
+                log.error("更新床位统计字段失败，床位ID：{}，房间ID：{}，楼层ID：{}",
+                         id, bed.getRoomId(), bed.getFloorId(), e);
+                // 不抛出异常，允许状态更新成功
             }
         }
 
@@ -374,17 +388,24 @@ public class SysBedServiceImpl extends ServiceImpl<SysBedMapper, SysBed> impleme
             return;
         }
 
-        // 统计该房间已占用的床位数
-        LambdaQueryWrapper<SysBed> bedWrapper = new LambdaQueryWrapper<>();
-        bedWrapper.eq(SysBed::getRoomId, roomId)
-                  .eq(SysBed::getBedStatus, 2); // 2-已占用
-        long currentOccupancy = count(bedWrapper);
+        try {
+            // 统计该房间已占用的床位数
+            LambdaQueryWrapper<SysBed> bedWrapper = new LambdaQueryWrapper<>();
+            bedWrapper.eq(SysBed::getRoomId, roomId)
+                      .eq(SysBed::getBedStatus, 2); // 2-已占用
+            long currentOccupancy = count(bedWrapper);
 
-        // 更新房间统计字段
-        SysRoom room = roomMapper.selectById(roomId);
-        if (room != null) {
-            room.setCurrentOccupancy((int) currentOccupancy);
-            roomMapper.updateById(room);
+            // 更新房间统计字段
+            SysRoom room = roomMapper.selectById(roomId);
+            if (room != null) {
+                room.setCurrentOccupancy((int) currentOccupancy);
+                roomMapper.updateById(room);
+            } else {
+                log.warn("更新房间统计字段失败：房间不存在，房间ID：{}", roomId);
+            }
+        } catch (Exception e) {
+            log.error("更新房间统计字段异常，房间ID：{}", roomId, e);
+            throw e; // 重新抛出异常，由调用方处理
         }
     }
 
@@ -396,30 +417,37 @@ public class SysBedServiceImpl extends ServiceImpl<SysBedMapper, SysBed> impleme
             return;
         }
 
-        // 统计该楼层的房间数和床位数
-        LambdaQueryWrapper<SysRoom> roomWrapper = new LambdaQueryWrapper<>();
-        roomWrapper.eq(SysRoom::getFloorId, floorId);
-        long totalRooms = roomMapper.selectCount(roomWrapper);
+        try {
+            // 统计该楼层的房间数和床位数
+            LambdaQueryWrapper<SysRoom> roomWrapper = new LambdaQueryWrapper<>();
+            roomWrapper.eq(SysRoom::getFloorId, floorId);
+            long totalRooms = roomMapper.selectCount(roomWrapper);
 
-        // 统计该楼层所有房间的床位数
-        List<SysRoom> rooms = roomMapper.selectList(roomWrapper);
-        int totalBeds = rooms.stream()
-                .mapToInt(room -> room.getBedCount() != null ? room.getBedCount() : 0)
-                .sum();
+            // 统计该楼层所有房间的床位数
+            List<SysRoom> rooms = roomMapper.selectList(roomWrapper);
+            int totalBeds = rooms.stream()
+                    .mapToInt(room -> room.getBedCount() != null ? room.getBedCount() : 0)
+                    .sum();
 
-        // 统计该楼层所有床位的入住人数
-        LambdaQueryWrapper<SysBed> bedWrapper = new LambdaQueryWrapper<>();
-        bedWrapper.eq(SysBed::getFloorId, floorId)
-                   .eq(SysBed::getBedStatus, 2); // 2-已占用
-        long currentOccupancy = count(bedWrapper);
+            // 统计该楼层所有床位的入住人数
+            LambdaQueryWrapper<SysBed> bedWrapper = new LambdaQueryWrapper<>();
+            bedWrapper.eq(SysBed::getFloorId, floorId)
+                       .eq(SysBed::getBedStatus, 2); // 2-已占用
+            long currentOccupancy = count(bedWrapper);
 
-        // 更新楼层统计字段
-        SysFloor floor = floorMapper.selectById(floorId);
-        if (floor != null) {
-            floor.setTotalRooms((int) totalRooms);
-            floor.setTotalBeds(totalBeds);
-            floor.setCurrentOccupancy((int) currentOccupancy);
-            floorMapper.updateById(floor);
+            // 更新楼层统计字段
+            SysFloor floor = floorMapper.selectById(floorId);
+            if (floor != null) {
+                floor.setTotalRooms((int) totalRooms);
+                floor.setTotalBeds(totalBeds);
+                floor.setCurrentOccupancy((int) currentOccupancy);
+                floorMapper.updateById(floor);
+            } else {
+                log.warn("更新楼层统计字段失败：楼层不存在，楼层ID：{}", floorId);
+            }
+        } catch (Exception e) {
+            log.error("更新楼层统计字段异常，楼层ID：{}", floorId, e);
+            throw e; // 重新抛出异常，由调用方处理
         }
     }
 }

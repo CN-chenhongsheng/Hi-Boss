@@ -28,9 +28,7 @@
               >新增房间</ElButton
             >
             <ElButton
-              :disabled="
-                selectedCount === 0 || selectedRows.some((row) => (row.totalBeds || 0) > 0)
-              "
+              :disabled="selectedCount === 0"
               @click="handleBatchDelete"
               v-ripple
               v-permission="'system:room:delete'"
@@ -279,8 +277,7 @@
             {
               type: 'edit',
               onClick: () => handleEdit(row),
-              auth: 'system:room:edit',
-              disabled: (row.totalBeds || 0) > 0
+              auth: 'system:room:edit'
             },
             {
               type: 'add',
@@ -292,8 +289,7 @@
               type: 'delete',
               onClick: () => handleDelete(row),
               auth: 'system:room:delete',
-              danger: true,
-              disabled: (row.totalBeds || 0) > 0
+              danger: true
             }
           ]
         }
@@ -349,16 +345,16 @@
   const handleDelete = async (row: RoomListItem): Promise<void> => {
     try {
       await ElMessageBox.confirm(
-        `确定要删除房间"${row.roomNumber || row.roomCode}"吗？`,
+        `确定要删除房间"${row.roomNumber || row.roomCode}"吗？<br/>提示：删除房间后，该房间下的所有床位也会被删除。`,
         '删除确认',
         {
           type: 'warning',
           confirmButtonText: '确定删除',
-          cancelButtonText: '取消'
+          cancelButtonText: '取消',
+          dangerouslyUseHTMLString: true
         }
       )
       await fetchDeleteRoom(row.id)
-      ElMessage.success('删除成功')
       // 刷新房间列表缓存
       await referenceStore.refreshRoomList()
       await refreshRemove()
@@ -387,16 +383,16 @@
 
     try {
       await ElMessageBox.confirm(
-        `确定要批量删除选中的 ${selectedCount.value} 条房间数据吗？`,
+        `确定要批量删除选中的 ${selectedCount.value} 条房间数据吗？<br/>提示：删除房间后，这些房间下的所有床位也会被删除。`,
         '批量删除确认',
         {
           type: 'warning',
           confirmButtonText: '确定删除',
-          cancelButtonText: '取消'
+          cancelButtonText: '取消',
+          dangerouslyUseHTMLString: true
         }
       )
       await fetchBatchDeleteRoom(selectedIds.value as number[])
-      ElMessage.success('批量删除成功')
       // 刷新房间列表缓存
       await referenceStore.refreshRoomList()
       selectedRows.value = []
@@ -412,26 +408,30 @@
    * 状态切换
    */
   const handleStatusChange = async (row: RoomListItem, enabled: boolean): Promise<void> => {
+    // 如果是关闭操作（从启用变为停用），需要提示用户级联影响
+    if (!enabled && row.status === 1) {
+      try {
+        let message = `确定要停用房间"${row.roomNumber || row.roomCode}"吗？<br/>提示：停用房间后，该房间下的所有床位也会被停用。`
+        await ElMessageBox.confirm(message, '确认停用', {
+          type: 'warning',
+          confirmButtonText: '确认停用',
+          cancelButtonText: '取消',
+          dangerouslyUseHTMLString: true
+        })
+      } catch {
+        // 用户取消操作，不执行任何更改
+        return
+      }
+    }
+
+    const originalStatus = row.status
     try {
       row._statusLoading = true
-      const status = enabled ? 1 : 0
-      await ElMessageBox.confirm(
-        `确定要${enabled ? '启用' : '停用'}房间"${row.roomNumber || row.roomCode}"吗？`,
-        '状态确认',
-        {
-          type: 'warning',
-          confirmButtonText: '确定',
-          cancelButtonText: '取消'
-        }
-      )
-      await fetchUpdateRoomStatus(row.id, status)
-      ElMessage.success(`${enabled ? '启用' : '停用'}成功`)
-      await refreshData()
+      row.status = enabled ? 1 : 0
+      await fetchUpdateRoomStatus(row.id, enabled ? 1 : 0)
     } catch (error) {
-      if (error !== 'cancel') {
-        console.error('状态切换失败:', error)
-        await refreshData()
-      }
+      console.error('更新房间状态失败:', error)
+      row.status = originalStatus
     } finally {
       row._statusLoading = false
     }

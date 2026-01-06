@@ -307,7 +307,6 @@
         }
       )
       await fetchDeleteDepartment(row.id)
-      ElMessage.success('删除成功')
       // 刷新院系树缓存
       await referenceStore.refreshDepartmentTree()
       await refreshRemove()
@@ -345,7 +344,6 @@
         }
       )
       await fetchBatchDeleteDepartment(selectedIds.value as number[])
-      ElMessage.success('批量删除成功')
       // 刷新院系树缓存
       await referenceStore.refreshDepartmentTree()
       selectedRows.value = []
@@ -425,7 +423,6 @@
       await fetchUpdateDepartmentStatus(row.id, value ? 1 : 0)
     } catch (error) {
       console.error('更新院系状态失败:', error)
-      ElMessage.error('更新院系状态失败')
       row.status = originalStatus
     } finally {
       row._statusLoading = false

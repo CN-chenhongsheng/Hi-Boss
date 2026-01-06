@@ -27,7 +27,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -129,11 +128,6 @@ public class SysRoomServiceImpl extends ServiceImpl<SysRoomMapper, SysRoom> impl
             
             return result;
         } else {
-            // 编辑时，检查是否有床位关联
-            if (checkRoomHasBeds(room.getId())) {
-                throw new BusinessException("该房间下存在床位，无法编辑");
-            }
-
             // 编辑时，如果楼层ID发生变化，需要更新统计字段
             SysRoom oldRoom = getById(room.getId());
             boolean result = updateById(room);
@@ -162,11 +156,28 @@ public class SysRoomServiceImpl extends ServiceImpl<SysRoomMapper, SysRoom> impl
             throw new BusinessException("房间不存在");
         }
 
-        // 检查是否存在床位
-        if (checkRoomHasBeds(id)) {
-            throw new BusinessException("该房间下存在床位，无法删除");
+        // ========== 级联删除床位 ==========
+        // 查询所有属于该房间的床位
+        LambdaQueryWrapper<SysBed> bedWrapper = new LambdaQueryWrapper<>();
+        bedWrapper.eq(SysBed::getRoomId, id);
+        List<SysBed> beds = bedMapper.selectList(bedWrapper);
+
+        // 处理床位的学生关联关系：清空学生关联字段，但不删除学生
+        for (SysBed bed : beds) {
+            if (bed.getStudentId() != null) {
+                bed.setStudentId(null);
+                bed.setStudentName(null);
+                bed.setCheckInDate(null);
+                bed.setCheckOutDate(null);
+                bed.setBedStatus(1); // 设为空闲状态
+                bedMapper.updateById(bed);
+            }
         }
 
+        // 删除所有床位
+        bedMapper.delete(bedWrapper);
+
+        // 删除当前房间
         boolean result = removeById(id);
 
         // 更新楼层统计字段
@@ -184,16 +195,11 @@ public class SysRoomServiceImpl extends ServiceImpl<SysRoomMapper, SysRoom> impl
             throw new BusinessException("房间ID不能为空");
         }
 
-        // 检查是否有床位关联
+        // 批量删除时，对每个ID调用单个删除方法，确保级联删除逻辑被执行
         for (Long id : ids) {
-            if (checkRoomHasBeds(id)) {
-                SysRoom room = getById(id);
-                String roomName = room != null ? (room.getRoomNumber() != null ? room.getRoomNumber() : room.getRoomCode()) : String.valueOf(id);
-                throw new BusinessException("房间\"" + roomName + "\"下存在床位，无法删除");
-            }
+            deleteRoom(id);
         }
-
-        return removeByIds(Arrays.asList(ids));
+        return true;
     }
 
     @Override
@@ -202,6 +208,14 @@ public class SysRoomServiceImpl extends ServiceImpl<SysRoomMapper, SysRoom> impl
         SysRoom room = getById(id);
         if (room == null) {
             throw new BusinessException("房间不存在");
+        }
+
+        // 如果要启用房间，需要检查所属楼层是否启用
+        if (status == 1 && room.getFloorId() != null) {
+            SysFloor floor = floorMapper.selectById(room.getFloorId());
+            if (floor != null && floor.getStatus() != null && floor.getStatus() == 0) {
+                throw new BusinessException("该楼层处于停用状态，不允许启用房间");
+            }
         }
 
         room.setStatus(status);

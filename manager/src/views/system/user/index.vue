@@ -446,7 +446,6 @@
       const ids = selectedRows.value.map((user) => user.id)
       await fetchBatchDeleteUser(ids)
 
-      ElMessage.success('批量删除成功')
       selectedRows.value = []
       await refreshRemove()
     } catch (error) {
@@ -570,7 +569,6 @@
       await refreshUpdate()
     } catch (error) {
       console.error('分配管理范围失败:', error)
-      ElMessage.error('分配管理范围失败，请稍后重试')
     }
   }
 

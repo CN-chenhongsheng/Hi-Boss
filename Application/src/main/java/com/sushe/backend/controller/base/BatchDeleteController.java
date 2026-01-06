@@ -36,7 +36,11 @@ public interface BatchDeleteController {
     @Operation(summary = "批量删除")
     default R<Void> batchDelete(@RequestBody Long[] ids) {
         boolean success = callBatchDelete(ids);
-        return R.status(success);
+        if (success) {
+            return R.ok(getEntityName() + "批量删除成功", null);
+        } else {
+            return R.fail(getEntityName() + "批量删除失败");
+        }
     }
 }
 

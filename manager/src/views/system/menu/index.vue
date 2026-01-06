@@ -368,7 +368,6 @@
       })
 
       await fetchDeleteMenu(row.id)
-      ElMessage.success('删除成功')
       // 刷新菜单树缓存
       await referenceStore.refreshMenuTreeSelect()
       await refreshRemove()
@@ -445,7 +444,6 @@
       }
     } catch (error) {
       console.error('更新菜单状态失败:', error)
-      ElMessage.error('更新菜单状态失败')
       row.status = originalStatus
     } finally {
       row._statusLoading = false

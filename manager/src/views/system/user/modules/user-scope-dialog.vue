@@ -332,7 +332,6 @@
       dialogVisible.value = false
     } catch (err: any) {
       console.error('[UserScopeDialog] 提交失败:', err)
-      ElMessage.error(err?.message || '提交失败，请稍后重试')
     } finally {
       submitting.value = false
     }

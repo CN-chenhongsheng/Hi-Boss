@@ -95,7 +95,11 @@ public abstract class BaseCrudController<VO, QueryDTO, SaveDTO> {
         // 确保ID为空
         setIdIfExists(saveDTO, null);
         boolean success = callSave(saveDTO);
-        return R.status(success);
+        if (success) {
+            return R.ok(getEntityName() + "新增成功", null);
+        } else {
+            return R.fail(getEntityName() + "新增失败");
+        }
     }
 
     /**
@@ -109,7 +113,11 @@ public abstract class BaseCrudController<VO, QueryDTO, SaveDTO> {
         log.info("编辑{}，ID：{}，参数：{}", getEntityName(), id, saveDTO);
         setIdIfExists(saveDTO, id);
         boolean success = callSave(saveDTO);
-        return R.status(success);
+        if (success) {
+            return R.ok(getEntityName() + "编辑成功", null);
+        } else {
+            return R.fail(getEntityName() + "编辑失败");
+        }
     }
 
     /**
@@ -122,7 +130,11 @@ public abstract class BaseCrudController<VO, QueryDTO, SaveDTO> {
     public R<Void> delete(@PathVariable Long id) {
         log.info("删除{}，ID：{}", getEntityName(), id);
         boolean success = callDelete(id);
-        return R.status(success);
+        if (success) {
+            return R.ok(getEntityName() + "删除成功", null);
+        } else {
+            return R.fail(getEntityName() + "删除失败");
+        }
     }
 
     /**

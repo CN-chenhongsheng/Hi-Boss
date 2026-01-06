@@ -332,7 +332,7 @@
   const handleDelete = async (row: CampusListItem): Promise<void> => {
     try {
       await ElMessageBox.confirm(
-        `确定要删除校区"${row.campusName}"吗？<br/>提示：删除校区后，该校区下的所有院系、专业和班级也会被删除。`,
+        `确定要删除校区"${row.campusName}"吗？<br/>提示：删除校区后，该校区下的所有院系、专业、班级、楼栋、房间和床位也会被删除。`,
         '删除确认',
         {
           type: 'warning',
@@ -342,7 +342,6 @@
         }
       )
       await fetchDeleteCampus(row.id)
-      ElMessage.success('删除成功')
       // 刷新校区树缓存
       await referenceStore.refreshCampusTree()
       await refreshRemove()
@@ -364,7 +363,7 @@
 
     try {
       await ElMessageBox.confirm(
-        `确定要批量删除选中的 ${selectedCount.value} 条校区数据吗？<br/>提示：删除校区后，这些校区下的所有院系、专业和班级也会被删除。`,
+        `确定要批量删除选中的 ${selectedCount.value} 条校区数据吗？<br/>提示：删除校区后，这些校区下的所有院系、专业、班级、楼栋、房间和床位也会被删除。`,
         '批量删除确认',
         {
           type: 'warning',
@@ -374,7 +373,6 @@
         }
       )
       await fetchBatchDeleteCampus(selectedIds.value as number[])
-      ElMessage.success('批量删除成功')
       // 刷新校区树缓存
       await referenceStore.refreshCampusTree()
       selectedRows.value = []
@@ -529,7 +527,7 @@
     // 如果是关闭操作（从启用变为停用），需要提示用户级联影响
     if (!value && row.status === 1) {
       try {
-        let message = `确定要停用校区"${row.campusName}"吗？<br/>提示：停用校区后，该校区下的所有院系、专业和班级也会被停用。`
+        let message = `确定要停用校区"${row.campusName}"吗？<br/>提示：停用校区后，该校区下的所有院系、专业、班级、楼栋、房间和床位也会被停用。`
         await ElMessageBox.confirm(message, '确认停用', {
           type: 'warning',
           confirmButtonText: '确认停用',
@@ -549,7 +547,6 @@
       await fetchUpdateCampusStatus(row.id, value ? 1 : 0)
     } catch (error) {
       console.error('更新校区状态失败:', error)
-      ElMessage.error('更新校区状态失败')
       row.status = originalStatus
     } finally {
       row._statusLoading = false

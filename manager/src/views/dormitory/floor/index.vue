@@ -28,9 +28,7 @@
               >新增楼层</ElButton
             >
             <ElButton
-              :disabled="
-                selectedCount === 0 || selectedRows.some((row) => (row.totalRooms || 0) > 0)
-              "
+              :disabled="selectedCount === 0"
               @click="handleBatchDelete"
               v-ripple
               v-permission="'system:floor:delete'"
@@ -240,12 +238,10 @@
           label: '状态',
           width: 100,
           formatter: (row: FloorListItem) => {
-            const hasRooms = (row.totalRooms || 0) > 0
             return h(ArtSwitch, {
               modelValue: row.status === 1,
               loading: row._statusLoading || false,
               inlinePrompt: true,
-              disabled: hasRooms,
               onChange: (value: string | number | boolean) => {
                 handleStatusChange(row, value === true || value === 1)
               }
@@ -273,8 +269,7 @@
             {
               type: 'edit',
               onClick: () => handleEdit(row),
-              auth: 'system:floor:edit',
-              disabled: (row.totalRooms || 0) > 0
+              auth: 'system:floor:edit'
             },
             {
               type: 'add',
@@ -286,8 +281,7 @@
               type: 'delete',
               onClick: () => handleDelete(row),
               auth: 'system:floor:delete',
-              danger: true,
-              disabled: (row.totalRooms || 0) > 0
+              danger: true
             }
           ]
         }
@@ -351,16 +345,16 @@
   const handleDelete = async (row: FloorListItem): Promise<void> => {
     try {
       await ElMessageBox.confirm(
-        `确定要删除楼层"${row.floorName || row.floorCode}"吗？`,
+        `确定要删除楼层"${row.floorName || row.floorCode}"吗？<br/>提示：删除楼层后，该楼层下的所有房间和床位也会被删除。`,
         '删除确认',
         {
           type: 'warning',
           confirmButtonText: '确定删除',
-          cancelButtonText: '取消'
+          cancelButtonText: '取消',
+          dangerouslyUseHTMLString: true
         }
       )
       await fetchDeleteFloor(row.id)
-      ElMessage.success('删除成功')
       // 刷新楼层列表缓存
       await referenceStore.refreshFloorList()
       await refreshRemove()
@@ -387,25 +381,18 @@
       return
     }
 
-    // 检查是否有选中项包含房间
-    const hasRoomsInSelection = selectedRows.value.some((row) => (row.totalRooms || 0) > 0)
-    if (hasRoomsInSelection) {
-      ElMessage.warning('选中的楼层中包含有房间的楼层，无法删除')
-      return
-    }
-
     try {
       await ElMessageBox.confirm(
-        `确定要批量删除选中的 ${selectedCount.value} 条楼层数据吗？`,
+        `确定要批量删除选中的 ${selectedCount.value} 条楼层数据吗？<br/>提示：删除楼层后，这些楼层下的所有房间和床位也会被删除。`,
         '批量删除确认',
         {
           type: 'warning',
           confirmButtonText: '确定删除',
-          cancelButtonText: '取消'
+          cancelButtonText: '取消',
+          dangerouslyUseHTMLString: true
         }
       )
       await fetchBatchDeleteFloor(selectedIds.value as number[])
-      ElMessage.success('批量删除成功')
       // 刷新楼层列表缓存
       await referenceStore.refreshFloorList()
       selectedRows.value = []
@@ -421,36 +408,30 @@
    * 状态切换
    */
   const handleStatusChange = async (row: FloorListItem, enabled: boolean): Promise<void> => {
-    // 检查楼层是否有关联的房间
-    if ((row.totalRooms || 0) > 0) {
-      ElMessage.warning('该楼层下存在房间，不允许修改状态')
-      // 恢复状态
-      row.status = enabled ? 0 : 1
-      return
+    // 如果是关闭操作（从启用变为停用），需要提示用户级联影响
+    if (!enabled && row.status === 1) {
+      try {
+        let message = `确定要停用楼层"${row.floorName || row.floorCode}"吗？<br/>提示：停用楼层后，该楼层下的所有房间和床位也会被停用。`
+        await ElMessageBox.confirm(message, '确认停用', {
+          type: 'warning',
+          confirmButtonText: '确认停用',
+          cancelButtonText: '取消',
+          dangerouslyUseHTMLString: true
+        })
+      } catch {
+        // 用户取消操作，不执行任何更改
+        return
+      }
     }
 
+    const originalStatus = row.status
     try {
       row._statusLoading = true
-      const status = enabled ? 1 : 0
-      await ElMessageBox.confirm(
-        `确定要${enabled ? '启用' : '停用'}楼层"${row.floorName || row.floorCode}"吗？`,
-        '状态确认',
-        {
-          type: 'warning',
-          confirmButtonText: '确定',
-          cancelButtonText: '取消'
-        }
-      )
-      await fetchUpdateFloorStatus(row.id, status)
-      ElMessage.success(`${enabled ? '启用' : '停用'}成功`)
-      await refreshData()
+      row.status = enabled ? 1 : 0
+      await fetchUpdateFloorStatus(row.id, enabled ? 1 : 0)
     } catch (error) {
-      if (error !== 'cancel') {
-        console.error('状态切换失败:', error)
-        // 恢复状态
-        row.status = enabled ? 0 : 1
-        await refreshData()
-      }
+      console.error('更新楼层状态失败:', error)
+      row.status = originalStatus
     } finally {
       row._statusLoading = false
     }

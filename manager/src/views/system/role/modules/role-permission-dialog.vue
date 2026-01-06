@@ -170,7 +170,6 @@
       menuTree.value = filterTopMenu(tree)
     } catch (error) {
       console.error('加载菜单树失败:', error)
-      ElMessage.error('加载菜单树失败')
     } finally {
       loading.value = false
     }
@@ -226,7 +225,6 @@
       })
     } catch (error) {
       console.error('加载角色权限失败:', error)
-      ElMessage.error('加载角色权限失败')
     } finally {
       loading.value = false
     }

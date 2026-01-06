@@ -190,8 +190,7 @@ export function fetchBatchDeleteRoom(ids: number[]) {
  */
 export function fetchUpdateRoomStatus(id: number, status: number) {
   return request.put({
-    url: `/api/v1/system/room/${id}/status`,
-    params: { status },
+    url: `/api/v1/system/room/${id}/status/${status}`,
     showSuccessMessage: true
   })
 }
@@ -286,8 +285,7 @@ export function fetchBatchDeleteBed(ids: number[]) {
  */
 export function fetchUpdateBedStatus(id: number, status: number) {
   return request.put({
-    url: `/api/v1/system/bed/${id}/status`,
-    params: { status },
+    url: `/api/v1/system/bed/${id}/status/${status}`,
     showSuccessMessage: true
   })
 }

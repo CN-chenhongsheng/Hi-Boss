@@ -280,7 +280,6 @@
       )
 
       await fetchDeleteRole(row.id)
-      ElMessage.success('删除成功')
       // 刷新角色列表缓存
       await referenceStore.refreshAllRoles()
       await refreshRemove()
@@ -322,7 +321,6 @@
       const ids = selectedRows.value.map((role) => role.id)
       await fetchBatchDeleteRole(ids)
 
-      ElMessage.success('批量删除成功')
       // 刷新角色列表缓存
       await referenceStore.refreshAllRoles()
       selectedRows.value = []
@@ -378,7 +376,6 @@
       await fetchUpdateRoleStatus(row.id, value ? 1 : 0)
     } catch (error) {
       console.error('更新角色状态失败:', error)
-      ElMessage.error('更新角色状态失败')
       row.status = originalStatus
     } finally {
       row._statusLoading = false

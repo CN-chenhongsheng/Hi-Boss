@@ -194,7 +194,6 @@
       menuTree.value = filterAvailableMenus(allMenuTree, availableMenuIds)
     } catch (error) {
       console.error('加载菜单树失败:', error)
-      ElMessage.error('加载菜单树失败')
     } finally {
       loading.value = false
     }
@@ -254,7 +253,6 @@
       })
     } catch (error) {
       console.error('加载用户权限失败:', error)
-      ElMessage.error('加载用户权限失败')
     } finally {
       loading.value = false
     }

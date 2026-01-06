@@ -281,7 +281,6 @@
         }
       )
       await fetchDeleteMajor(row.id)
-      ElMessage.success('删除成功')
       // 刷新专业列表缓存
       await referenceStore.refreshMajorList()
       await refreshRemove()
@@ -314,7 +313,6 @@
       )
       const ids = selectedRows.value.map((item) => item.id)
       await fetchBatchDeleteMajor(ids)
-      ElMessage.success('批量删除成功')
       // 刷新专业列表缓存
       await referenceStore.refreshMajorList()
       selectedRows.value = []
@@ -388,7 +386,6 @@
       await fetchUpdateMajorStatus(row.id, value ? 1 : 0)
     } catch (error) {
       console.error('更新专业状态失败:', error)
-      ElMessage.error('更新专业状态失败')
       row.status = originalStatus
     } finally {
       row._statusLoading = false

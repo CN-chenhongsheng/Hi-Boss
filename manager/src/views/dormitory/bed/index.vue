@@ -298,7 +298,6 @@
         }
       )
       await fetchDeleteBed(row.id)
-      ElMessage.success('删除成功')
       await refreshRemove()
     } catch (error) {
       if (error !== 'cancel') {
@@ -334,7 +333,6 @@
         }
       )
       await fetchBatchDeleteBed(selectedIds.value as number[])
-      ElMessage.success('批量删除成功')
       selectedRows.value = []
       await getData()
     } catch (error) {
@@ -361,7 +359,6 @@
         }
       )
       await fetchUpdateBedStatus(row.id, status)
-      ElMessage.success(`${enabled ? '启用' : '停用'}成功`)
       await refreshData()
     } catch (error) {
       if (error !== 'cancel') {
