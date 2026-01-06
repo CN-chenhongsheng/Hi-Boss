@@ -9,16 +9,19 @@ import com.sushe.backend.dto.room.RoomBatchCreateDTO;
 import com.sushe.backend.dto.room.RoomQueryDTO;
 import com.sushe.backend.dto.room.RoomSaveDTO;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import com.sushe.backend.service.SysRoomService;
-import com.sushe.backend.vo.RoomVO;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import com.sushe.backend.service.SysRoomService;
+import com.sushe.backend.vo.RoomVO;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 房间管理控制器
@@ -75,6 +78,20 @@ public class SysRoomController extends BaseCrudController<RoomVO, RoomQueryDTO, 
     @Operation(summary = "批量创建房间")
     public R<Integer> batchCreate(@RequestBody @Valid RoomBatchCreateDTO dto) {
         return R.ok(roomService.batchCreateRooms(dto));
+    }
+
+    /**
+     * 检查房间是否被床位关联
+     * 
+     * @param id 房间ID
+     * @return true-有床位关联，false-无床位关联
+     */
+    @GetMapping("/{id}/check-beds")
+    @Operation(summary = "检查房间是否被床位关联")
+    @Parameter(name = "id", description = "房间ID", required = true)
+    public R<Boolean> checkRoomHasBeds(@PathVariable Long id) {
+        boolean hasBeds = roomService.checkRoomHasBeds(id);
+        return R.ok(hasBeds);
     }
 }
 

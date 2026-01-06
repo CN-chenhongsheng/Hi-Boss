@@ -117,6 +117,16 @@ export function fetchGetRoomPage(params: Api.SystemManage.RoomSearchParams) {
 }
 
 /**
+ * 检查房间是否被床位关联
+ * @param id 房间ID
+ */
+export function fetchCheckRoomHasBeds(id: number) {
+  return request.get<boolean>({
+    url: `/api/v1/system/room/${id}/check-beds`
+  })
+}
+
+/**
  * 获取房间详情
  * @param id 房间ID
  */

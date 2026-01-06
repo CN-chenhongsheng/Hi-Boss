@@ -28,7 +28,9 @@
               >新增房间</ElButton
             >
             <ElButton
-              :disabled="selectedCount === 0"
+              :disabled="
+                selectedCount === 0 || selectedRows.some((row) => (row.totalBeds || 0) > 0)
+              "
               @click="handleBatchDelete"
               v-ripple
               v-permission="'system:room:delete'"
@@ -274,13 +276,19 @@
           fixed: 'right' as const,
           formatter: (row: RoomListItem) => [
             { type: 'view', onClick: () => handleViewBeds(row), label: '查看床位' },
-            { type: 'edit', onClick: () => handleEdit(row), auth: 'system:room:edit' },
+            {
+              type: 'edit',
+              onClick: () => handleEdit(row),
+              auth: 'system:room:edit',
+              disabled: (row.totalBeds || 0) > 0
+            },
             { type: 'add', onClick: () => handleBatchAddBeds(row), label: '批量增加' },
             {
               type: 'delete',
               onClick: () => handleDelete(row),
               auth: 'system:room:delete',
-              danger: true
+              danger: true,
+              disabled: (row.totalBeds || 0) > 0
             }
           ]
         }

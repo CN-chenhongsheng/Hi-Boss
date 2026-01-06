@@ -129,6 +129,11 @@ public class SysRoomServiceImpl extends ServiceImpl<SysRoomMapper, SysRoom> impl
             
             return result;
         } else {
+            // 编辑时，检查是否有床位关联
+            if (checkRoomHasBeds(room.getId())) {
+                throw new BusinessException("该房间下存在床位，无法编辑");
+            }
+
             // 编辑时，如果楼层ID发生变化，需要更新统计字段
             SysRoom oldRoom = getById(room.getId());
             boolean result = updateById(room);
@@ -158,20 +163,17 @@ public class SysRoomServiceImpl extends ServiceImpl<SysRoomMapper, SysRoom> impl
         }
 
         // 检查是否存在床位
-        LambdaQueryWrapper<SysBed> bedWrapper = new LambdaQueryWrapper<>();
-        bedWrapper.eq(SysBed::getRoomId, id);
-        long bedCount = bedMapper.selectCount(bedWrapper);
-        if (bedCount > 0) {
+        if (checkRoomHasBeds(id)) {
             throw new BusinessException("该房间下存在床位，无法删除");
         }
 
         boolean result = removeById(id);
-        
+
         // 更新楼层统计字段
         if (result && room.getFloorId() != null) {
             updateFloorStatistics(room.getFloorId());
         }
-        
+
         return result;
     }
 
@@ -181,6 +183,16 @@ public class SysRoomServiceImpl extends ServiceImpl<SysRoomMapper, SysRoom> impl
         if (ids == null || ids.length == 0) {
             throw new BusinessException("房间ID不能为空");
         }
+
+        // 检查是否有床位关联
+        for (Long id : ids) {
+            if (checkRoomHasBeds(id)) {
+                SysRoom room = getById(id);
+                String roomName = room != null ? (room.getRoomNumber() != null ? room.getRoomNumber() : room.getRoomCode()) : String.valueOf(id);
+                throw new BusinessException("房间\"" + roomName + "\"下存在床位，无法删除");
+            }
+        }
+
         return removeByIds(Arrays.asList(ids));
     }
 
@@ -232,6 +244,12 @@ public class SysRoomServiceImpl extends ServiceImpl<SysRoomMapper, SysRoom> impl
                 vo.setCampusName(campus.getCampusName());
             }
         }
+        
+        // 查询该房间下的床位数量
+        LambdaQueryWrapper<SysBed> bedWrapper = new LambdaQueryWrapper<>();
+        bedWrapper.eq(SysBed::getRoomId, room.getId());
+        long bedCount = bedMapper.selectCount(bedWrapper);
+        vo.setTotalBeds((int) bedCount);
         
         // floorNumber 已经在 BeanUtil.copyProperties 中复制了
         
@@ -342,6 +360,22 @@ public class SysRoomServiceImpl extends ServiceImpl<SysRoomMapper, SysRoom> impl
         }
 
         return roomsToCreate.size();
+    }
+
+    /**
+     * 检查房间是否被床位关联
+     * 
+     * @param roomId 房间ID
+     * @return true-有床位关联，false-无床位关联
+     */
+    public boolean checkRoomHasBeds(Long roomId) {
+        if (roomId == null) {
+            return false;
+        }
+        LambdaQueryWrapper<SysBed> bedWrapper = new LambdaQueryWrapper<>();
+        bedWrapper.eq(SysBed::getRoomId, roomId);
+        long bedCount = bedMapper.selectCount(bedWrapper);
+        return bedCount > 0;
     }
 
     /**

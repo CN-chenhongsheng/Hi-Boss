@@ -774,6 +774,7 @@ declare namespace Api {
       roomType?: string
       roomTypeText?: string
       bedCount?: number
+      totalBeds?: number
       currentOccupancy?: number
       maxOccupancy?: number
       area?: number

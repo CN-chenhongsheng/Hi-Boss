@@ -12,12 +12,16 @@
         <ElInput
           v-model="form.roomCode"
           placeholder="请输入房间编码（如：101、102）"
-          :disabled="isEdit"
+          :disabled="isEdit || hasBeds"
         />
       </ElFormItem>
 
       <ElFormItem label="房间号" prop="roomNumber">
-        <ElInput v-model="form.roomNumber" placeholder="请输入房间号（如：101、102）" />
+        <ElInput
+          v-model="form.roomNumber"
+          placeholder="请输入房间号（如：101、102）"
+          :disabled="hasBeds"
+        />
       </ElFormItem>
 
       <ElRow :gutter="20">
@@ -28,6 +32,7 @@
               placeholder="请选择校区"
               filterable
               clearable
+              :disabled="hasBeds"
               @change="handleCampusChange"
             >
               <ElOption
@@ -46,7 +51,7 @@
               placeholder="请选择楼层"
               filterable
               clearable
-              :disabled="!selectedCampusCode"
+              :disabled="!selectedCampusCode || hasBeds"
               @change="handleFloorChange"
             >
               <ElOption
@@ -68,7 +73,7 @@
               placeholder="请选择楼层数"
               filterable
               clearable
-              :disabled="!form.floorId"
+              :disabled="!form.floorId || hasBeds"
             >
               <ElOption
                 v-for="num in floorNumberOptions"
@@ -81,7 +86,13 @@
         </ElCol>
         <ElCol :span="12">
           <ElFormItem label="房间类型" prop="roomType">
-            <ElSelect v-model="form.roomType" placeholder="请选择房间类型" filterable clearable>
+            <ElSelect
+              v-model="form.roomType"
+              placeholder="请选择房间类型"
+              filterable
+              clearable
+              :disabled="hasBeds"
+            >
               <ElOption
                 v-for="item in roomTypeOptions"
                 :key="item.value"
@@ -96,7 +107,13 @@
       <ElRow :gutter="20">
         <ElCol :span="12">
           <ElFormItem label="房间状态" prop="roomStatus">
-            <ElSelect v-model="form.roomStatus" placeholder="请选择房间状态" filterable clearable>
+            <ElSelect
+              v-model="form.roomStatus"
+              placeholder="请选择房间状态"
+              filterable
+              clearable
+              :disabled="hasBeds"
+            >
               <ElOption
                 v-for="item in roomStatusOptions"
                 :key="item.value"
@@ -114,6 +131,7 @@
               :max="20"
               placeholder="请输入床位数"
               class="w-full"
+              :disabled="hasBeds"
             />
           </ElFormItem>
         </ElCol>
@@ -128,6 +146,7 @@
               :precision="2"
               placeholder="房间面积"
               class="w-full"
+              :disabled="hasBeds"
             />
           </ElFormItem>
         </ElCol>
@@ -139,17 +158,18 @@
               :max="form.bedCount || 1"
               placeholder="最多入住人数"
               class="w-full"
+              :disabled="hasBeds"
             />
           </ElFormItem>
         </ElCol>
       </ElRow>
 
       <ElFormItem label="排序序号" prop="sort">
-        <ElInputNumber v-model="form.sort" :min="0" :max="9999" />
+        <ElInputNumber v-model="form.sort" :min="0" :max="9999" :disabled="hasBeds" />
       </ElFormItem>
 
       <ElFormItem label="房间设施">
-        <ElCheckboxGroup v-model="facilityValues">
+        <ElCheckboxGroup v-model="facilityValues" :disabled="hasBeds">
           <ElCheckbox v-for="item in facilityOptions" :key="item.value" :label="Number(item.value)">
             {{ item.label }}
           </ElCheckbox>
@@ -157,8 +177,17 @@
       </ElFormItem>
 
       <ElFormItem label="备注" prop="remark">
-        <ElInput v-model="form.remark" type="textarea" :rows="3" placeholder="请输入备注" />
+        <ElInput
+          v-model="form.remark"
+          type="textarea"
+          :rows="3"
+          placeholder="请输入备注"
+          :disabled="hasBeds"
+        />
       </ElFormItem>
+      <ElAlert v-if="hasBeds" type="warning" :closable="false" style="margin-bottom: 20px">
+        该房间下存在床位，无法编辑
+      </ElAlert>
     </ElForm>
 
     <template #footer>
@@ -169,7 +198,7 @@
 </template>
 
 <script setup lang="ts">
-  import { fetchAddRoom, fetchUpdateRoom } from '@/api/dormitory-manage'
+  import { fetchAddRoom, fetchUpdateRoom, fetchCheckRoomHasBeds } from '@/api/dormitory-manage'
   import { useDictStore } from '@/store/modules/dict'
   import { useReferenceStore } from '@/store/modules/reference'
   import { ElMessage } from 'element-plus'
@@ -194,6 +223,7 @@
 
   const formRef = ref<FormInstance>()
   const loading = ref(false)
+  const hasBeds = ref(false)
   const campusList = ref<Api.SystemManage.CampusListItem[]>([])
   const floorList = ref<Api.SystemManage.FloorListItem[]>([])
   const selectedCampusCode = ref<string>('')
@@ -362,6 +392,16 @@
    */
   const loadFormData = async (): Promise<void> => {
     if (isEdit.value && props.editData) {
+      // 检查是否有床位关联
+      if (props.editData.id) {
+        try {
+          hasBeds.value = await fetchCheckRoomHasBeds(props.editData.id)
+        } catch (error) {
+          console.error('检查房间关联关系失败:', error)
+          hasBeds.value = false
+        }
+      }
+
       const campusCode = props.editData.campusCode || ''
       selectedCampusCode.value = campusCode
       await loadFloorList(campusCode)
@@ -396,6 +436,7 @@
       if (form.hasBathroom === 1) facilityValues.value.push(2)
       if (form.hasBalcony === 1) facilityValues.value.push(3)
     } else {
+      hasBeds.value = false
       resetForm()
     }
   }
@@ -422,6 +463,7 @@
       status: 1,
       remark: undefined
     })
+    hasBeds.value = false
     selectedCampusCode.value = ''
     selectedFloor.value = null
     floorNumberOptions.value = []
@@ -435,6 +477,12 @@
    */
   const handleSubmit = async (): Promise<void> => {
     if (!formRef.value) return
+
+    // 如果被床位关联，不允许提交
+    if (hasBeds.value) {
+      ElMessage.warning('该房间下存在床位，无法编辑')
+      return
+    }
 
     const valid = await formRef.value.validate().catch(() => false)
     if (!valid) return

@@ -56,6 +56,9 @@ public class RoomVO implements Serializable {
     @Schema(description = "床位数（标准配置）")
     private Integer bedCount;
 
+    @Schema(description = "实际关联的床位数量")
+    private Integer totalBeds;
+
     @Schema(description = "当前入住人数")
     private Integer currentOccupancy;
 

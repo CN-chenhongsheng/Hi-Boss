@@ -72,5 +72,13 @@ public interface SysRoomService extends IService<SysRoom> {
      * @return 创建的房间数量
      */
     int batchCreateRooms(RoomBatchCreateDTO dto);
+
+    /**
+     * 检查房间是否被床位关联
+     * 
+     * @param roomId 房间ID
+     * @return true-有床位关联，false-无床位关联
+     */
+    boolean checkRoomHasBeds(Long roomId);
 }
 
