@@ -213,6 +213,39 @@ export function fetchGetRolePermissions(id: number) {
 }
 
 /**
+ * 获取用户权限列表
+ * @param id 用户ID
+ */
+export function fetchGetUserPermissions(id: number) {
+  return request.get<Api.SystemManage.UserPermissionItem[]>({
+    url: `/api/v1/system/user/${id}/permissions`
+  })
+}
+
+/**
+ * 分配用户菜单权限
+ * @param id 用户ID
+ * @param menuIds 菜单ID列表
+ */
+export function fetchAssignUserPermissions(id: number, menuIds: number[]) {
+  return request.put({
+    url: `/api/v1/system/user/${id}/permissions`,
+    data: menuIds,
+    showSuccessMessage: true
+  })
+}
+
+/**
+ * 获取用户可选的菜单列表（用于权限分配界面）
+ * @param id 用户ID
+ */
+export function fetchGetUserAvailableMenus(id: number) {
+  return request.get<number[]>({
+    url: `/api/v1/system/user/${id}/available-menus`
+  })
+}
+
+/**
  * 修改角色状态
  * @param id 角色ID
  * @param status 状态：1正常 0停用

@@ -284,6 +284,12 @@ declare namespace Api {
       status: number
     }
 
+    /** 用户权限列表项 */
+    interface UserPermissionItem {
+      menuId: number
+      status: number
+    }
+
     /** 角色列表项 */
     interface RoleListItem {
       id: number

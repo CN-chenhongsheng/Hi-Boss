@@ -10,8 +10,10 @@ import com.sushe.backend.dto.menu.MenuQueryDTO;
 import com.sushe.backend.dto.menu.MenuSaveDTO;
 import com.sushe.backend.entity.SysMenu;
 import com.sushe.backend.entity.SysRoleMenu;
+import com.sushe.backend.entity.SysUserMenu;
 import com.sushe.backend.mapper.SysMenuMapper;
 import com.sushe.backend.mapper.SysRoleMenuMapper;
+import com.sushe.backend.mapper.SysUserMenuMapper;
 import com.sushe.backend.service.SysMenuService;
 import com.sushe.backend.util.DictUtils;
 import com.sushe.backend.vo.MenuVO;
@@ -36,6 +38,7 @@ import java.util.stream.Collectors;
 public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> implements SysMenuService {
 
     private final SysRoleMenuMapper roleMenuMapper;
+    private final SysUserMenuMapper userMenuMapper;
 
     /**
      * 查询菜单树形列表
@@ -116,6 +119,9 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
         roleMenuMapper.delete(roleMenuWrapper);
         log.info("删除菜单关联的角色菜单关系，菜单ID：{}", id);
 
+        // 删除与该菜单关联的用户菜单关系
+        deleteUserMenuRelations(id);
+
         // 删除菜单
         return removeById(id);
     }
@@ -135,6 +141,9 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
                 roleMenuWrapper.eq(SysRoleMenu::getMenuId, child.getId());
                 roleMenuMapper.delete(roleMenuWrapper);
                 log.info("删除子菜单关联的角色菜单关系，菜单ID：{}", child.getId());
+
+                // 删除子菜单的用户菜单关系
+                deleteUserMenuRelations(child.getId());
 
                 // 递归删除子菜单的子菜单
                 cascadeDeleteChildren(child.getId());
@@ -336,6 +345,19 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
         int deletedCount = roleMenuMapper.delete(roleMenuWrapper);
         if (deletedCount > 0) {
             log.info("删除菜单关联的角色菜单关系，菜单ID：{}，删除数量：{}", menuId, deletedCount);
+        }
+    }
+
+    /**
+     * 删除菜单的用户菜单关联关系
+     * @param menuId 菜单ID
+     */
+    private void deleteUserMenuRelations(Long menuId) {
+        LambdaQueryWrapper<SysUserMenu> userMenuWrapper = new LambdaQueryWrapper<>();
+        userMenuWrapper.eq(SysUserMenu::getMenuId, menuId);
+        int deletedCount = userMenuMapper.delete(userMenuWrapper);
+        if (deletedCount > 0) {
+            log.info("删除菜单关联的用户菜单关系，菜单ID：{}，删除数量：{}", menuId, deletedCount);
         }
     }
 }

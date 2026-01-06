@@ -64,6 +64,13 @@
         :user-data="currentScopeUser"
         @submit="handleScopeSubmit"
       />
+
+      <!-- 权限分配弹窗 -->
+      <UserPermissionDialog
+        v-model="permissionDialogVisible"
+        :user-data="currentPermissionUser"
+        @success="handlePermissionSuccess"
+      />
     </ElCard>
   </div>
 </template>
@@ -82,6 +89,7 @@
   import UserSearch from './modules/user-search.vue'
   import UserDialog from './modules/user-dialog.vue'
   import UserScopeDialog from './modules/user-scope-dialog.vue'
+  import UserPermissionDialog from './modules/user-permission-dialog.vue'
   import { ElTag, ElMessageBox, ElImage, ElMessage, ElTooltip } from 'element-plus'
   import ArtSwitch from '@/components/core/forms/art-switch/index.vue'
   import { DialogType } from '@/types'
@@ -108,6 +116,8 @@
   const currentUserData = ref<Partial<UserListItem>>({})
   const scopeDialogVisible = ref(false)
   const currentScopeUser = ref<Partial<UserListItem>>({})
+  const permissionDialogVisible = ref(false)
+  const currentPermissionUser = ref<UserListItem | undefined>(undefined)
 
   // 选中行
   const selectedRows = ref<UserListItem[]>([])
@@ -320,18 +330,24 @@
           width: 180,
           fixed: 'right',
           formatter: (row) => [
-            {
-              type: 'share',
-              label: '分配',
-              onClick: () => showScopeDialog(row),
-              auth: 'system:user:assign-scope'
-            },
             { type: 'edit', onClick: () => showDialog('edit', row), auth: 'system:user:edit' },
             {
               type: 'reset',
               onClick: () => handleResetPassword(row),
               auth: 'system:user:reset-pwd',
               label: '重置密码'
+            },
+            {
+              type: 'share',
+              label: '分配范围',
+              onClick: () => showScopeDialog(row),
+              auth: 'system:user:assign-scope'
+            },
+            {
+              type: 'share',
+              label: '分配权限',
+              onClick: () => showPermissionDialog(row),
+              auth: 'system:user:assign-permission'
             },
             {
               type: 'delete',
@@ -508,6 +524,23 @@
     nextTick(() => {
       scopeDialogVisible.value = true
     })
+  }
+
+  /**
+   * 显示权限分配弹窗
+   */
+  const showPermissionDialog = (row: UserListItem): void => {
+    currentPermissionUser.value = row
+    nextTick(() => {
+      permissionDialogVisible.value = true
+    })
+  }
+
+  /**
+   * 处理权限分配成功
+   */
+  const handlePermissionSuccess = (): void => {
+    refreshData()
   }
 
   /**

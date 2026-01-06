@@ -7,6 +7,7 @@ import com.sushe.backend.dto.user.UserQueryDTO;
 import com.sushe.backend.dto.user.UserResetPasswordDTO;
 import com.sushe.backend.dto.user.UserSaveDTO;
 import com.sushe.backend.entity.SysUser;
+import com.sushe.backend.vo.UserPermissionVO;
 import com.sushe.backend.vo.UserSimpleVO;
 import com.sushe.backend.vo.UserVO;
 
@@ -108,5 +109,38 @@ public interface SysUserService extends IService<SysUser> {
      * @return Map格式，key为角色代码，value为该角色的用户列表
      */
     Map<String, List<UserSimpleVO>> getUsersByRoleCodes(RoleUserQueryDTO queryDTO);
+
+    /**
+     * 分配用户菜单权限
+     * 
+     * @param userId 用户ID
+     * @param menuIds 菜单ID数组
+     * @return 是否成功
+     */
+    boolean assignMenus(Long userId, Long[] menuIds);
+
+    /**
+     * 获取用户的菜单ID列表
+     * 
+     * @param userId 用户ID
+     * @return 菜单ID列表
+     */
+    List<Long> getUserMenuIds(Long userId);
+
+    /**
+     * 获取用户的权限列表（包含菜单状态，用于显示）
+     * 
+     * @param userId 用户ID
+     * @return 权限列表
+     */
+    List<UserPermissionVO> getUserPermissions(Long userId);
+
+    /**
+     * 获取用户可选的菜单ID列表（用户所有角色的权限并集）
+     * 
+     * @param userId 用户ID
+     * @return 可选的菜单ID列表
+     */
+    List<Long> getUserAvailableMenuIds(Long userId);
 }
 

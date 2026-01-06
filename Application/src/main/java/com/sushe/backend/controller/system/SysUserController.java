@@ -7,6 +7,7 @@ import com.sushe.backend.dto.user.UserQueryDTO;
 import com.sushe.backend.dto.user.UserResetPasswordDTO;
 import com.sushe.backend.dto.user.UserSaveDTO;
 import com.sushe.backend.service.SysUserService;
+import com.sushe.backend.vo.UserPermissionVO;
 import com.sushe.backend.vo.UserSimpleVO;
 import com.sushe.backend.vo.UserVO;
 
@@ -94,7 +95,7 @@ public class SysUserController {
     public R<Void> resetPassword(@PathVariable Long id, @Valid @RequestBody UserResetPasswordDTO resetDTO) {
         log.info("重置用户密码，ID：{}", id);
         resetDTO.setUserId(id);
-        boolean success = userService.resetPassword(resetDTO);
+        userService.resetPassword(resetDTO);
         return R.ok("密码重置成功", null);
     }
 
@@ -104,7 +105,7 @@ public class SysUserController {
     @Parameter(name = "status", description = "状态：1正常 0停用", required = true)
     public R<Void> updateStatus(@PathVariable Long id, @PathVariable Integer status) {
         log.info("修改用户状态，ID：{}，状态：{}", id, status);
-        boolean success = userService.updateStatus(id, status);
+        userService.updateStatus(id, status);
         return R.ok(status == 1 ? "用户已启用" : "用户已停用", null);
     }
 
@@ -114,6 +115,33 @@ public class SysUserController {
         log.info("根据角色代码查询用户列表，角色代码：{}", queryDTO.getRoleCodes());
         Map<String, List<UserSimpleVO>> result = userService.getUsersByRoleCodes(queryDTO);
         return R.ok(result);
+    }
+
+    @GetMapping("/{id}/permissions")
+    @Operation(summary = "获取用户权限列表", description = "返回用户已分配的权限列表（包含菜单状态）")
+    @Parameter(name = "id", description = "用户ID", required = true)
+    public R<List<UserPermissionVO>> getUserPermissions(@PathVariable Long id) {
+        log.info("获取用户权限列表，用户ID：{}", id);
+        List<UserPermissionVO> permissions = userService.getUserPermissions(id);
+        return R.ok(permissions);
+    }
+
+    @PutMapping("/{id}/permissions")
+    @Operation(summary = "分配用户权限", description = "分配用户菜单权限，权限范围必须是用户所有角色的权限并集")
+    @Parameter(name = "id", description = "用户ID", required = true)
+    public R<Void> assignUserPermissions(@PathVariable Long id, @RequestBody Long[] menuIds) {
+        log.info("分配用户权限，用户ID：{}，菜单IDs：{}", id, menuIds);
+        boolean success = userService.assignMenus(id, menuIds);
+        return R.status(success);
+    }
+
+    @GetMapping("/{id}/available-menus")
+    @Operation(summary = "获取用户可选的菜单列表", description = "返回用户所有角色的权限并集，用于权限分配界面")
+    @Parameter(name = "id", description = "用户ID", required = true)
+    public R<List<Long>> getUserAvailableMenus(@PathVariable Long id) {
+        log.info("获取用户可选菜单列表，用户ID：{}", id);
+        List<Long> menuIds = userService.getUserAvailableMenuIds(id);
+        return R.ok(menuIds);
     }
 }
 

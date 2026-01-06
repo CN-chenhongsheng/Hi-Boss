@@ -16,16 +16,22 @@ import com.sushe.backend.dto.user.UserQueryDTO;
 import com.sushe.backend.dto.user.UserResetPasswordDTO;
 import com.sushe.backend.dto.user.UserSaveDTO;
 import com.sushe.backend.dto.user.UserWithRoleCodeDTO;
+import com.sushe.backend.entity.SysMenu;
 import com.sushe.backend.entity.SysUser;
+import com.sushe.backend.entity.SysUserMenu;
 import com.sushe.backend.entity.SysUserRole;
-import com.sushe.backend.entity.SysRole;
+import com.sushe.backend.entity.SysRoleMenu;
+import com.sushe.backend.mapper.SysMenuMapper;
 import com.sushe.backend.mapper.SysRoleMapper;
+import com.sushe.backend.mapper.SysRoleMenuMapper;
 import com.sushe.backend.mapper.SysUserMapper;
+import com.sushe.backend.mapper.SysUserMenuMapper;
 import com.sushe.backend.mapper.SysUserRoleMapper;
 import com.sushe.backend.service.SysUserService;
 import com.sushe.backend.service.UserOnlineService;
 import com.sushe.backend.util.BusinessRuleUtils;
 import com.sushe.backend.util.DictUtils;
+import com.sushe.backend.vo.UserPermissionVO;
 import com.sushe.backend.vo.UserSimpleVO;
 import com.sushe.backend.vo.UserVO;
 import lombok.RequiredArgsConstructor;
@@ -52,6 +58,9 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 
     private final SysUserRoleMapper userRoleMapper;
     private final SysRoleMapper roleMapper;
+    private final SysUserMenuMapper userMenuMapper;
+    private final SysRoleMenuMapper roleMenuMapper;
+    private final SysMenuMapper menuMapper;
     private final UserOnlineService userOnlineService;
 
     /**
@@ -157,20 +166,100 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
      * 保存用户角色关联
      */
     private void saveUserRoles(Long userId, Long[] roleIds) {
-        // 1. 删除用户原有的角色关联
-        LambdaQueryWrapper<SysUserRole> deleteWrapper = new LambdaQueryWrapper<>();
-        deleteWrapper.eq(SysUserRole::getUserId, userId);
-        userRoleMapper.delete(deleteWrapper);
+        // 1. 获取用户原有的角色ID列表
+        LambdaQueryWrapper<SysUserRole> oldRoleWrapper = new LambdaQueryWrapper<>();
+        oldRoleWrapper.eq(SysUserRole::getUserId, userId);
+        List<SysUserRole> oldUserRoles = userRoleMapper.selectList(oldRoleWrapper);
+        List<Long> oldRoleIds = oldUserRoles.stream()
+                .map(SysUserRole::getRoleId)
+                .collect(Collectors.toList());
 
-        // 2. 批量插入新的角色关联
-        if (roleIds != null && roleIds.length > 0) {
-            for (Long roleId : roleIds) {
+        // 2. 删除用户原有的角色关联
+        userRoleMapper.delete(oldRoleWrapper);
+
+        // 3. 批量插入新的角色关联
+        List<Long> newRoleIds = roleIds != null ? Arrays.asList(roleIds) : List.of();
+        if (!newRoleIds.isEmpty()) {
+            for (Long roleId : newRoleIds) {
                 SysUserRole userRole = new SysUserRole();
                 userRole.setUserId(userId);
                 userRole.setRoleId(roleId);
                 userRoleMapper.insert(userRole);
             }
         }
+
+        // 4. 自动更新用户权限：当用户被赋予新角色时，自动将新角色的权限添加到用户权限中
+        autoUpdateUserMenusOnRoleChange(userId, oldRoleIds, newRoleIds);
+    }
+
+    /**
+     * 用户角色变更时自动更新用户权限
+     * 
+     * @param userId 用户ID
+     * @param oldRoleIds 原有角色ID列表
+     * @param newRoleIds 新角色ID列表
+     */
+    private void autoUpdateUserMenusOnRoleChange(Long userId, List<Long> oldRoleIds, List<Long> newRoleIds) {
+        // 1. 获取新角色的权限并集
+        List<Long> newRoleMenuIds = getRoleMenuIdsUnion(newRoleIds);
+
+        // 2. 获取用户当前已分配的权限
+        List<Long> currentUserMenuIds = getUserMenuIds(userId);
+
+        // 3. 计算需要添加的权限（新角色权限中，用户还没有的）
+        List<Long> menuIdsToAdd = newRoleMenuIds.stream()
+                .filter(menuId -> !currentUserMenuIds.contains(menuId))
+                .collect(Collectors.toList());
+
+        // 4. 添加新角色的权限到用户权限中
+        if (!menuIdsToAdd.isEmpty()) {
+            for (Long menuId : menuIdsToAdd) {
+                SysUserMenu userMenu = new SysUserMenu();
+                userMenu.setUserId(userId);
+                userMenu.setMenuId(menuId);
+                userMenuMapper.insert(userMenu);
+            }
+            log.info("用户角色变更，自动添加权限，用户ID：{}，新增权限数：{}", userId, menuIdsToAdd.size());
+        }
+
+        // 5. 清理用户权限中不再属于任何角色的权限
+        if (!newRoleIds.isEmpty()) {
+            List<Long> menuIdsToRemove = currentUserMenuIds.stream()
+                    .filter(menuId -> !newRoleMenuIds.contains(menuId))
+                    .collect(Collectors.toList());
+
+            if (!menuIdsToRemove.isEmpty()) {
+                LambdaQueryWrapper<SysUserMenu> deleteWrapper = new LambdaQueryWrapper<>();
+                deleteWrapper.eq(SysUserMenu::getUserId, userId)
+                        .in(SysUserMenu::getMenuId, menuIdsToRemove);
+                userMenuMapper.delete(deleteWrapper);
+                log.info("用户角色变更，清理无效权限，用户ID：{}，清理权限数：{}", userId, menuIdsToRemove.size());
+            }
+        } else {
+            // 如果用户没有角色了，清空所有用户权限
+            LambdaQueryWrapper<SysUserMenu> deleteWrapper = new LambdaQueryWrapper<>();
+            deleteWrapper.eq(SysUserMenu::getUserId, userId);
+            userMenuMapper.delete(deleteWrapper);
+            log.info("用户角色变更，清空所有权限，用户ID：{}", userId);
+        }
+    }
+
+    /**
+     * 获取多个角色的权限并集
+     */
+    private List<Long> getRoleMenuIdsUnion(List<Long> roleIds) {
+        if (roleIds == null || roleIds.isEmpty()) {
+            return List.of();
+        }
+
+        LambdaQueryWrapper<SysRoleMenu> wrapper = new LambdaQueryWrapper<>();
+        wrapper.in(SysRoleMenu::getRoleId, roleIds);
+        List<SysRoleMenu> roleMenus = roleMenuMapper.selectList(wrapper);
+
+        return roleMenus.stream()
+                .map(SysRoleMenu::getMenuId)
+                .distinct()
+                .collect(Collectors.toList());
     }
 
     /**
@@ -190,6 +279,11 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         LambdaQueryWrapper<SysUserRole> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(SysUserRole::getUserId, id);
         userRoleMapper.delete(wrapper);
+
+        // 删除用户菜单关联
+        LambdaQueryWrapper<SysUserMenu> userMenuWrapper = new LambdaQueryWrapper<>();
+        userMenuWrapper.eq(SysUserMenu::getUserId, id);
+        userMenuMapper.delete(userMenuWrapper);
 
         // 删除用户
         return removeById(id);
@@ -214,6 +308,11 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         LambdaQueryWrapper<SysUserRole> wrapper = new LambdaQueryWrapper<>();
         wrapper.in(SysUserRole::getUserId, Arrays.asList(ids));
         userRoleMapper.delete(wrapper);
+
+        // 批量删除用户菜单关联
+        LambdaQueryWrapper<SysUserMenu> userMenuWrapper = new LambdaQueryWrapper<>();
+        userMenuWrapper.in(SysUserMenu::getUserId, Arrays.asList(ids));
+        userMenuMapper.delete(userMenuWrapper);
 
         // 批量删除用户
         return removeByIds(Arrays.asList(ids));
@@ -419,6 +518,135 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         }
 
         return result;
+    }
+
+    /**
+     * 分配用户菜单权限
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public boolean assignMenus(Long userId, Long[] menuIds) {
+        log.info("分配用户菜单权限，用户ID：{}，菜单IDs：{}", userId, Arrays.toString(menuIds));
+
+        if (userId == null) {
+            throw new BusinessException("用户ID不能为空");
+        }
+
+        // 1. 获取用户可选的权限范围（用户所有角色的权限并集）
+        List<Long> availableMenuIds = getUserAvailableMenuIds(userId);
+
+        // 2. 验证要分配的权限是否在可选范围内
+        if (menuIds != null && menuIds.length > 0) {
+            for (Long menuId : menuIds) {
+                if (!availableMenuIds.contains(menuId)) {
+                    throw new BusinessException("菜单ID " + menuId + " 不在用户可选权限范围内");
+                }
+            }
+        }
+
+        // 3. 删除用户原有的菜单权限
+        LambdaQueryWrapper<SysUserMenu> deleteWrapper = new LambdaQueryWrapper<>();
+        deleteWrapper.eq(SysUserMenu::getUserId, userId);
+        userMenuMapper.delete(deleteWrapper);
+
+        // 4. 批量插入新的菜单权限
+        if (menuIds != null && menuIds.length > 0) {
+            for (Long menuId : menuIds) {
+                SysUserMenu userMenu = new SysUserMenu();
+                userMenu.setUserId(userId);
+                userMenu.setMenuId(menuId);
+                userMenuMapper.insert(userMenu);
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * 获取用户的菜单ID列表
+     */
+    @Override
+    public List<Long> getUserMenuIds(Long userId) {
+        if (userId == null) {
+            return List.of();
+        }
+
+        LambdaQueryWrapper<SysUserMenu> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(SysUserMenu::getUserId, userId);
+
+        List<SysUserMenu> userMenus = userMenuMapper.selectList(wrapper);
+
+        return userMenus.stream()
+                .map(SysUserMenu::getMenuId)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * 获取用户的权限列表（包含菜单状态，用于显示）
+     */
+    @Override
+    public List<UserPermissionVO> getUserPermissions(Long userId) {
+        if (userId == null) {
+            return List.of();
+        }
+
+        // 查询用户关联的菜单
+        LambdaQueryWrapper<SysUserMenu> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(SysUserMenu::getUserId, userId);
+        List<SysUserMenu> userMenus = userMenuMapper.selectList(wrapper);
+
+        if (userMenus.isEmpty()) {
+            return List.of();
+        }
+
+        // 批量查询菜单状态
+        List<Long> menuIds = userMenus.stream()
+                .map(SysUserMenu::getMenuId)
+                .collect(Collectors.toList());
+
+        LambdaQueryWrapper<SysMenu> menuWrapper = new LambdaQueryWrapper<>();
+        menuWrapper.in(SysMenu::getId, menuIds);
+        List<SysMenu> menus = menuMapper.selectList(menuWrapper);
+
+        // 构建菜单ID到状态的映射
+        Map<Long, Integer> menuStatusMap = menus.stream()
+                .collect(Collectors.toMap(SysMenu::getId, SysMenu::getStatus, (v1, v2) -> v1));
+
+        // 构建返回结果
+        return userMenus.stream()
+                .map(userMenu -> {
+                    UserPermissionVO vo = new UserPermissionVO();
+                    vo.setMenuId(userMenu.getMenuId());
+                    vo.setStatus(menuStatusMap.getOrDefault(userMenu.getMenuId(), 0));
+                    return vo;
+                })
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * 获取用户可选的菜单ID列表（用户所有角色的权限并集）
+     */
+    @Override
+    public List<Long> getUserAvailableMenuIds(Long userId) {
+        if (userId == null) {
+            return List.of();
+        }
+
+        // 1. 获取用户的所有角色ID
+        LambdaQueryWrapper<SysUserRole> userRoleWrapper = new LambdaQueryWrapper<>();
+        userRoleWrapper.eq(SysUserRole::getUserId, userId);
+        List<SysUserRole> userRoles = userRoleMapper.selectList(userRoleWrapper);
+
+        if (userRoles.isEmpty()) {
+            return List.of();
+        }
+
+        List<Long> roleIds = userRoles.stream()
+                .map(SysUserRole::getRoleId)
+                .collect(Collectors.toList());
+
+        // 2. 获取这些角色的权限并集
+        return getRoleMenuIdsUnion(roleIds);
     }
 }
 
