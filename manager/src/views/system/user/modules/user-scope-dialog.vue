@@ -4,7 +4,7 @@
     v-model="dialogVisible"
     title="分配管理范围"
     width="90%"
-    top="6vh"
+    top="5vmin"
     :close-on-click-modal="false"
     :close-on-press-escape="true"
     @close="handleClose"
@@ -25,7 +25,7 @@
           layout-direction="horizontal"
           :node-spacing-x="250"
           :node-spacing-y="120"
-          height="700px"
+          height="100%"
           @node:click="handleNodeClick"
         />
       </div>
@@ -397,7 +397,8 @@
 
 <style scoped lang="scss">
   .scope-dialog-content {
-    min-height: 700px;
+    min-height: 600px;
+    height: 700px;
 
     .error-message {
       margin-bottom: 20px;
@@ -405,7 +406,7 @@
 
     .logic-flow-wrapper {
       width: 100%;
-      height: 700px;
+      height: 100%;
       border: 1px solid var(--el-border-color-light);
       border-radius: 4px;
       overflow: hidden;
@@ -415,7 +416,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      min-height: 400px;
+      height: 100%;
     }
   }
 

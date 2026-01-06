@@ -155,6 +155,11 @@ public class SysFloorServiceImpl extends ServiceImpl<SysFloorMapper, SysFloor> i
             throw new BusinessException("楼层不存在");
         }
 
+        // 检查楼层是否有关联的房间
+        if (checkFloorHasRooms(id)) {
+            throw new BusinessException("该楼层下存在房间，不允许修改状态");
+        }
+
         floor.setStatus(status);
         boolean result = updateById(floor);
 

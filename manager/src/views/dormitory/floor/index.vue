@@ -240,10 +240,12 @@
           label: '状态',
           width: 100,
           formatter: (row: FloorListItem) => {
+            const hasRooms = (row.totalRooms || 0) > 0
             return h(ArtSwitch, {
               modelValue: row.status === 1,
               loading: row._statusLoading || false,
               inlinePrompt: true,
+              disabled: hasRooms,
               onChange: (value: string | number | boolean) => {
                 handleStatusChange(row, value === true || value === 1)
               }
@@ -414,6 +416,14 @@
    * 状态切换
    */
   const handleStatusChange = async (row: FloorListItem, enabled: boolean): Promise<void> => {
+    // 检查楼层是否有关联的房间
+    if ((row.totalRooms || 0) > 0) {
+      ElMessage.warning('该楼层下存在房间，不允许修改状态')
+      // 恢复状态
+      row.status = enabled ? 0 : 1
+      return
+    }
+
     try {
       row._statusLoading = true
       const status = enabled ? 1 : 0
@@ -432,6 +442,8 @@
     } catch (error) {
       if (error !== 'cancel') {
         console.error('状态切换失败:', error)
+        // 恢复状态
+        row.status = enabled ? 0 : 1
         await refreshData()
       }
     } finally {

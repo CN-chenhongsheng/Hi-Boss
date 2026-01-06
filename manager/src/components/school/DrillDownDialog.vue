@@ -4,7 +4,7 @@
     v-model="dialogVisible"
     :title="dialogTitle"
     width="90%"
-    top="6vh"
+    top="5vmin"
     append-to-body
     :close-on-click-modal="false"
     destroy-on-close
@@ -846,6 +846,7 @@
 
 <style scoped lang="scss">
   .drill-down-dialog-content {
+    min-height: 600px;
     height: 800px;
   }
 </style>

@@ -87,8 +87,7 @@ export function fetchBatchDeleteFloor(ids: number[]) {
  */
 export function fetchUpdateFloorStatus(id: number, status: number) {
   return request.put({
-    url: `/api/v1/system/floor/${id}/status`,
-    params: { status },
+    url: `/api/v1/system/floor/${id}/status/${status}`,
     showSuccessMessage: true
   })
 }
