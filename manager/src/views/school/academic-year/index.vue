@@ -63,21 +63,17 @@
   import { useTable } from '@/hooks/core/useTable'
   import AcademicYearDialog from './modules/academic-year-dialog.vue'
   import AcademicYearSearch from './modules/academic-year-search.vue'
-  import { fetchBatchDeleteAcademicYear } from '@/api/school-manage'
+  import {
+    fetchGetAcademicYearPage,
+    fetchBatchDeleteAcademicYear,
+    fetchDeleteAcademicYear,
+    fetchUpdateAcademicYearStatus
+  } from '@/api/school-manage'
   import { ElMessageBox, ElMessage } from 'element-plus'
   import ArtSwitch from '@/components/core/forms/art-switch/index.vue'
   import { h } from 'vue'
 
   defineOptions({ name: 'AcademicYear' })
-
-  // 临时使用空函数，等后端API准备好后替���
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const fetchGetAcademicYearPage = async (params: any) => {
-    return {
-      list: [],
-      total: 0
-    }
-  }
 
   type AcademicYearListItem = {
     id: number
@@ -252,8 +248,7 @@
           cancelButtonText: '取消'
         }
       )
-      // TODO: 调用删除API
-      // await fetchDeleteAcademicYear(row.id)
+      await fetchDeleteAcademicYear(row.id)
       ElMessage.success('删除成功')
       await refreshRemove()
     } catch (error) {
@@ -321,8 +316,8 @@
     try {
       row._statusLoading = true
       row.status = value ? 1 : 0
-      // TODO: 调用更新状态API
-      // await fetchUpdateAcademicYearStatus(row.id, value ? 1 : 0)
+      await fetchUpdateAcademicYearStatus(row.id, value ? 1 : 0)
+      ElMessage.success('状态更新成功')
     } catch (error) {
       console.error('更新学年状态失败:', error)
       ElMessage.error('更新学年状态失败')

@@ -85,8 +85,9 @@
 
 <script setup lang="ts">
   import { Plus, Delete } from '@element-plus/icons-vue'
-  import { ElDatePicker } from 'element-plus'
+  import { ElDatePicker, ElMessage } from 'element-plus'
   import type { FormInstance, FormRules } from 'element-plus'
+  import { fetchAddAcademicYear, fetchUpdateAcademicYear } from '@/api/school-manage'
 
   interface SemesterItem {
     semesterName: string
@@ -129,6 +130,7 @@
   })
 
   const form = reactive({
+    id: undefined as number | undefined,
     yearCode: '',
     yearName: '',
     startDate: null as string | null,
@@ -187,6 +189,7 @@
    */
   const resetForm = (): void => {
     Object.assign(form, {
+      id: undefined,
       yearCode: '',
       yearName: '',
       startDate: null,
@@ -208,12 +211,30 @@
 
     loading.value = true
     try {
-      // TODO: 调用API保存学年和学期数据
-      // if (isEdit.value) {
-      //   await fetchUpdateAcademicYear(form.id!, form)
-      // } else {
-      //   await fetchAddAcademicYear(form)
-      // }
+      // 格式化提交数据
+      const submitData: Api.SystemManage.AcademicYearSaveParams = {
+        id: form.id,
+        yearCode: form.yearCode,
+        yearName: form.yearName,
+        startDate: form.startDate || '',
+        endDate: form.endDate || '',
+        status: form.status,
+        semesters: form.semesters.map((semester) => ({
+          id: (semester as any).id,
+          semesterCode: semester.semesterCode,
+          semesterName: semester.semesterName,
+          startDate: semester.startDate || '',
+          endDate: semester.endDate || '',
+          semesterType: semester.semesterType
+        }))
+      }
+
+      if (isEdit.value && form.id) {
+        await fetchUpdateAcademicYear(form.id, submitData)
+      } else {
+        await fetchAddAcademicYear(submitData)
+      }
+      ElMessage.success(isEdit.value ? '编辑成功' : '新增成功')
       emit('submit')
       handleClose()
     } catch (error) {

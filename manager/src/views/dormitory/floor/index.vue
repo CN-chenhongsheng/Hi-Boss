@@ -68,6 +68,16 @@
         :parent-name="drillDownParentName"
         :filter-params="drillDownFilterParams"
         :key="`${drillDownType}-${drillDownVisible}`"
+        @drill-down="handleRoomDrillDown"
+      />
+
+      <!-- 下钻弹框（床位） -->
+      <DrillDownDialog
+        v-model:visible="roomNestedDrillDownVisible"
+        :drill-type="roomNestedDrillDownType"
+        :parent-name="roomNestedDrillDownParentName"
+        :filter-params="roomNestedDrillDownFilterParams"
+        :key="`${roomNestedDrillDownType}-${roomNestedDrillDownVisible}`"
       />
 
       <!-- 批量增加房间弹框 -->
@@ -117,6 +127,12 @@
   const drillDownType = ref<'room'>('room')
   const drillDownParentName = ref('')
   const drillDownFilterParams = ref<Record<string, any>>({})
+
+  // 嵌套下钻弹框相关（房间 → 床位）
+  const roomNestedDrillDownVisible = ref(false)
+  const roomNestedDrillDownType = ref<'bed'>('bed')
+  const roomNestedDrillDownParentName = ref('')
+  const roomNestedDrillDownFilterParams = ref<Record<string, any>>({})
 
   // 批量增加房间弹框相关
   const batchRoomDialogVisible = ref(false)
@@ -445,6 +461,26 @@
     drillDownParentName.value = row.floorName || row.floorCode
     drillDownFilterParams.value = { floorCode: row.floorCode, pageNum: 1, pageSize: 20 }
     drillDownVisible.value = true
+  }
+
+  /**
+   * 处理房间下钻事件（从房间下钻到床位）
+   */
+  const handleRoomDrillDown = (
+    type: 'department' | 'major' | 'class' | 'floor' | 'room' | 'bed',
+    row: any
+  ): void => {
+    if (type === 'bed') {
+      // 从房间下钻到床位
+      roomNestedDrillDownType.value = 'bed'
+      roomNestedDrillDownParentName.value = row.roomNumber || row.roomCode
+      roomNestedDrillDownFilterParams.value = {
+        roomCode: row.roomCode,
+        pageNum: 1,
+        pageSize: 20
+      }
+      roomNestedDrillDownVisible.value = true
+    }
   }
 
   /**

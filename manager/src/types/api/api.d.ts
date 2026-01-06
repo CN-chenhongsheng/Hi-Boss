@@ -634,6 +634,72 @@ declare namespace Api {
       total: number
     }
 
+    /** ==================== 学年管理 ==================== */
+    /** 学年查询参数 */
+    interface AcademicYearSearchParams {
+      yearCode?: string
+      yearName?: string
+      status?: number
+      pageNum?: number
+      pageSize?: number
+    }
+
+    /** 学期保存参数 */
+    interface SemesterSaveParams {
+      id?: number
+      semesterCode: string
+      semesterName: string
+      startDate: string
+      endDate: string
+      semesterType?: string
+    }
+
+    /** 学年保存参数 */
+    interface AcademicYearSaveParams {
+      id?: number
+      yearCode: string
+      yearName: string
+      startDate: string
+      endDate: string
+      status: number
+      semesters?: SemesterSaveParams[]
+    }
+
+    /** 学期列表项 */
+    interface SemesterListItem {
+      id: number
+      academicYearId: number
+      semesterCode: string
+      semesterName: string
+      startDate: string
+      endDate: string
+      semesterType?: string
+      createTime?: string
+      updateTime?: string
+    }
+
+    /** 学年列表项 */
+    interface AcademicYearListItem {
+      id: number
+      yearCode: string
+      yearName: string
+      startDate: string
+      endDate: string
+      status: number
+      statusText?: string
+      semesters?: SemesterListItem[]
+      createTime?: string
+      updateTime?: string
+    }
+
+    /** 学年分页响应 */
+    interface AcademicYearPageResponse extends Api.Common.PaginatedResponse<AcademicYearListItem> {
+      records: AcademicYearListItem[]
+      current: number
+      size: number
+      total: number
+    }
+
     /** ==================== 学校层级管理 ==================== */
 
     /** 层级树节点 */

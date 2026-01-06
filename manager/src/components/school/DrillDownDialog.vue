@@ -4,6 +4,7 @@
     v-model="dialogVisible"
     :title="dialogTitle"
     width="90%"
+    top="6vh"
     append-to-body
     :close-on-click-modal="false"
     destroy-on-close
@@ -20,7 +21,7 @@
           :data="data"
           :pagination="pagination"
           :stripe="false"
-          height="400px"
+          height="100%"
           @pagination:size-change="handleSizeChange"
           @pagination:current-change="handleCurrentChange"
         />
@@ -33,7 +34,7 @@
           :data="data"
           :columns="majorColumns"
           :pagination="pagination"
-          height="400px"
+          height="100%"
           @pagination:size-change="handleSizeChange"
           @pagination:current-change="handleCurrentChange"
         />
@@ -46,7 +47,7 @@
           :data="data"
           :columns="classColumns"
           :pagination="pagination"
-          height="400px"
+          height="100%"
           @pagination:size-change="handleSizeChange"
           @pagination:current-change="handleCurrentChange"
         />
@@ -59,7 +60,7 @@
           :data="data"
           :columns="floorColumns"
           :pagination="pagination"
-          height="400px"
+          height="100%"
           @pagination:size-change="handleSizeChange"
           @pagination:current-change="handleCurrentChange"
         />
@@ -72,7 +73,7 @@
           :data="data"
           :columns="roomColumns"
           :pagination="pagination"
-          height="400px"
+          height="100%"
           @pagination:size-change="handleSizeChange"
           @pagination:current-change="handleCurrentChange"
         />
@@ -85,7 +86,7 @@
           :data="data"
           :columns="bedColumns"
           :pagination="pagination"
-          height="400px"
+          height="100%"
           @pagination:size-change="handleSizeChange"
           @pagination:current-change="handleCurrentChange"
         />
@@ -845,6 +846,6 @@
 
 <style scoped lang="scss">
   .drill-down-dialog-content {
-    min-height: 400px;
+    height: 800px;
   }
 </style>

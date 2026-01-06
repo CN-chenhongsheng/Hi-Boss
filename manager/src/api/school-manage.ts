@@ -378,14 +378,82 @@ export function fetchGetSchoolHierarchy() {
 /** ==================== 学年管理 ==================== */
 
 /**
+ * 获取学年分页列表
+ * @param params 查询参数
+ */
+export function fetchGetAcademicYearPage(params: Api.SystemManage.AcademicYearSearchParams) {
+  return request.get<Api.SystemManage.AcademicYearPageResponse>({
+    url: '/api/v1/system/academic-year/page',
+    params
+  })
+}
+
+/**
+ * 获取学年详情
+ * @param id 学年ID
+ */
+export function fetchGetAcademicYearDetail(id: number) {
+  return request.get<Api.SystemManage.AcademicYearListItem>({
+    url: `/api/v1/system/academic-year/${id}`
+  })
+}
+
+/**
+ * 新增学年
+ * @param data 学年数据
+ */
+export function fetchAddAcademicYear(data: Api.SystemManage.AcademicYearSaveParams) {
+  return request.post({
+    url: '/api/v1/system/academic-year',
+    data,
+    showSuccessMessage: true
+  })
+}
+
+/**
+ * 编辑学年
+ * @param id 学年ID
+ * @param data 学年数据
+ */
+export function fetchUpdateAcademicYear(id: number, data: Api.SystemManage.AcademicYearSaveParams) {
+  return request.put({
+    url: `/api/v1/system/academic-year/${id}`,
+    data,
+    showSuccessMessage: true
+  })
+}
+
+/**
+ * 删除学年
+ * @param id 学年ID
+ */
+export function fetchDeleteAcademicYear(id: number) {
+  return request.del({
+    url: `/api/v1/system/academic-year/${id}`,
+    showSuccessMessage: true
+  })
+}
+
+/**
  * 批量删除学年
  * @param ids 学年ID数组
- * @note 后端接口待实现
  */
 export function fetchBatchDeleteAcademicYear(ids: number[]) {
   return request.del({
     url: '/api/v1/system/academic-year/batch',
     data: ids,
+    showSuccessMessage: true
+  })
+}
+
+/**
+ * 修改学年状态
+ * @param id 学年ID
+ * @param status 状态：1正常 0停用
+ */
+export function fetchUpdateAcademicYearStatus(id: number, status: number) {
+  return request.put({
+    url: `/api/v1/system/academic-year/${id}/status/${status}`,
     showSuccessMessage: true
   })
 }
