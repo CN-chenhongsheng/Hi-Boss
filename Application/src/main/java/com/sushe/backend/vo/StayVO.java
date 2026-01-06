@@ -1,0 +1,101 @@
+package com.sushe.backend.vo;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Data;
+
+import java.io.Serializable;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
+/**
+ * 留宿管理展示VO
+ * 
+ * @author 陈鸿昇
+ * @since 2026-01-06
+ */
+@Data
+@Schema(description = "留宿管理信息响应")
+public class StayVO implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
+    @Schema(description = "主键ID")
+    private Long id;
+
+    @Schema(description = "学生ID")
+    private Long studentId;
+
+    @Schema(description = "学生姓名（冗余）")
+    private String studentName;
+
+    @Schema(description = "学号（冗余）")
+    private String studentNo;
+
+    @Schema(description = "校区编码")
+    private String campusCode;
+
+    @Schema(description = "校区名称")
+    private String campusName;
+
+    @Schema(description = "楼层编码")
+    private String floorCode;
+
+    @Schema(description = "房间ID")
+    private Long roomId;
+
+    @Schema(description = "房间编码")
+    private String roomCode;
+
+    @Schema(description = "床位ID")
+    private Long bedId;
+
+    @Schema(description = "床位编码")
+    private String bedCode;
+
+    @Schema(description = "申请日期")
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    private LocalDate applyDate;
+
+    @Schema(description = "留宿开始日期")
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    private LocalDate stayStartDate;
+
+    @Schema(description = "留宿结束日期")
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    private LocalDate stayEndDate;
+
+    @Schema(description = "状态：1待审核 2已通过 3已拒绝 4已完成")
+    private Integer status;
+
+    @Schema(description = "状态文本")
+    private String statusText;
+
+    @Schema(description = "审核人ID")
+    private Long approverId;
+
+    @Schema(description = "审核人姓名")
+    private String approverName;
+
+    @Schema(description = "审核时间")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime approveTime;
+
+    @Schema(description = "审核意见")
+    private String approveOpinion;
+
+    @Schema(description = "留宿理由（必填）")
+    private String stayReason;
+
+    @Schema(description = "备注")
+    private String remark;
+
+    @Schema(description = "创建时间")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime createTime;
+
+    @Schema(description = "更新时间")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime updateTime;
+}
+

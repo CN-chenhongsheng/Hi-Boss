@@ -1001,4 +1001,421 @@ declare namespace Api {
       pageSize: number
     }
   }
+
+  /** 住宿管理类型 */
+  namespace AccommodationManage {
+    /** ==================== 人员管理（学生） ==================== */
+    /** 学生查询参数 */
+    interface StudentSearchParams {
+      studentNo?: string
+      studentName?: string
+      phone?: string
+      campusCode?: string
+      deptCode?: string
+      majorCode?: string
+      classId?: number
+      bedId?: number
+      academicStatus?: number
+      status?: number
+      pageNum?: number
+      pageSize?: number
+    }
+
+    /** 学生保存参数 */
+    interface StudentSaveParams {
+      id?: number
+      studentNo: string
+      studentName: string
+      gender?: number
+      idCard?: string
+      phone?: string
+      email?: string
+      birthDate?: string
+      nation?: string
+      politicalStatus?: string
+      enrollmentYear?: number
+      schoolingLength?: number
+      currentGrade?: string
+      academicStatus?: number
+      homeAddress?: string
+      emergencyContact?: string
+      emergencyPhone?: string
+      parentName?: string
+      parentPhone?: string
+      campusCode?: string
+      deptCode?: string
+      majorCode?: string
+      classId?: number
+      classCode?: string
+      floorId?: number
+      floorCode?: string
+      roomId?: number
+      roomCode?: string
+      bedId?: number
+      bedCode?: string
+      status?: number
+      remark?: string
+    }
+
+    /** 学生列表项 */
+    interface StudentListItem {
+      id: number
+      studentNo: string
+      studentName: string
+      gender?: number
+      genderText?: string
+      idCard?: string
+      phone?: string
+      email?: string
+      birthDate?: string
+      nation?: string
+      politicalStatus?: string
+      enrollmentYear?: number
+      schoolingLength?: number
+      currentGrade?: string
+      academicStatus?: number
+      academicStatusText?: string
+      homeAddress?: string
+      emergencyContact?: string
+      emergencyPhone?: string
+      parentName?: string
+      parentPhone?: string
+      campusCode?: string
+      campusName?: string
+      deptCode?: string
+      deptName?: string
+      majorCode?: string
+      majorName?: string
+      classId?: number
+      classCode?: string
+      className?: string
+      floorId?: number
+      floorCode?: string
+      roomId?: number
+      roomCode?: string
+      bedId?: number
+      bedCode?: string
+      status: number
+      statusText?: string
+      remark?: string
+      createTime?: string
+      updateTime?: string
+    }
+
+    /** 学生分页响应 */
+    interface StudentPageResponse {
+      list: StudentListItem[]
+      total: number
+      pageNum: number
+      pageSize: number
+      totalPages: number
+    }
+
+    /** ==================== 入住管理 ==================== */
+    /** 入住管理查询参数 */
+    interface CheckInSearchParams {
+      studentNo?: string
+      studentName?: string
+      studentId?: number
+      checkInType?: number
+      campusCode?: string
+      bedId?: number
+      status?: number
+      applyDateStart?: string
+      applyDateEnd?: string
+      pageNum?: number
+      pageSize?: number
+    }
+
+    /** 入住管理保存参数 */
+    interface CheckInSaveParams {
+      id?: number
+      studentId: number
+      checkInType: number
+      campusCode?: string
+      floorCode?: string
+      roomId?: number
+      roomCode?: string
+      bedId?: number
+      bedCode?: string
+      applyDate?: string
+      checkInDate?: string
+      expectedCheckOutDate?: string
+      status?: number
+      approverId?: number
+      approverName?: string
+      approveOpinion?: string
+      applyReason?: string
+      remark?: string
+    }
+
+    /** 入住管理列表项 */
+    interface CheckInListItem {
+      id: number
+      studentId: number
+      studentName?: string
+      studentNo?: string
+      checkInType: number
+      checkInTypeText?: string
+      campusCode?: string
+      campusName?: string
+      floorCode?: string
+      roomId?: number
+      roomCode?: string
+      bedId?: number
+      bedCode?: string
+      applyDate?: string
+      checkInDate?: string
+      expectedCheckOutDate?: string
+      status: number
+      statusText?: string
+      approverId?: number
+      approverName?: string
+      approveTime?: string
+      approveOpinion?: string
+      applyReason?: string
+      remark?: string
+      createTime?: string
+      updateTime?: string
+    }
+
+    /** 入住管理分页响应 */
+    interface CheckInPageResponse {
+      list: CheckInListItem[]
+      total: number
+      pageNum: number
+      pageSize: number
+      totalPages: number
+    }
+
+    /** ==================== 调宿管理 ==================== */
+    /** 调宿管理查询参数 */
+    interface TransferSearchParams {
+      studentNo?: string
+      studentName?: string
+      studentId?: number
+      originalCampusCode?: string
+      targetCampusCode?: string
+      status?: number
+      applyDateStart?: string
+      applyDateEnd?: string
+      pageNum?: number
+      pageSize?: number
+    }
+
+    /** 调宿管理保存参数 */
+    interface TransferSaveParams {
+      id?: number
+      studentId: number
+      originalCampusCode?: string
+      originalFloorCode?: string
+      originalRoomId?: number
+      originalRoomCode?: string
+      originalBedId?: number
+      originalBedCode?: string
+      targetCampusCode?: string
+      targetFloorCode?: string
+      targetRoomId?: number
+      targetRoomCode?: string
+      targetBedId?: number
+      targetBedCode?: string
+      applyDate?: string
+      transferDate?: string
+      status?: number
+      approverId?: number
+      approverName?: string
+      approveOpinion?: string
+      transferReason?: string
+      remark?: string
+    }
+
+    /** 调宿管理列表项 */
+    interface TransferListItem {
+      id: number
+      studentId: number
+      studentName?: string
+      studentNo?: string
+      originalCampusCode?: string
+      originalCampusName?: string
+      originalFloorCode?: string
+      originalRoomId?: number
+      originalRoomCode?: string
+      originalBedId?: number
+      originalBedCode?: string
+      targetCampusCode?: string
+      targetCampusName?: string
+      targetFloorCode?: string
+      targetRoomId?: number
+      targetRoomCode?: string
+      targetBedId?: number
+      targetBedCode?: string
+      applyDate?: string
+      transferDate?: string
+      status: number
+      statusText?: string
+      approverId?: number
+      approverName?: string
+      approveTime?: string
+      approveOpinion?: string
+      transferReason?: string
+      remark?: string
+      createTime?: string
+      updateTime?: string
+    }
+
+    /** 调宿管理分页响应 */
+    interface TransferPageResponse {
+      list: TransferListItem[]
+      total: number
+      pageNum: number
+      pageSize: number
+      totalPages: number
+    }
+
+    /** ==================== 退宿管理 ==================== */
+    /** 退宿管理查询参数 */
+    interface CheckOutSearchParams {
+      studentNo?: string
+      studentName?: string
+      studentId?: number
+      campusCode?: string
+      bedId?: number
+      status?: number
+      applyDateStart?: string
+      applyDateEnd?: string
+      pageNum?: number
+      pageSize?: number
+    }
+
+    /** 退宿管理保存参数 */
+    interface CheckOutSaveParams {
+      id?: number
+      studentId: number
+      campusCode?: string
+      floorCode?: string
+      roomId?: number
+      roomCode?: string
+      bedId?: number
+      bedCode?: string
+      applyDate?: string
+      checkOutDate?: string
+      status?: number
+      approverId?: number
+      approverName?: string
+      approveOpinion?: string
+      checkOutReason: string
+      remark?: string
+    }
+
+    /** 退宿管理列表项 */
+    interface CheckOutListItem {
+      id: number
+      studentId: number
+      studentName?: string
+      studentNo?: string
+      campusCode?: string
+      campusName?: string
+      floorCode?: string
+      roomId?: number
+      roomCode?: string
+      bedId?: number
+      bedCode?: string
+      applyDate?: string
+      checkOutDate?: string
+      status: number
+      statusText?: string
+      approverId?: number
+      approverName?: string
+      approveTime?: string
+      approveOpinion?: string
+      checkOutReason: string
+      remark?: string
+      createTime?: string
+      updateTime?: string
+    }
+
+    /** 退宿管理分页响应 */
+    interface CheckOutPageResponse {
+      list: CheckOutListItem[]
+      total: number
+      pageNum: number
+      pageSize: number
+      totalPages: number
+    }
+
+    /** ==================== 留宿管理 ==================== */
+    /** 留宿管理查询参数 */
+    interface StaySearchParams {
+      studentNo?: string
+      studentName?: string
+      studentId?: number
+      campusCode?: string
+      bedId?: number
+      status?: number
+      applyDateStart?: string
+      applyDateEnd?: string
+      stayStartDateStart?: string
+      stayStartDateEnd?: string
+      pageNum?: number
+      pageSize?: number
+    }
+
+    /** 留宿管理保存参数 */
+    interface StaySaveParams {
+      id?: number
+      studentId: number
+      campusCode?: string
+      floorCode?: string
+      roomId?: number
+      roomCode?: string
+      bedId?: number
+      bedCode?: string
+      applyDate?: string
+      stayStartDate?: string
+      stayEndDate?: string
+      status?: number
+      approverId?: number
+      approverName?: string
+      approveOpinion?: string
+      stayReason: string
+      remark?: string
+    }
+
+    /** 留宿管理列表项 */
+    interface StayListItem {
+      id: number
+      studentId: number
+      studentName?: string
+      studentNo?: string
+      campusCode?: string
+      campusName?: string
+      floorCode?: string
+      roomId?: number
+      roomCode?: string
+      bedId?: number
+      bedCode?: string
+      applyDate?: string
+      stayStartDate?: string
+      stayEndDate?: string
+      status: number
+      statusText?: string
+      approverId?: number
+      approverName?: string
+      approveTime?: string
+      approveOpinion?: string
+      stayReason: string
+      remark?: string
+      createTime?: string
+      updateTime?: string
+    }
+
+    /** 留宿管理分页响应 */
+    interface StayPageResponse {
+      list: StayListItem[]
+      total: number
+      pageNum: number
+      pageSize: number
+      totalPages: number
+    }
+  }
 }

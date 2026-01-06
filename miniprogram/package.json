@@ -1,0 +1,87 @@
+{
+  "name": "sushe-miniprogram",
+  "version": "1.0.0",
+  "description": "宿舍管理系统小程序",
+  "main": "main.ts",
+  "scripts": {
+    "dev:mp-weixin": "echo '请使用 HBuilderX 运行项目，或全局安装 @dcloudio/uni-app-cli'",
+    "build:mp-weixin": "echo '请使用 HBuilderX 构建项目'",
+    "lint": "eslint .",
+    "fix": "eslint --fix .",
+    "lint:prettier": "prettier --write \"**/*.{js,ts,json,tsx,css,scss,vue,html,md}\"",
+    "lint:lint-staged": "lint-staged",
+    "type-check": "vue-tsc --noEmit",
+    "prepare": "husky",
+    "commit": "git-cz"
+  },
+  "config": {
+    "commitizen": {
+      "path": "node_modules/cz-git"
+    }
+  },
+  "lint-staged": {
+    "*.{js,ts,mjs,mts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{cjs,json,jsonc}": [
+      "prettier --write"
+    ],
+    "*.vue": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{html,htm}": [
+      "prettier --write"
+    ],
+    "*.{scss,css}": [
+      "prettier --write"
+    ],
+    "*.{md,mdx}": [
+      "prettier --write"
+    ],
+    "*.{yaml,yml}": [
+      "prettier --write"
+    ]
+  },
+  "dependencies": {
+    "pinia": "^2.1.7",
+    "vue-i18n": "^9.8.0"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^19.4.1",
+    "@commitlint/config-conventional": "^19.4.1",
+    "@dcloudio/types": "^3.4.8",
+    "@eslint/js": "^9.9.1",
+    "@types/node": "^24.0.5",
+    "@typescript-eslint/eslint-plugin": "^8.3.0",
+    "@typescript-eslint/parser": "^8.3.0",
+    "@vant/weapp": "^1.11.6",
+    "autoprefixer": "^10.4.20",
+    "commitizen": "^4.3.0",
+    "cz-git": "^1.11.1",
+    "eslint": "^9.9.1",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.2.1",
+    "eslint-plugin-vue": "^9.27.0",
+    "globals": "^15.9.0",
+    "husky": "^9.1.5",
+    "lint-staged": "^15.5.2",
+    "postcss": "^8.4.47",
+    "prettier": "^3.5.3",
+    "tailwindcss": "^3.4.17",
+    "typescript": "~5.6.3",
+    "typescript-eslint": "^8.9.0",
+    "vue-tsc": "^2.1.6",
+    "weapp-tailwindcss": "^2.8.0"
+  },
+  "keywords": [
+    "uni-app",
+    "miniprogram",
+    "vue3",
+    "typescript",
+    "tailwindcss"
+  ],
+  "author": "",
+  "license": "MIT"
+}
