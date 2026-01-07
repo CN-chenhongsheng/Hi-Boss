@@ -21,7 +21,7 @@
     "skipLibCheck": true
   },
   "vueCompilerOptions": {
-    "plugins": ["@uni-helper/uni-app-types/volar-plugin"]
+    "plugins": ["@uni-helper/uni-app-types/volar-plugin", "block", "component", "define", "emits", "expose", "functional", "imports", "props", "setup", "style", "template", "view"]
   },
   "include": [
     "src/**/*.ts",

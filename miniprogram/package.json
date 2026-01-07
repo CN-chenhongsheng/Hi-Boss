@@ -33,7 +33,9 @@
     "@dcloudio/uni-h5": "3.0.0-4080720251210001",
     "@dcloudio/uni-mp-harmony": "3.0.0-4080720251210001",
     "@dcloudio/uni-mp-weixin": "3.0.0-4080720251210001",
+    "@qiun/ucharts": "2.5.0-20230101",
     "pinia": "2.0.36",
+    "pinia-plugin-persistedstate": "^4.7.1",
     "uview-plus": "^3.3.27",
     "vue": "^3.4.21",
     "z-paging": "^2.7.11"

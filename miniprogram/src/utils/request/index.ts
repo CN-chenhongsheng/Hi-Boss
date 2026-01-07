@@ -21,8 +21,8 @@ export function request<T = any>(config: HttpRequestConfig): Promise<T> {
   return new Promise((resolve) => {
     http.request(config).then((res: HttpResponse<IResponse<T>>) => {
       console.log('[ res ] >', res);
-      const { result } = res.data;
-      resolve(result as T);
+      const { data } = res.data;
+      resolve(data as T);
     });
   });
 }

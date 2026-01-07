@@ -11,17 +11,30 @@
     {
       "path": "pages/tab/home/index",
       "style": {
-        "navigationBarTitleText": "首页"
+        "navigationBarTitleText": "首页",
+        "navigationStyle": "custom"
       }
     },
     {
-      "path": "pages/tab/list/index",
+      "path": "pages/tab/apply/index",
       "style": {
-        "navigationBarTitleText": "列表"
+        "navigationBarTitleText": "申请中心"
       }
     },
     {
-      "path": "pages/tab/user/index",
+      "path": "pages/tab/statistics/index",
+      "style": {
+        "navigationBarTitleText": "数据统计"
+      }
+    },
+    {
+      "path": "pages/tab/message/index",
+      "style": {
+        "navigationBarTitleText": "消息中心"
+      }
+    },
+    {
+      "path": "pages/tab/profile/index",
       "style": {
         "navigationStyle": "custom"
       }
@@ -33,11 +46,102 @@
       "pages": [
         {
           "path": "login/index",
-          "navigationStyle": "custom"
+          "style": {
+            "navigationStyle": "custom"
+          }
         },
         {
           "path": "webview/index",
-          "navigationBarTitleText": "网页"
+          "style": {
+            "navigationBarTitleText": "网页"
+          }
+        },
+        {
+          "path": "dorm-info/index",
+          "style": {
+            "navigationBarTitleText": "宿舍信息"
+          }
+        }
+      ]
+    },
+    {
+      "root": "pages/apply",
+      "pages": [
+        {
+          "path": "check-in/index",
+          "style": {
+            "navigationBarTitleText": "入住申请"
+          }
+        },
+        {
+          "path": "transfer/index",
+          "style": {
+            "navigationBarTitleText": "调宿申请"
+          }
+        },
+        {
+          "path": "check-out/index",
+          "style": {
+            "navigationBarTitleText": "退宿申请"
+          }
+        },
+        {
+          "path": "stay/index",
+          "style": {
+            "navigationBarTitleText": "留宿申请"
+          }
+        },
+        {
+          "path": "detail/index",
+          "style": {
+            "navigationBarTitleText": "申请详情"
+          }
+        }
+      ]
+    },
+    {
+      "root": "pages/service",
+      "pages": [
+        {
+          "path": "repair/index",
+          "style": {
+            "navigationBarTitleText": "报修申请"
+          }
+        },
+        {
+          "path": "repair-list/index",
+          "style": {
+            "navigationBarTitleText": "报修记录"
+          }
+        },
+        {
+          "path": "notice-detail/index",
+          "style": {
+            "navigationBarTitleText": "公告详情"
+          }
+        }
+      ]
+    },
+    {
+      "root": "pages/admin",
+      "pages": [
+        {
+          "path": "approval-detail/index",
+          "style": {
+            "navigationBarTitleText": "审批详情"
+          }
+        },
+        {
+          "path": "statistics/index",
+          "style": {
+            "navigationBarTitleText": "数据统计"
+          }
+        },
+        {
+          "path": "notice-manage/index",
+          "style": {
+            "navigationBarTitleText": "公告管理"
+          }
         }
       ]
     }
@@ -50,17 +154,23 @@
   },
   "tabBar": {
     "color": "#7A7E83",
-    "selectedColor": "#3cc51f",
+    "selectedColor": "#2196F3",
     "borderStyle": "black",
     "backgroundColor": "#ffffff",
     "list": [{
       "pagePath": "pages/tab/home/index",
       "text": "首页"
     }, {
-      "pagePath": "pages/tab/list/index",
-      "text": "列表"
+      "pagePath": "pages/tab/apply/index",
+      "text": "申请"
     }, {
-      "pagePath": "pages/tab/user/index",
+      "pagePath": "pages/tab/statistics/index",
+      "text": "统计"
+    }, {
+      "pagePath": "pages/tab/message/index",
+      "text": "消息"
+    }, {
+      "pagePath": "pages/tab/profile/index",
       "text": "我的"
     }]
   },

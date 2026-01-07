@@ -26,9 +26,15 @@ importers:
       '@dcloudio/uni-mp-weixin':
         specifier: 3.0.0-4080720251210001
         version: 3.0.0-4080720251210001(postcss@8.4.45)(rollup@4.17.2)(vue@3.4.21(typescript@5.5.2))
+      '@qiun/ucharts':
+        specifier: 2.5.0-20230101
+        version: 2.5.0-20230101
       pinia:
         specifier: 2.0.36
         version: 2.0.36(typescript@5.5.2)(vue@3.4.21(typescript@5.5.2))
+      pinia-plugin-persistedstate:
+        specifier: ^4.7.1
+        version: 4.7.1(pinia@2.0.36(typescript@5.5.2)(vue@3.4.21(typescript@5.5.2)))
       uview-plus:
         specifier: ^3.3.27
         version: 3.3.27
@@ -1494,6 +1500,9 @@ packages:
 
   '@polka/url@1.0.0-next.25':
     resolution: {integrity: sha512-j7P6Rgr3mmtdkeDGTe0E/aYyWEWVtc5yFXtHCRHs28/jptDEWfaVOc5T7cblqy1XKPPfCxJc/8DwQ5YgLOZOVQ==}
+
+  '@qiun/ucharts@2.5.0-20230101':
+    resolution: {integrity: sha512-C7ccBgfPuGF6dxTRuMW0NPPMSCf1k/kh3I9zkRVBc5PaivudX/rPL+jd2Wty6gn5ya5L3Ob+YmYe09V5xw66Cw==}
 
   '@rollup/pluginutils@5.1.0':
     resolution: {integrity: sha512-XTIWOPPcpvyKI6L1NHo0lFlCyznUEyPmPY1mc3KpPVDYulHSTvyeLNVW00QTLIAFNhR3kYnJTQHeGqU4M3n09g==}
@@ -5031,6 +5040,20 @@ packages:
   pify@4.0.1:
     resolution: {integrity: sha512-uB80kBFb/tfd68bVleG9T5GGsGPjJrLAUpR5PZIrhBnIaRTQRjqdJSsIKkOP6OAIFbj7GOrcudc5pNjZ+geV2g==}
     engines: {node: '>=6'}
+
+  pinia-plugin-persistedstate@4.7.1:
+    resolution: {integrity: sha512-WHOqh2esDlR3eAaknPbqXrkkj0D24h8shrDPqysgCFR6ghqP/fpFfJmMPJp0gETHsvrh9YNNg6dQfo2OEtDnIQ==}
+    peerDependencies:
+      '@nuxt/kit': '>=3.0.0'
+      '@pinia/nuxt': '>=0.10.0'
+      pinia: '>=3.0.0'
+    peerDependenciesMeta:
+      '@nuxt/kit':
+        optional: true
+      '@pinia/nuxt':
+        optional: true
+      pinia:
+        optional: true
 
   pinia@2.0.36:
     resolution: {integrity: sha512-4UKApwjlmJH+VuHKgA+zQMddcCb3ezYnyewQ9NVrsDqZ/j9dMv5+rh+1r48whKNdpFkZAWVxhBp5ewYaYX9JcQ==}
@@ -8652,6 +8675,8 @@ snapshots:
   '@pkgr/core@0.1.1': {}
 
   '@polka/url@1.0.0-next.25': {}
+
+  '@qiun/ucharts@2.5.0-20230101': {}
 
   '@rollup/pluginutils@5.1.0(rollup@4.17.2)':
     dependencies:
@@ -12679,6 +12704,12 @@ snapshots:
   pify@3.0.0: {}
 
   pify@4.0.1: {}
+
+  pinia-plugin-persistedstate@4.7.1(pinia@2.0.36(typescript@5.5.2)(vue@3.4.21(typescript@5.5.2))):
+    dependencies:
+      defu: 6.1.4
+    optionalDependencies:
+      pinia: 2.0.36(typescript@5.5.2)(vue@3.4.21(typescript@5.5.2))
 
   pinia@2.0.36(typescript@5.5.2)(vue@3.4.21(typescript@5.5.2)):
     dependencies:
