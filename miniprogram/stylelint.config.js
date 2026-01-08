@@ -39,6 +39,8 @@ export default {
       },
     ],
     'selector-type-no-unknown': [true, { ignoreTypes: ['page', 'radio', 'checkbox', 'scroll-view'] }],
+    // 禁用类选择器命名规范检查，允许第三方库的类名（如 UView Plus 的 u-icon__icon）
+    'selector-class-pattern': null,
     'order/properties-order': [
       'position',
       'top',
