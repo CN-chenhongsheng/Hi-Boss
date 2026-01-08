@@ -97,6 +97,13 @@
             "navigationBarTitleText": "申请详情",
             "navigationStyle": "custom"
           }
+        },
+        {
+          "path": "form/index",
+          "style": {
+            "navigationBarTitleText": "业务填报",
+            "navigationStyle": "custom"
+          }
         }
       ]
     },

@@ -31,7 +31,7 @@
     <!-- 学生端首页 -->
     <view v-if="isStudent || !isLoggedIn" class="student-home">
       <!-- 用户信息卡片（仅登录后显示） -->
-      <view v-if="isLoggedIn" class="user-card glass-card">
+      <view v-if="isLoggedIn" class="glass-card user-card">
         <view class="user-card-content">
           <image class="avatar" :src="userInfo?.avatar || defaultAvatar" mode="aspectFill" />
           <view class="user-info">
@@ -132,7 +132,7 @@
           <view
             v-for="item in applyList"
             :key="item.id"
-            class="apply-item glass-card"
+            class="glass-card apply-item"
             @click="handleViewApply(item)"
           >
             <view class="apply-icon" :style="{ background: item.bgColor }">
@@ -210,12 +210,12 @@ const greeting = computed(() => {
 
 // 快捷服务（学生端）
 const quickServices = ref([
-  { id: 1, name: '入住申请', icon: 'home', color: '#14b8a6', path: '/pages/apply/check-in/index' },
-  { id: 2, name: '调宿申请', icon: 'reload', color: '#6366f1', path: '/pages/apply/transfer/index' },
-  { id: 3, name: '退宿申请', icon: 'arrow-left', color: '#f43f5e', path: '/pages/apply/check-out/index' },
-  { id: 4, name: '留宿申请', icon: 'calendar', color: '#3b82f6', path: '/pages/apply/stay/index' },
-  { id: 5, name: '故障报修', icon: 'setting', color: '#f97316', path: '/pages/service/repair/index' },
-  { id: 6, name: '数据统计', icon: 'grid', color: '#a855f7', path: '/pages/tab/statistics/index' },
+  { id: 1, name: '入住申请', icon: 'home', color: '#14b8a6', type: 'checkIn', path: '/pages/apply/form/index' },
+  { id: 2, name: '调宿申请', icon: 'reload', color: '#6366f1', type: 'transfer', path: '/pages/apply/form/index' },
+  { id: 3, name: '退宿申请', icon: 'arrow-left', color: '#f43f5e', type: 'checkOut', path: '/pages/apply/form/index' },
+  { id: 4, name: '留宿申请', icon: 'calendar', color: '#3b82f6', type: 'stay', path: '/pages/apply/form/index' },
+  { id: 5, name: '故障报修', icon: 'setting', color: '#f97316', type: 'repair', path: '/pages/service/repair/index' },
+  { id: 6, name: '水电统计', icon: 'grid', color: '#a855f7', type: 'statistics', path: '/pages/tab/statistics/index' },
 ]);
 
 // 通知列表
@@ -238,8 +238,14 @@ function getGradientStyle(color: string) {
 
 // 快捷入口点击
 function handleQuickEntry(item: any) {
-  if (item.path.startsWith('/pages/tab/')) {
+  // 数据统计直接跳转到统计页面
+  if (item.type === 'statistics') {
     uni.switchTab({ url: item.path });
+    return;
+  }
+  // 其他业务类型跳转到form页面，传递type参数
+  if (item.type && item.path === '/pages/apply/form/index') {
+    uni.navigateTo({ url: `${item.path}?type=${item.type}` });
   }
   else {
     uni.navigateTo({ url: item.path });

@@ -570,7 +570,6 @@ $glass-border: rgb(255 255 255 / 60%);
 
 // 毛玻璃卡片
 .glass-card {
-  overflow: hidden;
   background: $glass-bg;
   border: 2rpx solid $glass-border;
   border-radius: 32rpx;

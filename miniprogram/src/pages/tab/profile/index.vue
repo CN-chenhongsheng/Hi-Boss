@@ -169,7 +169,7 @@ function handleEdit() {
 // 快速操作
 function handleQuickAction(type: string) {
   const routes: Record<string, string> = {
-    apply: '/pages/tab/apply/index',
+    apply: '/pages/apply/form/index',
     repair: '/pages/service/repair-list/index',
     roommates: '/pages/common/dorm-info/index',
     notice: '/pages/tab/message/index',
@@ -339,7 +339,6 @@ $glass-border: rgb(255 255 255 / 80%);
   border: 2rpx solid $glass-border;
   border-radius: 32rpx;
   box-shadow: 0 8rpx 24rpx rgb(0 0 0 / 5%);
-  backdrop-filter: blur(32rpx);
   backdrop-filter: blur(32rpx);
 }
 
@@ -574,7 +573,6 @@ $glass-border: rgb(255 255 255 / 80%);
   border-radius: 32rpx;
   box-shadow: 0 8rpx 24rpx rgb(0 0 0 / 5%);
   transition: all 0.2s;
-  backdrop-filter: blur(32rpx);
   backdrop-filter: blur(32rpx);
   font-weight: 500;
 
