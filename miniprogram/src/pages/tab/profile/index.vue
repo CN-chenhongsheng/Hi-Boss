@@ -313,12 +313,19 @@ $glass-border: rgb(255 255 255 / 80%);
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 90rpx 32rpx 16rpx;
+  padding: 24rpx 32rpx;
+  padding-top: calc(var(--status-bar-height) + 24rpx);
 
   .header-title {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: auto;
+    height: 80rpx;
     font-size: 36rpx;
-    font-weight: 700;
     color: $text-main;
+    border-radius: 50%;
+    font-weight: 700;
     letter-spacing: 0.5rpx;
   }
 }

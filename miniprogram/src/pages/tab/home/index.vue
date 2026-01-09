@@ -130,7 +130,7 @@
         </view>
         <view v-else class="apply-list">
           <view
-            v-for="item in applyList"
+            v-for="item in applyList.slice(0, 4)"
             :key="item.id"
             class="glass-card apply-item"
             @click="handleViewApply(item)"

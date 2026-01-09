@@ -18,7 +18,8 @@
     {
       "path": "pages/tab/apply/index",
       "style": {
-        "navigationBarTitleText": "申请中心"
+        "navigationBarTitleText": "申请中心",
+        "navigationStyle": "custom"
       }
     },
     {
