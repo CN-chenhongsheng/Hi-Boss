@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.sushe.backend.common.exception.BusinessException;
 import com.sushe.backend.common.result.PageResult;
+import com.sushe.backend.dto.student.StudentLifestyleDTO;
 import com.sushe.backend.dto.student.StudentQueryDTO;
 import com.sushe.backend.dto.student.StudentSaveDTO;
 import com.sushe.backend.entity.SysCampus;
@@ -21,6 +22,7 @@ import com.sushe.backend.mapper.SysMajorMapper;
 import com.sushe.backend.mapper.SysStudentMapper;
 import com.sushe.backend.service.SysStudentService;
 import com.sushe.backend.util.DictUtils;
+import com.sushe.backend.util.LifestyleTextConverter;
 import com.sushe.backend.vo.StudentVO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -126,6 +128,99 @@ public class SysStudentServiceImpl extends ServiceImpl<SysStudentMapper, SysStud
         return removeByIds(Arrays.asList(ids));
     }
 
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public boolean updateLifestyle(Long studentId, StudentLifestyleDTO dto) {
+        if (studentId == null) {
+            throw new BusinessException("学生ID不能为空");
+        }
+        SysStudent student = getById(studentId);
+        if (student == null) {
+            throw new BusinessException("学生不存在");
+        }
+
+        // 更新生活习惯字段
+        if (dto.getSmokingStatus() != null) {
+            student.setSmokingStatus(dto.getSmokingStatus());
+        }
+        if (dto.getSmokingTolerance() != null) {
+            student.setSmokingTolerance(dto.getSmokingTolerance());
+        }
+        if (dto.getSleepSchedule() != null) {
+            student.setSleepSchedule(dto.getSleepSchedule());
+        }
+        if (dto.getSleepQuality() != null) {
+            student.setSleepQuality(dto.getSleepQuality());
+        }
+        if (dto.getSnores() != null) {
+            student.setSnores(dto.getSnores());
+        }
+        if (dto.getSensitiveToLight() != null) {
+            student.setSensitiveToLight(dto.getSensitiveToLight());
+        }
+        if (dto.getSensitiveToSound() != null) {
+            student.setSensitiveToSound(dto.getSensitiveToSound());
+        }
+        if (dto.getCleanlinessLevel() != null) {
+            student.setCleanlinessLevel(dto.getCleanlinessLevel());
+        }
+        if (dto.getBedtimeCleanup() != null) {
+            student.setBedtimeCleanup(dto.getBedtimeCleanup());
+        }
+        if (dto.getSocialPreference() != null) {
+            student.setSocialPreference(dto.getSocialPreference());
+        }
+        if (dto.getAllowVisitors() != null) {
+            student.setAllowVisitors(dto.getAllowVisitors());
+        }
+        if (dto.getPhoneCallTime() != null) {
+            student.setPhoneCallTime(dto.getPhoneCallTime());
+        }
+        if (dto.getStudyInRoom() != null) {
+            student.setStudyInRoom(dto.getStudyInRoom());
+        }
+        if (dto.getStudyEnvironment() != null) {
+            student.setStudyEnvironment(dto.getStudyEnvironment());
+        }
+        if (dto.getComputerUsageTime() != null) {
+            student.setComputerUsageTime(dto.getComputerUsageTime());
+        }
+        if (dto.getGamingPreference() != null) {
+            student.setGamingPreference(dto.getGamingPreference());
+        }
+        if (dto.getMusicPreference() != null) {
+            student.setMusicPreference(dto.getMusicPreference());
+        }
+        if (dto.getMusicVolume() != null) {
+            student.setMusicVolume(dto.getMusicVolume());
+        }
+        if (dto.getEatInRoom() != null) {
+            student.setEatInRoom(dto.getEatInRoom());
+        }
+        if (dto.getSpecialNeeds() != null) {
+            student.setSpecialNeeds(dto.getSpecialNeeds());
+        }
+        if (dto.getRoommatePreference() != null) {
+            student.setRoommatePreference(dto.getRoommatePreference());
+        }
+
+        return updateById(student);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public boolean updateStatus(Long id, Integer status) {
+        if (id == null) {
+            throw new BusinessException("学生ID不能为空");
+        }
+        SysStudent student = getById(id);
+        if (student == null) {
+            throw new BusinessException("学生不存在");
+        }
+        student.setStatus(status);
+        return updateById(student);
+    }
+
     /**
      * 实体转VO
      */
@@ -173,6 +268,27 @@ public class SysStudentServiceImpl extends ServiceImpl<SysStudentMapper, SysStud
                 vo.setClassName(classEntity.getClassName());
             }
         }
+
+        // 转换生活习惯字段为文本
+        vo.setSmokingStatusText(LifestyleTextConverter.getSmokingStatusText(student.getSmokingStatus()));
+        vo.setSmokingToleranceText(LifestyleTextConverter.getSmokingToleranceText(student.getSmokingTolerance()));
+        vo.setSleepScheduleText(LifestyleTextConverter.getSleepScheduleText(student.getSleepSchedule()));
+        vo.setSleepQualityText(LifestyleTextConverter.getSleepQualityText(student.getSleepQuality()));
+        vo.setSnoresText(LifestyleTextConverter.getSnoresText(student.getSnores()));
+        vo.setSensitiveToLightText(LifestyleTextConverter.getSensitiveToLightText(student.getSensitiveToLight()));
+        vo.setSensitiveToSoundText(LifestyleTextConverter.getSensitiveToSoundText(student.getSensitiveToSound()));
+        vo.setCleanlinessLevelText(LifestyleTextConverter.getCleanlinessLevelText(student.getCleanlinessLevel()));
+        vo.setBedtimeCleanupText(LifestyleTextConverter.getBedtimeCleanupText(student.getBedtimeCleanup()));
+        vo.setSocialPreferenceText(LifestyleTextConverter.getSocialPreferenceText(student.getSocialPreference()));
+        vo.setAllowVisitorsText(LifestyleTextConverter.getAllowVisitorsText(student.getAllowVisitors()));
+        vo.setPhoneCallTimeText(LifestyleTextConverter.getPhoneCallTimeText(student.getPhoneCallTime()));
+        vo.setStudyInRoomText(LifestyleTextConverter.getStudyInRoomText(student.getStudyInRoom()));
+        vo.setStudyEnvironmentText(LifestyleTextConverter.getStudyEnvironmentText(student.getStudyEnvironment()));
+        vo.setComputerUsageTimeText(LifestyleTextConverter.getComputerUsageTimeText(student.getComputerUsageTime()));
+        vo.setGamingPreferenceText(LifestyleTextConverter.getGamingPreferenceText(student.getGamingPreference()));
+        vo.setMusicPreferenceText(LifestyleTextConverter.getMusicPreferenceText(student.getMusicPreference()));
+        vo.setMusicVolumeText(LifestyleTextConverter.getMusicVolumeText(student.getMusicVolume()));
+        vo.setEatInRoomText(LifestyleTextConverter.getEatInRoomText(student.getEatInRoom()));
 
         return vo;
     }

@@ -109,6 +109,15 @@
 
         <!-- 功能菜单列表 -->
         <view class="glass-card menu-list">
+          <!-- 生活习惯 -->
+          <view class="menu-item" @click="handleMenuClick('lifestyle')">
+            <u-icon name="grid" size="20" color="#111817" />
+            <view class="menu-label">
+              生活习惯
+            </view>
+            <u-icon name="arrow-right" size="20" color="#9ca3af" />
+          </view>
+
           <!-- 通用设置 -->
           <view class="menu-item" @click="handleMenuClick('settings')">
             <u-icon name="setting" size="20" color="#111817" />
@@ -194,6 +203,9 @@ function handleQuickAction(type: string) {
 // 菜单点击
 function handleMenuClick(type: string) {
   const actions: Record<string, () => void> = {
+    lifestyle: () => {
+      uni.navigateTo({ url: '/pages/profile/lifestyle/index' });
+    },
     settings: () => {
       uni.showToast({
         title: '设置功能开发中',

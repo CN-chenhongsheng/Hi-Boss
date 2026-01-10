@@ -1055,7 +1055,32 @@ declare namespace Api {
       bedCode?: string
       status?: number
       remark?: string
+      // 生活习惯字段
+      smokingStatus?: number
+      smokingTolerance?: number
+      sleepSchedule?: number
+      sleepQuality?: number
+      snores?: number
+      sensitiveToLight?: number
+      sensitiveToSound?: number
+      cleanlinessLevel?: number
+      bedtimeCleanup?: number
+      socialPreference?: number
+      allowVisitors?: number
+      phoneCallTime?: number
+      studyInRoom?: number
+      studyEnvironment?: number
+      computerUsageTime?: number
+      gamingPreference?: number
+      musicPreference?: number
+      musicVolume?: number
+      eatInRoom?: number
+      specialNeeds?: string
+      roommatePreference?: string
     }
+
+    /** 学生详情（继承列表项的所有字段，用于详情页） */
+    type StudentDetail = StudentListItem
 
     /** 学生列表项 */
     interface StudentListItem {
@@ -1100,6 +1125,47 @@ declare namespace Api {
       remark?: string
       createTime?: string
       updateTime?: string
+      // 生活习惯字段
+      smokingStatus?: number
+      smokingStatusText?: string
+      smokingTolerance?: number
+      smokingToleranceText?: string
+      sleepSchedule?: number
+      sleepScheduleText?: string
+      sleepQuality?: number
+      sleepQualityText?: string
+      snores?: number
+      snoresText?: string
+      sensitiveToLight?: number
+      sensitiveToLightText?: string
+      sensitiveToSound?: number
+      sensitiveToSoundText?: string
+      cleanlinessLevel?: number
+      cleanlinessLevelText?: string
+      bedtimeCleanup?: number
+      bedtimeCleanupText?: string
+      socialPreference?: number
+      socialPreferenceText?: string
+      allowVisitors?: number
+      allowVisitorsText?: string
+      phoneCallTime?: number
+      phoneCallTimeText?: string
+      studyInRoom?: number
+      studyInRoomText?: string
+      studyEnvironment?: number
+      studyEnvironmentText?: string
+      computerUsageTime?: number
+      computerUsageTimeText?: string
+      gamingPreference?: number
+      gamingPreferenceText?: string
+      musicPreference?: number
+      musicPreferenceText?: string
+      musicVolume?: number
+      musicVolumeText?: string
+      eatInRoom?: number
+      eatInRoomText?: string
+      specialNeeds?: string
+      roommatePreference?: string
     }
 
     /** 学生分页响应 */

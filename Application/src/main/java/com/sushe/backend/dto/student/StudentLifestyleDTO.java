@@ -1,0 +1,80 @@
+package com.sushe.backend.dto.student;
+
+import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Data;
+
+/**
+ * 学生生活习惯更新DTO
+ * 用于单独更新学生的生活习惯信息，不修改其他基本信息
+ * 
+ * @author 陈鸿昇
+ * @since 2026-01-07
+ */
+@Data
+@Schema(description = "学生生活习惯更新请求")
+public class StudentLifestyleDTO {
+
+    @Schema(description = "吸烟状态：0不吸烟 1吸烟")
+    private Integer smokingStatus;
+
+    @Schema(description = "是否接受室友吸烟：0不接受 1接受")
+    private Integer smokingTolerance;
+
+    @Schema(description = "作息时间：0早睡早起 1正常 2晚睡晚起 3夜猫子")
+    private Integer sleepSchedule;
+
+    @Schema(description = "睡眠质量：0浅睡易醒 1正常 2深睡")
+    private Integer sleepQuality;
+
+    @Schema(description = "是否打呼噜：0不打 1打")
+    private Integer snores;
+
+    @Schema(description = "是否对光线敏感：0不敏感 1敏感")
+    private Integer sensitiveToLight;
+
+    @Schema(description = "是否对声音敏感：0不敏感 1敏感")
+    private Integer sensitiveToSound;
+
+    @Schema(description = "整洁程度：1非常整洁 2整洁 3一般 4随意 5不整洁")
+    private Integer cleanlinessLevel;
+
+    @Schema(description = "睡前是否整理：0不整理 1偶尔整理 2经常整理 3总是整理")
+    private Integer bedtimeCleanup;
+
+    @Schema(description = "社交偏好：1喜欢安静 2中等 3喜欢热闹")
+    private Integer socialPreference;
+
+    @Schema(description = "是否允许室友带访客：0不允许 1偶尔可以 2可以")
+    private Integer allowVisitors;
+
+    @Schema(description = "电话时间偏好：0喜欢在宿舍打电话 1偶尔在宿舍 2不在宿舍打电话")
+    private Integer phoneCallTime;
+
+    @Schema(description = "是否在宿舍学习：0不在 1偶尔 2经常 3总是")
+    private Integer studyInRoom;
+
+    @Schema(description = "学习环境偏好：1需要安静 2需要轻音乐 3可以接受声音")
+    private Integer studyEnvironment;
+
+    @Schema(description = "电脑使用时间：0不用 1很少 2正常 3很多")
+    private Integer computerUsageTime;
+
+    @Schema(description = "游戏偏好：0不玩游戏 1偶尔玩 2经常玩")
+    private Integer gamingPreference;
+
+    @Schema(description = "听音乐偏好：0不听 1偶尔听 2经常听")
+    private Integer musicPreference;
+
+    @Schema(description = "音乐音量偏好：1喜欢小声 2中等 3喜欢大声")
+    private Integer musicVolume;
+
+    @Schema(description = "是否在宿舍吃东西：0不吃 1偶尔 2经常")
+    private Integer eatInRoom;
+
+    @Schema(description = "特殊需求（如过敏、健康问题等）")
+    private String specialNeeds;
+
+    @Schema(description = "室友偏好（如希望室友不抽烟、安静等）")
+    private String roommatePreference;
+}
+

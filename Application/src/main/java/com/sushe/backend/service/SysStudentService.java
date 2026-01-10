@@ -2,6 +2,7 @@ package com.sushe.backend.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.sushe.backend.common.result.PageResult;
+import com.sushe.backend.dto.student.StudentLifestyleDTO;
 import com.sushe.backend.dto.student.StudentQueryDTO;
 import com.sushe.backend.dto.student.StudentSaveDTO;
 import com.sushe.backend.entity.SysStudent;
@@ -54,5 +55,23 @@ public interface SysStudentService extends IService<SysStudent> {
      * @return 是否成功
      */
     boolean batchDelete(Long[] ids);
+
+    /**
+     * 更新学生生活习惯
+     * 
+     * @param studentId 学生ID
+     * @param dto 生活习惯DTO
+     * @return 是否成功
+     */
+    boolean updateLifestyle(Long studentId, StudentLifestyleDTO dto);
+
+    /**
+     * 更新学生状态
+     * 
+     * @param id 学生ID
+     * @param status 状态：1正常 0停用
+     * @return 是否成功
+     */
+    boolean updateStatus(Long id, Integer status);
 }
 

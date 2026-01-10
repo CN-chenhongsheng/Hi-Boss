@@ -145,5 +145,126 @@ public class StudentVO implements Serializable {
     @Schema(description = "更新时间")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime updateTime;
+
+    // ========== 生活习惯字段 ==========
+    @Schema(description = "吸烟状态：0不吸烟 1吸烟")
+    private Integer smokingStatus;
+
+    @Schema(description = "吸烟状态文本")
+    private String smokingStatusText;
+
+    @Schema(description = "是否接受室友吸烟：0不接受 1接受")
+    private Integer smokingTolerance;
+
+    @Schema(description = "是否接受室友吸烟文本")
+    private String smokingToleranceText;
+
+    @Schema(description = "作息时间：0早睡早起 1正常 2晚睡晚起 3夜猫子")
+    private Integer sleepSchedule;
+
+    @Schema(description = "作息时间文本")
+    private String sleepScheduleText;
+
+    @Schema(description = "睡眠质量：0浅睡易醒 1正常 2深睡")
+    private Integer sleepQuality;
+
+    @Schema(description = "睡眠质量文本")
+    private String sleepQualityText;
+
+    @Schema(description = "是否打呼噜：0不打 1打")
+    private Integer snores;
+
+    @Schema(description = "是否打呼噜文本")
+    private String snoresText;
+
+    @Schema(description = "是否对光线敏感：0不敏感 1敏感")
+    private Integer sensitiveToLight;
+
+    @Schema(description = "是否对光线敏感文本")
+    private String sensitiveToLightText;
+
+    @Schema(description = "是否对声音敏感：0不敏感 1敏感")
+    private Integer sensitiveToSound;
+
+    @Schema(description = "是否对声音敏感文本")
+    private String sensitiveToSoundText;
+
+    @Schema(description = "整洁程度：1非常整洁 2整洁 3一般 4随意 5不整洁")
+    private Integer cleanlinessLevel;
+
+    @Schema(description = "整洁程度文本")
+    private String cleanlinessLevelText;
+
+    @Schema(description = "睡前是否整理：0不整理 1偶尔整理 2经常整理 3总是整理")
+    private Integer bedtimeCleanup;
+
+    @Schema(description = "睡前是否整理文本")
+    private String bedtimeCleanupText;
+
+    @Schema(description = "社交偏好：1喜欢安静 2中等 3喜欢热闹")
+    private Integer socialPreference;
+
+    @Schema(description = "社交偏好文本")
+    private String socialPreferenceText;
+
+    @Schema(description = "是否允许室友带访客：0不允许 1偶尔可以 2可以")
+    private Integer allowVisitors;
+
+    @Schema(description = "是否允许室友带访客文本")
+    private String allowVisitorsText;
+
+    @Schema(description = "电话时间偏好：0喜欢在宿舍打电话 1偶尔在宿舍 2不在宿舍打电话")
+    private Integer phoneCallTime;
+
+    @Schema(description = "电话时间偏好文本")
+    private String phoneCallTimeText;
+
+    @Schema(description = "是否在宿舍学习：0不在 1偶尔 2经常 3总是")
+    private Integer studyInRoom;
+
+    @Schema(description = "是否在宿舍学习文本")
+    private String studyInRoomText;
+
+    @Schema(description = "学习环境偏好：1需要安静 2需要轻音乐 3可以接受声音")
+    private Integer studyEnvironment;
+
+    @Schema(description = "学习环境偏好文本")
+    private String studyEnvironmentText;
+
+    @Schema(description = "电脑使用时间：0不用 1很少 2正常 3很多")
+    private Integer computerUsageTime;
+
+    @Schema(description = "电脑使用时间文本")
+    private String computerUsageTimeText;
+
+    @Schema(description = "游戏偏好：0不玩游戏 1偶尔玩 2经常玩")
+    private Integer gamingPreference;
+
+    @Schema(description = "游戏偏好文本")
+    private String gamingPreferenceText;
+
+    @Schema(description = "听音乐偏好：0不听 1偶尔听 2经常听")
+    private Integer musicPreference;
+
+    @Schema(description = "听音乐偏好文本")
+    private String musicPreferenceText;
+
+    @Schema(description = "音乐音量偏好：1喜欢小声 2中等 3喜欢大声")
+    private Integer musicVolume;
+
+    @Schema(description = "音乐音量偏好文本")
+    private String musicVolumeText;
+
+    @Schema(description = "是否在宿舍吃东西：0不吃 1偶尔 2经常")
+    private Integer eatInRoom;
+
+    @Schema(description = "是否在宿舍吃东西文本")
+    private String eatInRoomText;
+
+    @Schema(description = "特殊需求（如过敏、健康问题等）")
+    private String specialNeeds;
+
+    @Schema(description = "室友偏好（如希望室友不抽烟、安静等）")
+    private String roommatePreference;
 }
 

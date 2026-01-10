@@ -3,6 +3,7 @@ package com.sushe.backend.controller.accommodation;
 import com.sushe.backend.common.result.PageResult;
 import com.sushe.backend.controller.base.BaseCrudController;
 import com.sushe.backend.controller.base.BatchDeleteController;
+import com.sushe.backend.controller.base.StatusUpdateController;
 import com.sushe.backend.dto.student.StudentQueryDTO;
 import com.sushe.backend.dto.student.StudentSaveDTO;
 import com.sushe.backend.service.SysStudentService;
@@ -20,8 +21,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/v1/system/student")
 @RequiredArgsConstructor
-public class SysStudentController extends BaseCrudController<StudentVO, StudentQueryDTO, StudentSaveDTO> 
-        implements BatchDeleteController {
+public class SysStudentController extends BaseCrudController<StudentVO, StudentQueryDTO, StudentSaveDTO>
+        implements BatchDeleteController, StatusUpdateController {
 
     private final SysStudentService studentService;
 
@@ -53,6 +54,11 @@ public class SysStudentController extends BaseCrudController<StudentVO, StudentQ
     @Override
     public boolean callBatchDelete(Long[] ids) {
         return studentService.batchDelete(ids);
+    }
+
+    @Override
+    public boolean callUpdateStatus(Long id, Integer status) {
+        return studentService.updateStatus(id, status);
     }
 }
 

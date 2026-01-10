@@ -79,6 +79,18 @@ export function fetchBatchDeleteStudent(ids: number[]) {
   })
 }
 
+/**
+ * 更新学生状态
+ * @param id 学生ID
+ * @param status 状态：1正常 0停用
+ */
+export function fetchUpdateStudentStatus(id: number, status: number) {
+  return request.put({
+    url: `/api/v1/system/student/${id}/status/${status}`,
+    showSuccessMessage: true
+  })
+}
+
 /** ==================== 入住管理 ==================== */
 
 /**

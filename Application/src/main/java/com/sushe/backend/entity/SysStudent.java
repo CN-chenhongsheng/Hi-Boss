@@ -143,5 +143,90 @@ public class SysStudent extends BaseEntity {
     @Schema(description = "备注")
     @TableField("remark")
     private String remark;
+
+    // ========== 生活习惯字段 ==========
+    @Schema(description = "吸烟状态：0不吸烟 1吸烟")
+    @TableField("smoking_status")
+    private Integer smokingStatus;
+
+    @Schema(description = "是否接受室友吸烟：0不接受 1接受")
+    @TableField("smoking_tolerance")
+    private Integer smokingTolerance;
+
+    @Schema(description = "作息时间：0早睡早起 1正常 2晚睡晚起 3夜猫子")
+    @TableField("sleep_schedule")
+    private Integer sleepSchedule;
+
+    @Schema(description = "睡眠质量：0浅睡易醒 1正常 2深睡")
+    @TableField("sleep_quality")
+    private Integer sleepQuality;
+
+    @Schema(description = "是否打呼噜：0不打 1打")
+    @TableField("snores")
+    private Integer snores;
+
+    @Schema(description = "是否对光线敏感：0不敏感 1敏感")
+    @TableField("sensitive_to_light")
+    private Integer sensitiveToLight;
+
+    @Schema(description = "是否对声音敏感：0不敏感 1敏感")
+    @TableField("sensitive_to_sound")
+    private Integer sensitiveToSound;
+
+    @Schema(description = "整洁程度：1非常整洁 2整洁 3一般 4随意 5不整洁")
+    @TableField("cleanliness_level")
+    private Integer cleanlinessLevel;
+
+    @Schema(description = "睡前是否整理：0不整理 1偶尔整理 2经常整理 3总是整理")
+    @TableField("bedtime_cleanup")
+    private Integer bedtimeCleanup;
+
+    @Schema(description = "社交偏好：1喜欢安静 2中等 3喜欢热闹")
+    @TableField("social_preference")
+    private Integer socialPreference;
+
+    @Schema(description = "是否允许室友带访客：0不允许 1偶尔可以 2可以")
+    @TableField("allow_visitors")
+    private Integer allowVisitors;
+
+    @Schema(description = "电话时间偏好：0喜欢在宿舍打电话 1偶尔在宿舍 2不在宿舍打电话")
+    @TableField("phone_call_time")
+    private Integer phoneCallTime;
+
+    @Schema(description = "是否在宿舍学习：0不在 1偶尔 2经常 3总是")
+    @TableField("study_in_room")
+    private Integer studyInRoom;
+
+    @Schema(description = "学习环境偏好：1需要安静 2需要轻音乐 3可以接受声音")
+    @TableField("study_environment")
+    private Integer studyEnvironment;
+
+    @Schema(description = "电脑使用时间：0不用 1很少 2正常 3很多")
+    @TableField("computer_usage_time")
+    private Integer computerUsageTime;
+
+    @Schema(description = "游戏偏好：0不玩游戏 1偶尔玩 2经常玩")
+    @TableField("gaming_preference")
+    private Integer gamingPreference;
+
+    @Schema(description = "听音乐偏好：0不听 1偶尔听 2经常听")
+    @TableField("music_preference")
+    private Integer musicPreference;
+
+    @Schema(description = "音乐音量偏好：1喜欢小声 2中等 3喜欢大声")
+    @TableField("music_volume")
+    private Integer musicVolume;
+
+    @Schema(description = "是否在宿舍吃东西：0不吃 1偶尔 2经常")
+    @TableField("eat_in_room")
+    private Integer eatInRoom;
+
+    @Schema(description = "特殊需求（如过敏、健康问题等）")
+    @TableField("special_needs")
+    private String specialNeeds;
+
+    @Schema(description = "室友偏好（如希望室友不抽烟、安静等）")
+    @TableField("roommate_preference")
+    private String roommatePreference;
 }
 

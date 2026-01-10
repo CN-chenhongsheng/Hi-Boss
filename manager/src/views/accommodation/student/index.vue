@@ -24,9 +24,6 @@
       >
         <template #left>
           <ElSpace wrap>
-            <ElButton @click="handleAdd" v-ripple v-permission="'system:student:add'"
-              >新增学生</ElButton
-            >
             <ElButton
               :disabled="selectedCount === 0"
               @click="handleBatchDelete"
@@ -51,28 +48,52 @@
         @pagination:current-change="handleCurrentChange"
       />
     </ElCard>
+
+    <!-- 学生详情抽屉（查看） -->
+    <StudentDrawer
+      v-if="dialogType === 'view'"
+      v-model:visible="dialogVisible"
+      :dialog-type="dialogType"
+      :student-id="editData?.id"
+      :student-data="editData"
+      @saved="handleRefresh"
+    />
+
+    <!-- 学生新增/编辑弹窗 -->
+    <StudentDialog
+      v-if="dialogType === 'edit' || dialogType === 'add'"
+      v-model:visible="dialogVisible"
+      :dialog-type="dialogType"
+      :student-id="editData?.id"
+      :student-data="editData"
+      @saved="handleRefresh"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-  import { computed } from 'vue'
+  import { computed, h, ref } from 'vue'
   import { useTable } from '@/hooks/core/useTable'
   import {
     fetchGetStudentPage,
     fetchDeleteStudent,
-    fetchBatchDeleteStudent
+    fetchBatchDeleteStudent,
+    fetchUpdateStudentStatus
   } from '@/api/accommodation-manage'
-  import { ElMessageBox } from 'element-plus'
+  import { ElMessageBox, ElMessage } from 'element-plus'
+  import ArtSwitch from '@/components/core/forms/art-switch/index.vue'
   import StudentSearch from './modules/student-search.vue'
+  import StudentDrawer from './modules/student-drawer.vue'
+  import StudentDialog from './modules/student-dialog.vue'
 
   defineOptions({ name: 'AccommodationStudent' })
 
-  type StudentListItem = Api.AccommodationManage.StudentListItem
+  type StudentListItem = Api.AccommodationManage.StudentListItem & { _statusLoading?: boolean }
 
   // 状态管理
   const showSearchBar = ref(false)
   const dialogVisible = ref(false)
-  const dialogType = ref<'add' | 'edit'>('add')
+  const dialogType = ref<'view' | 'edit' | 'add'>('view')
   const editData = ref<StudentListItem | null>(null)
 
   // 批量选择
@@ -124,34 +145,48 @@
       },
       columnsFactory: () => [
         { type: 'selection', width: 50 },
-        { type: 'index', label: '序号', width: 60 },
-        { prop: 'studentNo', label: '学号', width: 120 },
-        { prop: 'studentName', label: '姓名', width: 100 },
+        { prop: 'studentNo', label: '学号' },
+        { prop: 'studentName', label: '姓名' },
         { prop: 'genderText', label: '性别', width: 80 },
-        { prop: 'phone', label: '手机号', width: 120 },
-        { prop: 'campusName', label: '校区', width: 120 },
-        { prop: 'deptName', label: '院系', width: 120 },
-        { prop: 'majorName', label: '专业', width: 120 },
-        { prop: 'className', label: '班级', width: 120 },
-        { prop: 'bedCode', label: '床位编码', width: 120 },
-        { prop: 'academicStatusText', label: '学籍状态', width: 100 },
-        { prop: 'statusText', label: '状态', width: 80 },
+        { prop: 'phone', label: '手机号' },
+        { prop: 'campusName', label: '校区' },
+        { prop: 'deptName', label: '院系' },
+        { prop: 'majorName', label: '专业' },
+        { prop: 'className', label: '班级' },
+        { prop: 'bedCode', label: '床位编码' },
+        { prop: 'academicStatusText', label: '学籍状态' },
+        {
+          prop: 'status',
+          label: '状态',
+          width: 100,
+          formatter: (row: StudentListItem) => {
+            return h(ArtSwitch, {
+              modelValue: row.status === 1,
+              loading: row._statusLoading || false,
+              inlinePrompt: true,
+              onChange: (value: string | number | boolean) => {
+                handleStatusChange(row, value === true || value === 1)
+              }
+            })
+          }
+        },
         {
           prop: 'action',
           label: '操作',
-          width: 200,
+          width: 180,
           fixed: 'right',
-          actions: [
-            { type: 'view', onClick: (row: StudentListItem) => handleView(row) },
+          formatter: (row: StudentListItem) => [
+            { type: 'view', onClick: () => handleView(row) },
             {
               type: 'edit',
-              onClick: (row: StudentListItem) => handleEdit(row),
+              onClick: () => handleEdit(row),
               auth: 'system:student:edit'
             },
             {
               type: 'delete',
-              onClick: (row: StudentListItem) => handleDelete(row),
-              auth: 'system:student:delete'
+              onClick: () => handleDelete(row),
+              auth: 'system:student:delete',
+              danger: true
             }
           ]
         }
@@ -172,18 +207,21 @@
     refreshData()
   }
 
-  // 新增
-  const handleAdd = () => {
-    dialogType.value = 'add'
-    editData.value = null
-    dialogVisible.value = true
-  }
-
   // 查看
-  const handleView = (row: StudentListItem) => {
-    dialogType.value = 'edit'
+  const handleView = async (row: StudentListItem) => {
+    dialogType.value = 'view'
     editData.value = row
     dialogVisible.value = true
+    // 如果需要获取完整详情，可以调用API
+    // try {
+    //   const res = await fetchGetStudentDetail(row.id)
+    //   if (res.data) {
+    //     editData.value = res.data
+    //   }
+    // } catch {
+    //   // 获取失败，使用列表数据
+    //   editData.value = row
+    // }
   }
 
   // 编辑
@@ -236,5 +274,23 @@
   // 选择变化
   const handleSelectionChange = (rows: StudentListItem[]) => {
     selectedRows.value = rows
+  }
+
+  /**
+   * 更新学生状态
+   */
+  const handleStatusChange = async (row: StudentListItem, value: boolean): Promise<void> => {
+    const originalStatus = row.status
+    try {
+      row._statusLoading = true
+      row.status = value ? 1 : 0
+      await fetchUpdateStudentStatus(row.id, value ? 1 : 0)
+    } catch (error) {
+      console.error('更新学生状态失败:', error)
+      row.status = originalStatus
+      ElMessage.error('更新学生状态失败')
+    } finally {
+      row._statusLoading = false
+    }
   }
 </script>

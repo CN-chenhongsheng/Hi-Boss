@@ -68,6 +68,18 @@
       ]
     },
     {
+      "root": "pages/profile",
+      "pages": [
+        {
+          "path": "lifestyle/index",
+          "style": {
+            "navigationBarTitleText": "生活习惯",
+            "navigationStyle": "custom"
+          }
+        }
+      ]
+    },
+    {
       "root": "pages/apply",
       "pages": [
         {
