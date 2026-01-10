@@ -115,6 +115,96 @@
         </view>
       </view>
 
+      <!-- 水电统计 -->
+      <view class="section">
+        <view class="section-title">
+          水电统计
+        </view>
+        <view class="utility-stats">
+          <!-- 用电统计 -->
+          <view class="glass-card utility-card">
+            <view class="utility-bg-blob utility-bg-electric" />
+            <view class="utility-header">
+              <view class="utility-info">
+                <view class="utility-title-row">
+                  <view class="utility-icon-wrapper utility-icon-electric">
+                    <u-icon name="grid" size="18" color="#0adbc3" />
+                  </view>
+                  <text class="utility-title">
+                    本年用电
+                  </text>
+                </view>
+                <view class="utility-value-row">
+                  <text class="utility-value">
+                    {{ electricityData.value }}
+                  </text>
+                  <text class="utility-unit">
+                    kWh
+                  </text>
+                </view>
+              </view>
+              <view class="utility-trend" :class="electricityData.trendClass">
+                <u-icon :name="electricityData.trendIcon" size="14" :color="electricityData.trendColor" />
+                <text>
+                  {{ electricityData.trendText }}
+                </text>
+              </view>
+            </view>
+            <view class="utility-chart">
+              <view class="chart-container">
+                <qiun-ucharts
+                  type="line"
+                  :opts="electricityChartOpts"
+                  :chart-data="electricityChartData"
+                  canvas-id="electricity-chart"
+                />
+              </view>
+            </view>
+          </view>
+
+          <!-- 用水统计 -->
+          <view class="glass-card utility-card">
+            <view class="utility-bg-blob utility-bg-water" />
+            <view class="utility-header">
+              <view class="utility-info">
+                <view class="utility-title-row">
+                  <view class="utility-icon-wrapper utility-icon-water">
+                    <u-icon name="grid" size="18" color="#60a5fa" />
+                  </view>
+                  <text class="utility-title">
+                    本年用水
+                  </text>
+                </view>
+                <view class="utility-value-row">
+                  <text class="utility-value">
+                    {{ waterData.value }}
+                  </text>
+                  <text class="utility-unit">
+                    m³
+                  </text>
+                </view>
+              </view>
+              <view class="utility-trend" :class="waterData.trendClass">
+                <u-icon :name="waterData.trendIcon" size="14" :color="waterData.trendColor" />
+                <text>
+                  {{ waterData.trendText }}
+                </text>
+              </view>
+            </view>
+            <view class="utility-chart">
+              <view class="chart-container">
+                <qiun-ucharts
+                  type="line"
+                  :opts="waterChartOpts"
+                  :chart-data="waterChartData"
+                  canvas-id="water-chart"
+                />
+              </view>
+            </view>
+          </view>
+        </view>
+      </view>
+
       <!-- 我的申请进度（仅登录后显示） -->
       <view v-if="isLoggedIn" class="section">
         <view class="section-header">
@@ -223,6 +313,100 @@ const noticeList = ref<any[]>([]);
 
 // 申请列表
 const applyList = ref<any[]>([]);
+
+// 水电统计数据
+const electricityData = ref({
+  value: '1542.5',
+  trend: -5,
+  trendText: '-5% 同比',
+  trendClass: 'trend-down',
+  trendIcon: 'arrow-down',
+  trendColor: '#22c55e',
+});
+
+const waterData = ref({
+  value: '145.2',
+  trend: 2,
+  trendText: '+2% 同比',
+  trendClass: 'trend-up',
+  trendIcon: 'arrow-up',
+  trendColor: '#ef4444',
+});
+
+// 用电图表配置
+const electricityChartOpts = ref({
+  color: ['#0adbc3'],
+  padding: [10, 2, 0, 2], // 最小化左右 padding，确保图表完整显示
+  enableScroll: false,
+  legend: {
+    show: false,
+  },
+  xAxis: {
+    disableGrid: true,
+  },
+  yAxis: {
+    gridType: 'dash',
+    dashLength: 2,
+    // 手动设置 Y 轴范围，确保图表完整显示
+    dataMin: 100, // 数据最小值
+    dataMax: 200, // 数据最大值
+    splitNumber: 5, // 分割数
+  },
+  extra: {
+    line: {
+      type: 'curve',
+      width: 3,
+      activeType: 'hollow',
+      activeRadius: 6,
+    },
+  },
+});
+
+// 用电图表数据
+const electricityChartData = computed(() => ({
+  categories: ['1月', '4月', '8月', '12月'],
+  series: [
+    {
+      name: '用电量',
+      data: [120, 180, 140, 160],
+    },
+  ],
+}));
+
+// 用水图表配置
+const waterChartOpts = ref({
+  color: ['#60a5fa'],
+  padding: [10, 2, 0, 2], // 最小化左右 padding，确保图表完整显示
+  enableScroll: false,
+  legend: {
+    show: false,
+  },
+  xAxis: {
+    disableGrid: true,
+  },
+  yAxis: {
+    gridType: 'dash',
+    dashLength: 2,
+  },
+  extra: {
+    line: {
+      type: 'curve',
+      width: 3,
+      activeType: 'hollow',
+    },
+  },
+});
+
+// 用水图表数据
+const waterChartData = computed(() => ({
+  categories: ['1月', '4月', '8月', '12月'],
+  series: [
+    {
+      name: '用水量',
+      data: [110, 95, 85, 75],
+    },
+  ],
+}));
 
 // 获取渐变背景样式
 function getGradientStyle(color: string) {
@@ -880,6 +1064,144 @@ $bg-light: #F0F4F8;
       color: #94a3b8;
     }
   }
+}
+
+// 水电统计
+.utility-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 24rpx;
+}
+
+.utility-card {
+  position: relative;
+  overflow: visible; // 改为 visible 以避免图表被裁剪
+  padding: 32rpx;
+}
+
+.utility-bg-blob {
+  position: absolute;
+  top: -96rpx;
+  right: -96rpx;
+  z-index: 0;
+  width: 320rpx;
+  height: 320rpx;
+  border-radius: 50%;
+  filter: blur(64rpx);
+  pointer-events: none;
+
+  &.utility-bg-electric {
+    background: rgb(10 219 195 / 10%);
+  }
+
+  &.utility-bg-water {
+    background: rgb(96 165 250 / 10%);
+  }
+}
+
+.utility-header {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 24rpx;
+}
+
+.utility-info {
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+}
+
+.utility-title-row {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.utility-icon-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 12rpx;
+  border-radius: 50%;
+
+  &.utility-icon-electric {
+    background: rgb(10 219 195 / 10%);
+  }
+
+  &.utility-icon-water {
+    background: rgb(96 165 250 / 10%);
+  }
+}
+
+.utility-title {
+  font-size: 32rpx;
+  font-weight: 700;
+  color: #111817;
+  letter-spacing: 0.5rpx;
+}
+
+.utility-value-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8rpx;
+  margin-top: 16rpx;
+}
+
+.utility-value {
+  font-size: 90rpx;
+  line-height: 1;
+  font-weight: 700;
+  color: #111817;
+  letter-spacing: -2rpx;
+}
+
+.utility-unit {
+  font-size: 28rpx;
+  color: #6b7280;
+  font-weight: 500;
+  transform: translateY(-4rpx);
+}
+
+.utility-trend {
+  display: flex;
+  align-items: center;
+  padding: 12rpx 20rpx;
+  font-size: 24rpx;
+  border-radius: 16rpx;
+  gap: 8rpx;
+  font-weight: 600;
+
+  &.trend-down {
+    color: #22c55e;
+    background: rgb(34 197 94 / 10%);
+    border: 2rpx solid rgb(34 197 94 / 20%);
+  }
+
+  &.trend-up {
+    color: #ef4444;
+    background: rgb(239 68 68 / 10%);
+    border: 2rpx solid rgb(239 68 68 / 20%);
+  }
+}
+
+.utility-chart {
+  position: relative;
+  z-index: 10;
+  overflow: visible; // 允许图表内容显示，不被裁剪
+  margin-top: 24rpx;
+  margin-bottom: 8rpx;
+  width: 100%;
+  height: 240rpx;
+}
+
+.chart-container {
+  position: relative;
+  overflow: visible;
+  width: 100%;
+  height: 100%;
 }
 
 // 底部安全区域

@@ -8,17 +8,13 @@
     <view class="page-container">
       <!-- 顶部导航栏 -->
       <header class="top-header">
-        <view class="header-back" @click="handleBack">
-          <u-icon name="arrow-left" size="22" color="#111817" />
-        </view>
         <view class="header-title">
           {{ pageTitle }}
         </view>
-        <view class="header-placeholder" />
       </header>
 
       <!-- Tab切换栏 -->
-      <view class="apply-tabs glass-card">
+      <view class="glass-card apply-tabs">
         <view
           v-for="tab in tabs"
           :key="tab.value"
@@ -238,11 +234,6 @@ function handleTabChange(value: string | number) {
   loadData();
 }
 
-// 返回
-function handleBack() {
-  uni.navigateBack();
-}
-
 // 查看详情
 function handleViewDetail(item: any) {
   const url = hasManagePermission.value
@@ -391,35 +382,17 @@ $glass-border-light: rgb(255 255 255 / 60%);
   top: 0;
   z-index: 50;
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
   padding: 24rpx 32rpx;
   padding-top: calc(var(--status-bar-height) + 24rpx);
-
-  .header-back {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 80rpx;
-    height: 80rpx;
-    border-radius: 50%;
-
-    &:active {
-      background: rgb(0 0 0 / 5%);
-    }
-  }
 
   .header-title {
     font-size: 36rpx;
     text-align: center;
     color: $text-main;
-    flex: 1;
     font-weight: 700;
     letter-spacing: 0.5rpx;
-  }
-
-  .header-placeholder {
-    width: 80rpx;
   }
 }
 
@@ -437,7 +410,6 @@ $glass-border-light: rgb(255 255 255 / 60%);
   border: 2rpx solid $glass-border;
   border-radius: 24rpx;
   box-shadow: 0 8rpx 32rpx rgb(31 38 135 / 7%);
-  backdrop-filter: blur(32rpx);
   backdrop-filter: blur(32rpx);
 
   .tab-item {
@@ -534,7 +506,6 @@ $glass-border-light: rgb(255 255 255 / 60%);
   border-radius: 32rpx;
   box-shadow: 0 8rpx 32rpx rgb(31 38 135 / 7%);
   transition: all 0.3s;
-  backdrop-filter: blur(32rpx);
   backdrop-filter: blur(32rpx);
 
   &:active {
@@ -658,7 +629,6 @@ $glass-border-light: rgb(255 255 255 / 60%);
   background: $glass-bg;
   border: 2rpx solid $glass-border;
   box-shadow: 0 8rpx 32rpx rgb(31 38 135 / 7%);
-  backdrop-filter: blur(32rpx);
   backdrop-filter: blur(32rpx);
 }
 

@@ -1,10 +1,12 @@
 {
   "easycom": {
+    "autoscan": true,
     "custom": {
       "^u--(.*)": "uview-plus/components/u-$1/u-$1.vue",
       "^up-(.*)": "uview-plus/components/u-$1/u-$1.vue",
       "^u-([^-].*)": "uview-plus/components/u-$1/u-$1.vue",
-      "^(?!z-paging-refresh|z-paging-load-more)z-paging(.*)": "z-paging/components/z-paging$1/z-paging$1.vue"
+      "^(?!z-paging-refresh|z-paging-load-more)z-paging(.*)": "z-paging/components/z-paging$1/z-paging$1.vue",
+      "^qiun-ucharts$": "@/components/qiun-ucharts/index.vue"
     }
   },
   "pages": [
