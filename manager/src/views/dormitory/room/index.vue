@@ -232,7 +232,7 @@
         {
           prop: 'facilities',
           label: '设施',
-          minWidth: 150,
+          minWidth: 160,
           formatter: (row: RoomListItem) => {
             const facilities = []
             if (row.hasAirConditioner === 1) facilities.push('空调')
