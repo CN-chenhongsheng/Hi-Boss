@@ -22,7 +22,7 @@ import axios, {
 } from 'axios'
 import { useUserStore } from '@/store/modules/user'
 import { ApiStatus } from './status'
-import { HttpError, handleError, showError, showSuccess } from './error'
+import { HttpError, handleError, showError, showSuccess, ErrorResponse } from './error'
 import { $t } from '@/locales'
 import { BaseResponse } from '@/types'
 import { fetchLogout, fetchRefreshToken } from '@/api/auth'
@@ -115,7 +115,7 @@ axiosInstance.interceptors.response.use(
     }
     throw createHttpError(responseMsg || $t('httpMsg.requestFailed'), code)
   },
-  async (error: AxiosError) => {
+  async (error: AxiosError<ErrorResponse>) => {
     const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean }
 
     // 如果是 401 错误且不是刷新 Token 的请求，尝试刷新 Token
