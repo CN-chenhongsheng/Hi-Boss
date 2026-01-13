@@ -48,7 +48,7 @@ import { staticRoutes } from '../routes/staticRoutes'
 import { loadingService } from '@/utils/ui'
 import { useCommon } from '@/hooks/core/useCommon'
 import { useWorktabStore } from '@/store/modules/worktab'
-import { fetchGetUserInfo } from '@/api/auth'
+import { fetchGetUserInfo, fetchRefreshToken } from '@/api/auth'
 import { ApiStatus } from '@/utils/http/status'
 import { isHttpError } from '@/utils/http/error'
 import { RouteRegistry, MenuProcessor, IframeRouteManager, RoutePermissionValidator } from '../core'
@@ -153,7 +153,8 @@ async function handleRouteGuard(
   }
 
   // 1. 检查登录状态
-  if (!handleLoginStatus(to, userStore, next)) {
+  const loginStatusResult = await handleLoginStatus(to, userStore, next)
+  if (!loginStatusResult) {
     return
   }
 
@@ -202,14 +203,27 @@ async function handleRouteGuard(
  * 处理登录状态
  * @returns true 表示可以继续，false 表示已处理跳转
  */
-function handleLoginStatus(
+async function handleLoginStatus(
   to: RouteLocationNormalized,
   userStore: ReturnType<typeof useUserStore>,
   next: NavigationGuardNext
-): boolean {
+): Promise<boolean> {
   // 已登录或访问登录页或静态路由，直接放行
   if (userStore.isLogin || to.path === RoutesAlias.Login || isStaticRoute(to.path)) {
     return true
+  }
+
+  // 如果用户信息存在但 Access Token 丢失（页面刷新场景），尝试通过 Refresh Token 恢复
+  if (hasCachedUserInfo(userStore) && !userStore.accessToken) {
+    try {
+      const newAccessToken = await fetchRefreshToken()
+      userStore.setToken(newAccessToken)
+      userStore.setLoginStatus(true)
+      return true
+    } catch (error) {
+      // Refresh Token 无效或过期，清除用户信息并跳转登录页
+      console.warn('[RouteGuard] Refresh Token 无效，跳转登录页:', error)
+    }
   }
 
   // 未登录且访问需要权限的页面，跳转到登录页并携带 redirect 参数

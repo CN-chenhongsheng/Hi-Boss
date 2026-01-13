@@ -63,9 +63,10 @@ export const useUserStore = defineStore(
     const info = ref<Partial<Api.Auth.UserInfo>>({})
     // 搜索历史记录
     const searchHistory = ref<AppRouteRecord[]>([])
-    // 访问令牌
+    // 访问令牌（仅存储在内存中，不持久化）
     const accessToken = ref('')
-    // 刷新令牌
+    // 刷新令牌（存储在HttpOnly Cookie中，前端不需要存储）
+    // 注意：refreshToken字段保留但不使用，仅用于兼容性
     const refreshToken = ref('')
 
     // 计算属性：获取用户信息
@@ -125,15 +126,13 @@ export const useUserStore = defineStore(
     }
 
     /**
-     * 设置令牌
-     * @param newAccessToken 访问令牌
-     * @param newRefreshToken 刷新令牌（可选）
+     * 设置访问令牌
+     * @param newAccessToken 访问令牌（仅存储在内存中）
+     * 注意：Refresh Token 存储在 HttpOnly Cookie 中，由后端自动管理
      */
-    const setToken = (newAccessToken: string, newRefreshToken?: string) => {
+    const setToken = (newAccessToken: string) => {
       accessToken.value = newAccessToken
-      if (newRefreshToken) {
-        refreshToken.value = newRefreshToken
-      }
+      // Refresh Token 不需要在前端存储，由 Cookie 自动管理
     }
 
     /**
@@ -169,10 +168,9 @@ export const useUserStore = defineStore(
       isLock.value = false
       // 清空锁屏密码
       lockPassword.value = ''
-      // 清空访问令牌
+      // 清空访问令牌（内存中的）
       accessToken.value = ''
-      // 清空刷新令牌
-      refreshToken.value = ''
+      // Refresh Token 在 HttpOnly Cookie 中，由后端清除
       // 注意：不清空工作台标签页，等下次登录时根据用户判断
       // 移除iframe路由缓存
       sessionStorage.removeItem('iframeRoutes')
@@ -245,7 +243,11 @@ export const useUserStore = defineStore(
   {
     persist: {
       key: 'user',
-      storage: localStorage
+      storage: localStorage,
+      // 排除 accessToken 和 refreshToken，使其仅存储在内存中
+      // accessToken 存储在内存中，页面刷新后丢失，需要通过 Refresh Token 重新获取
+      // refreshToken 存储在 HttpOnly Cookie 中，由后端管理
+      paths: ['language', 'isLogin', 'isLock', 'lockPassword', 'info', 'searchHistory']
     }
   }
 )

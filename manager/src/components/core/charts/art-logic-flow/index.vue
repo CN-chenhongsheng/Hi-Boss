@@ -636,10 +636,7 @@
     // 全屏模式
     &.is-fullscreen {
       position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
+      inset: 0;
       z-index: 9999;
       background: #fff;
 
@@ -651,15 +648,15 @@
   }
 
   .art-logic-flow-container {
+    position: relative;
     width: 100%;
     height: 100%;
-    position: relative;
     overflow: hidden;
-    border-radius: 4px;
     // 直接在容器上设置背景
     background-color: #f8fafc !important;
     background-image: radial-gradient(circle, #d0d5dd 1px, transparent 1px) !important;
     background-size: 20px 20px !important;
+    border-radius: 4px;
 
     // 强制 LogicFlow 所有内部元素透明
     :deep(.lf-container),
@@ -684,15 +681,15 @@
 
       // 强制移除 rect 的默认 stroke 和 fill
       rect {
-        stroke: none !important;
         fill: transparent !important;
+        stroke: none !important;
       }
 
       // 移除默认的 hover 效果
       &:hover {
         rect {
-          stroke: none !important;
           filter: none;
+          stroke: none !important;
           transform: none;
         }
       }
@@ -720,10 +717,11 @@
       path {
         transition: all 0.3s ease;
       }
+
       &:hover {
         path {
-          stroke-width: 2px;
           stroke: var(--el-color-primary);
+          stroke-width: 2px;
         }
       }
     }

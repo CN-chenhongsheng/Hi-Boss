@@ -585,15 +585,15 @@
   .user-page {
     :deep(.user) {
       .user-name {
+        margin-bottom: 4px;
         font-size: 14px;
         color: var(--el-text-color-primary);
-        margin-bottom: 4px;
       }
 
       .nickname {
+        margin-bottom: 2px;
         font-size: 13px;
         color: var(--el-text-color-regular);
-        margin-bottom: 2px;
       }
 
       .email {

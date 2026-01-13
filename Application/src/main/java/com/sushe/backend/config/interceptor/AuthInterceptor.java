@@ -30,6 +30,7 @@ public class AuthInterceptor implements HandlerInterceptor {
      */
     private static final String[] WHITELIST = {
             "/v1/auth/login",
+            "/v1/auth/refresh",
             "/v1/auth/logout",
             "/doc.html",
             "/webjars",
@@ -48,86 +49,79 @@ public class AuthInterceptor implements HandlerInterceptor {
         }
 
         try {
-            // 对于 SSE 请求，EventSource 不支持自定义 headers，需要从 URL 参数读取 token
-            // 如果请求头中没有 Authorization，且 URL 参数中有 token，则从 URL 参数读取
+            String token = null;
+
+            // 1. 优先从 Authorization 请求头读取 Bearer Token
             String authHeader = request.getHeader("Authorization");
-            String tokenParam = request.getParameter("token");
-
-            if ((authHeader == null || authHeader.isEmpty()) && tokenParam != null && !tokenParam.isEmpty()) {
-                // 从 URL 参数读取 token，手动验证
-                try {
-                    // 使用 token 获取用户 ID（getLoginIdByToken 返回 Object，需要转换）
-                    Object loginId = StpUtil.getLoginIdByToken(tokenParam);
-                    if (loginId == null) {
-                        log.warn("从 URL 参数读取的 token 无效");
-                        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                        return false;
-                    }
-                    Long userId = Long.valueOf(loginId.toString());
-
-                    // 查询用户信息
-                    SysUser user = userMapper.selectById(userId);
-                    if (user == null) {
-                        log.warn("用户不存在，用户ID：{}", userId);
-                        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                        return false;
-                    }
-
-                    // 检查用户状态
-                    if (user.getStatus() == 0) {
-                        log.warn("用户已被停用，用户ID：{}", userId);
-                        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-                        return false;
-                    }
-
-                    // 将用户信息存入 ThreadLocal
-                    UserContext.LoginUser loginUser = new UserContext.LoginUser();
-                    loginUser.setUserId(user.getId());
-                    loginUser.setUsername(user.getUsername());
-                    loginUser.setNickname(user.getNickname());
-                    loginUser.setAvatar(user.getAvatar());
-                    UserContext.setUser(loginUser);
-
-                    log.debug("用户信息已存入 ThreadLocal（从 URL 参数），用户ID：{}，用户名：{}", userId, user.getUsername());
-                    return true;
-                } catch (Exception e) {
-                    log.warn("从 URL 参数读取的 token 验证失败：{}", e.getMessage());
-                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                    return false;
+            if (authHeader != null && !authHeader.isEmpty()) {
+                // 支持 Bearer 格式：Bearer <token>
+                if (authHeader.startsWith("Bearer ") || authHeader.startsWith("bearer ")) {
+                    token = authHeader.substring(7).trim();
+                    log.debug("从 Authorization 请求头读取 Bearer Token");
+                } else {
+                    // 兼容旧格式：直接是 token 值
+                    token = authHeader.trim();
+                    log.debug("从 Authorization 请求头读取 Token（非 Bearer 格式）");
                 }
             }
 
-            // 正常流程：验证 Token（Sa-Token 会自动从请求头获取 token-name 配置的字段）
-            StpUtil.checkLogin();
+            // 2. 如果请求头中没有 token，且 URL 参数中有 token，则从 URL 参数读取（用于 SSE）
+            String tokenParam = request.getParameter("token");
+            if (token == null && tokenParam != null && !tokenParam.isEmpty()) {
+                token = tokenParam;
+                log.debug("从 URL 参数读取 token（用于 SSE）");
+            }
 
-            // 获取当前登录用户ID
-            Long userId = StpUtil.getLoginIdAsLong();
-
-            // 查询用户信息
-            SysUser user = userMapper.selectById(userId);
-            if (user == null) {
-                log.warn("用户不存在，用户ID：{}", userId);
+            // 3. 如果仍然没有 token，返回 401
+            if (token == null || token.isEmpty()) {
+                log.warn("请求中未找到 Token");
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 return false;
             }
 
-            // 检查用户状态
-            if (user.getStatus() == 0) {
-                log.warn("用户已被停用，用户ID：{}", userId);
-                response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            // 4. 验证 Token 并获取用户ID
+            try {
+                // 使用提取的 token 值进行验证（不包含 Bearer 前缀）
+                // 注意：这里直接使用 token 值，不包含 "Bearer " 前缀
+                Object loginId = StpUtil.getLoginIdByToken(token);
+                if (loginId == null) {
+                    log.warn("Token 无效或已过期，Token 前10字符: {}", token != null && token.length() > 10 ? token.substring(0, 10) : token);
+                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                    return false;
+                }
+                Long userId = Long.valueOf(loginId.toString());
+                log.debug("Token 验证成功，用户ID: {}", userId);
+
+                // 5. 查询用户信息
+                SysUser user = userMapper.selectById(userId);
+                if (user == null) {
+                    log.warn("用户不存在，用户ID：{}", userId);
+                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                    return false;
+                }
+
+                // 6. 检查用户状态
+                if (user.getStatus() == 0) {
+                    log.warn("用户已被停用，用户ID：{}", userId);
+                    response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                    return false;
+                }
+
+                // 7. 将用户信息存入 ThreadLocal
+                UserContext.LoginUser loginUser = new UserContext.LoginUser();
+                loginUser.setUserId(user.getId());
+                loginUser.setUsername(user.getUsername());
+                loginUser.setNickname(user.getNickname());
+                loginUser.setAvatar(user.getAvatar());
+                UserContext.setUser(loginUser);
+
+                log.debug("用户信息已存入 ThreadLocal，用户ID：{}，用户名：{}", userId, user.getUsername());
+                return true;
+            } catch (Exception e) {
+                log.warn("Token 验证失败：{}", e.getMessage());
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 return false;
             }
-
-            // 将用户信息存入 ThreadLocal
-            UserContext.LoginUser loginUser = new UserContext.LoginUser();
-            loginUser.setUserId(user.getId());
-            loginUser.setUsername(user.getUsername());
-            loginUser.setNickname(user.getNickname());
-            loginUser.setAvatar(user.getAvatar());
-            UserContext.setUser(loginUser);
-
-            log.debug("用户信息已存入 ThreadLocal，用户ID：{}，用户名：{}", userId, user.getUsername());
-            return true;
         } catch (Exception e) {
             log.warn("Token 验证失败：{}", e.getMessage());
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);

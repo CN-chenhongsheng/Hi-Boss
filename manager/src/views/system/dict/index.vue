@@ -556,22 +556,22 @@
 
   .dict-type-panel,
   .dict-data-panel {
-    flex: 1;
     display: flex;
+    flex: 1;
     flex-direction: column;
     min-width: 0;
   }
 
   .panel-card {
-    flex: 1;
     display: flex;
+    flex: 1;
     flex-direction: column;
     overflow: hidden;
     border-radius: calc(var(--custom-radius) / 2 + 2px) !important;
 
     :deep(.el-card__body) {
-      flex: 1;
       display: flex;
+      flex: 1;
       flex-direction: column;
       overflow: hidden;
     }
@@ -579,13 +579,13 @@
 
   .panel-header {
     display: flex;
-    justify-content: space-between;
     align-items: center;
+    justify-content: space-between;
   }
 
   .panel-title {
-    font-weight: 500;
     font-size: 14px;
+    font-weight: 500;
   }
 
   .search-bar {
@@ -593,8 +593,8 @@
   }
 
   .empty-tip {
-    flex: 1;
     display: flex;
+    flex: 1;
     align-items: center;
     justify-content: center;
   }
@@ -602,9 +602,9 @@
   .dict-code,
   .dict-value {
     padding: 2px 6px;
-    background-color: var(--el-fill-color-light);
-    border-radius: 3px;
     font-family: 'Courier New', monospace;
     font-size: 12px;
+    background-color: var(--el-fill-color-light);
+    border-radius: 3px;
   }
 </style>

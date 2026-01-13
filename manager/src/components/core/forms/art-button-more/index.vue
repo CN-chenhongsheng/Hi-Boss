@@ -145,44 +145,44 @@
     }
 
     &.dark-mode:hover {
-      background-color: rgba(255, 255, 255, 0.1);
+      background-color: rgb(255 255 255 / 10%);
     }
   }
 
   // 紧凑图标模式（DEFAULT）：透明背景的小图标
   .art-button-more.compact-icon-mode {
-    transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     background-color: transparent !important;
+    transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
     &:hover {
-      background-color: rgba(0, 0, 0, 0.05) !important;
+      background-color: rgb(0 0 0 / 5%) !important;
     }
 
     &.dark-mode:hover {
-      background-color: rgba(255, 255, 255, 0.05) !important;
+      background-color: rgb(255 255 255 / 5%) !important;
     }
   }
 
   // 文字模式（SMALL）：显示中文文字
   .art-button-more.text-mode {
-    transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    background-color: transparent !important;
     min-width: auto;
     padding: 0 8px;
+    background-color: transparent !important;
+    transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
     .button-text {
-      white-space: nowrap;
-      user-select: none;
       font-size: 12px;
       line-height: 1;
+      white-space: nowrap;
+      user-select: none;
     }
 
     &:hover {
-      background-color: rgba(0, 0, 0, 0.05) !important;
+      background-color: rgb(0 0 0 / 5%) !important;
     }
 
     &.dark-mode:hover {
-      background-color: rgba(255, 255, 255, 0.05) !important;
+      background-color: rgb(255 255 255 / 5%) !important;
     }
   }
 </style>

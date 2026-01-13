@@ -846,7 +846,7 @@
 
 <style scoped lang="scss">
   .drill-down-dialog-content {
-    min-height: 600px;
     height: 800px;
+    min-height: 600px;
   }
 </style>

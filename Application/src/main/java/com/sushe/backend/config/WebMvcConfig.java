@@ -25,6 +25,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
                 .addPathPatterns("/**") // 拦截所有路径
                 .excludePathPatterns(
                         "/v1/auth/login", // 登录接口
+                        "/v1/auth/refresh", // Token刷新接口
                         "/v1/auth/logout", // 登出接口（虽然可能需要token，但让拦截器内部处理）
                         "/doc.html", // Swagger 文档
                         "/webjars/**", // Swagger 静态资源

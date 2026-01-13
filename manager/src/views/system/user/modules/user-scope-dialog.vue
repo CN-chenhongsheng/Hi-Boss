@@ -396,8 +396,8 @@
 
 <style scoped lang="scss">
   .scope-dialog-content {
-    min-height: 600px;
     height: 700px;
+    min-height: 600px;
 
     .error-message {
       margin-bottom: 20px;
@@ -406,9 +406,9 @@
     .logic-flow-wrapper {
       width: 100%;
       height: 100%;
+      overflow: hidden;
       border: 1px solid var(--el-border-color-light);
       border-radius: 4px;
-      overflow: hidden;
     }
 
     .empty-message {
@@ -421,7 +421,7 @@
 
   .dialog-footer {
     display: flex;
-    justify-content: flex-end;
     gap: 12px;
+    justify-content: flex-end;
   }
 </style>

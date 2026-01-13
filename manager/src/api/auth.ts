@@ -13,6 +13,19 @@ export function fetchLogin(params: Api.Auth.LoginParams) {
 }
 
 /**
+ * 刷新 Access Token
+ * Refresh Token 自动从 HttpOnly Cookie 中发送
+ * @returns 新的 Access Token
+ */
+export function fetchRefreshToken() {
+  return request.post<string>({
+    url: '/api/v1/auth/refresh'
+    // 刷新接口不需要 Authorization 头，Refresh Token 在 Cookie 中
+    // 但需要确保 withCredentials 为 true（已在 axios 实例中配置）
+  })
+}
+
+/**
  * 用户登出
  */
 export function fetchLogout() {

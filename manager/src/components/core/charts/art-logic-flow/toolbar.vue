@@ -163,10 +163,10 @@
 
     // 水平布局
     &:not(.is-vertical) {
-      flex-direction: row;
       top: auto;
-      bottom: 12px;
       right: 12px;
+      bottom: 12px;
+      flex-direction: row;
     }
   }
 
@@ -175,13 +175,13 @@
     flex-direction: column;
     gap: 4px;
     padding: 6px;
-    background: rgba(255, 255, 255, 0.85);
+    background: rgb(255 255 255 / 85%);
     backdrop-filter: blur(12px);
+    border: 1px solid rgb(255 255 255 / 60%);
     border-radius: 8px;
     box-shadow:
-      0 2px 12px rgba(0, 0, 0, 0.08),
-      0 0 1px rgba(0, 0, 0, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.6);
+      0 2px 12px rgb(0 0 0 / 8%),
+      0 0 1px rgb(0 0 0 / 10%);
 
     .is-vertical & {
       flex-direction: column;
@@ -199,16 +199,16 @@
     width: 32px;
     height: 32px;
     padding: 0;
-    border: none;
-    border-radius: 6px;
-    background: transparent;
     color: var(--el-text-color-regular);
     cursor: pointer;
+    background: transparent;
+    border: none;
+    border-radius: 6px;
     transition: all 0.2s ease;
 
     &:hover:not(:disabled) {
-      background: var(--el-fill-color-light);
       color: var(--el-color-primary);
+      background: var(--el-fill-color-light);
     }
 
     &:active:not(:disabled) {
@@ -217,33 +217,33 @@
     }
 
     &:disabled {
-      opacity: 0.4;
       cursor: not-allowed;
+      opacity: 0.4;
     }
 
     &.active {
-      background: var(--el-color-primary-light-9);
       color: var(--el-color-primary);
+      background: var(--el-color-primary-light-9);
     }
   }
 
   // 暗色主题适配
   :global(.dark) {
     .toolbar-group {
-      background: rgba(30, 30, 30, 0.85);
-      border-color: rgba(255, 255, 255, 0.1);
-      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+      background: rgb(30 30 30 / 85%);
+      border-color: rgb(255 255 255 / 10%);
+      box-shadow: 0 2px 12px rgb(0 0 0 / 30%);
     }
 
     .toolbar-btn {
       color: var(--el-text-color-regular);
 
       &:hover:not(:disabled) {
-        background: rgba(255, 255, 255, 0.1);
+        background: rgb(255 255 255 / 10%);
       }
 
       &:active:not(:disabled) {
-        background: rgba(255, 255, 255, 0.15);
+        background: rgb(255 255 255 / 15%);
       }
 
       &.active {

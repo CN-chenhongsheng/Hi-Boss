@@ -373,8 +373,8 @@
     flex-wrap: wrap;
     gap: 8px;
     max-height: 120px;
-    overflow-y: auto;
     padding: 4px 0;
+    overflow-y: auto;
   }
 
   .preview-content {

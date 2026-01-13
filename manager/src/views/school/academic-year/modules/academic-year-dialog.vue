@@ -265,8 +265,8 @@
 <style scoped lang="scss">
   .semester-list {
     .semester-item {
-      margin-bottom: 10px;
       padding: 10px;
+      margin-bottom: 10px;
       background-color: var(--el-fill-color-lighter);
       border-radius: calc(var(--custom-radius) / 1.2 + 2px) !important;
     }
