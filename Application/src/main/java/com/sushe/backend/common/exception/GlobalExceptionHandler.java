@@ -38,9 +38,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public R<Void> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
-        String message = e.getBindingResult().getFieldErrors().stream()
-                .map(FieldError::getDefaultMessage)
-                .collect(Collectors.joining(", "));
+        String message = buildValidationErrorMessage(e.getBindingResult().getFieldErrors());
         log.error("参数校验异常: {}", message);
         return R.fail(ResultCode.PARAM_ERROR.getCode(), message);
     }
@@ -50,11 +48,18 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(BindException.class)
     public R<Void> handleBindException(BindException e) {
-        String message = e.getFieldErrors().stream()
-                .map(FieldError::getDefaultMessage)
-                .collect(Collectors.joining(", "));
+        String message = buildValidationErrorMessage(e.getFieldErrors());
         log.error("参数绑定异常: {}", message);
         return R.fail(ResultCode.PARAM_ERROR.getCode(), message);
+    }
+
+    /**
+     * 构建验证错误消息
+     */
+    private String buildValidationErrorMessage(java.util.List<FieldError> fieldErrors) {
+        return fieldErrors.stream()
+                .map(FieldError::getDefaultMessage)
+                .collect(Collectors.joining(", "));
     }
 
     /**

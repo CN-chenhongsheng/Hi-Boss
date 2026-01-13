@@ -81,7 +81,7 @@ public class DictUtils implements ApplicationContextAware {
 
     /**
      * 根据字典编码和值获取标签（带默认值）
-     * 
+     *
      * @param dictCode 字典编码
      * @param value 字典值
      * @param defaultLabel 默认标签（未找到时返回）
@@ -92,41 +92,33 @@ public class DictUtils implements ApplicationContextAware {
             return defaultLabel;
         }
 
-        String valueStr = String.valueOf(value);
-
-        // 先从缓存获取
-        Map<String, String> dictMap = DICT_CACHE.get(dictCode);
-        if (dictMap == null) {
-            // 缓存未命中，加载到缓存
-            dictMap = loadDictToCache(dictCode);
-        }
-
-        String label = dictMap.get(valueStr);
-        return label != null ? label : defaultLabel;
+        Map<String, String> dictMap = getOrLoadDictMap(dictCode);
+        return dictMap.getOrDefault(String.valueOf(value), defaultLabel);
     }
 
     /**
      * 获取某字典编码的所有数据
-     * 
+     *
      * @param dictCode 字典编码
      * @return 字典数据列表（value -> label 映射）
      */
     public static Map<String, String> getDictMap(String dictCode) {
-        if (dictCode == null) {
-            return Map.of();
-        }
+        return dictCode != null ? getOrLoadDictMap(dictCode) : Map.of();
+    }
 
-        Map<String, String> dictMap = DICT_CACHE.get(dictCode);
-        if (dictMap == null) {
-            dictMap = loadDictToCache(dictCode);
-        }
-
-        return dictMap;
+    /**
+     * 从缓存获取字典，如果不存在则加载
+     *
+     * @param dictCode 字典编码
+     * @return 字典映射
+     */
+    private static Map<String, String> getOrLoadDictMap(String dictCode) {
+        return DICT_CACHE.computeIfAbsent(dictCode, DictUtils::loadDictToCache);
     }
 
     /**
      * 从数据库加载字典到缓存
-     * 
+     *
      * @param dictCode 字典编码
      * @return 字典映射
      */
@@ -137,27 +129,25 @@ public class DictUtils implements ApplicationContextAware {
         }
 
         try {
-            LambdaQueryWrapper<SysDictData> wrapper = new LambdaQueryWrapper<>();
-            wrapper.eq(SysDictData::getDictCode, dictCode)
-                    .eq(SysDictData::getStatus, 1)
-                    .orderByAsc(SysDictData::getSort)
-                    .orderByAsc(SysDictData::getId);
-
-            List<SysDictData> dataList = dictDataMapper.selectList(wrapper);
+            List<SysDictData> dataList = dictDataMapper.selectList(
+                    new LambdaQueryWrapper<SysDictData>()
+                            .eq(SysDictData::getDictCode, dictCode)
+                            .eq(SysDictData::getStatus, 1)
+                            .orderByAsc(SysDictData::getSort)
+                            .orderByAsc(SysDictData::getId)
+            );
 
             Map<String, String> dictMap = dataList.stream()
                     .collect(Collectors.toMap(
                             SysDictData::getValue,
                             SysDictData::getLabel,
-                            (v1, v2) -> v1 // 如果有重复 key，保留第一个
+                            (v1, v2) -> v1
                     ));
 
-            DICT_CACHE.put(dictCode, dictMap);
             log.debug("加载字典到缓存: {}, 数据量: {}", dictCode, dictMap.size());
-
             return dictMap;
         } catch (Exception e) {
-            log.error("加载字典失败: {}, 错误: {}", dictCode, e.getMessage(), e);
+            log.error("加载字典失败: {}", dictCode, e);
             return Map.of();
         }
     }

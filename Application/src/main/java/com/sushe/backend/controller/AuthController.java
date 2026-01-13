@@ -39,24 +39,9 @@ public class AuthController {
     public R<LoginVO> login(@Valid @RequestBody LoginDTO loginDTO,
                             HttpServletRequest request,
                             HttpServletResponse response) {
-        log.info("========== 收到登录请求 ==========");
-        log.info("请求参数 - 用户名: {}", loginDTO.getUsername());
-        log.info("请求参数 - 密码: {}", loginDTO.getPassword() != null ? "***" : "null");
-
-        try {
-            log.info("开始调用 authService.login()");
-            LoginVO loginVO = authService.login(loginDTO, request, response);
-            log.info("登录成功，返回Access Token: {}", loginVO.getToken());
-            log.info("========== 登录请求处理完成 ==========");
-            return R.ok(loginVO);
-        } catch (Exception e) {
-            log.error("========== 登录请求异常 ==========");
-            log.error("异常类型: {}", e.getClass().getName());
-            log.error("异常消息: {}", e.getMessage());
-            log.error("异常堆栈: ", e);
-            log.error("====================================");
-            throw e;
-        }
+        log.info("用户登录请求: {}", loginDTO.getUsername());
+        LoginVO loginVO = authService.login(loginDTO, request, response);
+        return R.ok(loginVO);
     }
 
     /**
@@ -65,20 +50,9 @@ public class AuthController {
     @Operation(summary = "刷新Access Token")
     @PostMapping("/refresh")
     public R<String> refreshToken(HttpServletRequest request, HttpServletResponse response) {
-        log.info("========== 收到Token刷新请求 ==========");
-        try {
-            String newAccessToken = authService.refreshToken(request, response);
-            log.info("Token刷新成功");
-            log.info("========== Token刷新请求处理完成 ==========");
-            return R.ok(newAccessToken);
-        } catch (Exception e) {
-            log.error("========== Token刷新请求异常 ==========");
-            log.error("异常类型: {}", e.getClass().getName());
-            log.error("异常消息: {}", e.getMessage());
-            log.error("异常堆栈: ", e);
-            log.error("====================================");
-            throw e;
-        }
+        log.info("Token刷新请求");
+        String newAccessToken = authService.refreshToken(request, response);
+        return R.ok(newAccessToken);
     }
 
     /**

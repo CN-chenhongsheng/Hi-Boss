@@ -64,6 +64,12 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     private final UserOnlineService userOnlineService;
 
     /**
+     * 用户状态常量
+     */
+    private static final int STATUS_ENABLED = 1;
+    private static final int STATUS_DISABLED = 0;
+
+    /**
      * 分页查询用户列表
      */
     @Override
@@ -107,54 +113,25 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean saveUser(UserSaveDTO saveDTO) {
-        // 检查用户名是否重复
-        LambdaQueryWrapper<SysUser> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(SysUser::getUsername, saveDTO.getUsername());
-        if (saveDTO.getId() != null) {
-            wrapper.ne(SysUser::getId, saveDTO.getId());
-        }
-        if (count(wrapper) > 0) {
-            throw new BusinessException("用户名已存在");
-        }
+        validateUsername(saveDTO);
+        validateSuperAdminStatus(saveDTO);
 
         SysUser user = new SysUser();
         BeanUtil.copyProperties(saveDTO, user);
 
-        // 编辑时，如果是超级管理员，不允许设置为停用
-        if (saveDTO.getId() != null) {
-            SysUser existingUser = getById(saveDTO.getId());
-            if (existingUser != null) {
-                BusinessRuleUtils.validateSuperAdminUserStatus(existingUser.getUsername(), saveDTO.getStatus());
-            }
-        }
-
+        boolean isNewUser = saveDTO.getId() == null;
         boolean success;
         Long userId;
 
-        if (saveDTO.getId() == null) {
-            // 新增用户
-            if (StrUtil.isBlank(saveDTO.getPassword())) {
-                throw new BusinessException("新增用户时密码不能为空");
-            }
-            // 密码加密
-            user.setPassword(BCrypt.hashpw(saveDTO.getPassword()));
-            user.setStatus(1); // 默认启用
-            success = save(user);
-            userId = user.getId();
+        if (isNewUser) {
+            userId = createNewUser(user, saveDTO.getPassword());
+            success = userId != null;
         } else {
-            // 编辑用户
             userId = saveDTO.getId();
-            // 如果传了密码，则加密更新
-            if (StrUtil.isNotBlank(saveDTO.getPassword())) {
-                user.setPassword(BCrypt.hashpw(saveDTO.getPassword()));
-            } else {
-                // 不更新密码
-                user.setPassword(null);
-            }
+            updateUserPassword(user, saveDTO.getPassword());
             success = updateById(user);
         }
 
-        // 保存用户角色关联
         if (success && saveDTO.getRoleIds() != null) {
             saveUserRoles(userId, saveDTO.getRoleIds());
         }
@@ -163,33 +140,102 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     }
 
     /**
+     * 验证用户名是否重复
+     */
+    private void validateUsername(UserSaveDTO saveDTO) {
+        LambdaQueryWrapper<SysUser> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(SysUser::getUsername, saveDTO.getUsername());
+        if (saveDTO.getId() != null) {
+            wrapper.ne(SysUser::getId, saveDTO.getId());
+        }
+        if (count(wrapper) > 0) {
+            throw new BusinessException("用户名已存在");
+        }
+    }
+
+    /**
+     * 验证超级管理员状态
+     */
+    private void validateSuperAdminStatus(UserSaveDTO saveDTO) {
+        if (saveDTO.getId() != null) {
+            SysUser existingUser = getById(saveDTO.getId());
+            if (existingUser != null) {
+                BusinessRuleUtils.validateSuperAdminUserStatus(existingUser.getUsername(), saveDTO.getStatus());
+            }
+        }
+    }
+
+    /**
+     * 创建新用户
+     */
+    private Long createNewUser(SysUser user, String password) {
+        if (StrUtil.isBlank(password)) {
+            throw new BusinessException("新增用户时密码不能为空");
+        }
+        user.setPassword(BCrypt.hashpw(password));
+        user.setStatus(STATUS_ENABLED);
+        save(user);
+        return user.getId();
+    }
+
+    /**
+     * 更新用户密码
+     */
+    private void updateUserPassword(SysUser user, String password) {
+        if (StrUtil.isNotBlank(password)) {
+            user.setPassword(BCrypt.hashpw(password));
+        } else {
+            user.setPassword(null);
+        }
+    }
+
+    /**
      * 保存用户角色关联
      */
     private void saveUserRoles(Long userId, Long[] roleIds) {
-        // 1. 获取用户原有的角色ID列表
-        LambdaQueryWrapper<SysUserRole> oldRoleWrapper = new LambdaQueryWrapper<>();
-        oldRoleWrapper.eq(SysUserRole::getUserId, userId);
-        List<SysUserRole> oldUserRoles = userRoleMapper.selectList(oldRoleWrapper);
-        List<Long> oldRoleIds = oldUserRoles.stream()
+        List<Long> oldRoleIds = getOldRoleIds(userId);
+
+        // 删除用户原有的角色关联
+        deleteUserRoles(userId);
+
+        // 批量插入新的角色关联
+        List<Long> newRoleIds = roleIds != null ? Arrays.asList(roleIds) : List.of();
+        insertUserRoles(userId, newRoleIds);
+
+        // 自动更新用户权限
+        autoUpdateUserMenusOnRoleChange(userId, oldRoleIds, newRoleIds);
+    }
+
+    /**
+     * 获取用户原有的角色ID列表
+     */
+    private List<Long> getOldRoleIds(Long userId) {
+        LambdaQueryWrapper<SysUserRole> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(SysUserRole::getUserId, userId);
+        return userRoleMapper.selectList(wrapper).stream()
                 .map(SysUserRole::getRoleId)
                 .collect(Collectors.toList());
+    }
 
-        // 2. 删除用户原有的角色关联
-        userRoleMapper.delete(oldRoleWrapper);
+    /**
+     * 删除用户角色关联
+     */
+    private void deleteUserRoles(Long userId) {
+        LambdaQueryWrapper<SysUserRole> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(SysUserRole::getUserId, userId);
+        userRoleMapper.delete(wrapper);
+    }
 
-        // 3. 批量插入新的角色关联
-        List<Long> newRoleIds = roleIds != null ? Arrays.asList(roleIds) : List.of();
-        if (!newRoleIds.isEmpty()) {
-            for (Long roleId : newRoleIds) {
-                SysUserRole userRole = new SysUserRole();
-                userRole.setUserId(userId);
-                userRole.setRoleId(roleId);
-                userRoleMapper.insert(userRole);
-            }
-        }
-
-        // 4. 自动更新用户权限：当用户被赋予新角色时，自动将新角色的权限添加到用户权限中
-        autoUpdateUserMenusOnRoleChange(userId, oldRoleIds, newRoleIds);
+    /**
+     * 批量插入用户角色关联
+     */
+    private void insertUserRoles(Long userId, List<Long> roleIds) {
+        roleIds.forEach(roleId -> {
+            SysUserRole userRole = new SysUserRole();
+            userRole.setUserId(userId);
+            userRole.setRoleId(roleId);
+            userRoleMapper.insert(userRole);
+        });
     }
 
     /**
@@ -422,7 +468,16 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
             throw new BusinessException("用户不存在");
         }
 
-        // 只更新允许用户自己修改的字段
+        // 更新允许用户自己修改的字段
+        updateUserProfileFields(user, profileDTO);
+
+        return updateById(user);
+    }
+
+    /**
+     * 更新用户个人信息字段
+     */
+    private void updateUserProfileFields(SysUser user, UserProfileDTO profileDTO) {
         if (StrUtil.isNotBlank(profileDTO.getNickname())) {
             user.setNickname(profileDTO.getNickname());
         }
@@ -444,8 +499,6 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         if (profileDTO.getIntroduction() != null) {
             user.setIntroduction(profileDTO.getIntroduction());
         }
-
-        return updateById(user);
     }
 
     /**
@@ -532,34 +585,55 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
             throw new BusinessException("用户ID不能为空");
         }
 
-        // 1. 获取用户可选的权限范围（用户所有角色的权限并集）
-        List<Long> availableMenuIds = getUserAvailableMenuIds(userId);
+        // 验证要分配的权限是否在可选范围内
+        validateMenuIds(userId, menuIds);
 
-        // 2. 验证要分配的权限是否在可选范围内
+        // 删除用户原有的菜单权限
+        deleteUserMenus(userId);
+
+        // 批量插入新的菜单权限
         if (menuIds != null && menuIds.length > 0) {
-            for (Long menuId : menuIds) {
-                if (!availableMenuIds.contains(menuId)) {
-                    throw new BusinessException("菜单ID " + menuId + " 不在用户可选权限范围内");
-                }
-            }
-        }
-
-        // 3. 删除用户原有的菜单权限
-        LambdaQueryWrapper<SysUserMenu> deleteWrapper = new LambdaQueryWrapper<>();
-        deleteWrapper.eq(SysUserMenu::getUserId, userId);
-        userMenuMapper.delete(deleteWrapper);
-
-        // 4. 批量插入新的菜单权限
-        if (menuIds != null && menuIds.length > 0) {
-            for (Long menuId : menuIds) {
-                SysUserMenu userMenu = new SysUserMenu();
-                userMenu.setUserId(userId);
-                userMenu.setMenuId(menuId);
-                userMenuMapper.insert(userMenu);
-            }
+            insertUserMenus(userId, Arrays.asList(menuIds));
         }
 
         return true;
+    }
+
+    /**
+     * 验证菜单ID是否在用户可选范围内
+     */
+    private void validateMenuIds(Long userId, Long[] menuIds) {
+        if (menuIds == null || menuIds.length == 0) {
+            return;
+        }
+
+        List<Long> availableMenuIds = getUserAvailableMenuIds(userId);
+        for (Long menuId : menuIds) {
+            if (!availableMenuIds.contains(menuId)) {
+                throw new BusinessException("菜单ID " + menuId + " 不在用户可选权限范围内");
+            }
+        }
+    }
+
+    /**
+     * 删除用户菜单关联
+     */
+    private void deleteUserMenus(Long userId) {
+        LambdaQueryWrapper<SysUserMenu> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(SysUserMenu::getUserId, userId);
+        userMenuMapper.delete(wrapper);
+    }
+
+    /**
+     * 批量插入用户菜单关联
+     */
+    private void insertUserMenus(Long userId, List<Long> menuIds) {
+        menuIds.forEach(menuId -> {
+            SysUserMenu userMenu = new SysUserMenu();
+            userMenu.setUserId(userId);
+            userMenu.setMenuId(menuId);
+            userMenuMapper.insert(userMenu);
+        });
     }
 
     /**

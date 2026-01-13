@@ -40,6 +40,34 @@ public class LogAspect {
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     /**
+     * 最大参数/响应长度
+     */
+    private static final int MAX_CONTENT_LENGTH = 2000;
+
+    /**
+     * 设备类型常量
+     */
+    private static final int DEVICE_TYPE_DESKTOP = 1;
+    private static final int DEVICE_TYPE_MOBILE = 2;
+    private static final int DEVICE_TYPE_BOT = 3;
+
+    /**
+     * 操作状态常量
+     */
+    private static final int STATUS_SUCCESS = 0;
+    private static final int STATUS_ERROR = 1;
+
+    /**
+     * IP 请求头列表
+     */
+    private static final String[] IP_HEADERS = {
+            "X-Forwarded-For",
+            "X-Real-IP",
+            "Proxy-Client-IP",
+            "WL-Proxy-Client-IP"
+    };
+
+    /**
      * 配置织入点
      */
     @Pointcut("@annotation(com.sushe.backend.common.annotation.Log)")
@@ -130,11 +158,7 @@ public class LogAspect {
                 if (logAnnotation != null && logAnnotation.saveResponseData() && result != null) {
                     try {
                         String jsonResult = objectMapper.writeValueAsString(result);
-                        // 限制响应参数长度
-                        if (jsonResult.length() > 2000) {
-                            jsonResult = jsonResult.substring(0, 2000) + "...";
-                        }
-                        operLog.setJsonResult(jsonResult);
+                        operLog.setJsonResult(truncateString(jsonResult));
                     } catch (Exception e) {
                         log.warn("序列化响应参数失败", e);
                     }
@@ -150,14 +174,10 @@ public class LogAspect {
 
             // 设置操作状态
             if (exception != null) {
-                operLog.setStatus(1); // 异常
-                String errorMsg = exception.getMessage();
-                if (errorMsg != null && errorMsg.length() > 2000) {
-                    errorMsg = errorMsg.substring(0, 2000);
-                }
-                operLog.setErrorMsg(errorMsg);
+                operLog.setStatus(STATUS_ERROR);
+                operLog.setErrorMsg(truncateString(exception.getMessage()));
             } else {
-                operLog.setStatus(0); // 正常
+                operLog.setStatus(STATUS_SUCCESS);
             }
 
             // 设置操作时间
@@ -186,9 +206,7 @@ public class LogAspect {
 
             StringBuilder params = new StringBuilder();
             for (Object arg : args) {
-                // 跳过HttpServletRequest和HttpServletResponse
-                if (arg instanceof jakarta.servlet.http.HttpServletRequest ||
-                    arg instanceof jakarta.servlet.http.HttpServletResponse) {
+                if (isServletObject(arg)) {
                     continue;
                 }
 
@@ -200,12 +218,7 @@ public class LogAspect {
                 }
             }
 
-            String result = params.toString().trim();
-            // 限制参数长度
-            if (result.length() > 2000) {
-                result = result.substring(0, 2000) + "...";
-            }
-            return result;
+            return truncateString(params.toString().trim());
         } catch (Exception e) {
             log.warn("获取请求参数失败", e);
             return "";
@@ -213,32 +226,55 @@ public class LogAspect {
     }
 
     /**
+     * 判断是否为 Servlet 对象
+     */
+    private boolean isServletObject(Object obj) {
+        return obj instanceof jakarta.servlet.http.HttpServletRequest ||
+               obj instanceof jakarta.servlet.http.HttpServletResponse;
+    }
+
+    /**
+     * 截断字符串到最大长度
+     */
+    private String truncateString(String str) {
+        if (str == null) {
+            return null;
+        }
+        return str.length() > MAX_CONTENT_LENGTH
+                ? str.substring(0, MAX_CONTENT_LENGTH) + "..."
+                : str;
+    }
+
+    /**
      * 获取客户端IP地址
      */
     private String getIpAddr(HttpServletRequest request) {
-        String ip = request.getHeader("X-Forwarded-For");
-        if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
-            ip = request.getHeader("X-Real-IP");
+        for (String header : IP_HEADERS) {
+            String ip = request.getHeader(header);
+            if (isValidIp(ip)) {
+                return extractFirstIp(ip);
+            }
         }
-        if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
-            ip = request.getHeader("Proxy-Client-IP");
-        }
-        if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
-            ip = request.getHeader("WL-Proxy-Client-IP");
-        }
-        if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
-            ip = request.getRemoteAddr();
-        }
-        // 处理多个IP的情况（取第一个）
-        if (ip != null && ip.contains(",")) {
-            ip = ip.split(",")[0].trim();
-        }
-        return ip;
+        return request.getRemoteAddr();
+    }
+
+    /**
+     * 判断IP是否有效
+     */
+    private boolean isValidIp(String ip) {
+        return ip != null && !ip.isEmpty() && !"unknown".equalsIgnoreCase(ip);
+    }
+
+    /**
+     * 提取第一个IP（处理多个IP的情况）
+     */
+    private String extractFirstIp(String ip) {
+        return ip.contains(",") ? ip.split(",")[0].trim() : ip;
     }
 
     /**
      * 识别设备类型
-     * 
+     *
      * @param request HTTP请求
      * @return 设备类型：1桌面设备 2移动设备 3爬虫/Bot
      */
@@ -246,32 +282,54 @@ public class LogAspect {
         try {
             String userAgent = request.getHeader("User-Agent");
             if (userAgent == null || userAgent.isEmpty()) {
-                return 1; // 默认桌面设备
+                return DEVICE_TYPE_DESKTOP;
             }
 
             String ua = userAgent.toLowerCase();
 
             // 检测爬虫/Bot
-            String[] botKeywords = {"bot", "crawler", "spider", "scraper", "curl", "wget", "python-requests", "java/", "apache-httpclient"};
-            for (String keyword : botKeywords) {
-                if (ua.contains(keyword)) {
-                    return 3; // 爬虫/Bot
-                }
+            if (isBotUserAgent(ua)) {
+                return DEVICE_TYPE_BOT;
             }
 
             // 检测移动设备
-            String[] mobileKeywords = {"mobile", "android", "iphone", "ipad", "ipod", "blackberry", "windows phone", "windows mobile"};
-            for (String keyword : mobileKeywords) {
-                if (ua.contains(keyword)) {
-                    return 2; // 移动设备
-                }
+            if (isMobileUserAgent(ua)) {
+                return DEVICE_TYPE_MOBILE;
             }
 
-            return 1; // 默认桌面设备
+            return DEVICE_TYPE_DESKTOP;
         } catch (Exception e) {
             log.warn("识别设备类型失败", e);
-            return 1; // 默认桌面设备
+            return DEVICE_TYPE_DESKTOP;
         }
+    }
+
+    /**
+     * 判断是否为爬虫/Bot
+     */
+    private boolean isBotUserAgent(String ua) {
+        String[] botKeywords = {"bot", "crawler", "spider", "scraper", "curl", "wget",
+                                "python-requests", "java/", "apache-httpclient"};
+        for (String keyword : botKeywords) {
+            if (ua.contains(keyword)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 判断是否为移动设备
+     */
+    private boolean isMobileUserAgent(String ua) {
+        String[] mobileKeywords = {"mobile", "android", "iphone", "ipad", "ipod",
+                                   "blackberry", "windows phone", "windows mobile"};
+        for (String keyword : mobileKeywords) {
+            if (ua.contains(keyword)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
