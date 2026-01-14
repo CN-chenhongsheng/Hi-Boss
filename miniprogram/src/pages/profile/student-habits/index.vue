@@ -11,7 +11,6 @@
         <view class="header-title">
           完善生活习惯
         </view>
-        <view class="header-placeholder" />
       </view>
     </view>
 
@@ -791,7 +790,7 @@ $bg-light: #F0F4F8;
 
   .header-content {
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
   }
 
@@ -799,10 +798,6 @@ $bg-light: #F0F4F8;
     font-size: 36rpx;
     font-weight: 700;
     color: #0f172a;
-  }
-
-  .header-placeholder {
-    width: 64rpx;
   }
 }
 
