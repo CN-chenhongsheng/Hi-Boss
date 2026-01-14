@@ -6,9 +6,6 @@
     <view class="page-container">
       <!-- 顶部导航 -->
       <view class="header">
-        <view class="header-back" @click="handleBack">
-          <u-icon name="arrow-left" size="24" color="#111817" />
-        </view>
         <view class="header-title">
           申请详情
         </view>
@@ -327,11 +324,6 @@ const progressSteps = computed(() => {
   ];
 });
 
-// 返回
-function handleBack() {
-  uni.navigateBack();
-}
-
 // 撤回申请
 function handleCancel() {
   uni.showModal({
@@ -460,8 +452,6 @@ $glass-border: rgb(255 255 255 / 60%);
   align-items: center;
   padding: calc(var(--status-bar-height) + 20rpx) 32rpx 30rpx;
   backdrop-filter: blur(20rpx);
-
-  .header-back,
 
   .header-title {
     font-size: 36rpx;
