@@ -4,15 +4,66 @@
     <view class="bg-decorations">
       <view class="blob blob-1" />
       <view class="blob blob-2" />
+      <view class="blob blob-3" />
     </view>
 
     <view class="page-container">
-      <!-- 顶部导航栏 -->
-      <header class="top-header">
-        <view class="header-title">
-          消息中心
+      <!-- 精美头部区域 -->
+      <view class="header-section">
+        <!-- 状态栏占位 -->
+        <view class="status-bar" :style="{ height: `${statusBarHeight}px` }" />
+
+        <!-- 头部内容 -->
+        <view class="header-content">
+          <view class="header-left">
+            <view class="header-title-group">
+              <text class="header-title">
+                消息中心
+              </text>
+              <text class="header-subtitle">
+                Message Center
+              </text>
+            </view>
+          </view>
+          <view class="header-right">
+            <view v-if="unreadCount > 0" class="unread-badge">
+              <text class="unread-count">
+                {{ unreadCount }}
+              </text>
+            </view>
+          </view>
         </view>
-      </header>
+
+        <!-- 统计卡片 -->
+        <view class="stats-cards">
+          <view class="glass-card stat-card stat-card-1">
+            <view class="stat-icon">
+              <u-icon name="bell" size="20" color="#fff" />
+            </view>
+            <view class="stat-info">
+              <text class="stat-value">
+                {{ unreadCount }}
+              </text>
+              <text class="stat-label">
+                未读消息
+              </text>
+            </view>
+          </view>
+          <view class="glass-card stat-card stat-card-2">
+            <view class="stat-icon">
+              <u-icon name="clock" size="20" color="#fff" />
+            </view>
+            <view class="stat-info">
+              <text class="stat-value">
+                {{ todayCount }}
+              </text>
+              <text class="stat-label">
+                今日消息
+              </text>
+            </view>
+          </view>
+        </view>
+      </view>
 
       <!-- 消息分类标签 -->
       <view class="glass-card message-tabs">
@@ -23,7 +74,12 @@
           :class="{ active: activeTab === tab.value }"
           @click="handleTabChange(tab.value)"
         >
-          {{ tab.label }}
+          <view class="tab-content">
+            <u-icon :name="tab.icon" size="16" />
+            <text class="tab-label">
+              {{ tab.label }}
+            </text>
+          </view>
         </view>
         <view
           class="tab-indicator"
@@ -35,6 +91,7 @@
       <scroll-view
         class="message-list"
         scroll-y
+        :show-scrollbar="false"
       >
         <!-- 加载状态 -->
         <view v-if="loading" class="loading">
@@ -54,37 +111,48 @@
           <view
             v-for="(item, index) in list"
             :key="item.id"
-            class="glass-card message-item animate-fade-in"
+            class="message-item-wrapper animate-fade-in"
             :style="{ 'animation-delay': `${index * 0.05}s` }"
-            @click="handleViewDetail(item)"
           >
-            <!-- 消息图标 -->
-            <view class="item-left">
-              <view class="icon" :class="`icon-${item.type}`">
-                <u-icon :name="getIconName(item.type)" size="20" color="#fff" />
-              </view>
-            </view>
+            <view
+              class="glass-card message-item"
+              :class="{ unread: !item.isRead }"
+              @click="handleViewDetail(item)"
+            >
+              <!-- 左侧装饰线 -->
+              <view class="item-decorator" :class="`decorator-${item.type}`" />
 
-            <!-- 消息内容 -->
-            <view class="item-content">
-              <view class="title-row">
-                <view class="title-badge">
-                  <text class="title">
-                    {{ item.title }}
-                  </text>
-                  <view v-if="!item.isRead" class="unread-badge">
-                    新
+              <!-- 消息内容 -->
+              <view class="item-main">
+                <!-- 消息头部 -->
+                <view class="item-header">
+                  <view class="icon-wrapper" :class="`icon-type-${item.type}`">
+                    <u-icon :name="getIconName(item.type)" size="18" color="#fff" />
                   </view>
+                  <view class="header-info">
+                    <view class="title-row">
+                      <text class="title">
+                        {{ item.title }}
+                      </text>
+                      <view v-if="!item.isRead" class="new-badge">
+                        <text class="badge-text">
+                          NEW
+                        </text>
+                      </view>
+                    </view>
+                    <text class="time">
+                      {{ formatTime(item.createTime) }}
+                    </text>
+                  </view>
+                  <u-icon name="arrow-right" size="16" color="#9ca3af" />
                 </view>
-                <u-icon name="arrow-right" size="16" color="#9ca3af" />
-              </view>
-              <view class="content">
-                {{ item.content }}
-              </view>
-              <view class="meta-info">
-                <text class="time">
-                  {{ formatTime(item.createTime) }}
-                </text>
+
+                <!-- 消息内容 -->
+                <view class="item-body">
+                  <text class="content">
+                    {{ item.content }}
+                  </text>
+                </view>
               </view>
             </view>
           </view>
@@ -97,6 +165,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue';
 import { ROUTE_CONSTANTS } from '@/constants';
+import { NoticeType } from '@/types';
 
 interface MessageItem {
   id: number;
@@ -110,20 +179,33 @@ interface MessageItem {
 interface TabItem {
   label: string;
   value: 'all' | NoticeType;
+  icon: string;
 }
 
 const loading = ref(false);
 const list = ref<MessageItem[]>([]);
 const activeTab = ref<'all' | NoticeType>('all');
+const statusBarHeight = ref(0);
 
 const tabs = ref<TabItem[]>([
-  { label: '全部', value: 'all' },
-  { label: '系统', value: NoticeType.SYSTEM },
-  { label: '宿舍', value: NoticeType.DORM },
-  { label: '安全', value: NoticeType.SAFETY },
+  { label: '全部', value: 'all', icon: 'list' },
+  { label: '系统', value: NoticeType.SYSTEM, icon: 'bell' },
+  { label: '宿舍', value: NoticeType.DORM, icon: 'home' },
+  { label: '安全', value: NoticeType.SAFETY, icon: 'warning' },
 ]);
 
 const INDICATOR_WIDTH_RPX = 50;
+
+// 计算未读消息数量
+const unreadCount = computed(() => {
+  return list.value.filter(item => !item.isRead).length;
+});
+
+// 计算今日消息数量
+const todayCount = computed(() => {
+  const today = new Date().toISOString().split('T')[0];
+  return list.value.filter(item => item.createTime.startsWith(today)).length;
+});
 
 const indicatorStyle = computed(() => {
   const activeIndex = tabs.value.findIndex(tab => tab.value === activeTab.value);
@@ -249,6 +331,10 @@ async function loadData(): Promise<void> {
 }
 
 onMounted(() => {
+  // 获取状态栏高度
+  const systemInfo = uni.getSystemInfoSync();
+  statusBarHeight.value = systemInfo.statusBarHeight || 0;
+
   loadData();
 });
 </script>
@@ -283,14 +369,16 @@ $glass-border-light: rgb(255 255 255 / 60%);
   .blob {
     position: absolute;
     border-radius: 50%;
-    filter: blur(80rpx);
+    filter: blur(100rpx);
+    animation: float 20s ease-in-out infinite;
 
     &.blob-1 {
       top: -200rpx;
       right: -100rpx;
       width: 600rpx;
       height: 600rpx;
-      background: rgb(10 219 195 / 5%);
+      background: rgb(10 219 195 / 8%);
+      animation-delay: 0s;
     }
 
     &.blob-2 {
@@ -298,8 +386,33 @@ $glass-border-light: rgb(255 255 255 / 60%);
       left: -100rpx;
       width: 500rpx;
       height: 500rpx;
-      background: rgb(255 159 67 / 3%);
+      background: rgb(255 159 67 / 5%);
+      animation-delay: 5s;
     }
+
+    &.blob-3 {
+      top: 50%;
+      left: 50%;
+      width: 400rpx;
+      height: 400rpx;
+      background: rgb(139 92 246 / 3%);
+      animation-delay: 10s;
+      transform: translate(-50%, -50%);
+    }
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+  }
+
+  33% {
+    transform: translate(30rpx, -30rpx) scale(1.1);
+  }
+
+  66% {
+    transform: translate(-30rpx, 30rpx) scale(0.9);
   }
 }
 
@@ -313,36 +426,141 @@ $glass-border-light: rgb(255 255 255 / 60%);
   flex-direction: column;
 }
 
-// 顶部导航栏
-.top-header {
-  position: sticky;
-  top: 0;
-  z-index: 50;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 24rpx 32rpx;
-  padding-top: calc(var(--status-bar-height) + 24rpx);
+// 精美头部区域
+.header-section {
+  padding: 0 32rpx 24rpx;
 
-  .header-title {
-    font-size: 36rpx;
-    text-align: center;
-    color: $text-main;
-    font-weight: 700;
-    letter-spacing: 0.5rpx;
+  .status-bar {
+    width: 100%;
+  }
+
+  .header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 24rpx 0;
+
+    .header-left {
+      flex: 1;
+
+      .header-title-group {
+        display: flex;
+        flex-direction: column;
+        gap: 4rpx;
+
+        .header-title {
+          font-size: 40rpx;
+          color: $text-main;
+          font-weight: 700;
+          letter-spacing: 0.5rpx;
+        }
+
+        .header-subtitle {
+          font-size: 22rpx;
+          color: $text-sub;
+          font-weight: 500;
+          letter-spacing: 1rpx;
+          text-transform: uppercase;
+        }
+      }
+    }
+
+    .header-right {
+      .unread-badge {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 0 12rpx;
+        min-width: 48rpx;
+        height: 48rpx;
+        background: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%);
+        border-radius: 24rpx;
+        box-shadow: 0 4rpx 12rpx rgb(244 63 94 / 30%);
+
+        .unread-count {
+          font-size: 24rpx;
+          color: #fff;
+          font-weight: 700;
+        }
+      }
+    }
+  }
+
+  // 统计卡片
+  .stats-cards {
+    display: flex;
+    gap: 16rpx;
+    margin-top: 16rpx;
+
+    .stat-card {
+      display: flex;
+      align-items: center;
+      padding: 20rpx 24rpx;
+      border-radius: 20rpx;
+      transition: all 0.3s;
+      gap: 16rpx;
+      flex: 1;
+
+      &:active {
+        transform: scale(0.98);
+      }
+
+      .stat-icon {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 48rpx;
+        height: 48rpx;
+        border-radius: 12rpx;
+        flex-shrink: 0;
+      }
+
+      .stat-info {
+        display: flex;
+        flex-direction: column;
+        gap: 4rpx;
+        flex: 1;
+
+        .stat-value {
+          font-size: 32rpx;
+          color: $text-main;
+          font-weight: 700;
+          line-height: 1;
+        }
+
+        .stat-label {
+          font-size: 22rpx;
+          color: $text-sub;
+          font-weight: 500;
+        }
+      }
+
+      &.stat-card-1 {
+        .stat-icon {
+          background: linear-gradient(135deg, #0adbc3 0%, #08bda8 100%);
+          box-shadow: 0 4rpx 12rpx rgb(10 219 195 / 30%);
+        }
+      }
+
+      &.stat-card-2 {
+        .stat-icon {
+          background: linear-gradient(135deg, #ff9f43 0%, #ff8f2b 100%);
+          box-shadow: 0 4rpx 12rpx rgb(255 159 67 / 30%);
+        }
+      }
+    }
   }
 }
 
 // 消息分类标签
 .message-tabs {
   position: sticky;
-  top: calc(var(--status-bar-height) + 88rpx);
+  top: 0;
   z-index: 40;
   display: flex;
   overflow: hidden;
   padding: 0;
-  margin: 0 32rpx;
-  margin-top: 24rpx;
+  margin: 0 32rpx 24rpx;
   background: $glass-bg;
   border: 2rpx solid $glass-border;
   border-radius: 24rpx;
@@ -352,27 +570,40 @@ $glass-border-light: rgb(255 255 255 / 60%);
   .tab-item {
     position: relative;
     padding: 20rpx 0;
-    font-size: 26rpx;
     text-align: center;
-    color: $text-sub;
-    transition: color 0.3s, font-weight 0.3s;
+    transition: all 0.3s;
     flex: 1;
-    font-weight: 500;
+
+    .tab-content {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 6rpx;
+      color: $text-sub;
+      transition: all 0.3s;
+
+      .tab-label {
+        font-size: 26rpx;
+        font-weight: 500;
+      }
+    }
 
     &.active {
-      color: $primary;
-      font-weight: 700;
+      .tab-content {
+        color: $primary;
+        font-weight: 700;
+      }
     }
   }
 
-  // 指示线
   .tab-indicator {
     position: absolute;
     bottom: 0;
     width: 50rpx;
     height: 4rpx;
-    background: $primary;
+    background: linear-gradient(90deg, $primary 0%, $primary-dark 100%);
     border-radius: 2rpx;
+    box-shadow: 0 2rpx 8rpx rgb(10 219 195 / 40%);
     transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     pointer-events: none;
   }
@@ -380,7 +611,7 @@ $glass-border-light: rgb(255 255 255 / 60%);
 
 // 消息列表容器
 .message-list {
-  padding: 24rpx 32rpx;
+  padding: 0 32rpx;
   padding-bottom: calc(24rpx + env(safe-area-inset-bottom));
   width: auto;
   flex: 1;
@@ -432,121 +663,170 @@ $glass-border-light: rgb(255 255 255 / 60%);
 .list-content {
   display: flex;
   flex-direction: column;
-  gap: 24rpx;
+  gap: 16rpx;
+}
+
+// 消息项包装器
+.message-item-wrapper {
+  opacity: 0;
 }
 
 // 消息项
 .message-item {
+  position: relative;
   display: flex;
-  padding: 24rpx;
+  overflow: hidden;
+  padding: 0;
   background: $glass-bg;
-  border: 0.0625rem solid $glass-border-light;
-  border-radius: 24rpx;
-  box-shadow: 0 8rpx 32rpx rgb(31 38 135 / 7%);
+  border: 2rpx solid $glass-border-light;
+  border-radius: 20rpx;
+  box-shadow: 0 4rpx 16rpx rgb(31 38 135 / 5%);
   transition: all 0.3s;
   backdrop-filter: blur(32rpx);
-  gap: 16rpx;
+
+  &.unread {
+    border-color: rgb(10 219 195 / 30%);
+    box-shadow: 0 4rpx 16rpx rgb(10 219 195 / 10%);
+  }
 
   &:active {
     transform: scale(0.98);
-    box-shadow: 0 4rpx 16rpx rgb(31 38 135 / 10%);
+    box-shadow: 0 2rpx 8rpx rgb(31 38 135 / 8%);
   }
 
-  .item-left {
+  // 左侧装饰线
+  .item-decorator {
+    width: 6rpx;
     flex-shrink: 0;
 
-    .icon {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      width: 56rpx;
-      height: 56rpx;
-      border-radius: 16rpx;
-      flex-shrink: 0;
+    &.decorator-1 {
+      background: linear-gradient(180deg, #0adbc3 0%, #08bda8 100%);
+    }
 
-      &.icon-1 {
-        background: linear-gradient(135deg, #0adbc3 0%, #08bda8 100%);
-      }
+    &.decorator-2 {
+      background: linear-gradient(180deg, #ff9f43 0%, #ff8f2b 100%);
+    }
 
-      &.icon-2 {
-        background: linear-gradient(135deg, #ff9f43 0%, #ff8f2b 100%);
-      }
+    &.decorator-3 {
+      background: linear-gradient(180deg, #f43f5e 0%, #e11d48 100%);
+    }
 
-      &.icon-3 {
-        background: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%);
-      }
+    &.decorator-4 {
+      background: linear-gradient(180deg, #3b82f6 0%, #1d4ed8 100%);
+    }
 
-      &.icon-4 {
-        background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-      }
-
-      &.icon-99 {
-        background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);
-      }
+    &.decorator-99 {
+      background: linear-gradient(180deg, #8b5cf6 0%, #6d28d9 100%);
     }
   }
 
-  .item-content {
+  .item-main {
     display: flex;
-    justify-content: space-between;
-    min-width: 0;
-    flex: 1;
+    padding: 20rpx 24rpx;
     flex-direction: column;
+    gap: 12rpx;
+    flex: 1;
+    min-width: 0;
 
-    .title-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: 8rpx;
-
-      .title-badge {
-        display: flex;
-        align-items: center;
-        gap: 8rpx;
-        flex: 1;
-        min-width: 0;
-
-        .title {
-          overflow: hidden;
-          font-size: 28rpx;
-          text-overflow: ellipsis;
-          white-space: nowrap;
-          color: $text-main;
-          font-weight: 600;
-        }
-
-        .unread-badge {
-          padding: 4rpx 8rpx;
-          font-size: 20rpx;
-          color: #fff;
-          background: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%);
-          border-radius: 8rpx;
-          flex-shrink: 0;
-          font-weight: 600;
-        }
-      }
-    }
-
-    .content {
-      display: -webkit-box;
-      overflow: hidden;
-      margin-bottom: 8rpx;
-      font-size: 24rpx;
-      text-overflow: ellipsis;
-      color: $text-sub;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      line-height: 1.5;
-    }
-
-    .meta-info {
+    // 消息头部
+    .item-header {
       display: flex;
       align-items: center;
       gap: 12rpx;
 
-      .time {
-        font-size: 22rpx;
-        color: #9ca3af;
+      .icon-wrapper {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 44rpx;
+        height: 44rpx;
+        border-radius: 12rpx;
+        flex-shrink: 0;
+
+        &.icon-type-1 {
+          background: linear-gradient(135deg, #0adbc3 0%, #08bda8 100%);
+          box-shadow: 0 2rpx 8rpx rgb(10 219 195 / 25%);
+        }
+
+        &.icon-type-2 {
+          background: linear-gradient(135deg, #ff9f43 0%, #ff8f2b 100%);
+          box-shadow: 0 2rpx 8rpx rgb(255 159 67 / 25%);
+        }
+
+        &.icon-type-3 {
+          background: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%);
+          box-shadow: 0 2rpx 8rpx rgb(244 63 94 / 25%);
+        }
+
+        &.icon-type-4 {
+          background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+          box-shadow: 0 2rpx 8rpx rgb(59 130 246 / 25%);
+        }
+
+        &.icon-type-99 {
+          background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);
+          box-shadow: 0 2rpx 8rpx rgb(139 92 246 / 25%);
+        }
+      }
+
+      .header-info {
+        display: flex;
+        flex-direction: column;
+        gap: 4rpx;
+        flex: 1;
+        min-width: 0;
+
+        .title-row {
+          display: flex;
+          align-items: center;
+          gap: 8rpx;
+
+          .title {
+            overflow: hidden;
+            font-size: 28rpx;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            color: $text-main;
+            font-weight: 600;
+            flex: 1;
+          }
+
+          .new-badge {
+            padding: 2rpx 8rpx;
+            background: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%);
+            border-radius: 6rpx;
+            flex-shrink: 0;
+            box-shadow: 0 2rpx 6rpx rgb(244 63 94 / 30%);
+
+            .badge-text {
+              font-size: 18rpx;
+              color: #fff;
+              font-weight: 700;
+              letter-spacing: 0.5rpx;
+            }
+          }
+        }
+
+        .time {
+          font-size: 22rpx;
+          color: #9ca3af;
+        }
+      }
+    }
+
+    // 消息内容
+    .item-body {
+      padding-left: 56rpx;
+
+      .content {
+        display: -webkit-box;
+        overflow: hidden;
+        font-size: 24rpx;
+        text-overflow: ellipsis;
+        color: $text-sub;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        line-height: 1.6;
       }
     }
   }
@@ -574,7 +854,6 @@ $glass-border-light: rgb(255 255 255 / 60%);
 }
 
 .animate-fade-in {
-  opacity: 0;
   animation: fadeIn 0.5s ease-out forwards;
 }
 </style>
