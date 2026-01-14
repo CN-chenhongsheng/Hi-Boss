@@ -12,9 +12,6 @@
         <view class="header-title">
           申请详情
         </view>
-        <view class="header-help">
-          <u-icon name="info-circle" size="24" color="#608a85" />
-        </view>
       </view>
 
       <!-- 主内容 -->
@@ -461,23 +458,10 @@ $glass-border: rgb(255 255 255 / 60%);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 24rpx 32rpx;
-  padding-top: calc(var(--status-bar-height) + 24rpx);
+  padding: calc(var(--status-bar-height) + 20rpx) 32rpx 30rpx;
   backdrop-filter: blur(20rpx);
 
   .header-back,
-  .header-help {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 80rpx;
-    height: 80rpx;
-    border-radius: 50%;
-
-    &:active {
-      background: rgb(0 0 0 / 5%);
-    }
-  }
 
   .header-title {
     font-size: 36rpx;
