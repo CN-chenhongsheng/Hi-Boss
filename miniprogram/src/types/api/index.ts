@@ -21,3 +21,6 @@ export * from './notice';
 
 // 统计相关
 export * from './statistics';
+
+// 学生习惯相关
+export * from './student-habits';

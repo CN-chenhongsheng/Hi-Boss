@@ -76,6 +76,8 @@ export const ROUTE_CONSTANTS = {
   NOTICE_DETAIL: '/pages/service/notice-detail/index',
   // 生活方式页
   LIFESTYLE: '/pages/profile/lifestyle/index',
+  // 学生生活习惯页
+  STUDENT_HABITS: '/pages/profile/student-habits/index',
 };
 
 /**
