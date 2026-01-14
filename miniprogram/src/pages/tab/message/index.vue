@@ -674,23 +674,23 @@ $glass-border-light: rgb(255 255 255 / 60%);
     flex-shrink: 0;
 
     &.decorator-1 {
-      background: linear-gradient(180deg, #0adbc3 0%, #08bda8 100%);
+      background: linear-gradient(180deg, #7dd3c0 0%, #6bc4b0 100%);
     }
 
     &.decorator-2 {
-      background: linear-gradient(180deg, #ff9f43 0%, #ff8f2b 100%);
+      background: linear-gradient(180deg, #f5c89a 0%, #f0b87a 100%);
     }
 
     &.decorator-3 {
-      background: linear-gradient(180deg, #f43f5e 0%, #e11d48 100%);
+      background: linear-gradient(180deg, #f5a5a5 0%, #f08080 100%);
     }
 
     &.decorator-4 {
-      background: linear-gradient(180deg, #3b82f6 0%, #1d4ed8 100%);
+      background: linear-gradient(180deg, #a5c9f5 0%, #8fb5f0 100%);
     }
 
     &.decorator-99 {
-      background: linear-gradient(180deg, #8b5cf6 0%, #6d28d9 100%);
+      background: linear-gradient(180deg, #d4b5f5 0%, #c9a5f0 100%);
     }
   }
 
