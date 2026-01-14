@@ -8,9 +8,6 @@
     <!-- 顶部导航 -->
     <view class="header">
       <view class="header-content">
-        <view class="back-btn" @click="handleBack">
-          <u-icon name="arrow-left" size="24" color="#0f172a" />
-        </view>
         <view class="header-title">
           完善生活习惯
         </view>
@@ -647,11 +644,6 @@ const textareaStyle = {
   fontSize: '28rpx',
 };
 
-// 返回
-function handleBack(): void {
-  uni.navigateBack();
-}
-
 // 验证表单
 function validateForm(): boolean {
   // 检查必填的选择题是否已填写（至少一项）
@@ -801,22 +793,6 @@ $bg-light: #F0F4F8;
     display: flex;
     justify-content: space-between;
     align-items: center;
-  }
-
-  .back-btn {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 64rpx;
-    height: 64rpx;
-    background: rgb(255 255 255 / 60%);
-    border-radius: 50%;
-    transition: all 0.3s;
-
-    &:active {
-      background: rgb(255 255 255 / 80%);
-      transform: scale(0.95);
-    }
   }
 
   .header-title {
