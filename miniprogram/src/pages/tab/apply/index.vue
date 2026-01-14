@@ -305,7 +305,7 @@ $glass-border-light: rgb(255 255 255 / 60%);
       right: -100rpx;
       width: 600rpx;
       height: 600rpx;
-      background: rgb(10 219 195 / 5%);
+      background: rgb(125 211 192 / 4%);
     }
   }
 }

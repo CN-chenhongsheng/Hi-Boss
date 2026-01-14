@@ -370,7 +370,7 @@ $glass-border-light: rgb(255 255 255 / 60%);
       right: -100rpx;
       width: 600rpx;
       height: 600rpx;
-      background: rgb(10 219 195 / 8%);
+      background: rgb(125 211 192 / 4%);
       animation-delay: 0s;
     }
 
@@ -379,7 +379,7 @@ $glass-border-light: rgb(255 255 255 / 60%);
       left: -100rpx;
       width: 500rpx;
       height: 500rpx;
-      background: rgb(255 159 67 / 5%);
+      background: rgb(245 200 154 / 3%);
       animation-delay: 5s;
     }
 
@@ -388,7 +388,7 @@ $glass-border-light: rgb(255 255 255 / 60%);
       left: 50%;
       width: 400rpx;
       height: 400rpx;
-      background: rgb(139 92 246 / 3%);
+      background: rgb(174 222 203 / 2%);
       animation-delay: 10s;
       transform: translate(-50%, -50%);
     }
