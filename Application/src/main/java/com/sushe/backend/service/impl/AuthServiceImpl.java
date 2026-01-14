@@ -160,14 +160,14 @@ public class AuthServiceImpl implements AuthService {
         // 1. 获取并验证 Refresh Token
         String refreshToken = getRefreshTokenFromCookie(request);
         if (refreshToken == null || refreshToken.isBlank()) {
-            throw new BusinessException("Refresh Token 不存在，请重新登录");
+            throw new BusinessException("刷新 Token 失败，Refresh Token 不存在");
         }
 
         // 2. 验证 Token 并获取用户ID
         Long userId = RefreshTokenUtil.getLoginIdByToken(refreshToken);
         if (userId == null) {
             clearRefreshTokenCookie(response);
-            throw new BusinessException("Refresh Token 无效或已过期，请重新登录");
+            throw new BusinessException("刷新 Token 失败，Refresh Token 无效或已过期");
         }
 
         // 3. 验证用户状态
@@ -210,7 +210,7 @@ public class AuthServiceImpl implements AuthService {
             return StpUtil.getTokenValue();
         } catch (Exception e) {
             log.error("生成新 Access Token 失败", e);
-            throw new BusinessException("刷新 Token 失败: " + e.getMessage());
+            throw new BusinessException("生成新 Access Token 失败: " + e.getMessage());
         }
     }
 

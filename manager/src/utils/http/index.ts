@@ -108,8 +108,13 @@ axiosInstance.interceptors.response.use(
     if (code === ApiStatus.success) return response
     if (code === ApiStatus.unauthorized) {
       // 尝试刷新 Token
-      return handleTokenRefresh(response.config).catch(() => {
-        handleUnauthorizedError(responseMsg)
+      return handleTokenRefresh(response.config).catch((refreshError) => {
+        // handleTokenRefresh 内部已经处理了401错误并显示了提示，这里不需要再次处理
+        // 如果是401错误，直接返回，避免重复提示
+        if (refreshError instanceof HttpError && refreshError.code === ApiStatus.unauthorized) {
+          throw refreshError
+        }
+        // 其他错误，创建新的 HttpError
         throw createHttpError(responseMsg || $t('httpMsg.unauthorized'), code)
       })
     }
@@ -132,8 +137,13 @@ axiosInstance.interceptors.response.use(
 
       try {
         return await handleTokenRefresh(originalRequest)
-      } catch {
-        handleUnauthorizedError()
+      } catch (refreshError) {
+        // handleTokenRefresh 内部已经处理了401错误并显示了提示，这里不需要再次处理
+        // 如果是401错误，直接返回，避免重复提示
+        if (refreshError instanceof HttpError && refreshError.code === ApiStatus.unauthorized) {
+          return Promise.reject(refreshError)
+        }
+        // 其他错误，使用 handleError 处理
         return Promise.reject(handleError(error))
       }
     }
@@ -190,6 +200,15 @@ async function handleTokenRefresh(
     // 刷新失败，拒绝队列中的所有请求
     failedQueue.forEach(({ reject }) => reject(error))
     failedQueue = []
+
+    // 刷新失败时，直接处理401错误（只显示一次提示）
+    // 这里不抛出错误，而是直接调用 handleUnauthorizedError，避免在响应拦截器中重复处理
+    if (error instanceof AxiosError && error.response?.status === ApiStatus.unauthorized) {
+      handleUnauthorizedError()
+      // 创建一个 HttpError 用于返回，但不显示错误（因为已经在 handleUnauthorizedError 中显示了）
+      throw createHttpError($t('httpMsg.unauthorized'), ApiStatus.unauthorized)
+    }
+
     throw error
   } finally {
     isRefreshing = false
