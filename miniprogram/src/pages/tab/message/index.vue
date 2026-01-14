@@ -112,9 +112,6 @@
               :class="{ unread: !item.isRead }"
               @click="handleViewDetail(item)"
             >
-              <!-- 左侧装饰线 -->
-              <view class="item-decorator" :class="`decorator-${item.type}`" />
-
               <!-- 消息内容 -->
               <view class="item-main">
                 <!-- 消息头部 -->
@@ -347,7 +344,7 @@ $glass-border-light: rgb(255 255 255 / 60%);
 .message-page {
   overflow-x: hidden;
   min-height: 100vh;
-  background: linear-gradient(135deg, #f0fdfa 0%, #ecfccb 100%);
+  background: linear-gradient(135deg, #f0fdfa 0%, #ecfccb0c 100%);
   background-attachment: fixed;
 }
 
@@ -370,7 +367,7 @@ $glass-border-light: rgb(255 255 255 / 60%);
       right: -100rpx;
       width: 600rpx;
       height: 600rpx;
-      background: rgb(255 220 220 / 3%);
+      background: rgb(255 220 220 / 75%);
       animation-delay: 0s;
     }
 
@@ -379,7 +376,7 @@ $glass-border-light: rgb(255 255 255 / 60%);
       left: -100rpx;
       width: 500rpx;
       height: 500rpx;
-      background: rgb(255 220 180 / 3%);
+      background: rgb(255 220 180 / 45%);
       animation-delay: 5s;
     }
 
@@ -388,7 +385,7 @@ $glass-border-light: rgb(255 255 255 / 60%);
       left: 50%;
       width: 400rpx;
       height: 400rpx;
-      background: rgb(255 200 180 / 2%);
+      background: rgb(255 200 180 / 30%);
       animation-delay: 10s;
       transform: translate(-50%, -50%);
     }
@@ -666,32 +663,6 @@ $glass-border-light: rgb(255 255 255 / 60%);
   &:active {
     transform: scale(0.98);
     box-shadow: 0 2rpx 8rpx rgb(31 38 135 / 8%);
-  }
-
-  // 左侧装饰线
-  .item-decorator {
-    width: 6rpx;
-    flex-shrink: 0;
-
-    &.decorator-1 {
-      background: linear-gradient(180deg, #7dd3c0 0%, #6bc4b0 100%);
-    }
-
-    &.decorator-2 {
-      background: linear-gradient(180deg, #f5c89a 0%, #f0b87a 100%);
-    }
-
-    &.decorator-3 {
-      background: linear-gradient(180deg, #f5a5a5 0%, #f08080 100%);
-    }
-
-    &.decorator-4 {
-      background: linear-gradient(180deg, #a5c9f5 0%, #8fb5f0 100%);
-    }
-
-    &.decorator-99 {
-      background: linear-gradient(180deg, #d4b5f5 0%, #c9a5f0 100%);
-    }
   }
 
   .item-main {
