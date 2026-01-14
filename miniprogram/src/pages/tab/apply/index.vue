@@ -3,6 +3,8 @@
     <!-- 背景装饰 -->
     <view class="bg-decorations">
       <view class="blob blob-1" />
+      <view class="blob blob-2" />
+      <view class="blob blob-3" />
     </view>
 
     <view class="page-container">
@@ -283,7 +285,7 @@ $glass-border-light: rgb(255 255 255 / 60%);
 .apply-list-page {
   overflow-x: hidden;
   min-height: 100vh;
-  background: linear-gradient(135deg, #f0fdfa 0%, #ecfccb 100%);
+  background: linear-gradient(135deg, #f0fdfa 0%, #ecfccb0c 100%);
   background-attachment: fixed;
 }
 
@@ -298,14 +300,35 @@ $glass-border-light: rgb(255 255 255 / 60%);
   .blob {
     position: absolute;
     border-radius: 50%;
-    filter: blur(80rpx);
+    filter: blur(100rpx);
+    animation: float 20s ease-in-out infinite;
 
     &.blob-1 {
       top: -200rpx;
       right: -100rpx;
       width: 600rpx;
       height: 600rpx;
-      background: rgb(255 220 220 / 3%);
+      background: rgb(255 220 220 / 75%);
+      animation-delay: 0s;
+    }
+
+    &.blob-2 {
+      bottom: -150rpx;
+      left: -100rpx;
+      width: 500rpx;
+      height: 500rpx;
+      background: rgb(255 220 180 / 45%);
+      animation-delay: 5s;
+    }
+
+    &.blob-3 {
+      top: 50%;
+      left: 50%;
+      width: 400rpx;
+      height: 400rpx;
+      background: rgb(255 200 180 / 30%);
+      animation-delay: 10s;
+      transform: translate(-50%, -50%);
     }
   }
 }
