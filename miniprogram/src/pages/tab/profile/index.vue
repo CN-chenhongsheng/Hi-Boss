@@ -325,15 +325,13 @@ $glass-border: rgb(255 255 255 / 80%);
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 24rpx 32rpx;
-  padding-top: calc(var(--status-bar-height) + 24rpx);
+  padding: calc(var(--status-bar-height) + 20rpx) 32rpx 30rpx;
 
   .header-title {
     display: flex;
     justify-content: center;
     align-items: center;
     width: auto;
-    height: 80rpx;
     font-size: 36rpx;
     color: $text-main;
     border-radius: 50%;

@@ -1089,8 +1089,7 @@ $glass-border: rgb(255 255 255 / 80%);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 24rpx 32rpx;
-  padding-top: calc(var(--status-bar-height) + 24rpx);
+  padding: calc(var(--status-bar-height) + 20rpx) 32rpx 30rpx;
   backdrop-filter: blur(32rpx);
 
   .header-back {

@@ -863,8 +863,7 @@ $glass-border: rgb(255 255 255 / 80%);
   z-index: 50;
   display: flex;
   align-items: center;
-  padding: 24rpx 32rpx;
-  padding-top: calc(var(--status-bar-height) + 24rpx);
+  padding: calc(var(--status-bar-height) + 20rpx) 32rpx 30rpx;
   background: $glass-bg;
   backdrop-filter: blur(32rpx);
 

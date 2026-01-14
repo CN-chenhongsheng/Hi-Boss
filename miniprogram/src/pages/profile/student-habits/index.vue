@@ -517,25 +517,25 @@ import type { IOptionItem, IStudentHabitsForm } from '@/types/api/student-habits
 
 // 表单数据
 const formData = ref<IStudentHabitsForm>({
-  sleepSchedule: 1,
-  sleepQuality: 1,
-  snores: 0,
-  sensitiveToLight: 0,
-  sensitiveToSound: 0,
-  smokingStatus: 0,
-  smokingTolerance: 0,
-  cleanlinessLevel: 2,
-  bedtimeCleanup: 1,
-  socialPreference: 2,
-  allowVisitors: 1,
-  phoneCallTime: 1,
-  eatInRoom: 1,
-  studyInRoom: 1,
-  studyEnvironment: 1,
-  computerUsageTime: 2,
-  gamingPreference: 1,
-  musicPreference: 1,
-  musicVolume: 2,
+  sleepSchedule: null,
+  sleepQuality: null,
+  snores: null,
+  sensitiveToLight: null,
+  sensitiveToSound: null,
+  smokingStatus: null,
+  smokingTolerance: null,
+  cleanlinessLevel: null,
+  bedtimeCleanup: null,
+  socialPreference: null,
+  allowVisitors: null,
+  phoneCallTime: null,
+  eatInRoom: null,
+  studyInRoom: null,
+  studyEnvironment: null,
+  computerUsageTime: null,
+  gamingPreference: null,
+  musicPreference: null,
+  musicVolume: null,
   specialNeeds: '',
   roommatePreference: '',
 });
@@ -795,7 +795,7 @@ $bg-light: #F0F4F8;
 .header {
   position: relative;
   z-index: 100;
-  padding: calc(var(--status-bar-height) + 20rpx) 32rpx 20rpx;
+  padding: calc(var(--status-bar-height) + 20rpx) 32rpx 30rpx;
 
   .header-content {
     display: flex;
