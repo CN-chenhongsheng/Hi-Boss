@@ -236,6 +236,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue';
+import { getApplyTypeName, getStatusText } from '@/utils/apply';
 
 const defaultAvatar = 'https://via.placeholder.com/150';
 
@@ -260,24 +261,14 @@ const applyNo = computed(() => {
 
 // 申请类型名称
 const applyTypeName = computed(() => {
-  const typeMap: Record<string, string> = {
-    checkIn: '入住申请',
-    transfer: '调宿申请',
-    checkOut: '退宿申请',
-    stay: '留宿申请',
-  };
-  return typeMap[applyType.value] || '申请';
+  return getApplyTypeName(applyType.value);
 });
 
 // 状态文本
 const statusText = computed(() => {
   if (!detail.value) return '审核中';
   const status = detail.value.status;
-  if (status === 1 || status === 'pending') return '审核中';
-  if (status === 2 || status === 'approved') return '已通过';
-  if (status === 3 || status === 'rejected') return '已拒绝';
-  if (status === 4 || status === 'done') return '已完成';
-  return '审核中';
+  return getStatusText(status);
 });
 
 // 状态描述

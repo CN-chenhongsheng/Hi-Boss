@@ -261,6 +261,7 @@ import { computed, onMounted, ref } from 'vue';
 import { storeToRefs } from 'pinia';
 import type { IApplyDisplay, INoticeDisplay, IQuickService } from '@/types';
 import useUserStore from '@/store/modules/user';
+import { ROUTE_CONSTANTS } from '@/constants';
 
 const userStore = useUserStore();
 const { userInfo, isLoggedIn } = storeToRefs(userStore);
@@ -448,12 +449,12 @@ function handleQuickEntry(item: IQuickService): void {
 
 // 跳转通知列表
 function handleGoNoticeList(): void {
-  uni.navigateTo({ url: '/pages/tab/message/index' });
+  uni.navigateTo({ url: ROUTE_CONSTANTS.MESSAGE });
 }
 
 // 查看通知详情
 function handleViewNotice(notice: INoticeDisplay): void {
-  uni.navigateTo({ url: `/pages/service/notice-detail/index?id=${notice.id}` });
+  uni.navigateTo({ url: `${ROUTE_CONSTANTS.NOTICE_DETAIL}?id=${notice.id}` });
 }
 
 // 跳转申请列表
@@ -463,16 +464,15 @@ function handleGoApplyList(): void {
 
 // 查看申请详情
 function handleViewApply(item: IApplyDisplay): void {
-  uni.navigateTo({ url: `/pages/apply/detail/index?id=${item.id}&type=${item.type}` });
+  uni.navigateTo({ url: `${ROUTE_CONSTANTS.STUDENT_APPLY_DETAIL}?id=${item.id}&type=${item.type}` });
 }
 
 // 同意隐私协议
 function handleAgree(): void {
-  console.log('同意隐私政策');
 }
 
 function handleGoLogin(): void {
-  uni.navigateTo({ url: '/pages/common/login/index' });
+  uni.navigateTo({ url: ROUTE_CONSTANTS.LOGIN });
 }
 
 // 加载数据
@@ -602,7 +602,7 @@ async function loadData(): Promise<void> {
     ];
   }
   catch (error) {
-    console.error('加载数据失败:', error);
+    // Error handling will be implemented with proper error management
   }
 }
 

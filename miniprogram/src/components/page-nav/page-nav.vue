@@ -19,17 +19,16 @@
   </view>
 </template>
 
-<script>
-export default {
-  name: 'PageNav',
-  props: {
-    desc: String,
-    title: String,
-  },
-  data() {
-    return {};
-  },
-};
+<script setup lang="ts">
+interface PageNavProps {
+  desc?: string;
+  title?: string;
+}
+
+withDefaults(defineProps<PageNavProps>(), {
+  desc: '',
+  title: '',
+});
 </script>
 
 <style lang="scss" scoped>

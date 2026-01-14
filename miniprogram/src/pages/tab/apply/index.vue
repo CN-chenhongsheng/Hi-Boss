@@ -125,8 +125,16 @@
 import { computed, onMounted, ref } from 'vue';
 import { storeToRefs } from 'pinia';
 import type { IApplyListItem } from '@/types';
-import { ApplyStatus, ApplyStatusColor, ApplyStatusText, UserRole } from '@/types';
+import { ApplyStatus, UserRole } from '@/types';
 import useUserStore from '@/store/modules/user';
+import {
+  formatTime,
+  getApplyTypeIcon,
+  getApplyTypeName,
+  getStatusColor,
+  getStatusText,
+} from '@/utils/apply';
+import { ROUTE_CONSTANTS } from '@/constants';
 
 /** Tab 项类型 */
 interface TabItem {
@@ -134,40 +142,6 @@ interface TabItem {
   value: 'all' | ApplyStatus;
   count: number;
 }
-
-/** 申请类型图标配置 */
-interface ApplyTypeIconConfig {
-  icon: string;
-  iconColor: string;
-  bgColor: string;
-}
-
-/** 申请类型名称映射 */
-const APPLY_TYPE_NAME_MAP: Record<string, string> = {
-  checkIn: '入住申请',
-  normalCheckIn: '正常入住',
-  tempCheckIn: '临时入住',
-  transfer: '调宿申请',
-  checkOut: '退宿申请',
-  stay: '留宿申请',
-};
-
-/** 申请类型图标映射 */
-const APPLY_TYPE_ICON_MAP: Record<string, ApplyTypeIconConfig> = {
-  checkIn: { icon: 'home', iconColor: '#14b8a6', bgColor: 'rgba(20, 184, 166, 0.1)' },
-  normalCheckIn: { icon: 'home', iconColor: '#14b8a6', bgColor: 'rgba(20, 184, 166, 0.1)' },
-  tempCheckIn: { icon: 'home', iconColor: '#14b8a6', bgColor: 'rgba(20, 184, 166, 0.1)' },
-  transfer: { icon: 'reload', iconColor: '#6366f1', bgColor: 'rgba(99, 102, 241, 0.1)' },
-  checkOut: { icon: 'arrow-left', iconColor: '#f43f5e', bgColor: 'rgba(244, 63, 94, 0.1)' },
-  stay: { icon: 'calendar', iconColor: '#3b82f6', bgColor: 'rgba(59, 130, 246, 0.1)' },
-};
-
-/** 默认图标配置 */
-const DEFAULT_ICON_CONFIG: ApplyTypeIconConfig = {
-  icon: 'list',
-  iconColor: '#6b7280',
-  bgColor: 'rgba(107, 114, 128, 0.1)',
-};
 
 const userStore = useUserStore();
 const { userInfo } = storeToRefs(userStore);
@@ -210,30 +184,6 @@ const pageTitle = computed(() => {
   return hasManagePermission.value ? '审批中心' : '我的申请';
 });
 
-function getApplyTypeName(type: string): string {
-  return APPLY_TYPE_NAME_MAP[type] || '申请';
-}
-
-function getApplyTypeIcon(type: string): ApplyTypeIconConfig {
-  return APPLY_TYPE_ICON_MAP[type] || DEFAULT_ICON_CONFIG;
-}
-
-function getStatusText(status: ApplyStatus): string {
-  return ApplyStatusText[status] || '未知';
-}
-
-function getStatusColor(status: ApplyStatus): string {
-  return ApplyStatusColor[status] || '#999';
-}
-
-function formatTime(time: string): string {
-  if (!time) return '';
-  if (time.includes(' ')) {
-    return time.split(' ')[0];
-  }
-  return time;
-}
-
 function handleTabChange(value: 'all' | ApplyStatus): void {
   activeTab.value = value;
   loadData();
@@ -241,8 +191,8 @@ function handleTabChange(value: 'all' | ApplyStatus): void {
 
 function handleViewDetail(item: IApplyListItem): void {
   const basePath = hasManagePermission.value
-    ? '/pages/admin/approval-detail/index'
-    : '/pages/apply/detail/index';
+    ? ROUTE_CONSTANTS.ADMIN_APPROVAL_DETAIL
+    : ROUTE_CONSTANTS.STUDENT_APPLY_DETAIL;
 
   uni.navigateTo({ url: `${basePath}?id=${item.id}&type=${item.type}` });
 }
