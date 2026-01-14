@@ -305,7 +305,7 @@ const quickServices = ref([
   { id: 3, name: '退宿申请', icon: 'arrow-left', color: '#f43f5e', type: 'checkOut', path: '/pages/apply/form/index' },
   { id: 4, name: '留宿申请', icon: 'calendar', color: '#3b82f6', type: 'stay', path: '/pages/apply/form/index' },
   { id: 5, name: '故障报修', icon: 'setting', color: '#f97316', type: 'repair', path: '/pages/service/repair/index' },
-  { id: 6, name: '水电统计', icon: 'grid', color: '#a855f7', type: 'statistics', path: '/pages/tab/statistics/index' },
+  { id: 6, name: '个人情况', icon: 'account', color: '#a855f7', type: 'statistics', path: '/pages/tab/statistics/index' },
 ]);
 
 // 通知列表

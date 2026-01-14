@@ -118,6 +118,15 @@ axiosInstance.interceptors.response.use(
         throw createHttpError(responseMsg || $t('httpMsg.unauthorized'), code)
       })
     }
+
+    // 检查是否是刷新 Token 失败的错误（业务错误码 600 且消息包含刷新 Token 相关关键词）
+    const isRefreshTokenError = isRefreshTokenFailureError(code, responseMsg, response.config?.url)
+    if (isRefreshTokenError) {
+      // 刷新 Token 失败，触发登出并跳转登录
+      handleUnauthorizedError(responseMsg)
+      throw createHttpError(responseMsg || $t('httpMsg.unauthorized'), ApiStatus.unauthorized)
+    }
+
     throw createHttpError(responseMsg || $t('httpMsg.requestFailed'), code)
   },
   async (error: AxiosError<ErrorResponse>) => {
@@ -155,6 +164,33 @@ axiosInstance.interceptors.response.use(
 /** 统一创建HttpError */
 function createHttpError(message: string, code: number) {
   return new HttpError(message, code)
+}
+
+/**
+ * 判断是否是刷新 Token 失败的错误
+ * @param code 错误码
+ * @param message 错误消息
+ * @param url 请求 URL
+ * @returns 是否是刷新 Token 失败的错误
+ */
+function isRefreshTokenFailureError(code: number, message: string, url?: string): boolean {
+  // 如果是刷新 Token 接口本身返回的错误
+  if (url?.includes('/auth/refresh')) {
+    return true
+  }
+
+  // 检查错误消息是否包含刷新 Token 相关的关键词
+  const refreshTokenKeywords = [
+    '刷新 Token',
+    'Refresh Token',
+    '刷新令牌',
+    'refresh token',
+    'token 刷新',
+    'token刷新'
+  ]
+
+  const lowerMessage = message.toLowerCase()
+  return refreshTokenKeywords.some((keyword) => lowerMessage.includes(keyword.toLowerCase()))
 }
 
 /**
@@ -201,12 +237,23 @@ async function handleTokenRefresh(
     failedQueue.forEach(({ reject }) => reject(error))
     failedQueue = []
 
-    // 刷新失败时，直接处理401错误（只显示一次提示）
-    // 这里不抛出错误，而是直接调用 handleUnauthorizedError，避免在响应拦截器中重复处理
-    if (error instanceof AxiosError && error.response?.status === ApiStatus.unauthorized) {
-      handleUnauthorizedError()
-      // 创建一个 HttpError 用于返回，但不显示错误（因为已经在 handleUnauthorizedError 中显示了）
-      throw createHttpError($t('httpMsg.unauthorized'), ApiStatus.unauthorized)
+    // 刷新失败时，检查是否是401错误或业务错误码600（刷新token失败）
+    if (error instanceof AxiosError) {
+      // HTTP 401 错误
+      if (error.response?.status === ApiStatus.unauthorized) {
+        handleUnauthorizedError()
+        throw createHttpError($t('httpMsg.unauthorized'), ApiStatus.unauthorized)
+      }
+
+      // 业务错误码 600 且是刷新token失败的错误
+      const responseData = error.response?.data as BaseResponse | undefined
+      if (responseData?.code === 600) {
+        const errorMsg = responseData.message || responseData.msg || ''
+        if (isRefreshTokenFailureError(600, errorMsg, '/auth/refresh')) {
+          handleUnauthorizedError(errorMsg)
+          throw createHttpError(errorMsg || $t('httpMsg.unauthorized'), ApiStatus.unauthorized)
+        }
+      }
     }
 
     throw error
