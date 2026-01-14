@@ -351,7 +351,7 @@ $glass-border-light: rgb(255 255 255 / 60%);
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: calc(var(--status-bar-height) + 20rpx) 32rpx 30rpx;
+  padding: calc(var(--status-bar-height) + 50rpx) 32rpx 25rpx;
 
   .header-title {
     font-size: 36rpx;

@@ -795,7 +795,7 @@ $bg-light: #F0F4F8;
 .header {
   position: relative;
   z-index: 100;
-  padding: calc(var(--status-bar-height) + 20rpx) 32rpx 30rpx;
+  padding: calc(var(--status-bar-height) + 50rpx) 32rpx 25rpx;
 
   .header-content {
     display: flex;
