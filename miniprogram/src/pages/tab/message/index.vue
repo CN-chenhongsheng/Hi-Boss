@@ -109,7 +109,6 @@
           >
             <view
               class="glass-card message-item"
-              :class="{ unread: !item.isRead }"
               @click="handleViewDetail(item)"
             >
               <!-- 消息内容 -->
@@ -125,9 +124,7 @@
                         {{ item.title }}
                       </text>
                       <view v-if="!item.isRead" class="new-badge">
-                        <text class="badge-text">
-                          NEW
-                        </text>
+                        <view class="badge-dot" />
                       </view>
                     </view>
                     <text class="time">
@@ -655,11 +652,6 @@ $glass-border-light: rgb(255 255 255 / 60%);
   transition: all 0.3s;
   backdrop-filter: blur(32rpx);
 
-  &.unread {
-    border-color: rgb(10 219 195 / 30%);
-    box-shadow: 0 4rpx 16rpx rgb(10 219 195 / 10%);
-  }
-
   &:active {
     transform: scale(0.98);
     box-shadow: 0 2rpx 8rpx rgb(31 38 135 / 8%);
@@ -737,17 +729,20 @@ $glass-border-light: rgb(255 255 255 / 60%);
           }
 
           .new-badge {
-            padding: 2rpx 8rpx;
-            background: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%);
-            border-radius: 6rpx;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-left: 8rpx;
             flex-shrink: 0;
-            box-shadow: 0 2rpx 6rpx rgb(244 63 94 / 30%);
 
-            .badge-text {
-              font-size: 18rpx;
-              color: #fff;
-              font-weight: 700;
-              letter-spacing: 0.5rpx;
+            .badge-dot {
+              width: 12rpx;
+              height: 12rpx;
+              background: linear-gradient(135deg, #ff6b6b 0%, #ff5252 100%);
+              border-radius: 50%;
+              box-shadow: 0 0 0 0 rgb(255 107 107 / 70%);
+              animation: pulse 2s infinite;
             }
           }
         }
@@ -795,6 +790,20 @@ $glass-border-light: rgb(255 255 255 / 60%);
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgb(255 107 107 / 70%);
+  }
+
+  70% {
+    box-shadow: 0 0 0 10rpx rgb(255 107 107 / 0%);
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 rgb(255 107 107 / 0%);
   }
 }
 
