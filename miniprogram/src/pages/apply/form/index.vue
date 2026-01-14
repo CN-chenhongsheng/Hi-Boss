@@ -270,29 +270,11 @@
             </view>
 
             <!-- 申请类型 -->
-            <view
-              class="input-group"
-              :class="{ disabled: !canModifyApplyType }"
-              @click="canModifyApplyType ? openApplyTypePicker() : null"
-            >
-              <view class="input-icon">
-                <u-icon name="list" size="20" color="#0adbc3" />
-              </view>
-              <view class="input-content">
-                <view class="input-label">
-                  申请类型
-                  <text class="required-mark">
-                    *
-                  </text>
-                </view>
-                <view class="input-value picker-enhanced" :class="{ 'placeholder': !formData.applyType, 'has-value': formData.applyType }">
-                  {{ currentApplyTypeLabel }}
-                </view>
-              </view>
-              <view v-if="canModifyApplyType" class="input-arrow">
-                <u-icon name="arrow-down-fill" size="20" color="#9ca3af" />
-              </view>
-            </view>
+            <ApplyTypePicker
+              v-model="formData.applyType"
+              :options="filteredApplyTypeOptions"
+              :can-modify="canModifyApplyType"
+            />
 
             <!-- 动态表单组件 -->
             <NormalCheckIn
@@ -346,12 +328,51 @@ import TempCheckIn from './components/temp-check-in.vue';
 import Transfer from './components/transfer.vue';
 import CheckOut from './components/check-out.vue';
 import Stay from './components/stay.vue';
+import ApplyTypePicker from './components/apply-type-picker.vue';
+import type { IApplyFormData } from '@/types';
 import useUserStore from '@/store/modules/user';
+import { useFormValidation } from '@/composables/useFormValidation';
+
+// 类型定义
+type ApplyType = 'normalCheckIn' | 'tempCheckIn' | 'transfer' | 'checkOut' | 'stay';
+type DateTab = 'start' | 'end';
+
+interface ApplyTypeOption {
+  label: string;
+  value: ApplyType;
+}
+
+interface DateRange {
+  startDate?: string;
+  endDate?: string;
+}
+
+interface DateRangePickerState {
+  show: boolean;
+  activeTab: DateTab;
+  startDatePickerValue: number[];
+  endDatePickerValue: number[];
+  years: number[];
+  months: number[];
+  startDays: number[];
+  endDays: number[];
+  currentDateRange: DateRange | null;
+  onConfirm: ((value: DateRange) => void) | null;
+}
+
+interface SignaturePickerState {
+  show: boolean;
+  canvasWidth: number;
+  canvasHeight: number;
+  currentValue: string;
+  onConfirm: ((value: string) => void) | null;
+}
 
 const userStore = useUserStore();
+const { validateForm } = useFormValidation();
 
 // 申请类型选项
-const applyTypeOptions = [
+const applyTypeOptions: ApplyTypeOption[] = [
   { label: '正常入住', value: 'normalCheckIn' },
   { label: '临时入住', value: 'tempCheckIn' },
   { label: '调宿申请', value: 'transfer' },
@@ -360,7 +381,7 @@ const applyTypeOptions = [
 ];
 
 // 表单数据
-const formData = reactive({
+const formData = reactive<IApplyFormData>({
   applyType: '',
   // 通用字段
   reason: '',
@@ -404,39 +425,30 @@ const filteredApplyTypeIndex = computed(() => {
   return filteredApplyTypeOptions.value.findIndex(opt => opt.value === currentValue);
 });
 
-// 当前申请类型标签
-const currentApplyTypeLabel = computed(() => {
-  if (!formData.applyType) {
-    return '请选择类型';
-  }
-  const option = applyTypeOptions.find(opt => opt.value === formData.applyType);
-  return option?.label || '请选择类型';
-});
-
 // 弹窗控制
 const showApplyTypePicker = ref(false);
 
 // 日期范围选择器状态
-const dateRangePickerState = reactive({
+const dateRangePickerState = reactive<DateRangePickerState>({
   show: false,
-  activeTab: 'start' as 'start' | 'end',
+  activeTab: 'start',
   startDatePickerValue: [0, 0, 0],
   endDatePickerValue: [0, 0, 0],
-  years: [] as number[],
-  months: [] as number[],
-  startDays: [] as number[],
-  endDays: [] as number[],
-  currentDateRange: null as { startDate?: string; endDate?: string } | null,
-  onConfirm: null as ((value: { startDate?: string; endDate?: string }) => void) | null,
+  years: [],
+  months: [],
+  startDays: [],
+  endDays: [],
+  currentDateRange: null,
+  onConfirm: null,
 });
 
 // 签名选择器状态
-const signaturePickerState = reactive({
+const signaturePickerState = reactive<SignaturePickerState>({
   show: false,
   canvasWidth: 600,
   canvasHeight: 400,
   currentValue: '',
-  onConfirm: null as ((value: string) => void) | null,
+  onConfirm: null,
 });
 
 let signatureCtx: any = null;
@@ -448,12 +460,12 @@ let lastY = 0;
 const userInfo = computed(() => userStore.userInfo);
 
 // 返回
-function handleBack() {
+function handleBack(): void {
   uni.navigateBack();
 }
 
 // 打开申请类型选择器
-function openApplyTypePicker() {
+function openApplyTypePicker(): void {
   if (!canModifyApplyType.value) {
     return;
   }
@@ -463,27 +475,23 @@ function openApplyTypePicker() {
 }
 
 // 选择申请类型（在弹窗中）
-function handleSelectApplyType(index: number) {
-  // 只有在允许修改的情况下才能选择
+function handleSelectApplyType(index: number): void {
   if (!canModifyApplyType.value) {
     return;
   }
-  // 更新临时选中索引
   tempApplyTypeIndex.value = index;
 }
 
 // 确认申请类型
-function confirmApplyType() {
+function confirmApplyType(): void {
   if (!canModifyApplyType.value) {
     showApplyTypePicker.value = false;
     return;
   }
   const oldType = formData.applyType;
-  // 使用临时选中的索引来获取选中的选项
   const selectedOption = filteredApplyTypeOptions.value[tempApplyTypeIndex.value];
   if (selectedOption) {
     formData.applyType = selectedOption.value;
-    // 同步更新 applyTypeIndex
     const originalIndex = applyTypeOptions.findIndex(opt => opt.value === selectedOption.value);
     if (originalIndex >= 0) {
       applyTypeIndex.value = originalIndex;
@@ -492,14 +500,14 @@ function confirmApplyType() {
 
   // 如果切换了申请类型，清空表单数据
   if (oldType && oldType !== formData.applyType) {
-    // 保留申请类型，清空其他字段
     Object.keys(formData).forEach((key) => {
       if (key !== 'applyType') {
-        if (Array.isArray(formData[key as keyof typeof formData])) {
-          (formData[key as keyof typeof formData] as any) = [];
+        const formKey = key as keyof IApplyFormData;
+        if (Array.isArray(formData[formKey])) {
+          (formData[formKey] as string[]) = [];
         }
         else {
-          (formData[key as keyof typeof formData] as any) = '';
+          (formData[formKey] as string) = '';
         }
       }
     });
@@ -509,17 +517,17 @@ function confirmApplyType() {
 }
 
 // 获取组件所需的表单数据
-function getFormDataForComponent() {
+function getFormDataForComponent(): IApplyFormData {
   return { ...formData };
 }
 
 // 处理表单更新
-function handleFormUpdate(field: string, value: any) {
-  (formData as any)[field] = value;
+function handleFormUpdate<K extends keyof IApplyFormData>(field: K, value: IApplyFormData[K]): void {
+  formData[field] = value;
 }
 
 // 初始化日期选项
-function initDateOptions(currentValue?: { startDate?: string; endDate?: string }) {
+function initDateOptions(currentValue?: DateRange): void {
   const currentYear = new Date().getFullYear();
   const currentMonth = new Date().getMonth() + 1;
   const currentDay = new Date().getDate();
@@ -584,7 +592,7 @@ function initDateOptions(currentValue?: { startDate?: string; endDate?: string }
   }
 }
 
-function updateStartDays() {
+function updateStartDays(): void {
   const year = dateRangePickerState.years[dateRangePickerState.startDatePickerValue[0]];
   const month = dateRangePickerState.months[dateRangePickerState.startDatePickerValue[1]];
   const maxDay = new Date(year, month, 0).getDate();
@@ -597,7 +605,7 @@ function updateStartDays() {
   }
 }
 
-function updateEndDays() {
+function updateEndDays(): void {
   const year = dateRangePickerState.years[dateRangePickerState.endDatePickerValue[0]];
   const month = dateRangePickerState.months[dateRangePickerState.endDatePickerValue[1]];
   const maxDay = new Date(year, month, 0).getDate();
@@ -610,7 +618,7 @@ function updateEndDays() {
   }
 }
 
-function handleDatePickerViewChange(e: any) {
+function handleDatePickerViewChange(e: { detail: { value: number[] } }): void {
   const oldValue = dateRangePickerState.activeTab === 'start'
     ? [...dateRangePickerState.startDatePickerValue]
     : [...dateRangePickerState.endDatePickerValue];
@@ -629,7 +637,7 @@ function handleDatePickerViewChange(e: any) {
   }
 }
 
-function openDateRangePicker(currentValue: { startDate?: string; endDate?: string }, onConfirm: (value: { startDate?: string; endDate?: string }) => void) {
+function openDateRangePicker(currentValue: DateRange, onConfirm: (value: DateRange) => void): void {
   dateRangePickerState.currentDateRange = currentValue;
   dateRangePickerState.onConfirm = onConfirm;
   dateRangePickerState.activeTab = 'start';
@@ -637,19 +645,16 @@ function openDateRangePicker(currentValue: { startDate?: string; endDate?: strin
   dateRangePickerState.show = true;
 }
 
-function closeDateRangePicker() {
+function closeDateRangePicker(): void {
   dateRangePickerState.show = false;
 }
 
 // 格式化日期数字（兼容小程序）
 function formatDateNumber(num: number): string {
-  if (num < 10) {
-    return `0${num}`;
-  }
-  return String(num);
+  return num < 10 ? `0${num}` : String(num);
 }
 
-function confirmDateRange() {
+function confirmDateRange(): void {
   // 确保天数数组已更新
   updateStartDays();
   updateEndDays();
@@ -717,7 +722,7 @@ function confirmDateRange() {
 }
 
 // 签名相关函数
-function initSignatureCanvas() {
+function initSignatureCanvas(): void {
   // #ifdef MP-WEIXIN
   nextTick(() => {
     // 延迟一点确保 canvas 已经渲染
@@ -770,7 +775,7 @@ function initSignatureCanvas() {
   // #endif
 }
 
-function handleSignatureTouchStart(e: any) {
+function handleSignatureTouchStart(e: TouchEvent): void {
   isDrawing = true;
   const touch = e.touches[0];
 
@@ -800,7 +805,7 @@ function handleSignatureTouchStart(e: any) {
   // #endif
 }
 
-function handleSignatureTouchMove(e: any) {
+function handleSignatureTouchMove(e: TouchEvent): void {
   if (!isDrawing || !signatureCtx) return;
   e.preventDefault();
   const touch = e.touches[0];
@@ -833,11 +838,11 @@ function handleSignatureTouchMove(e: any) {
   // #endif
 }
 
-function handleSignatureTouchEnd() {
+function handleSignatureTouchEnd(): void {
   isDrawing = false;
 }
 
-function clearSignature() {
+function clearSignature(): void {
   if (!signatureCtx) return;
   // signaturePickerState.canvasWidth 存储的是 rpx，需要转换为 px
   const canvasWidthPx = signaturePickerState.canvasWidth / 2;
@@ -845,7 +850,7 @@ function clearSignature() {
   signatureCtx.clearRect(0, 0, canvasWidthPx, canvasHeightPx);
 }
 
-function openSignaturePicker(currentValue: string, onConfirm: (value: string) => void) {
+function openSignaturePicker(currentValue: string, onConfirm: (value: string) => void): void {
   signaturePickerState.currentValue = currentValue;
   signaturePickerState.onConfirm = onConfirm;
   signaturePickerState.show = true;
@@ -854,7 +859,7 @@ function openSignaturePicker(currentValue: string, onConfirm: (value: string) =>
   });
 }
 
-function closeSignaturePicker() {
+function closeSignaturePicker(): void {
   signaturePickerState.show = false;
 }
 
@@ -928,6 +933,7 @@ function confirmSignature() {
 // Provide 给子组件使用
 provide('openDateRangePicker', openDateRangePicker);
 provide('openSignaturePicker', openSignaturePicker);
+provide('openApplyTypePicker', openApplyTypePicker);
 
 // 页面加载时接收参数
 onLoad((options: any) => {
@@ -976,152 +982,9 @@ function handleCancel() {
   });
 }
 
-// 表单验证
-function validateForm(): boolean {
-  if (!formData.applyType) {
-    uni.showToast({
-      title: '请选择申请类型',
-      icon: 'none',
-    });
-    return false;
-  }
-
-  // 根据不同的申请类型进行验证
-  switch (formData.applyType) {
-    case 'normalCheckIn':
-      if (!formData.reason || formData.reason.trim() === '') {
-        uni.showToast({
-          title: '请输入申请原因',
-          icon: 'none',
-        });
-        return false;
-      }
-      break;
-
-    case 'tempCheckIn':
-      if (!formData.parentName || formData.parentName.trim() === '') {
-        uni.showToast({
-          title: '请输入家长姓名',
-          icon: 'none',
-        });
-        return false;
-      }
-      if (!formData.parentPhone || formData.parentPhone.trim() === '') {
-        uni.showToast({
-          title: '请输入家长电话',
-          icon: 'none',
-        });
-        return false;
-      }
-      if (!formData.parentAgree) {
-        uni.showToast({
-          title: '请选择家长是否同意',
-          icon: 'none',
-        });
-        return false;
-      }
-      if (!formData.stayStartDate || !formData.stayEndDate) {
-        uni.showToast({
-          title: '请选择留宿时间',
-          icon: 'none',
-        });
-        return false;
-      }
-      if (!formData.reason || formData.reason.trim() === '') {
-        uni.showToast({
-          title: '请输入申请原因',
-          icon: 'none',
-        });
-        return false;
-      }
-      if (!formData.signature) {
-        uni.showToast({
-          title: '请完成本人签名',
-          icon: 'none',
-        });
-        return false;
-      }
-      break;
-
-    case 'transfer':
-      if (!formData.reason || formData.reason.trim() === '') {
-        uni.showToast({
-          title: '请输入申请原因',
-          icon: 'none',
-        });
-        return false;
-      }
-      break;
-
-    case 'checkOut':
-      if (!formData.reason || formData.reason.trim() === '') {
-        uni.showToast({
-          title: '请输入申请原因',
-          icon: 'none',
-        });
-        return false;
-      }
-      if (!formData.signature) {
-        uni.showToast({
-          title: '请完成本人签名',
-          icon: 'none',
-        });
-        return false;
-      }
-      break;
-
-    case 'stay':
-      if (!formData.parentName || formData.parentName.trim() === '') {
-        uni.showToast({
-          title: '请输入家长姓名',
-          icon: 'none',
-        });
-        return false;
-      }
-      if (!formData.parentPhone || formData.parentPhone.trim() === '') {
-        uni.showToast({
-          title: '请输入家长电话',
-          icon: 'none',
-        });
-        return false;
-      }
-      if (!formData.parentAgree) {
-        uni.showToast({
-          title: '请选择家长是否同意',
-          icon: 'none',
-        });
-        return false;
-      }
-      if (!formData.stayStartDate || !formData.stayEndDate) {
-        uni.showToast({
-          title: '请选择留宿时间',
-          icon: 'none',
-        });
-        return false;
-      }
-      if (!formData.reason || formData.reason.trim() === '') {
-        uni.showToast({
-          title: '请输入申请原因',
-          icon: 'none',
-        });
-        return false;
-      }
-      if (!formData.signature) {
-        uni.showToast({
-          title: '请完成本人签名',
-          icon: 'none',
-        });
-        return false;
-      }
-      break;
-  }
-
-  return true;
-}
-
 // 提交
 function handleSubmit() {
-  if (!validateForm()) {
+  if (!validateForm(formData)) {
     return;
   }
 
@@ -1229,7 +1092,6 @@ $glass-border: rgb(255 255 255 / 80%);
   padding: 24rpx 32rpx;
   padding-top: calc(var(--status-bar-height) + 24rpx);
   backdrop-filter: blur(32rpx);
-  backdrop-filter: blur(32rpx);
 
   .header-back {
     display: flex;
@@ -1312,7 +1174,6 @@ $glass-border: rgb(255 255 255 / 80%);
   border: 2rpx solid $glass-border;
   border-radius: 48rpx;
   box-shadow: 0 8rpx 32rpx rgb(31 38 135 / 7%);
-  backdrop-filter: blur(32rpx);
   backdrop-filter: blur(32rpx);
 }
 
@@ -1708,7 +1569,6 @@ $glass-border: rgb(255 255 255 / 80%);
   max-width: 750rpx;
   background: $glass-bg;
   box-shadow: 0 -10rpx 40rpx rgb(0 0 0 / 3%);
-  backdrop-filter: blur(32rpx);
   backdrop-filter: blur(32rpx);
   border-top: 1rpx solid rgb(255 255 255 / 60%);
   gap: 32rpx;

@@ -259,6 +259,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue';
 import { storeToRefs } from 'pinia';
+import type { IApplyDisplay, INoticeDisplay, IQuickService } from '@/types';
 import useUserStore from '@/store/modules/user';
 
 const userStore = useUserStore();
@@ -287,19 +288,33 @@ const currentDate = computed(() => {
 });
 
 // 问候语
-const greeting = computed(() => {
+const greeting = computed((): string => {
   const hour = new Date().getHours();
-  if (hour < 6) return '凌晨好';
-  if (hour < 9) return '早上好';
-  if (hour < 12) return '上午好';
-  if (hour < 14) return '中午好';
-  if (hour < 17) return '下午好';
-  if (hour < 19) return '傍晚好';
-  return '晚上好';
+  if (hour < 6) {
+    return '凌晨好';
+  }
+  else if (hour < 9) {
+    return '早上好';
+  }
+  else if (hour < 12) {
+    return '上午好';
+  }
+  else if (hour < 14) {
+    return '中午好';
+  }
+  else if (hour < 17) {
+    return '下午好';
+  }
+  else if (hour < 19) {
+    return '傍晚好';
+  }
+  else {
+    return '晚上好';
+  }
 });
 
 // 快捷服务（学生端）
-const quickServices = ref([
+const quickServices = ref<IQuickService[]>([
   { id: 1, name: '入住申请', icon: 'home', color: '#14b8a6', type: 'checkIn', path: '/pages/apply/form/index' },
   { id: 2, name: '调宿申请', icon: 'reload', color: '#6366f1', type: 'transfer', path: '/pages/apply/form/index' },
   { id: 3, name: '退宿申请', icon: 'arrow-left', color: '#f43f5e', type: 'checkOut', path: '/pages/apply/form/index' },
@@ -309,10 +324,10 @@ const quickServices = ref([
 ]);
 
 // 通知列表
-const noticeList = ref<any[]>([]);
+const noticeList = ref<INoticeDisplay[]>([]);
 
 // 申请列表
-const applyList = ref<any[]>([]);
+const applyList = ref<IApplyDisplay[]>([]);
 
 // 水电统计数据
 const electricityData = ref({
@@ -336,7 +351,7 @@ const waterData = ref({
 // 用电图表配置
 const electricityChartOpts = ref({
   color: ['#0adbc3'],
-  padding: [10, 2, 0, 2], // 最小化左右 padding，确保图表完整显示
+  padding: [15, 2, 0, 2], // 增加顶部 padding，为数据标签留出空间
   enableScroll: false,
   legend: {
     show: false,
@@ -376,7 +391,7 @@ const electricityChartData = computed(() => ({
 // 用水图表配置
 const waterChartOpts = ref({
   color: ['#60a5fa'],
-  padding: [10, 2, 0, 2], // 最小化左右 padding，确保图表完整显示
+  padding: [15, 2, 0, 2], // 增加顶部 padding，为数据标签留出空间
   enableScroll: false,
   legend: {
     show: false,
@@ -409,7 +424,7 @@ const waterChartData = computed(() => ({
 }));
 
 // 获取渐变背景样式
-function getGradientStyle(color: string) {
+function getGradientStyle(color: string): { background: string } {
   // 将十六进制颜色转换为 rgba，透明度为 0.05
   const hex = color.replace('#', '');
   const r = Number.parseInt(hex.substring(0, 2), 16);
@@ -421,12 +436,7 @@ function getGradientStyle(color: string) {
 }
 
 // 快捷入口点击
-function handleQuickEntry(item: any) {
-  // 数据统计直接跳转到统计页面
-  if (item.type === 'statistics') {
-    uni.switchTab({ url: item.path });
-    return;
-  }
+function handleQuickEntry(item: IQuickService): void {
   // 其他业务类型跳转到form页面，传递type参数
   if (item.type && item.path === '/pages/apply/form/index') {
     uni.navigateTo({ url: `${item.path}?type=${item.type}` });
@@ -437,38 +447,36 @@ function handleQuickEntry(item: any) {
 }
 
 // 跳转通知列表
-function handleGoNoticeList() {
-  uni.switchTab({ url: '/pages/tab/message/index' });
+function handleGoNoticeList(): void {
+  uni.navigateTo({ url: '/pages/tab/message/index' });
 }
 
 // 查看通知详情
-function handleViewNotice(notice: any) {
+function handleViewNotice(notice: INoticeDisplay): void {
   uni.navigateTo({ url: `/pages/service/notice-detail/index?id=${notice.id}` });
 }
 
 // 跳转申请列表
-function handleGoApplyList() {
+function handleGoApplyList(): void {
   uni.switchTab({ url: '/pages/tab/apply/index' });
 }
 
 // 查看申请详情
-function handleViewApply(item: any) {
+function handleViewApply(item: IApplyDisplay): void {
   uni.navigateTo({ url: `/pages/apply/detail/index?id=${item.id}&type=${item.type}` });
 }
 
 // 同意隐私协议
-function handleAgree() {
+function handleAgree(): void {
   console.log('同意隐私政策');
 }
 
-function handleGoLogin() {
-  uni.navigateTo({
-    url: '/pages/common/login/index',
-  });
+function handleGoLogin(): void {
+  uni.navigateTo({ url: '/pages/common/login/index' });
 }
 
 // 加载数据
-async function loadData() {
+async function loadData(): Promise<void> {
   try {
     // TODO: 调用API加载数据
     // 模拟数据
@@ -502,98 +510,96 @@ async function loadData() {
       },
     ];
 
-    if (true) {
-      applyList.value = [
-        {
-          id: 1,
-          type: 'repair',
-          typeName: '洗手台报修',
-          icon: 'setting',
-          iconColor: '#f97316',
-          bgColor: 'rgba(249, 115, 22, 0.1)',
-          statusText: '处理中',
-          statusClass: 'status-processing',
-          applyDate: '01-07 14:30',
-        },
-        {
-          id: 2,
-          type: 'transfer',
-          typeName: '调宿申请',
-          icon: 'reload',
-          iconColor: '#6366f1',
-          bgColor: 'rgba(99, 102, 241, 0.1)',
-          statusText: '审核中',
-          statusClass: 'status-pending',
-          applyDate: '01-05 10:20',
-        },
-        {
-          id: 3,
-          type: 'check-in',
-          typeName: '入住申请',
-          icon: 'checkmark-circle',
-          iconColor: '#22c55e',
-          bgColor: 'rgba(34, 197, 94, 0.1)',
-          statusText: '已通过',
-          statusClass: 'status-approved',
-          applyDate: '12-25',
-        },
-        {
-          id: 4,
-          type: 'stay',
-          typeName: '留宿申请',
-          icon: 'calendar',
-          iconColor: '#3b82f6',
-          bgColor: 'rgba(59, 130, 246, 0.1)',
-          statusText: '已通过',
-          statusClass: 'status-approved',
-          applyDate: '12-20',
-        },
-        {
-          id: 5,
-          type: 'check-out',
-          typeName: '退宿申请',
-          icon: 'arrow-left',
-          iconColor: '#f43f5e',
-          bgColor: 'rgba(244, 63, 94, 0.1)',
-          statusText: '审核中',
-          statusClass: 'status-pending',
-          applyDate: '01-03 16:45',
-        },
-        {
-          id: 6,
-          type: 'repair',
-          typeName: '门锁维修',
-          icon: 'setting',
-          iconColor: '#f97316',
-          bgColor: 'rgba(249, 115, 22, 0.1)',
-          statusText: '已完成',
-          statusClass: 'status-approved',
-          applyDate: '12-28',
-        },
-        {
-          id: 7,
-          type: 'transfer',
-          typeName: '调宿申请',
-          icon: 'reload',
-          iconColor: '#ef4444',
-          bgColor: 'rgba(239, 68, 68, 0.1)',
-          statusText: '已拒绝',
-          statusClass: 'status-rejected',
-          applyDate: '12-15',
-        },
-        {
-          id: 8,
-          type: 'repair',
-          typeName: '空调故障',
-          icon: 'setting',
-          iconColor: '#f97316',
-          bgColor: 'rgba(249, 115, 22, 0.1)',
-          statusText: '处理中',
-          statusClass: 'status-processing',
-          applyDate: '01-06 09:15',
-        },
-      ];
-    }
+    applyList.value = [
+      {
+        id: 1,
+        type: 'repair',
+        typeName: '洗手台报修',
+        icon: 'setting',
+        iconColor: '#f97316',
+        bgColor: 'rgba(249, 115, 22, 0.1)',
+        statusText: '处理中',
+        statusClass: 'status-processing',
+        applyDate: '01-07 14:30',
+      },
+      {
+        id: 2,
+        type: 'transfer',
+        typeName: '调宿申请',
+        icon: 'reload',
+        iconColor: '#6366f1',
+        bgColor: 'rgba(99, 102, 241, 0.1)',
+        statusText: '审核中',
+        statusClass: 'status-pending',
+        applyDate: '01-05 10:20',
+      },
+      {
+        id: 3,
+        type: 'check-in',
+        typeName: '入住申请',
+        icon: 'checkmark-circle',
+        iconColor: '#22c55e',
+        bgColor: 'rgba(34, 197, 94, 0.1)',
+        statusText: '已通过',
+        statusClass: 'status-approved',
+        applyDate: '12-25',
+      },
+      {
+        id: 4,
+        type: 'stay',
+        typeName: '留宿申请',
+        icon: 'calendar',
+        iconColor: '#3b82f6',
+        bgColor: 'rgba(59, 130, 246, 0.1)',
+        statusText: '已通过',
+        statusClass: 'status-approved',
+        applyDate: '12-20',
+      },
+      {
+        id: 5,
+        type: 'check-out',
+        typeName: '退宿申请',
+        icon: 'arrow-left',
+        iconColor: '#f43f5e',
+        bgColor: 'rgba(244, 63, 94, 0.1)',
+        statusText: '审核中',
+        statusClass: 'status-pending',
+        applyDate: '01-03 16:45',
+      },
+      {
+        id: 6,
+        type: 'repair',
+        typeName: '门锁维修',
+        icon: 'setting',
+        iconColor: '#f97316',
+        bgColor: 'rgba(249, 115, 22, 0.1)',
+        statusText: '已完成',
+        statusClass: 'status-approved',
+        applyDate: '12-28',
+      },
+      {
+        id: 7,
+        type: 'transfer',
+        typeName: '调宿申请',
+        icon: 'reload',
+        iconColor: '#ef4444',
+        bgColor: 'rgba(239, 68, 68, 0.1)',
+        statusText: '已拒绝',
+        statusClass: 'status-rejected',
+        applyDate: '12-15',
+      },
+      {
+        id: 8,
+        type: 'repair',
+        typeName: '空调故障',
+        icon: 'setting',
+        iconColor: '#f97316',
+        bgColor: 'rgba(249, 115, 22, 0.1)',
+        statusText: '处理中',
+        statusClass: 'status-processing',
+        applyDate: '01-06 09:15',
+      },
+    ];
   }
   catch (error) {
     console.error('加载数据失败:', error);

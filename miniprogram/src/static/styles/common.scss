@@ -109,8 +109,6 @@ select {
 	border: none;
 	outline: none;
 	appearance: none;
-	appearance: none;
-	appearance: none;
 	font-weight: 600;
 	cursor: pointer;
 
@@ -129,7 +127,6 @@ select {
 		color: $picker-text-main;
 		background: $picker-glass-bg;
 		border: 1rpx solid $picker-glass-border;
-		backdrop-filter: blur(32rpx);
 		backdrop-filter: blur(32rpx);
 
 		&:checked,
@@ -212,7 +209,6 @@ select {
 	background: $picker-glass-bg;
 	border-radius: 32rpx 32rpx 0 0;
 	box-shadow: 0 -8rpx 32rpx rgb(31 38 135 / 10%);
-	backdrop-filter: blur(32rpx);
 	backdrop-filter: blur(32rpx);
 	border-top: 2rpx solid $picker-glass-border;
 

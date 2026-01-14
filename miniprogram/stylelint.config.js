@@ -25,6 +25,7 @@ export default {
   rules: {
     'import-notation': 'string',
     'unit-no-unknown': [true, { ignoreUnits: ['rpx'] }],
+    'at-rule-no-unknown': null,
     'no-descending-specificity': null,
     'selector-pseudo-element-no-unknown': [
       true,
@@ -39,11 +40,8 @@ export default {
       },
     ],
     'selector-type-no-unknown': [true, { ignoreTypes: ['page', 'radio', 'checkbox', 'scroll-view', 'picker', 'picker-view', 'picker-view-column'] }],
-    // 禁用类选择器命名规范检查，允许第三方库的类名（如 UView Plus 的 u-icon__icon）
     'selector-class-pattern': null,
-    // 允许 camelCase 的 keyframes 名称
     'keyframes-name-pattern': null,
-    // 允许重复的选择器（在某些情况下可能需要）
     'no-duplicate-selectors': null,
     'order/properties-order': [
       'position',

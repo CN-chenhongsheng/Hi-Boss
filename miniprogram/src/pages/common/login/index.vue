@@ -529,7 +529,6 @@ function handleForgotPassword() {
 
   .title-gradient {
     background: linear-gradient(to right, #0d9488, #06b6d4);
-    background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }

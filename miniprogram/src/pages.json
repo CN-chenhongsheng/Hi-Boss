@@ -187,12 +187,6 @@
       "pagePath": "pages/tab/apply/index",
       "text": "申请"
     }, {
-      "pagePath": "pages/tab/statistics/index",
-      "text": "统计"
-    }, {
-      "pagePath": "pages/tab/message/index",
-      "text": "消息"
-    }, {
       "pagePath": "pages/tab/profile/index",
       "text": "我的"
     }]

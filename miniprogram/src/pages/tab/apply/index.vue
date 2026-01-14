@@ -124,135 +124,136 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue';
 import { storeToRefs } from 'pinia';
-import { ApplyStatus, ApplyStatusColor, ApplyStatusText } from '@/types';
+import type { IApplyListItem } from '@/types';
+import { ApplyStatus, ApplyStatusColor, ApplyStatusText, UserRole } from '@/types';
 import useUserStore from '@/store/modules/user';
+
+/** Tab 项类型 */
+interface TabItem {
+  label: string;
+  value: 'all' | ApplyStatus;
+  count: number;
+}
+
+/** 申请类型图标配置 */
+interface ApplyTypeIconConfig {
+  icon: string;
+  iconColor: string;
+  bgColor: string;
+}
+
+/** 申请类型名称映射 */
+const APPLY_TYPE_NAME_MAP: Record<string, string> = {
+  checkIn: '入住申请',
+  normalCheckIn: '正常入住',
+  tempCheckIn: '临时入住',
+  transfer: '调宿申请',
+  checkOut: '退宿申请',
+  stay: '留宿申请',
+};
+
+/** 申请类型图标映射 */
+const APPLY_TYPE_ICON_MAP: Record<string, ApplyTypeIconConfig> = {
+  checkIn: { icon: 'home', iconColor: '#14b8a6', bgColor: 'rgba(20, 184, 166, 0.1)' },
+  normalCheckIn: { icon: 'home', iconColor: '#14b8a6', bgColor: 'rgba(20, 184, 166, 0.1)' },
+  tempCheckIn: { icon: 'home', iconColor: '#14b8a6', bgColor: 'rgba(20, 184, 166, 0.1)' },
+  transfer: { icon: 'reload', iconColor: '#6366f1', bgColor: 'rgba(99, 102, 241, 0.1)' },
+  checkOut: { icon: 'arrow-left', iconColor: '#f43f5e', bgColor: 'rgba(244, 63, 94, 0.1)' },
+  stay: { icon: 'calendar', iconColor: '#3b82f6', bgColor: 'rgba(59, 130, 246, 0.1)' },
+};
+
+/** 默认图标配置 */
+const DEFAULT_ICON_CONFIG: ApplyTypeIconConfig = {
+  icon: 'list',
+  iconColor: '#6b7280',
+  bgColor: 'rgba(107, 114, 128, 0.1)',
+};
 
 const userStore = useUserStore();
 const { userInfo } = storeToRefs(userStore);
 
-// Tab选项
-const tabs = ref([
+const tabs = ref<TabItem[]>([
   { label: '全部', value: 'all', count: 0 },
   { label: '待审核', value: ApplyStatus.PENDING, count: 0 },
   { label: '已通过', value: ApplyStatus.APPROVED, count: 0 },
   { label: '已拒绝', value: ApplyStatus.REJECTED, count: 0 },
 ]);
 
-const activeTab = ref<string | number>('all');
+const activeTab = ref<'all' | ApplyStatus>('all');
 const loading = ref(false);
-const list = ref<any[]>([]);
+const list = ref<IApplyListItem[]>([]);
 
-// 指示线样式
+const INDICATOR_WIDTH_RPX = 60;
+
 const indicatorStyle = computed(() => {
   const activeIndex = tabs.value.findIndex(tab => tab.value === activeTab.value);
   if (activeIndex === -1) {
-    return {
-      width: '60rpx',
-      left: '0rpx',
-    };
+    return { width: '60rpx', left: '0rpx' };
   }
 
-  // 由于所有 Tab 都是等宽的（flex: 1），直接计算百分比位置
-  // 每个 Tab 占 100% / tabs.length
-  // 指示线居中：left = (activeIndex * 100% / tabs.length) + (100% / tabs.length - 60rpx) / 2
-  const tabCount = tabs.value.length;
-  const tabWidthPercent = 100 / tabCount;
-  const indicatorWidthRpx = 60;
-
-  // 使用百分比 + transform 的方式实现居中
-  // left = activeIndex * tabWidthPercent + tabWidthPercent / 2 (每个 Tab 的中心位置)
-  // 然后使用 translateX(-50%) 让指示线居中
-  const leftPercent = activeIndex * tabWidthPercent + (tabWidthPercent / 2);
+  const tabWidthPercent = 100 / tabs.value.length;
+  const leftPercent = activeIndex * tabWidthPercent + tabWidthPercent / 2;
 
   return {
-    width: `${indicatorWidthRpx}rpx`,
+    width: `${INDICATOR_WIDTH_RPX}rpx`,
     left: `${leftPercent}%`,
     transform: 'translateX(-50%)',
   };
 });
 
-// 获取管理权限状态
 const hasManagePermission = computed(() => {
   const role = userInfo.value?.role;
-  return role === 'dorm_manager' || role === 'admin';
+  return role === UserRole.DORM_MANAGER || role === UserRole.ADMIN;
 });
 
-// 根据角色显示不同的标题
 const pageTitle = computed(() => {
   return hasManagePermission.value ? '审批中心' : '我的申请';
 });
 
-// 获取申请类型名称
-function getApplyTypeName(type: string) {
-  const typeMap: Record<string, string> = {
-    checkIn: '入住申请',
-    normalCheckIn: '正常入住',
-    tempCheckIn: '临时入住',
-    transfer: '调宿申请',
-    checkOut: '退宿申请',
-    stay: '留宿申请',
-  };
-  return typeMap[type] || '申请';
+function getApplyTypeName(type: string): string {
+  return APPLY_TYPE_NAME_MAP[type] || '申请';
 }
 
-// 获取申请类型图标和颜色
-function getApplyTypeIcon(type: string) {
-  const iconMap: Record<string, { icon: string; iconColor: string; bgColor: string }> = {
-    checkIn: { icon: 'home', iconColor: '#14b8a6', bgColor: 'rgba(20, 184, 166, 0.1)' },
-    normalCheckIn: { icon: 'home', iconColor: '#14b8a6', bgColor: 'rgba(20, 184, 166, 0.1)' },
-    tempCheckIn: { icon: 'home', iconColor: '#14b8a6', bgColor: 'rgba(20, 184, 166, 0.1)' },
-    transfer: { icon: 'reload', iconColor: '#6366f1', bgColor: 'rgba(99, 102, 241, 0.1)' },
-    checkOut: { icon: 'arrow-left', iconColor: '#f43f5e', bgColor: 'rgba(244, 63, 94, 0.1)' },
-    stay: { icon: 'calendar', iconColor: '#3b82f6', bgColor: 'rgba(59, 130, 246, 0.1)' },
-  };
-  return iconMap[type] || { icon: 'list', iconColor: '#6b7280', bgColor: 'rgba(107, 114, 128, 0.1)' };
+function getApplyTypeIcon(type: string): ApplyTypeIconConfig {
+  return APPLY_TYPE_ICON_MAP[type] || DEFAULT_ICON_CONFIG;
 }
 
-// 获取状态文本
-function getStatusText(status: ApplyStatus) {
+function getStatusText(status: ApplyStatus): string {
   return ApplyStatusText[status] || '未知';
 }
 
-// 获取状态颜色
-function getStatusColor(status: ApplyStatus) {
+function getStatusColor(status: ApplyStatus): string {
   return ApplyStatusColor[status] || '#999';
 }
 
-// 格式化时间
-function formatTime(time: string) {
+function formatTime(time: string): string {
   if (!time) return '';
-  // 如果是完整时间戳，提取日期部分
   if (time.includes(' ')) {
     return time.split(' ')[0];
   }
   return time;
 }
 
-// Tab切换
-function handleTabChange(value: string | number) {
+function handleTabChange(value: 'all' | ApplyStatus): void {
   activeTab.value = value;
   loadData();
 }
 
-// 查看详情
-function handleViewDetail(item: any) {
-  const url = hasManagePermission.value
-    ? `/pages/admin/approval-detail/index?id=${item.id}&type=${item.type}`
-    : `/pages/apply/detail/index?id=${item.id}&type=${item.type}`;
+function handleViewDetail(item: IApplyListItem): void {
+  const basePath = hasManagePermission.value
+    ? '/pages/admin/approval-detail/index'
+    : '/pages/apply/detail/index';
 
-  uni.navigateTo({ url });
+  uni.navigateTo({ url: `${basePath}?id=${item.id}&type=${item.type}` });
 }
 
-// 加载数据
-async function loadData() {
+async function loadData(): Promise<void> {
   loading.value = true;
   try {
     // TODO: 调用API加载数据
-    // 根据activeTab筛选数据
     await new Promise(resolve => setTimeout(resolve, 1000));
 
-    // 模拟数据
-    const mockData = [
+    const mockData: IApplyListItem[] = [
       {
         id: 1,
         type: 'transfer',
@@ -289,34 +290,27 @@ async function loadData() {
       },
     ];
 
-    // 根据activeTab筛选
-    if (activeTab.value === 'all') {
-      list.value = mockData;
-    }
-    else {
-      list.value = mockData.filter(item => item.status === Number(activeTab.value));
-    }
+    list.value = activeTab.value === 'all'
+      ? mockData
+      : mockData.filter(item => item.status === activeTab.value);
 
-    // 更新Tab计数
-    tabs.value.forEach((tab) => {
-      if (tab.value === 'all') {
-        tab.count = mockData.length;
-      }
-      else {
-        tab.count = mockData.filter(item => item.status === tab.value).length;
-      }
-    });
+    updateTabCounts(mockData);
   }
   catch (error) {
     console.error('加载失败:', error);
-    uni.showToast({
-      title: '加载失败',
-      icon: 'none',
-    });
+    uni.showToast({ title: '加载失败', icon: 'none' });
   }
   finally {
     loading.value = false;
   }
+}
+
+function updateTabCounts(data: IApplyListItem[]): void {
+  tabs.value.forEach((tab) => {
+    tab.count = tab.value === 'all'
+      ? data.length
+      : data.filter(item => item.status === tab.value).length;
+  });
 }
 
 onMounted(() => {
