@@ -25,13 +25,6 @@
               </text>
             </view>
           </view>
-          <view class="header-right">
-            <view v-if="unreadCount > 0" class="unread-badge">
-              <text class="unread-count">
-                {{ unreadCount }}
-              </text>
-            </view>
-          </view>
         </view>
 
         <!-- 统计卡片 -->
@@ -465,25 +458,6 @@ $glass-border-light: rgb(255 255 255 / 60%);
       }
     }
 
-    .header-right {
-      .unread-badge {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        padding: 0 12rpx;
-        min-width: 48rpx;
-        height: 48rpx;
-        background: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%);
-        border-radius: 24rpx;
-        box-shadow: 0 4rpx 12rpx rgb(244 63 94 / 30%);
-
-        .unread-count {
-          font-size: 24rpx;
-          color: #fff;
-          font-weight: 700;
-        }
-      }
-    }
   }
 
   // 统计卡片
