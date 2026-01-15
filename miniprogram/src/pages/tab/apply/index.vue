@@ -8,12 +8,25 @@
     </view>
 
     <view class="page-container">
-      <!-- 顶部导航栏 -->
-      <header class="top-header">
-        <view class="header-title">
-          {{ pageTitle }}
+      <!-- 精美头部区域 -->
+      <view class="header-section">
+        <!-- 状态栏占位 -->
+        <view class="status-bar" :style="{ height: `${statusBarHeight}px` }" />
+
+        <!-- 头部内容 -->
+        <view class="header-content">
+          <view class="header-left">
+            <view class="header-title-group">
+              <text class="header-title">
+                {{ pageTitle }}
+              </text>
+              <text class="header-subtitle">
+                {{ hasManagePermission ? 'Approval Center' : 'My Applications' }}
+              </text>
+            </view>
+          </view>
         </view>
-      </header>
+      </view>
 
       <!-- Tab切换栏 -->
       <view class="glass-card apply-tabs">
@@ -158,6 +171,7 @@ const tabs = ref<TabItem[]>([
 const activeTab = ref<'all' | ApplyStatus>('all');
 const loading = ref(false);
 const list = ref<IApplyListItem[]>([]);
+const statusBarHeight = ref(0);
 
 const INDICATOR_WIDTH_RPX = 60;
 
@@ -266,6 +280,10 @@ function updateTabCounts(data: IApplyListItem[]): void {
 }
 
 onMounted(() => {
+  // 获取状态栏高度
+  const systemInfo = uni.getSystemInfoSync();
+  statusBarHeight.value = systemInfo.statusBarHeight || 0;
+
   loadData();
 });
 </script>
@@ -343,29 +361,52 @@ $glass-border-light: rgb(255 255 255 / 60%);
   flex-direction: column;
 }
 
-// 顶部导航栏
-.top-header {
-  position: sticky;
-  top: 0;
-  z-index: 50;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: calc(var(--status-bar-height) + 50rpx) 32rpx 25rpx;
+// 精美头部区域
+.header-section {
+  padding: 0 32rpx 24rpx;
+  padding-bottom: 0;
 
-  .header-title {
-    font-size: 36rpx;
-    text-align: center;
-    color: $text-main;
-    font-weight: 700;
-    letter-spacing: 0.5rpx;
+  .status-bar {
+    width: 100%;
+  }
+
+  .header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 0 24rpx;
+
+    .header-left {
+      flex: 1;
+
+      .header-title-group {
+        display: flex;
+        flex-direction: column;
+        gap: 4rpx;
+
+        .header-title {
+          font-size: 40rpx;
+          color: $text-main;
+          font-weight: 700;
+          letter-spacing: 0.5rpx;
+        }
+
+        .header-subtitle {
+          font-size: 22rpx;
+          color: $text-sub;
+          font-weight: 500;
+          letter-spacing: 1rpx;
+          text-transform: uppercase;
+        }
+      }
+    }
   }
 }
 
 // Tab切换栏
 .apply-tabs {
   position: sticky;
-  top: calc(var(--status-bar-height) + 88rpx);
+  top: 0;
   z-index: 40;
   display: flex;
   overflow: hidden;
@@ -461,28 +502,29 @@ $glass-border-light: rgb(255 255 255 / 60%);
 .list-content {
   display: flex;
   flex-direction: column;
-  gap: 24rpx;
+  gap: 16rpx;
 }
 
 // 列表项
 .apply-item {
-  padding: 32rpx;
+  padding: 0;
   background: $glass-bg;
-  border: 0.0625rem solid $glass-border-light;
-  border-radius: 32rpx;
-  box-shadow: 0 8rpx 32rpx rgb(31 38 135 / 7%);
+  border: 2rpx solid $glass-border-light;
+  border-radius: 20rpx;
+  box-shadow: 0 4rpx 16rpx rgb(31 38 135 / 5%);
   transition: all 0.3s;
   backdrop-filter: blur(32rpx);
 
   &:active {
     transform: scale(0.98);
-    box-shadow: 0 4rpx 16rpx rgb(31 38 135 / 10%);
+    box-shadow: 0 2rpx 8rpx rgb(31 38 135 / 8%);
   }
 
   .item-header {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
+    padding: 20rpx 24rpx 0;
 
     .item-left {
       flex: 1;
@@ -530,8 +572,7 @@ $glass-border-light: rgb(255 255 255 / 60%);
   }
 
   .item-content {
-    padding-top: 24rpx;
-    margin-bottom: 24rpx;
+    padding: 12rpx 24rpx 0;
 
     .info-row {
       display: flex;
@@ -560,7 +601,6 @@ $glass-border-light: rgb(255 255 255 / 60%);
 
         &.reason-text {
           overflow: hidden;
-          font-size: 24rpx;
           text-overflow: ellipsis;
           white-space: nowrap;
           color: $text-sub;
@@ -574,7 +614,8 @@ $glass-border-light: rgb(255 255 255 / 60%);
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding-top: 24rpx;
+    padding: 12rpx 24rpx 20rpx;
+    margin-top: 12rpx;
     border-top: 1rpx solid rgb(229 231 235 / 50%);
 
     .item-meta {

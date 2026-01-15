@@ -52,7 +52,7 @@
       <ClassDialog
         v-model:visible="dialogVisible"
         :type="dialogType"
-        :edit-data="currentClassData"
+        :edit-data="editData"
         @submit="handleDialogSubmit"
       />
     </ElCard>
@@ -81,13 +81,13 @@
   // 弹窗相关
   const dialogType = ref<DialogType>('add')
   const dialogVisible = ref(false)
-  const currentClassData = ref<Partial<ClassListItem>>({})
+  const editData = ref<Partial<ClassListItem>>({})
   const selectedRows = ref<ClassListItem[]>([])
   const selectedCount = computed(() => selectedRows.value.length)
   const showSearchBar = ref(false)
 
-  // 搜索栏表单数据（使用 reactive 以确保双向绑定正常工作）
-  const formFilters = reactive<Api.SystemManage.ClassSearchParams>({
+  // 搜索相关
+  const initialSearchState = {
     pageNum: 1,
     pageSize: 20,
     classCode: undefined,
@@ -96,7 +96,10 @@
     grade: undefined,
     enrollmentYear: undefined,
     status: undefined
-  })
+  }
+
+  // 搜索栏表单数据（使用 reactive 以确保双向绑定正常工作）
+  const formFilters = reactive<Api.SystemManage.ClassSearchParams>({ ...initialSearchState })
 
   const {
     columns,
@@ -220,12 +223,9 @@
    */
   const handleReset = async (): Promise<void> => {
     Object.assign(formFilters, {
-      classCode: undefined,
-      className: undefined,
-      majorCode: undefined,
-      grade: undefined,
-      enrollmentYear: undefined,
-      status: undefined
+      ...initialSearchState,
+      pageNum: 1,
+      pageSize: 20
     })
     await resetSearchParams()
   }
@@ -242,7 +242,7 @@
    */
   const handleAdd = (): void => {
     dialogType.value = 'add'
-    currentClassData.value = {}
+    editData.value = {}
     dialogVisible.value = true
   }
 
@@ -251,7 +251,7 @@
    */
   const handleEdit = (row: ClassListItem): void => {
     dialogType.value = 'edit'
-    currentClassData.value = { ...row }
+    editData.value = { ...row }
     dialogVisible.value = true
   }
 

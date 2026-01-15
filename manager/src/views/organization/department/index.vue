@@ -329,13 +329,13 @@
    */
   const handleBatchDelete = async (): Promise<void> => {
     if (selectedCount.value === 0) {
-      ElMessage.warning('请至少选择一条数据')
+      ElMessage.warning('请选择要删除的院系')
       return
     }
 
     try {
       await ElMessageBox.confirm(
-        `确定要批量删除选中的 ${selectedCount.value} 条院系数据吗？`,
+        `确定要批量删除选中的 ${selectedCount.value} 条院系数据吗？此操作不可恢复！`,
         '批量删除确认',
         {
           type: 'warning',
@@ -347,7 +347,7 @@
       // 刷新院系树缓存
       await referenceStore.refreshDepartmentTree()
       selectedRows.value = []
-      await getData()
+      await refreshRemove()
     } catch (error) {
       if (error !== 'cancel') {
         console.error('批量删除院系失败:', error)

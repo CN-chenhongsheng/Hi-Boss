@@ -396,7 +396,7 @@
       // 刷新楼层列表缓存
       await referenceStore.refreshFloorList()
       selectedRows.value = []
-      await getData()
+      await refreshRemove()
     } catch (error) {
       if (error !== 'cancel') {
         console.error('批量删除楼层失败:', error)

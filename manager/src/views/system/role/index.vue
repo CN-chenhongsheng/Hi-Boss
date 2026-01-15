@@ -3,9 +3,9 @@
   <div class="art-full-height">
     <RoleSearch
       v-show="showSearchBar"
-      v-model="searchForm"
+      v-model="formFilters"
       @search="handleSearch"
-      @reset="resetSearchParams"
+      @reset="handleReset"
     ></RoleSearch>
 
     <ElCard
@@ -53,14 +53,14 @@
     <RoleEditDialog
       v-model="dialogVisible"
       :dialog-type="dialogType"
-      :role-data="currentRoleData"
+      :role-data="editData"
       @success="handleEditDialogSuccess"
     />
 
     <!-- 菜单权限弹窗 -->
     <RolePermissionDialog
       v-model="permissionDialog"
-      :role-data="currentRoleData"
+      :role-data="editData"
       @success="refreshUpdate"
     />
   </div>
@@ -88,19 +88,22 @@
 
   type RoleListItem = Api.SystemManage.RoleListItem & { _statusLoading?: boolean }
 
-  // 搜索表单
-  const searchForm = ref<Api.SystemManage.RoleSearchParams>({
+  // 搜索相关
+  const initialSearchState = {
     pageNum: 1,
     pageSize: 20,
     roleName: undefined,
     roleCode: undefined,
     status: undefined
-  })
+  }
+
+  // 搜索表单
+  const formFilters = reactive<Api.SystemManage.RoleSearchParams>({ ...initialSearchState })
 
   const showSearchBar = ref(false)
   const dialogVisible = ref(false)
   const permissionDialog = ref(false)
-  const currentRoleData = ref<RoleListItem | undefined>(undefined)
+  const editData = ref<RoleListItem | null>(null)
   const selectedRows = ref<RoleListItem[]>([])
   const selectedCount = computed(() => selectedRows.value.length)
 
@@ -111,7 +114,6 @@
     loading,
     pagination,
     getData,
-    searchParams,
     resetSearchParams,
     handleSizeChange,
     handleCurrentChange,
@@ -123,10 +125,15 @@
     // 核心配置
     core: {
       apiFn: fetchGetRoleList,
-      apiParams: {
-        pageNum: 1,
-        pageSize: 20
-      },
+      apiParams: computed(() => {
+        return {
+          pageNum: formFilters.pageNum,
+          pageSize: formFilters.pageSize,
+          roleName: formFilters.roleName || undefined,
+          roleCode: formFilters.roleCode || undefined,
+          status: formFilters.status
+        } as Partial<Api.SystemManage.RoleSearchParams>
+      }),
       // 自定义分页字段映射
       paginationKey: {
         current: 'pageNum',
@@ -223,16 +230,27 @@
   const showDialog = (type: 'add' | 'edit', row?: RoleListItem) => {
     dialogVisible.value = true
     dialogType.value = type
-    currentRoleData.value = row
+    editData.value = row ? { ...row } : null
   }
 
   /**
    * 搜索处理
    */
-  const handleSearch = (params: Record<string, any>) => {
-    console.log('搜索参数:', params)
-    Object.assign(searchParams, params, { pageNum: 1 })
-    getData()
+  const handleSearch = async (): Promise<void> => {
+    formFilters.pageNum = 1
+    await getData()
+  }
+
+  /**
+   * 重置搜索
+   */
+  const handleReset = async (): Promise<void> => {
+    Object.assign(formFilters, {
+      ...initialSearchState,
+      pageNum: 1,
+      pageSize: 20
+    })
+    await resetSearchParams()
   }
 
   /**
@@ -240,7 +258,7 @@
    */
   const showPermissionDialog = (row?: RoleListItem) => {
     permissionDialog.value = true
-    currentRoleData.value = row
+    editData.value = row ? { ...row } : null
   }
 
   /**

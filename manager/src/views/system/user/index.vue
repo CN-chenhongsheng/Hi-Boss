@@ -4,9 +4,9 @@
     <!-- 搜索栏 -->
     <UserSearch
       v-show="showSearchBar"
-      v-model="searchForm"
+      v-model="formFilters"
       @search="handleSearch"
-      @reset="resetSearchParams"
+      @reset="handleReset"
     ></UserSearch>
 
     <ElCard
@@ -54,7 +54,7 @@
       <UserDialog
         v-model:visible="dialogVisible"
         :type="dialogType"
-        :user-data="currentUserData"
+        :user-data="editData"
         @submit="handleDialogSubmit"
       />
 
@@ -113,7 +113,7 @@
   const showSearchBar = ref(false)
   const dialogType = ref<DialogType>('add')
   const dialogVisible = ref(false)
-  const currentUserData = ref<Partial<UserListItem>>({})
+  const editData = ref<Partial<UserListItem>>({})
   const scopeDialogVisible = ref(false)
   const currentScopeUser = ref<Partial<UserListItem>>({})
   const permissionDialogVisible = ref(false)
@@ -123,8 +123,8 @@
   const selectedRows = ref<UserListItem[]>([])
   const selectedCount = computed(() => selectedRows.value.length)
 
-  // 搜索表单
-  const searchForm = ref<Api.SystemManage.UserSearchParams>({
+  // 搜索相关
+  const initialSearchState = {
     pageNum: 1,
     pageSize: 20,
     username: undefined,
@@ -132,7 +132,10 @@
     phone: undefined,
     manageScope: undefined,
     status: undefined
-  })
+  }
+
+  // 搜索表单
+  const formFilters = reactive<Api.SystemManage.UserSearchParams>({ ...initialSearchState })
 
   const {
     columns,
@@ -141,7 +144,6 @@
     loading,
     pagination,
     getData,
-    searchParams,
     resetSearchParams,
     handleSizeChange,
     handleCurrentChange,
@@ -153,11 +155,17 @@
     // 核心配置
     core: {
       apiFn: fetchGetUserList,
-      apiParams: {
-        pageNum: 1,
-        pageSize: 20,
-        ...searchForm.value
-      },
+      apiParams: computed(() => {
+        return {
+          pageNum: formFilters.pageNum,
+          pageSize: formFilters.pageSize,
+          username: formFilters.username || undefined,
+          nickname: formFilters.nickname || undefined,
+          phone: formFilters.phone || undefined,
+          manageScope: formFilters.manageScope || undefined,
+          status: formFilters.status
+        } as Partial<Api.SystemManage.UserSearchParams>
+      }),
       // 自定义分页字段映射
       paginationKey: {
         current: 'pageNum',
@@ -382,9 +390,21 @@
   /**
    * 搜索处理
    */
-  const handleSearch = (params: Record<string, any>) => {
-    Object.assign(searchParams, params, { pageNum: 1 })
-    getData()
+  const handleSearch = async (): Promise<void> => {
+    formFilters.pageNum = 1
+    await getData()
+  }
+
+  /**
+   * 重置搜索
+   */
+  const handleReset = async (): Promise<void> => {
+    Object.assign(formFilters, {
+      ...initialSearchState,
+      pageNum: 1,
+      pageSize: 20
+    })
+    await resetSearchParams()
   }
 
   /**
@@ -393,7 +413,7 @@
   const showDialog = (type: DialogType, row?: UserListItem): void => {
     console.log('打开弹窗:', { type, row })
     dialogType.value = type
-    currentUserData.value = row ? { ...row } : {}
+    editData.value = row ? { ...row } : {}
     nextTick(() => {
       dialogVisible.value = true
     })

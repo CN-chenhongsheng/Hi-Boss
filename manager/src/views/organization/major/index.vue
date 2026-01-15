@@ -52,7 +52,7 @@
       <MajorDialog
         v-model:visible="dialogVisible"
         :type="dialogType"
-        :edit-data="currentMajorData"
+        :edit-data="editData"
         @submit="handleDialogSubmit"
       />
 
@@ -95,7 +95,7 @@
   // 弹窗相关
   const dialogType = ref<DialogType>('add')
   const dialogVisible = ref(false)
-  const currentMajorData = ref<Partial<MajorListItem>>({})
+  const editData = ref<Partial<MajorListItem>>({})
   const selectedRows = ref<MajorListItem[]>([])
   const selectedCount = computed(() => selectedRows.value.length)
   const showSearchBar = ref(false)
@@ -106,15 +106,18 @@
   const drillDownParentName = ref('')
   const drillDownFilterParams = ref<Record<string, any>>({})
 
-  // 搜索栏表单数据（使用 reactive 以确保双向绑定正常工作）
-  const formFilters = reactive<Api.SystemManage.MajorSearchParams>({
+  // 搜索相关
+  const initialSearchState = {
     pageNum: 1,
     pageSize: 20,
     majorCode: undefined,
     majorName: undefined,
     deptCode: undefined,
     status: undefined
-  })
+  }
+
+  // 搜索栏表单数据（使用 reactive 以确保双向绑定正常工作）
+  const formFilters = reactive<Api.SystemManage.MajorSearchParams>({ ...initialSearchState })
 
   const {
     columns,
@@ -232,10 +235,9 @@
    */
   const handleReset = async (): Promise<void> => {
     Object.assign(formFilters, {
-      majorCode: undefined,
-      majorName: undefined,
-      deptCode: undefined,
-      status: undefined
+      ...initialSearchState,
+      pageNum: 1,
+      pageSize: 20
     })
     await resetSearchParams()
   }
@@ -252,7 +254,7 @@
    */
   const handleAdd = (): void => {
     dialogType.value = 'add'
-    currentMajorData.value = {}
+    editData.value = {}
     dialogVisible.value = true
   }
 
@@ -261,7 +263,7 @@
    */
   const handleEdit = (row: MajorListItem): void => {
     dialogType.value = 'edit'
-    currentMajorData.value = { ...row }
+    editData.value = { ...row }
     dialogVisible.value = true
   }
 

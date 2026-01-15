@@ -334,7 +334,7 @@
       )
       await fetchBatchDeleteBed(selectedIds.value as number[])
       selectedRows.value = []
-      await getData()
+      await refreshRemove()
     } catch (error) {
       if (error !== 'cancel') {
         console.error('批量删除床位失败:', error)
@@ -346,6 +346,7 @@
    * 状态切换
    */
   const handleStatusChange = async (row: BedListItem, enabled: boolean): Promise<void> => {
+    const originalStatus = row.status
     try {
       row._statusLoading = true
       const status = enabled ? 1 : 0
@@ -358,12 +359,14 @@
           cancelButtonText: '取消'
         }
       )
+      row.status = status
       await fetchUpdateBedStatus(row.id, status)
-      await refreshData()
     } catch (error) {
       if (error !== 'cancel') {
         console.error('状态切换失败:', error)
-        await refreshData()
+        row.status = originalStatus
+      } else {
+        row.status = originalStatus
       }
     } finally {
       row._statusLoading = false

@@ -183,19 +183,29 @@
     }
   },
   "tabBar": {
-    "color": "#7A7E83",
-    "selectedColor": "#2196F3",
-    "borderStyle": "black",
+    "color": "#8E8E93",
+    "selectedColor": "#0adbc3",
+    "borderStyle": "white",
     "backgroundColor": "#ffffff",
+    "height": "50px",
+    "fontSize": "10px",
+    "iconWidth": "24px",
+    "spacing": "3px",
     "list": [{
       "pagePath": "pages/tab/home/index",
-      "text": "首页"
+      "text": "首页",
+      "iconPath": "static/images/tabbar/home.png",
+      "selectedIconPath": "static/images/tabbar/home-active.png"
     }, {
       "pagePath": "pages/tab/apply/index",
-      "text": "申请"
+      "text": "申请",
+      "iconPath": "static/images/tabbar/apply.png",
+      "selectedIconPath": "static/images/tabbar/apply-active.png"
     }, {
       "pagePath": "pages/tab/profile/index",
-      "text": "我的"
+      "text": "我的",
+      "iconPath": "static/images/tabbar/profile.png",
+      "selectedIconPath": "static/images/tabbar/profile-active.png"
     }]
   },
   "globalStyle": {

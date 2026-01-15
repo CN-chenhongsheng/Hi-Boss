@@ -396,7 +396,7 @@
       // 刷新房间列表缓存
       await referenceStore.refreshRoomList()
       selectedRows.value = []
-      await getData()
+      await refreshRemove()
     } catch (error) {
       if (error !== 'cancel') {
         console.error('批量删除房间失败:', error)

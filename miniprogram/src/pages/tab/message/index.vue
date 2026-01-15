@@ -425,7 +425,7 @@ $glass-border-light: rgb(255 255 255 / 60%);
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 24rpx 0;
+    padding: 0 0 24rpx;
 
     .header-left {
       flex: 1;

@@ -376,7 +376,7 @@
       // 刷新校区树缓存
       await referenceStore.refreshCampusTree()
       selectedRows.value = []
-      await getData()
+      await refreshRemove()
     } catch (error) {
       if (error !== 'cancel') {
         console.error('批量删除校区失败:', error)
