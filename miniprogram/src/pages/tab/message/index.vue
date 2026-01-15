@@ -756,16 +756,14 @@ $glass-border-light: rgb(255 255 255 / 60%);
 
     // 消息内容
     .item-body {
+      overflow: hidden;
       padding-left: 56rpx;
+      text-overflow: ellipsis;
+      white-space: nowrap;
 
       .content {
-        display: -webkit-box;
-        overflow: hidden;
         font-size: 24rpx;
-        text-overflow: ellipsis;
         color: $text-sub;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
         line-height: 1.6;
       }
     }

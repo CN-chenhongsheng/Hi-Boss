@@ -37,7 +37,12 @@
           :class="{ active: activeTab === tab.value }"
           @click="handleTabChange(tab.value)"
         >
-          {{ tab.label }}
+          <view class="tab-content">
+            <u-icon :name="tab.icon" size="16" />
+            <text class="tab-label">
+              {{ tab.label }}
+            </text>
+          </view>
         </view>
         <!-- 筋斗云指示线 -->
         <view
@@ -156,16 +161,17 @@ interface TabItem {
   label: string;
   value: 'all' | ApplyStatus;
   count: number;
+  icon: string;
 }
 
 const userStore = useUserStore();
 const { userInfo } = storeToRefs(userStore);
 
 const tabs = ref<TabItem[]>([
-  { label: '全部', value: 'all', count: 0 },
-  { label: '待审核', value: ApplyStatus.PENDING, count: 0 },
-  { label: '已通过', value: ApplyStatus.APPROVED, count: 0 },
-  { label: '已拒绝', value: ApplyStatus.REJECTED, count: 0 },
+  { label: '全部', value: 'all', count: 0, icon: 'list' },
+  { label: '待审核', value: ApplyStatus.PENDING, count: 0, icon: 'clock' },
+  { label: '已通过', value: ApplyStatus.APPROVED, count: 0, icon: 'checkmark-circle' },
+  { label: '已拒绝', value: ApplyStatus.REJECTED, count: 0, icon: 'close-circle' },
 ]);
 
 const activeTab = ref<'all' | ApplyStatus>('all');
@@ -421,17 +427,30 @@ $glass-border-light: rgb(255 255 255 / 60%);
 
   .tab-item {
     position: relative;
-    padding: 24rpx 0;
-    font-size: 28rpx;
+    padding: 20rpx 0;
     text-align: center;
-    color: $text-sub;
-    transition: color 0.3s, font-weight 0.3s;
+    transition: all 0.3s;
     flex: 1;
-    font-weight: 500;
+
+    .tab-content {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 6rpx;
+      color: $text-sub;
+      transition: all 0.3s;
+
+      .tab-label {
+        font-size: 26rpx;
+        font-weight: 500;
+      }
+    }
 
     &.active {
-      color: $primary;
-      font-weight: 700;
+      .tab-content {
+        color: $primary;
+        font-weight: 700;
+      }
     }
   }
 
@@ -441,8 +460,9 @@ $glass-border-light: rgb(255 255 255 / 60%);
     bottom: 0;
     width: 60rpx;
     height: 4rpx;
-    background: $primary;
+    background: linear-gradient(90deg, $primary 0%, $primary-dark 100%);
     border-radius: 2rpx;
+    box-shadow: 0 2rpx 8rpx rgb(10 219 195 / 40%);
     transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     pointer-events: none;
   }
