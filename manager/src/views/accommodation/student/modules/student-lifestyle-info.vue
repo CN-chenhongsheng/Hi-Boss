@@ -10,45 +10,55 @@
         </div>
       </template>
       <div class="lifestyle-content">
-        <div v-if="data.sleepScheduleText" class="tag-item">
-          <span class="tag-label">作息时间</span>
-          <ElTag type="info" size="default" effect="plain">{{ data.sleepScheduleText }}</ElTag>
+        <div v-if="data.sleepScheduleText" class="info-row">
+          <div class="row-label">
+            <ArtSvgIcon icon="ri:time-line" class="label-icon" />
+            <span>作息时间</span>
+          </div>
+          <div class="row-value">{{ data.sleepScheduleText }}</div>
         </div>
-        <div v-if="data.sleepQualityText" class="tag-item">
-          <span class="tag-label">睡眠质量</span>
-          <ElTag type="success" size="default" effect="plain">{{ data.sleepQualityText }}</ElTag>
+        <div v-if="data.sleepQualityText" class="info-row">
+          <div class="row-label">
+            <ArtSvgIcon icon="ri:zzz-line" class="label-icon" />
+            <span>睡眠质量</span>
+          </div>
+          <div class="row-value">{{ data.sleepQualityText }}</div>
         </div>
-        <div v-if="data.snores !== undefined && data.snores !== null" class="tag-item">
-          <span class="tag-label">是否打呼噜</span>
-          <ElTag :type="data.snores === 1 ? 'warning' : 'success'" size="default" effect="dark">
+        <div v-if="data.snores !== undefined && data.snores !== null" class="info-row">
+          <div class="row-label">
+            <ArtSvgIcon icon="ri:volume-up-line" class="label-icon" />
+            <span>是否打呼噜</span>
+          </div>
+          <div class="row-value" :class="data.snores === 1 ? 'is-warn' : 'is-good'">
+            <span class="value-dot"></span>
             {{ data.snoresText || '-' }}
-          </ElTag>
+          </div>
         </div>
         <div
           v-if="data.sensitiveToLight !== undefined && data.sensitiveToLight !== null"
-          class="tag-item"
+          class="info-row"
         >
-          <span class="tag-label">光线敏感</span>
-          <ElTag
-            :type="data.sensitiveToLight === 1 ? 'warning' : 'success'"
-            size="default"
-            effect="plain"
-          >
+          <div class="row-label">
+            <ArtSvgIcon icon="ri:sun-line" class="label-icon" />
+            <span>光线敏感</span>
+          </div>
+          <div class="row-value" :class="data.sensitiveToLight === 1 ? 'is-warn' : 'is-good'">
+            <span class="value-dot"></span>
             {{ data.sensitiveToLightText || '-' }}
-          </ElTag>
+          </div>
         </div>
         <div
           v-if="data.sensitiveToSound !== undefined && data.sensitiveToSound !== null"
-          class="tag-item"
+          class="info-row"
         >
-          <span class="tag-label">声音敏感</span>
-          <ElTag
-            :type="data.sensitiveToSound === 1 ? 'warning' : 'success'"
-            size="default"
-            effect="plain"
-          >
+          <div class="row-label">
+            <ArtSvgIcon icon="ri:headphone-line" class="label-icon" />
+            <span>声音敏感</span>
+          </div>
+          <div class="row-value" :class="data.sensitiveToSound === 1 ? 'is-warn' : 'is-good'">
+            <span class="value-dot"></span>
             {{ data.sensitiveToSoundText || '-' }}
-          </ElTag>
+          </div>
         </div>
         <div
           v-if="
@@ -75,39 +85,43 @@
       <div class="lifestyle-content">
         <div
           v-if="data.smokingStatus !== undefined && data.smokingStatus !== null"
-          class="tag-item"
+          class="info-row"
         >
-          <span class="tag-label">吸烟状态</span>
-          <ElTag
-            :type="data.smokingStatus === 1 ? 'warning' : 'success'"
-            size="default"
-            effect="dark"
-          >
+          <div class="row-label">
+            <ArtSvgIcon icon="ri:fire-line" class="label-icon" />
+            <span>吸烟状态</span>
+          </div>
+          <div class="row-value" :class="data.smokingStatus === 1 ? 'is-warn' : 'is-good'">
+            <span class="value-dot"></span>
             {{ data.smokingStatusText || '-' }}
-          </ElTag>
+          </div>
         </div>
         <div
           v-if="data.smokingTolerance !== undefined && data.smokingTolerance !== null"
-          class="tag-item"
+          class="info-row"
         >
-          <span class="tag-label">接受室友吸烟</span>
-          <ElTag
-            :type="data.smokingTolerance === 1 ? 'success' : 'info'"
-            size="default"
-            effect="plain"
-          >
+          <div class="row-label">
+            <ArtSvgIcon icon="ri:user-heart-line" class="label-icon" />
+            <span>接受室友吸烟</span>
+          </div>
+          <div class="row-value" :class="data.smokingTolerance === 1 ? 'is-good' : ''">
+            <span v-if="data.smokingTolerance === 1" class="value-dot"></span>
             {{ data.smokingToleranceText || '-' }}
-          </ElTag>
+          </div>
         </div>
-        <div v-if="data.cleanlinessLevelText" class="tag-item">
-          <span class="tag-label">整洁程度</span>
-          <ElTag :type="getCleanlinessType(data.cleanlinessLevel)" size="default" effect="plain">
-            {{ data.cleanlinessLevelText }}
-          </ElTag>
+        <div v-if="data.cleanlinessLevelText" class="info-row">
+          <div class="row-label">
+            <ArtSvgIcon icon="ri:sparkling-line" class="label-icon" />
+            <span>整洁程度</span>
+          </div>
+          <div class="row-value">{{ data.cleanlinessLevelText }}</div>
         </div>
-        <div v-if="data.bedtimeCleanupText" class="tag-item">
-          <span class="tag-label">睡前整理</span>
-          <ElTag type="primary" size="default" effect="plain">{{ data.bedtimeCleanupText }}</ElTag>
+        <div v-if="data.bedtimeCleanupText" class="info-row">
+          <div class="row-label">
+            <ArtSvgIcon icon="ri:layout-grid-line" class="label-icon" />
+            <span>睡前整理</span>
+          </div>
+          <div class="row-value">{{ data.bedtimeCleanupText }}</div>
         </div>
         <div
           v-if="
@@ -132,21 +146,26 @@
         </div>
       </template>
       <div class="lifestyle-content">
-        <div v-if="data.socialPreferenceText" class="tag-item">
-          <span class="tag-label">社交偏好</span>
-          <ElTag :type="getSocialType(data.socialPreference)" size="default" effect="plain">
-            {{ data.socialPreferenceText }}
-          </ElTag>
+        <div v-if="data.socialPreferenceText" class="info-row">
+          <div class="row-label">
+            <ArtSvgIcon icon="ri:chat-smile-2-line" class="label-icon" />
+            <span>社交偏好</span>
+          </div>
+          <div class="row-value">{{ data.socialPreferenceText }}</div>
         </div>
-        <div v-if="data.allowVisitorsText" class="tag-item">
-          <span class="tag-label">允许访客</span>
-          <ElTag :type="getVisitorType(data.allowVisitors)" size="default" effect="plain">
-            {{ data.allowVisitorsText }}
-          </ElTag>
+        <div v-if="data.allowVisitorsText" class="info-row">
+          <div class="row-label">
+            <ArtSvgIcon icon="ri:door-open-line" class="label-icon" />
+            <span>允许访客</span>
+          </div>
+          <div class="row-value">{{ data.allowVisitorsText }}</div>
         </div>
-        <div v-if="data.phoneCallTimeText" class="tag-item">
-          <span class="tag-label">电话时间偏好</span>
-          <ElTag type="info" size="default" effect="plain">{{ data.phoneCallTimeText }}</ElTag>
+        <div v-if="data.phoneCallTimeText" class="info-row">
+          <div class="row-label">
+            <ArtSvgIcon icon="ri:phone-line" class="label-icon" />
+            <span>电话时间偏好</span>
+          </div>
+          <div class="row-value">{{ data.phoneCallTimeText }}</div>
         </div>
         <div
           v-if="!data.socialPreferenceText && !data.allowVisitorsText && !data.phoneCallTimeText"
@@ -166,19 +185,26 @@
         </div>
       </template>
       <div class="lifestyle-content">
-        <div v-if="data.studyInRoomText" class="tag-item">
-          <span class="tag-label">宿舍学习</span>
-          <ElTag type="primary" size="default" effect="plain">{{ data.studyInRoomText }}</ElTag>
+        <div v-if="data.studyInRoomText" class="info-row">
+          <div class="row-label">
+            <ArtSvgIcon icon="ri:home-office-line" class="label-icon" />
+            <span>宿舍学习</span>
+          </div>
+          <div class="row-value">{{ data.studyInRoomText }}</div>
         </div>
-        <div v-if="data.studyEnvironmentText" class="tag-item">
-          <span class="tag-label">学习环境偏好</span>
-          <ElTag type="success" size="default" effect="plain">{{
-            data.studyEnvironmentText
-          }}</ElTag>
+        <div v-if="data.studyEnvironmentText" class="info-row">
+          <div class="row-label">
+            <ArtSvgIcon icon="ri:leaf-line" class="label-icon" />
+            <span>学习环境偏好</span>
+          </div>
+          <div class="row-value">{{ data.studyEnvironmentText }}</div>
         </div>
-        <div v-if="data.computerUsageTimeText" class="tag-item">
-          <span class="tag-label">电脑使用时间</span>
-          <ElTag type="info" size="default" effect="plain">{{ data.computerUsageTimeText }}</ElTag>
+        <div v-if="data.computerUsageTimeText" class="info-row">
+          <div class="row-label">
+            <ArtSvgIcon icon="ri:computer-line" class="label-icon" />
+            <span>电脑使用时间</span>
+          </div>
+          <div class="row-value">{{ data.computerUsageTimeText }}</div>
         </div>
         <div
           v-if="!data.studyInRoomText && !data.studyEnvironmentText && !data.computerUsageTimeText"
@@ -198,23 +224,33 @@
         </div>
       </template>
       <div class="lifestyle-content">
-        <div v-if="data.gamingPreferenceText" class="tag-item">
-          <span class="tag-label">游戏偏好</span>
-          <ElTag type="warning" size="default" effect="plain">{{
-            data.gamingPreferenceText
-          }}</ElTag>
+        <div v-if="data.gamingPreferenceText" class="info-row">
+          <div class="row-label">
+            <ArtSvgIcon icon="ri:gamepad-line" class="label-icon" />
+            <span>游戏偏好</span>
+          </div>
+          <div class="row-value">{{ data.gamingPreferenceText }}</div>
         </div>
-        <div v-if="data.musicPreferenceText" class="tag-item">
-          <span class="tag-label">听音乐偏好</span>
-          <ElTag type="primary" size="default" effect="plain">{{ data.musicPreferenceText }}</ElTag>
+        <div v-if="data.musicPreferenceText" class="info-row">
+          <div class="row-label">
+            <ArtSvgIcon icon="ri:music-2-line" class="label-icon" />
+            <span>听音乐偏好</span>
+          </div>
+          <div class="row-value">{{ data.musicPreferenceText }}</div>
         </div>
-        <div v-if="data.musicVolumeText" class="tag-item">
-          <span class="tag-label">音乐音量偏好</span>
-          <ElTag type="info" size="default" effect="plain">{{ data.musicVolumeText }}</ElTag>
+        <div v-if="data.musicVolumeText" class="info-row">
+          <div class="row-label">
+            <ArtSvgIcon icon="ri:volume-down-line" class="label-icon" />
+            <span>音乐音量偏好</span>
+          </div>
+          <div class="row-value">{{ data.musicVolumeText }}</div>
         </div>
-        <div v-if="data.eatInRoomText" class="tag-item">
-          <span class="tag-label">宿舍饮食</span>
-          <ElTag type="success" size="default" effect="plain">{{ data.eatInRoomText }}</ElTag>
+        <div v-if="data.eatInRoomText" class="info-row">
+          <div class="row-label">
+            <ArtSvgIcon icon="ri:restaurant-line" class="label-icon" />
+            <span>宿舍饮食</span>
+          </div>
+          <div class="row-value">{{ data.eatInRoomText }}</div>
         </div>
         <div
           v-if="
@@ -257,7 +293,7 @@
 </template>
 
 <script setup lang="ts">
-  import { ElCard, ElTag } from 'element-plus'
+  import { ElCard } from 'element-plus'
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
 
   defineOptions({ name: 'StudentLifestyleInfo' })
@@ -270,30 +306,6 @@
   withDefaults(defineProps<Props>(), {
     data: () => ({})
   })
-
-  // 获取整洁程度标签类型
-  const getCleanlinessType = (level?: number): 'success' | 'warning' | 'danger' | 'info' => {
-    if (level === 1 || level === 2) return 'success' // 非常整洁、整洁
-    if (level === 3) return 'info' // 一般
-    if (level === 4 || level === 5) return 'warning' // 随意、不整洁
-    return 'info'
-  }
-
-  // 获取社交偏好标签类型
-  const getSocialType = (preference?: number): 'success' | 'warning' | 'info' => {
-    if (preference === 1) return 'success' // 喜欢安静
-    if (preference === 2) return 'info' // 中等
-    if (preference === 3) return 'warning' // 喜欢热闹
-    return 'info'
-  }
-
-  // 获取访客偏好标签类型
-  const getVisitorType = (allow?: number): 'success' | 'warning' | 'danger' => {
-    if (allow === 0) return 'danger' // 不允许
-    if (allow === 1) return 'warning' // 偶尔可以
-    if (allow === 2) return 'success' // 可以
-    return 'info' as any
-  }
 </script>
 
 <style lang="scss" scoped>
@@ -314,13 +326,13 @@
     }
 
     :deep(.el-card__header) {
-      padding: 16px 20px;
+      padding: 12px 16px;
       background: var(--el-fill-color-lighter);
       border-bottom: 1px solid var(--el-border-color-lighter);
     }
 
     :deep(.el-card__body) {
-      padding: 20px;
+      padding: 4px 16px;
     }
 
     .card-header {
@@ -343,27 +355,64 @@
     .lifestyle-content {
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 0;
     }
 
-    .tag-item {
+    .info-row {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 12px;
-      background: var(--el-fill-color-extra-light);
-      border-radius: var(--el-border-radius-small);
-      transition: all 0.2s;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--el-border-color-extra-light);
 
-      &:hover {
-        background: var(--el-fill-color-light);
+      &:last-of-type {
+        border-bottom: none;
       }
 
-      .tag-label {
-        min-width: 120px;
-        font-size: 14px;
+      .row-label {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        font-size: 13px;
+        color: var(--el-text-color-secondary);
+
+        .label-icon {
+          width: 16px;
+          height: 16px;
+          color: var(--el-text-color-placeholder);
+        }
+      }
+
+      .row-value {
+        display: flex;
+        gap: 6px;
+        align-items: center;
+        font-size: 13px;
         font-weight: 500;
-        color: var(--el-text-color-regular);
+        color: var(--el-text-color-primary);
+
+        .value-dot {
+          width: 6px;
+          height: 6px;
+          background: var(--el-text-color-placeholder);
+          border-radius: 50%;
+        }
+
+        &.is-good {
+          color: var(--el-color-success);
+
+          .value-dot {
+            background: var(--el-color-success);
+          }
+        }
+
+        &.is-warn {
+          color: var(--el-color-warning-dark-2);
+
+          .value-dot {
+            background: var(--el-color-warning);
+          }
+        }
       }
     }
 

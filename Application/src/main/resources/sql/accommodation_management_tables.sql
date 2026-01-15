@@ -15,7 +15,7 @@ CREATE TABLE `sys_student` (
     `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '主键ID',
     `student_no` VARCHAR(50) NOT NULL COMMENT '学号',
     `student_name` VARCHAR(50) NOT NULL COMMENT '姓名',
-    `gender` INT DEFAULT NULL COMMENT '性别（字典sys_gender）：0未知 1男 2女',
+    `gender` INT DEFAULT NULL COMMENT '性别（字典sys_user_sex）：0未知 1男 2女',
     `id_card` VARCHAR(18) DEFAULT NULL COMMENT '身份证号',
     `phone` VARCHAR(20) DEFAULT NULL COMMENT '手机号',
     `email` VARCHAR(100) DEFAULT NULL COMMENT '邮箱',

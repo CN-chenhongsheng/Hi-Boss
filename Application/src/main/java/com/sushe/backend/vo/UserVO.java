@@ -47,7 +47,7 @@ public class UserVO implements Serializable {
     @Schema(description = "状态文本")
     private String statusText;
 
-    @Schema(description = "性别（字典sys_gender）：0未知 1男 2女")
+    @Schema(description = "性别（字典sys_user_sex）：0未知 1男 2女")
     private Integer gender;
 
     @Schema(description = "性别文本")

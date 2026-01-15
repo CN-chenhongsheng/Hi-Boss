@@ -26,13 +26,8 @@
 
       <ElRow :gutter="20">
         <ElCol :span="12">
-          <ElFormItem label="密码" prop="password">
-            <ElInput
-              v-model="formData.password"
-              type="password"
-              show-password
-              :placeholder="dialogType === 'edit' ? '不填则不修改' : '请输入密码'"
-            />
+          <ElFormItem label="手机号" prop="phone">
+            <ElInput v-model="formData.phone" placeholder="请输入手机号" maxlength="11" />
           </ElFormItem>
         </ElCol>
         <ElCol :span="12">
@@ -41,34 +36,16 @@
           </ElFormItem>
         </ElCol>
       </ElRow>
-
-      <ElRow :gutter="20">
-        <ElCol :span="12">
-          <ElFormItem label="手机号" prop="phone">
-            <ElInput v-model="formData.phone" placeholder="请输入手机号" maxlength="11" />
-          </ElFormItem>
-        </ElCol>
-      </ElRow>
-
-      <ElRow :gutter="20">
-        <ElCol :span="12">
-          <ElFormItem label="角色" prop="roleIds">
-            <ElSelect
-              v-model="formData.roleIds"
-              multiple
-              placeholder="请选择角色"
-              style="width: 100%"
-            >
-              <ElOption
-                v-for="role in roleList"
-                :key="role.id"
-                :value="role.id"
-                :label="role.roleName"
-              />
-            </ElSelect>
-          </ElFormItem>
-        </ElCol>
-      </ElRow>
+      <ElFormItem label="角色" prop="roleIds">
+        <ElSelect v-model="formData.roleIds" multiple placeholder="请选择角色" style="width: 100%">
+          <ElOption
+            v-for="role in roleList"
+            :key="role.id"
+            :value="role.id"
+            :label="role.roleName"
+          />
+        </ElSelect>
+      </ElFormItem>
     </ElForm>
 
     <template #footer>
@@ -131,7 +108,6 @@
   const formData = reactive<Api.SystemManage.UserSaveParams>({
     username: '',
     nickname: '',
-    password: '',
     email: '',
     phone: '',
     status: 1,
@@ -149,21 +125,6 @@
       }
     ],
     nickname: [{ required: true, message: '请输入昵称', trigger: 'blur' }],
-    password: [
-      {
-        validator: (rule, value, callback) => {
-          // 新增时密码必填
-          if (props.type === 'add' && !value) {
-            callback(new Error('请输入密码'))
-          } else if (value && value.length < 6) {
-            callback(new Error('密码长度不能少于6位'))
-          } else {
-            callback()
-          }
-        },
-        trigger: 'blur'
-      }
-    ],
     email: [{ type: 'email', message: '请输入正确的邮箱格式', trigger: 'blur' }],
     phone: [{ pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号格式', trigger: 'blur' }]
   }
@@ -189,7 +150,6 @@
         id: row.id,
         username: row.username || '',
         nickname: row.nickname || '',
-        password: '', // 编辑时密码为空
         email: row.email || '',
         phone: row.phone || '',
         status: row.status ?? 1,
@@ -201,7 +161,6 @@
         id: undefined,
         username: '',
         nickname: '',
-        password: '',
         email: '',
         phone: '',
         status: 1,
@@ -247,11 +206,6 @@
           // 准备提交数据
           const submitData: Api.SystemManage.UserSaveParams = {
             ...formData
-          }
-
-          // 如果是编辑且密码为空，则不传密码字段
-          if (props.type === 'edit' && !submitData.password) {
-            delete submitData.password
           }
 
           // 调用API

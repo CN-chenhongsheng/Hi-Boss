@@ -31,7 +31,7 @@ public class UserProfileDTO {
     @Pattern(regexp = "^1[3-9]\\d{9}$", message = "手机号格式不正确")
     private String phone;
 
-    @Schema(description = "性别（字典sys_gender）：0未知 1男 2女")
+    @Schema(description = "性别（字典sys_user_sex）：0未知 1男 2女")
     private Integer gender;
 
     @Schema(description = "地址")

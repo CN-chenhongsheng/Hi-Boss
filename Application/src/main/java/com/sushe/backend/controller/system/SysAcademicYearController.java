@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @Slf4j
 @RestController
-@RequestMapping("/api/v1/system/academic-year")
+@RequestMapping("/v1/system/academic-year")
 @RequiredArgsConstructor
 @Tag(name = "学年管理", description = "学年增删改查、状态更新等")
 public class SysAcademicYearController extends BaseCrudController<AcademicYearVO, AcademicYearQueryDTO, AcademicYearSaveDTO>

@@ -27,7 +27,7 @@ public class StudentSaveDTO {
     @NotBlank(message = "姓名不能为空")
     private String studentName;
 
-    @Schema(description = "性别（字典sys_gender）：0未知 1男 2女")
+    @Schema(description = "性别（字典sys_user_sex）：0未知 1男 2女")
     private Integer gender;
 
     @Schema(description = "身份证号")

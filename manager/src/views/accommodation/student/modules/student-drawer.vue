@@ -6,66 +6,67 @@
     :size="500"
     :loading="loading"
     :with-header="true"
-    :close-on-click-modal="false"
     @close="handleClose"
   >
     <div class="student-detail-content">
       <!-- 顶部用户卡片 -->
-      <ElCard class="student-header-card" shadow="never">
-        <div class="header-card-content">
-          <!-- 头像区域 -->
-          <div class="avatar-section">
-            <div class="avatar-wrapper">
-              <div class="avatar-placeholder">
+      <div class="student-header-card">
+        <!-- 主信息区 -->
+        <div class="main-info">
+          <!-- 头像 -->
+          <div class="avatar-wrapper">
+            <div class="avatar-ring">
+              <div class="avatar-box">
                 <ArtSvgIcon icon="ri:user-line" class="avatar-icon" />
               </div>
-              <ElTag
-                v-if="formData.status !== undefined"
-                :type="formData.status === 1 ? 'success' : 'danger'"
-                class="status-badge"
-                effect="dark"
-              >
-                {{ formData.statusText || '未知' }}
-              </ElTag>
             </div>
+            <span
+              v-if="formData.status !== undefined"
+              class="status-badge"
+              :class="formData.status === 1 ? 'is-active' : 'is-inactive'"
+            >
+              {{ formData.status === 1 ? '在校' : '离校' }}
+            </span>
           </div>
 
-          <!-- 基本信息区域 -->
-          <div class="info-section">
-            <h2 class="student-name">{{ formData.studentName || '-' }}</h2>
-            <div class="student-meta">
-              <span class="meta-item">
-                <ArtSvgIcon icon="ri:id-card-line" class="meta-icon" />
-                学号：{{ formData.studentNo || '-' }}
-              </span>
-              <ElTag v-if="formData.genderText" size="small" class="gender-tag">
+          <!-- 核心信息 -->
+          <div class="core-info">
+            <div class="name-line">
+              <h3 class="student-name">{{ formData.studentName || '-' }}</h3>
+              <span
+                v-if="formData.genderText"
+                class="gender-badge"
+                :class="formData.gender === 1 ? 'is-male' : 'is-female'"
+              >
                 <ArtSvgIcon
                   :icon="formData.gender === 1 ? 'ri:men-line' : 'ri:women-line'"
                   class="gender-icon"
                 />
-                {{ formData.genderText }}
-              </ElTag>
+              </span>
             </div>
-            <div
-              v-if="formData.campusName || formData.deptName || formData.majorName"
-              class="school-info"
-            >
-              <span v-if="formData.campusName" class="school-item">
-                <ArtSvgIcon icon="ri:community-line" class="school-icon" />
-                {{ formData.campusName }}
-              </span>
-              <span v-if="formData.deptName" class="school-item">
-                <ArtSvgIcon icon="ri:building-line" class="school-icon" />
-                {{ formData.deptName }}
-              </span>
-              <span v-if="formData.majorName" class="school-item">
-                <ArtSvgIcon icon="ri:book-open-line" class="school-icon" />
-                {{ formData.majorName }}
-              </span>
+            <div class="student-no">
+              <ArtSvgIcon icon="ri:hashtag" class="no-icon" />
+              <span class="student-no-text">{{ formData.studentNo || '-' }}</span>
             </div>
           </div>
         </div>
-      </ElCard>
+
+        <!-- 扩展信息 -->
+        <div class="extra-info">
+          <div v-if="formData.campusName" class="info-chip">
+            <ArtSvgIcon icon="ri:map-pin-line" class="chip-icon" />
+            <span>{{ formData.campusName }}</span>
+          </div>
+          <div v-if="formData.deptName" class="info-chip">
+            <ArtSvgIcon icon="ri:building-line" class="chip-icon" />
+            <span>{{ formData.deptName }}</span>
+          </div>
+          <div v-if="formData.majorName" class="info-chip">
+            <ArtSvgIcon icon="ri:book-open-line" class="chip-icon" />
+            <span>{{ formData.majorName }}</span>
+          </div>
+        </div>
+      </div>
 
       <!-- 标签页内容 -->
       <ElTabs v-model="activeTab" class="student-detail-tabs">
@@ -85,7 +86,7 @@
 
 <script setup lang="ts">
   import { ref, watch, computed } from 'vue'
-  import { ElTabs, ElTabPane, ElCard, ElTag } from 'element-plus'
+  import { ElTabs, ElTabPane } from 'element-plus'
   import ArtDrawer from '@/components/core/layouts/art-drawer/index.vue'
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
   import StudentBasicInfo from './student-basic-info.vue'
@@ -189,120 +190,185 @@
   .student-detail-content {
     display: flex;
     flex-direction: column;
-    gap: 24px;
+    gap: 16px;
     padding: 0;
   }
 
   // 顶部用户卡片
   .student-header-card {
-    margin-bottom: 0;
-    background: var(--el-bg-color);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 20px;
+    background: linear-gradient(to bottom, var(--el-color-primary-light-9) 0%, transparent 100%);
     border: 1px solid var(--el-border-color-lighter);
     border-radius: var(--el-border-radius-base);
-    box-shadow: 0 2px 8px 0 rgb(0 0 0 / 6%);
+    transition:
+      border-color 0.2s ease,
+      box-shadow 0.2s ease;
 
-    :deep(.el-card__body) {
-      padding: 24px;
+    &:hover {
+      border-color: var(--el-color-primary-light-7);
+      box-shadow: 0 2px 5px rgb(0 0 0 / 4%);
     }
 
-    .header-card-content {
+    // 主信息区
+    .main-info {
       display: flex;
-      gap: 20px;
+      gap: 16px;
       align-items: center;
     }
 
-    .avatar-section {
+    // 头像
+    .avatar-wrapper {
+      position: relative;
       flex-shrink: 0;
 
-      .avatar-wrapper {
-        position: relative;
+      .avatar-ring {
+        padding: 3px;
+        background: linear-gradient(
+          135deg,
+          var(--el-color-primary-light-5),
+          var(--el-color-primary-light-8)
+        );
+        border-radius: 50%;
+      }
 
-        .avatar-placeholder {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          width: 100px;
-          height: 100px;
-          color: var(--el-text-color-secondary);
-          background: var(--el-fill-color-light);
-          border: 2px solid var(--el-border-color-lighter);
-          border-radius: 50%;
+      .avatar-box {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 64px;
+        height: 64px;
+        background: var(--el-bg-color);
+        border-radius: 50%;
+      }
 
-          .art-svg-icon {
-            color: var(--el-text-color-secondary);
-          }
+      .status-badge {
+        position: absolute;
+        right: 50%;
+        bottom: -6px;
+        padding: 2px 8px;
+        font-size: 11px;
+        font-weight: 500;
+        white-space: nowrap;
+        border-radius: 10px;
+        transform: translateX(50%);
+
+        &.is-active {
+          color: var(--el-color-success);
+          background: var(--el-color-success-light-9);
         }
 
-        .status-badge {
-          position: absolute;
-          right: 0;
-          bottom: 0;
-          transform: translate(25%, 25%);
+        &.is-inactive {
+          color: var(--el-text-color-secondary);
+          background: var(--el-fill-color);
         }
       }
     }
 
-    .info-section {
+    // 核心信息
+    .core-info {
       flex: 1;
       min-width: 0;
 
+      .name-line {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        margin-bottom: 3px;
+      }
+
       .student-name {
-        margin: 0 0 12px;
-        font-size: 22px;
+        margin: 0;
+        font-size: 20px;
         font-weight: 600;
+        line-height: 1.3;
         color: var(--el-text-color-primary);
       }
 
-      .student-meta {
+      .gender-badge {
         display: flex;
-        flex-wrap: wrap;
-        gap: 16px;
         align-items: center;
-        margin-bottom: 12px;
+        justify-content: center;
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
 
-        .meta-item {
-          display: flex;
-          gap: 6px;
-          align-items: center;
-          font-size: 14px;
-          color: var(--el-text-color-regular);
-
-          .art-svg-icon {
-            color: var(--el-text-color-secondary);
-          }
+        &.is-male {
+          color: var(--el-color-primary);
+          background: var(--el-color-primary-light-9);
         }
 
-        .gender-tag {
-          color: var(--el-text-color-regular);
-          background: var(--el-fill-color-light);
-          border-color: var(--el-border-color-lighter);
+        &.is-female {
+          color: var(--el-color-danger);
+          background: var(--el-color-danger-light-9);
+        }
 
-          .art-svg-icon {
-            color: var(--el-text-color-secondary);
-          }
+        .gender-icon {
+          width: 14px;
+          height: 14px;
         }
       }
 
-      .school-info {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 12px;
+      .student-no {
+        display: inline-flex;
         align-items: center;
+        padding-left: 4px;
+        font-family: 'SF Mono', Menlo, monospace;
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--el-text-color-regular);
+        background: linear-gradient(135deg, rgba(var(--el-color-primary-rgb), 0.1), transparent);
+        border-top-left-radius: var(--el-border-radius-base);
 
-        .school-item {
-          display: flex;
-          gap: 6px;
-          align-items: center;
-          padding: 6px 12px;
+        .no-icon {
+          width: 12px;
+          height: 12px;
+          padding-right: 2px;
+          color: var(--el-text-color-placeholder);
+        }
+
+        .student-no-text {
+          display: inline-block;
+          padding-left: 2px;
           font-size: 13px;
-          color: var(--el-text-color-regular);
-          background: var(--el-fill-color-extra-light);
-          border: 1px solid var(--el-border-color-lighter);
-          border-radius: var(--el-border-radius-small);
+          font-weight: 500;
+          background: linear-gradient(45deg, rgba(var(--el-color-primary-rgb), 0.1), transparent);
+          border-top-left-radius: var(--el-border-radius-base);
+        }
+      }
+    }
 
-          .art-svg-icon {
-            color: var(--el-text-color-secondary);
-          }
+    // 扩展信息
+    .extra-info {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding-top: 12px;
+      border-top: 1px dashed var(--el-border-color-lighter);
+
+      .info-chip {
+        display: inline-flex;
+        gap: 6px;
+        align-items: center;
+        padding: 6px 12px;
+        font-size: 13px;
+        color: var(--el-text-color-regular);
+        background: var(--el-bg-color);
+        border: 1px solid var(--el-border-color-lighter);
+        border-radius: 16px;
+        transition: all 0.15s ease;
+
+        &:hover {
+          background: var(--el-color-primary-light-9);
+          border-color: var(--el-color-primary-light-7);
+        }
+
+        .chip-icon {
+          width: 14px;
+          height: 14px;
+          color: var(--el-color-primary);
         }
       }
     }
@@ -343,22 +409,9 @@
 
   // 图标大小样式
   .avatar-icon {
-    width: 48px;
-    height: 48px;
-    font-size: 48px;
-  }
-
-  .meta-icon,
-  .school-icon {
-    width: 16px;
-    height: 16px;
-    font-size: 16px;
-  }
-
-  .gender-icon {
-    width: 14px;
-    height: 14px;
-    margin-right: 4px;
-    font-size: 14px;
+    width: 32px;
+    height: 32px;
+    font-size: 32px;
+    color: var(--el-color-primary-light-3);
   }
 </style>

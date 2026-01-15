@@ -53,7 +53,7 @@ public class SysUser extends BaseEntity {
     @TableField("status")
     private Integer status;
 
-    @Schema(description = "性别（字典sys_gender）：0未知 1男 2女")
+    @Schema(description = "性别（字典sys_user_sex）：0未知 1男 2女")
     @TableField("gender")
     private Integer gender;
 

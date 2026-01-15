@@ -7,36 +7,21 @@
     @close="handleClose"
   >
     <ElForm ref="formRef" :model="form" :rules="rules" label-width="100px">
-      <ElRow :gutter="20">
-        <ElCol :span="12">
-          <ElFormItem label="角色名称" prop="roleName">
-            <ElInput v-model="form.roleName" placeholder="请输入角色名称" />
-          </ElFormItem>
-        </ElCol>
-        <ElCol :span="12">
-          <ElFormItem label="角色编码" prop="roleCode">
-            <ElInput
-              v-model="form.roleCode"
-              placeholder="请输入角色编码"
-              :disabled="dialogType === 'edit'"
-            />
-          </ElFormItem>
-        </ElCol>
-      </ElRow>
+      <ElFormItem label="角色编码" prop="roleCode">
+        <ElInput
+          v-model="form.roleCode"
+          placeholder="请输入角色编码"
+          :disabled="dialogType === 'edit'"
+        />
+      </ElFormItem>
 
-      <ElRow :gutter="20">
-        <ElCol :span="12">
-          <ElFormItem label="排序" prop="sort">
-            <ElInputNumber
-              v-model="form.sort"
-              :min="0"
-              :max="999"
-              controls-position="right"
-              style="width: 100%"
-            />
-          </ElFormItem>
-        </ElCol>
-      </ElRow>
+      <ElFormItem label="角色名称" prop="roleName">
+        <ElInput v-model="form.roleName" placeholder="请输入角色名称" />
+      </ElFormItem>
+
+      <ElFormItem label="排序" prop="sort">
+        <ElInputNumber v-model="form.sort" :min="0" :max="999" controls-position="right" />
+      </ElFormItem>
 
       <ElFormItem label="备注" prop="remark">
         <ElInput
@@ -49,7 +34,6 @@
         />
       </ElFormItem>
     </ElForm>
-
     <template #footer>
       <ElButton @click="handleClose">取消</ElButton>
       <ElButton type="primary" :loading="submitLoading" @click="handleSubmit">

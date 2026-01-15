@@ -10,26 +10,26 @@
         </div>
       </template>
       <div class="info-list">
-        <div v-if="data.phone" class="info-item">
-          <ArtSvgIcon icon="ri:phone-line" class="item-icon" />
-          <div class="item-content">
-            <span class="item-label">手机号</span>
-            <span class="item-value">{{ data.phone }}</span>
+        <div v-if="data.phone" class="info-row">
+          <div class="row-label">
+            <ArtSvgIcon icon="ri:phone-line" class="label-icon" />
+            <span>手机号</span>
           </div>
+          <div class="row-value is-copyable">{{ data.phone }}</div>
         </div>
-        <div v-if="data.email" class="info-item">
-          <ArtSvgIcon icon="ri:mail-line" class="item-icon" />
-          <div class="item-content">
-            <span class="item-label">邮箱</span>
-            <span class="item-value">{{ data.email }}</span>
+        <div v-if="data.email" class="info-row">
+          <div class="row-label">
+            <ArtSvgIcon icon="ri:mail-line" class="label-icon" />
+            <span>邮箱</span>
           </div>
+          <div class="row-value is-copyable">{{ data.email }}</div>
         </div>
-        <div v-if="data.idCard" class="info-item">
-          <ArtSvgIcon icon="ri:id-card-line" class="item-icon" />
-          <div class="item-content">
-            <span class="item-label">身份证号</span>
-            <span class="item-value">{{ data.idCard }}</span>
+        <div v-if="data.idCard" class="info-row">
+          <div class="row-label">
+            <ArtSvgIcon icon="ri:bank-card-line" class="label-icon" />
+            <span>身份证号</span>
           </div>
+          <div class="row-value is-mono">{{ data.idCard }}</div>
         </div>
         <div v-if="!data.phone && !data.email && !data.idCard" class="empty-state">
           <span class="empty-text">暂无联系信息</span>
@@ -46,26 +46,26 @@
         </div>
       </template>
       <div class="info-list">
-        <div v-if="data.birthDate" class="info-item">
-          <ArtSvgIcon icon="ri:calendar-line" class="item-icon" />
-          <div class="item-content">
-            <span class="item-label">出生日期</span>
-            <span class="item-value">{{ data.birthDate }}</span>
+        <div v-if="data.birthDate" class="info-row">
+          <div class="row-label">
+            <ArtSvgIcon icon="ri:cake-2-line" class="label-icon" />
+            <span>出生日期</span>
           </div>
+          <div class="row-value">{{ data.birthDate }}</div>
         </div>
-        <div v-if="data.nation" class="info-item">
-          <ArtSvgIcon icon="ri:global-line" class="item-icon" />
-          <div class="item-content">
-            <span class="item-label">民族</span>
-            <span class="item-value">{{ data.nation }}</span>
+        <div v-if="data.nation" class="info-row">
+          <div class="row-label">
+            <ArtSvgIcon icon="ri:global-line" class="label-icon" />
+            <span>民族</span>
           </div>
+          <div class="row-value">{{ data.nation }}</div>
         </div>
-        <div v-if="data.politicalStatus" class="info-item">
-          <ArtSvgIcon icon="ri:government-line" class="item-icon" />
-          <div class="item-content">
-            <span class="item-label">政治面貌</span>
-            <span class="item-value">{{ data.politicalStatus }}</span>
+        <div v-if="data.politicalStatus" class="info-row">
+          <div class="row-label">
+            <ArtSvgIcon icon="ri:flag-line" class="label-icon" />
+            <span>政治面貌</span>
           </div>
+          <div class="row-value">{{ data.politicalStatus }}</div>
         </div>
         <div v-if="!data.birthDate && !data.nation && !data.politicalStatus" class="empty-state">
           <span class="empty-text">暂无身份信息</span>
@@ -82,42 +82,43 @@
         </div>
       </template>
       <div class="info-list">
-        <div v-if="data.enrollmentYear" class="info-item">
-          <ArtSvgIcon icon="ri:calendar-event-line" class="item-icon" />
-          <div class="item-content">
-            <span class="item-label">入学年份</span>
-            <span class="item-value">{{ data.enrollmentYear }}</span>
+        <div v-if="data.enrollmentYear" class="info-row">
+          <div class="row-label">
+            <ArtSvgIcon icon="ri:calendar-check-line" class="label-icon" />
+            <span>入学年份</span>
+          </div>
+          <div class="row-value">{{ data.enrollmentYear }}</div>
+        </div>
+        <div v-if="data.schoolingLength" class="info-row">
+          <div class="row-label">
+            <ArtSvgIcon icon="ri:time-line" class="label-icon" />
+            <span>学制</span>
+          </div>
+          <div class="row-value">{{ data.schoolingLength }}年</div>
+        </div>
+        <div v-if="data.currentGrade" class="info-row">
+          <div class="row-label">
+            <ArtSvgIcon icon="ri:graduation-cap-line" class="label-icon" />
+            <span>当前年级</span>
+          </div>
+          <div class="row-value">{{ data.currentGrade }}</div>
+        </div>
+        <div v-if="data.academicStatusText" class="info-row">
+          <div class="row-label">
+            <ArtSvgIcon icon="ri:file-list-line" class="label-icon" />
+            <span>学籍状态</span>
+          </div>
+          <div class="row-value" :class="getAcademicStatusClass(data.academicStatus)">
+            <span class="value-dot"></span>
+            {{ data.academicStatusText }}
           </div>
         </div>
-        <div v-if="data.schoolingLength" class="info-item">
-          <ArtSvgIcon icon="ri:time-line" class="item-icon" />
-          <div class="item-content">
-            <span class="item-label">学制</span>
-            <span class="item-value">{{ data.schoolingLength }}年</span>
+        <div v-if="data.className" class="info-row">
+          <div class="row-label">
+            <ArtSvgIcon icon="ri:group-line" class="label-icon" />
+            <span>班级</span>
           </div>
-        </div>
-        <div v-if="data.currentGrade" class="info-item">
-          <ArtSvgIcon icon="ri:graduation-cap-line" class="item-icon" />
-          <div class="item-content">
-            <span class="item-label">当前年级</span>
-            <span class="item-value">{{ data.currentGrade }}</span>
-          </div>
-        </div>
-        <div v-if="data.academicStatusText" class="info-item">
-          <ArtSvgIcon icon="ri:file-list-line" class="item-icon" />
-          <div class="item-content">
-            <span class="item-label">学籍状态</span>
-            <ElTag :type="getAcademicStatusType(data.academicStatus)" size="small">
-              {{ data.academicStatusText }}
-            </ElTag>
-          </div>
-        </div>
-        <div v-if="data.className" class="info-item">
-          <ArtSvgIcon icon="ri:group-line" class="item-icon" />
-          <div class="item-content">
-            <span class="item-label">班级</span>
-            <span class="item-value">{{ data.className }}</span>
-          </div>
+          <div class="row-value">{{ data.className }}</div>
         </div>
         <div
           v-if="
@@ -138,24 +139,24 @@
     <ElCard class="info-card" shadow="hover">
       <template #header>
         <div class="card-header">
-          <ArtSvgIcon icon="ri:home-line" class="header-icon" />
+          <ArtSvgIcon icon="ri:building-line" class="header-icon" />
           <span class="header-title">住宿信息</span>
         </div>
       </template>
       <div class="info-list">
-        <div v-if="data.roomCode" class="info-item">
-          <ArtSvgIcon icon="ri:door-open-line" class="item-icon" />
-          <div class="item-content">
-            <span class="item-label">房间编码</span>
-            <ElTag type="primary" size="small">{{ data.roomCode }}</ElTag>
+        <div v-if="data.roomCode" class="info-row">
+          <div class="row-label">
+            <ArtSvgIcon icon="ri:door-open-line" class="label-icon" />
+            <span>房间编码</span>
           </div>
+          <div class="row-value is-code">{{ data.roomCode }}</div>
         </div>
-        <div v-if="data.bedCode" class="info-item">
-          <ArtSvgIcon icon="ri:bed-line" class="item-icon" />
-          <div class="item-content">
-            <span class="item-label">床位编码</span>
-            <ElTag type="success" size="small">{{ data.bedCode }}</ElTag>
+        <div v-if="data.bedCode" class="info-row">
+          <div class="row-label">
+            <ArtSvgIcon icon="ri:hotel-bed-line" class="label-icon" />
+            <span>床位编码</span>
           </div>
+          <div class="row-value is-code">{{ data.bedCode }}</div>
         </div>
         <div v-if="!data.roomCode && !data.bedCode" class="empty-state">
           <span class="empty-text">暂无住宿信息</span>
@@ -179,7 +180,7 @@
 </template>
 
 <script setup lang="ts">
-  import { ElCard, ElTag } from 'element-plus'
+  import { ElCard } from 'element-plus'
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
 
   defineOptions({ name: 'StudentBasicInfo' })
@@ -193,13 +194,13 @@
     data: () => ({})
   })
 
-  // 获取学籍状态标签类型
-  const getAcademicStatusType = (status?: number): 'success' | 'warning' | 'danger' | 'info' => {
-    if (status === 1) return 'success' // 在读
-    if (status === 2) return 'warning' // 休学
-    if (status === 3) return 'info' // 毕业
-    if (status === 4) return 'danger' // 退学
-    return 'info'
+  // 获取学籍状态样式类
+  const getAcademicStatusClass = (status?: number): string => {
+    if (status === 1) return 'is-good' // 在读
+    if (status === 2) return 'is-warn' // 休学
+    if (status === 3) return '' // 毕业
+    if (status === 4) return 'is-danger' // 退学
+    return ''
   }
 </script>
 
@@ -221,13 +222,13 @@
     }
 
     :deep(.el-card__header) {
-      padding: 16px 20px;
+      padding: 12px 16px;
       background: var(--el-fill-color-lighter);
       border-bottom: 1px solid var(--el-border-color-lighter);
     }
 
     :deep(.el-card__body) {
-      padding: 20px;
+      padding: 4px 16px;
     }
 
     .card-header {
@@ -250,46 +251,89 @@
     .info-list {
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 0;
     }
 
-    .info-item {
+    .info-row {
       display: flex;
-      gap: 12px;
-      align-items: flex-start;
-      padding: 12px;
-      background: var(--el-fill-color-extra-light);
-      border-radius: var(--el-border-radius-small);
-      transition: all 0.2s;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--el-border-color-extra-light);
 
-      &:hover {
-        background: var(--el-fill-color-light);
+      &:last-of-type {
+        border-bottom: none;
       }
 
-      .item-icon {
-        flex-shrink: 0;
-        margin-top: 2px;
-        font-size: 20px;
-        color: var(--el-color-primary);
-      }
-
-      .item-content {
+      .row-label {
         display: flex;
-        flex: 1;
-        flex-direction: column;
-        gap: 4px;
-        min-width: 0;
+        gap: 8px;
+        align-items: center;
+        font-size: 13px;
+        color: var(--el-text-color-secondary);
 
-        .item-label {
-          font-size: 12px;
-          font-weight: 500;
-          color: var(--el-text-color-secondary);
+        .label-icon {
+          width: 16px;
+          height: 16px;
+          color: var(--el-text-color-placeholder);
+        }
+      }
+
+      .row-value {
+        display: flex;
+        gap: 6px;
+        align-items: center;
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--el-text-color-primary);
+
+        .value-dot {
+          width: 6px;
+          height: 6px;
+          background: var(--el-text-color-placeholder);
+          border-radius: 50%;
         }
 
-        .item-value {
-          font-size: 14px;
-          color: var(--el-text-color-primary);
-          word-break: break-all;
+        &.is-good {
+          color: var(--el-color-success);
+
+          .value-dot {
+            background: var(--el-color-success);
+          }
+        }
+
+        &.is-warn {
+          color: var(--el-color-warning-dark-2);
+
+          .value-dot {
+            background: var(--el-color-warning);
+          }
+        }
+
+        &.is-danger {
+          color: var(--el-color-danger);
+
+          .value-dot {
+            background: var(--el-color-danger);
+          }
+        }
+
+        &.is-mono {
+          font-family: 'SF Mono', Menlo, Consolas, monospace;
+          letter-spacing: 0.5px;
+        }
+
+        &.is-copyable {
+          color: var(--el-color-primary);
+        }
+
+        &.is-code {
+          padding: 2px 8px;
+          font-family: 'SF Mono', Menlo, Consolas, monospace;
+          font-size: 12px;
+          color: var(--el-color-primary);
+          background: var(--el-color-primary-light-9);
+          border-radius: 4px;
         }
       }
     }
@@ -305,7 +349,7 @@
     }
 
     .remark-content {
-      padding: 8px 0;
+      padding: 12px 0;
 
       .remark-text {
         margin: 0;

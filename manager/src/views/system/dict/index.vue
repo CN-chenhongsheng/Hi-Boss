@@ -229,6 +229,7 @@
       prop: 'dictCode',
       label: '字典编码',
       minWidth: 150,
+      showOverflowTooltip: true,
       formatter: (row: DictTypeListItem) => {
         return h('code', { class: 'dict-code' }, row.dictCode)
       }

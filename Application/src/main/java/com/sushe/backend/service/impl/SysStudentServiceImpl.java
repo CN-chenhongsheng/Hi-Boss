@@ -228,7 +228,7 @@ public class SysStudentServiceImpl extends ServiceImpl<SysStudentMapper, SysStud
         StudentVO vo = new StudentVO();
         BeanUtil.copyProperties(student, vo);
         vo.setStatusText(DictUtils.getLabel("sys_user_status", student.getStatus(), "未知"));
-        vo.setGenderText(DictUtils.getLabel("sys_gender", student.getGender(), "未知"));
+        vo.setGenderText(DictUtils.getLabel("sys_user_sex", student.getGender(), "未知"));
         vo.setAcademicStatusText(DictUtils.getLabel("academic_status", student.getAcademicStatus(), "未知"));
 
         // 查询校区名称
