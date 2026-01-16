@@ -1,90 +1,144 @@
 <template>
   <view class="dorm-info-page">
-    <view class="info-card">
-      <view class="card-title">
-        宿舍信息
-      </view>
-      <view class="info-list">
-        <view class="info-item">
-          <text class="label">
-            校区：
-          </text>
-          <text class="value">
-            南校区
-          </text>
-        </view>
-        <view class="info-item">
-          <text class="label">
-            楼栋：
-          </text>
-          <text class="value">
-            1号楼
-          </text>
-        </view>
-        <view class="info-item">
-          <text class="label">
-            楼层：
-          </text>
-          <text class="value">
-            3层
-          </text>
-        </view>
-        <view class="info-item">
-          <text class="label">
-            房间号：
-          </text>
-          <text class="value">
-            301
-          </text>
-        </view>
-        <view class="info-item">
-          <text class="label">
-            床位号：
-          </text>
-          <text class="value">
-            2号床
-          </text>
-        </view>
-        <view class="info-item">
-          <text class="label">
-            入住日期：
-          </text>
-          <text class="value">
-            2024-09-01
-          </text>
-        </view>
-      </view>
+    <!-- 加载状态 -->
+    <view v-if="loading" class="loading-wrapper">
+      <u-loading-icon size="40" />
+      <text class="loading-text">
+        加载中...
+      </text>
     </view>
 
-    <view class="info-card">
-      <view class="card-title">
-        室友信息
+    <template v-else>
+      <view class="info-card">
+        <view class="card-title">
+          宿舍信息
+        </view>
+        <view class="info-list">
+          <view class="info-item">
+            <text class="label">
+              校区：
+            </text>
+            <text class="value">
+              {{ dormInfo.campusName || '-' }}
+            </text>
+          </view>
+          <view class="info-item">
+            <text class="label">
+              楼栋：
+            </text>
+            <text class="value">
+              {{ dormInfo.buildingName || '-' }}
+            </text>
+          </view>
+          <view class="info-item">
+            <text class="label">
+              楼层：
+            </text>
+            <text class="value">
+              {{ dormInfo.floorName || '-' }}
+            </text>
+          </view>
+          <view class="info-item">
+            <text class="label">
+              房间号：
+            </text>
+            <text class="value">
+              {{ dormInfo.roomCode || '-' }}
+            </text>
+          </view>
+          <view class="info-item">
+            <text class="label">
+              床位号：
+            </text>
+            <text class="value">
+              {{ dormInfo.bedCode || '-' }}
+            </text>
+          </view>
+          <view class="info-item">
+            <text class="label">
+              入住日期：
+            </text>
+            <text class="value">
+              {{ dormInfo.checkInDate || '-' }}
+            </text>
+          </view>
+        </view>
       </view>
-      <view class="roommate-list">
-        <view v-for="item in roommates" :key="item.id" class="roommate-item">
-          <image class="avatar" :src="item.avatar" mode="aspectFill" />
-          <view class="info">
-            <view class="name">
-              {{ item.name }}
+
+      <view class="info-card">
+        <view class="card-title">
+          室友信息
+        </view>
+        <view v-if="roommates.length === 0" class="empty-tip">
+          暂无室友信息
+        </view>
+        <view v-else class="roommate-list">
+          <view v-for="item in roommates" :key="item.id" class="roommate-item">
+            <image class="avatar" :src="item.avatar || defaultAvatar" mode="aspectFill" />
+            <view class="info">
+              <view class="name">
+                {{ item.studentName }}
+              </view>
+              <view class="student-no">
+                {{ item.studentNo }}
+              </view>
             </view>
-            <view class="student-no">
-              {{ item.studentNo }}
+            <view v-if="item.bedCode" class="bed-code">
+              {{ item.bedCode }}
             </view>
           </view>
         </view>
       </view>
-    </view>
+    </template>
   </view>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { onMounted, reactive, ref } from 'vue';
+import { getDormInfoAPI, getRoommatesAPI } from '@/api/dormitory';
+import type { IDormInfo, IRoommate } from '@/api/dormitory';
 
-const roommates = ref([
-  { id: 1, name: '张三', studentNo: '2024001', avatar: 'https://via.placeholder.com/100' },
-  { id: 2, name: '李四', studentNo: '2024002', avatar: 'https://via.placeholder.com/100' },
-  { id: 3, name: '王五', studentNo: '2024003', avatar: 'https://via.placeholder.com/100' },
-]);
+const defaultAvatar = 'https://via.placeholder.com/100';
+
+const loading = ref(true);
+const dormInfo = reactive<IDormInfo>({
+  campusName: '',
+  buildingName: '',
+  floorName: '',
+  roomCode: '',
+  bedCode: '',
+  checkInDate: '',
+});
+const roommates = ref<IRoommate[]>([]);
+
+// 获取宿舍信息
+async function fetchDormInfo() {
+  try {
+    const res = await getDormInfoAPI();
+    Object.assign(dormInfo, res);
+  }
+  catch (error) {
+    console.error('获取宿舍信息失败:', error);
+  }
+}
+
+// 获取室友列表
+async function fetchRoommates() {
+  try {
+    const res = await getRoommatesAPI();
+    roommates.value = res || [];
+  }
+  catch (error) {
+    console.error('获取室友列表失败:', error);
+  }
+}
+
+// 初始化
+onMounted(async () => {
+  loading.value = true;
+  await Promise.all([fetchDormInfo(), fetchRoommates()]);
+  loading.value = false;
+});
 </script>
 
 <style lang="scss" scoped>
@@ -92,6 +146,27 @@ const roommates = ref([
   padding: 20rpx;
   min-height: 100vh;
   background-color: #f5f5f5;
+}
+
+.loading-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 100rpx 0;
+  flex-direction: column;
+
+  .loading-text {
+    margin-top: 20rpx;
+    font-size: 28rpx;
+    color: #999;
+  }
+}
+
+.empty-tip {
+  padding: 40rpx;
+  font-size: 28rpx;
+  text-align: center;
+  color: #999;
 }
 
 .info-card {
@@ -163,6 +238,14 @@ const roommates = ref([
           font-size: 24rpx;
           color: #999;
         }
+      }
+
+      .bed-code {
+        padding: 4rpx 12rpx;
+        font-size: 24rpx;
+        color: #0adbc3;
+        background: rgb(10 219 195 / 10%);
+        border-radius: 8rpx;
       }
     }
   }

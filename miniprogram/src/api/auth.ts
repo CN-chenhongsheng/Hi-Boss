@@ -67,3 +67,52 @@ export function wxLoginAPI(code: string) {
     data: { code },
   });
 }
+
+/**
+ * 更新用户个人信息参数
+ */
+export interface IUpdateProfileParams {
+  phone?: string;
+  email?: string;
+  emergencyContact?: string;
+  emergencyPhone?: string;
+  avatar?: string;
+}
+
+/**
+ * 修改密码参数
+ */
+export interface IChangePasswordParams {
+  oldPassword: string;
+  newPassword: string;
+  confirmPassword: string;
+}
+
+/**
+ * 获取当前用户详情
+ */
+export function getUserProfileAPI() {
+  return post<IBackendLoginResponse>({
+    url: '/api/v1/auth/user/profile',
+  });
+}
+
+/**
+ * 更新用户个人信息
+ */
+export function updateUserProfileAPI(data: IUpdateProfileParams) {
+  return post<{ success: boolean }>({
+    url: '/api/v1/auth/user/profile/update',
+    data,
+  });
+}
+
+/**
+ * 修改密码
+ */
+export function changePasswordAPI(data: IChangePasswordParams) {
+  return post<{ success: boolean }>({
+    url: '/api/v1/auth/change-password',
+    data,
+  });
+}

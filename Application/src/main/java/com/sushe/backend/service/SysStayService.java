@@ -49,10 +49,18 @@ public interface SysStayService extends IService<SysStay> {
 
     /**
      * 批量删除留宿管理
-     * 
+     *
      * @param ids 留宿记录ID数组
      * @return 是否成功
      */
     boolean batchDelete(Long[] ids);
+
+    /**
+     * 撤回留宿申请
+     *
+     * @param id 留宿记录ID
+     * @return 是否成功
+     */
+    boolean cancelStay(Long id);
 }
 

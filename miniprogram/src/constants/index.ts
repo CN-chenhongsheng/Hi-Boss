@@ -74,10 +74,10 @@ export const ROUTE_CONSTANTS = {
   LOGIN: '/pages/common/login/index',
   // 通知详情页
   NOTICE_DETAIL: '/pages/service/notice-detail/index',
-  // 生活方式页
-  LIFESTYLE: '/pages/profile/lifestyle/index',
-  // 学生生活习惯页
+  // 学生生活习惯页（原生活方式页）
   STUDENT_HABITS: '/pages/profile/student-habits/index',
+  // 兼容旧的路由常量（已废弃，使用 STUDENT_HABITS）
+  LIFESTYLE: '/pages/profile/student-habits/index',
 };
 
 /**

@@ -119,6 +119,31 @@ public class SysCheckOutServiceImpl extends ServiceImpl<SysCheckOutMapper, SysCh
     }
 
     /**
+     * 撤回退宿申请
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public boolean cancelCheckOut(Long id) {
+        if (id == null) {
+            throw new BusinessException("退宿记录ID不能为空");
+        }
+
+        SysCheckOut checkOut = getById(id);
+        if (checkOut == null) {
+            throw new BusinessException("退宿记录不存在");
+        }
+
+        // 只有待审核状态才能撤回
+        if (checkOut.getStatus() != 1) {
+            throw new BusinessException("只有待审核状态的申请才能撤回");
+        }
+
+        // 更新状态为已撤回（状态5）
+        checkOut.setStatus(5);
+        return updateById(checkOut);
+    }
+
+    /**
      * 实体转VO
      */
     private CheckOutVO convertToVO(SysCheckOut checkOut) {

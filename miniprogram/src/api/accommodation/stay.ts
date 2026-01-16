@@ -69,3 +69,12 @@ export function approveStayAPI(data: IStayApprovalParams) {
     data,
   });
 }
+
+/**
+ * 撤回留宿申请
+ */
+export function cancelStayAPI(id: number) {
+  return post({
+    url: `/api/v1/system/stay/${id}/cancel`,
+  });
+}

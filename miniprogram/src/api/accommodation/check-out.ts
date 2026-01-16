@@ -69,3 +69,12 @@ export function approveCheckOutAPI(data: ICheckOutApprovalParams) {
     data,
   });
 }
+
+/**
+ * 撤回退宿申请
+ */
+export function cancelCheckOutAPI(id: number) {
+  return post({
+    url: `/api/v1/system/check-out/${id}/cancel`,
+  });
+}

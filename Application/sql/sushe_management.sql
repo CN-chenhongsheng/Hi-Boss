@@ -1,17 +1,17 @@
 /*
  Navicat Premium Dump SQL
 
- Source Server         : 宿舍管理系统
+ Source Server         : localhost_3306
  Source Server Type    : MySQL
- Source Server Version : 80012 (8.0.12)
+ Source Server Version : 80042 (8.0.42)
  Source Host           : localhost:3306
  Source Schema         : sushe_management
 
  Target Server Type    : MySQL
- Target Server Version : 80012 (8.0.12)
+ Target Server Version : 80042 (8.0.42)
  File Encoding         : 65001
 
- Date: 13/01/2026 19:45:46
+ Date: 16/01/2026 15:48:30
 */
 
 SET NAMES utf8mb4;
@@ -22,20 +22,20 @@ SET FOREIGN_KEY_CHECKS = 0;
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_academic_year`;
 CREATE TABLE `sys_academic_year`  (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
   `year_code` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '学年编码',
   `year_name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '学年名称',
   `start_date` date NOT NULL COMMENT '开始日期',
   `end_date` date NOT NULL COMMENT '结束日期',
-  `status` tinyint(4) NOT NULL DEFAULT 1 COMMENT '状态：1启用 0停用',
+  `status` tinyint NOT NULL DEFAULT 1 COMMENT '状态：1启用 0停用',
   `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `create_by` bigint(20) NULL DEFAULT NULL COMMENT '创建人ID',
+  `create_by` bigint NULL DEFAULT NULL COMMENT '创建人ID',
   `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-  `update_by` bigint(20) NULL DEFAULT NULL COMMENT '更新人ID',
+  `update_by` bigint NULL DEFAULT NULL COMMENT '更新人ID',
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `uk_year_code`(`year_code` ASC) USING BTREE,
   INDEX `idx_status`(`status` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '学年表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '学年表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_academic_year
@@ -46,27 +46,27 @@ CREATE TABLE `sys_academic_year`  (
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_bed`;
 CREATE TABLE `sys_bed`  (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
   `bed_code` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '床位编码（如：101-1、101-2）',
   `bed_number` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '床位号（如：1、2、3、4）',
-  `room_id` bigint(20) NOT NULL COMMENT '所属房间ID',
+  `room_id` bigint NOT NULL COMMENT '所属房间ID',
   `room_code` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '所属房间编码（冗余字段）',
-  `floor_id` bigint(20) NULL DEFAULT NULL COMMENT '所属楼层ID（冗余字段）',
+  `floor_id` bigint NULL DEFAULT NULL COMMENT '所属楼层ID（冗余字段）',
   `floor_code` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '所属楼层编码（冗余字段）',
   `campus_code` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '所属校区编码（冗余字段）',
   `bed_position` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '床位位置（字典bed_position）：上铺、下铺、左、右等',
-  `bed_status` tinyint(4) NOT NULL DEFAULT 1 COMMENT '床位状态：1空闲 2已占用 3维修中 4已预订',
-  `student_id` bigint(20) NULL DEFAULT NULL COMMENT '当前入住学生ID（关联学生表，可为空）',
+  `bed_status` tinyint NOT NULL DEFAULT 1 COMMENT '床位状态：1空闲 2已占用 3维修中 4已预订',
+  `student_id` bigint NULL DEFAULT NULL COMMENT '当前入住学生ID（关联学生表，可为空）',
   `student_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '当前入住学生姓名（冗余字段）',
   `check_in_date` date NULL DEFAULT NULL COMMENT '入住日期',
   `check_out_date` date NULL DEFAULT NULL COMMENT '退宿日期',
-  `sort` int(11) NOT NULL DEFAULT 0 COMMENT '排序',
-  `status` tinyint(4) NOT NULL DEFAULT 1 COMMENT '状态：1启用 0停用',
+  `sort` int NOT NULL DEFAULT 0 COMMENT '排序',
+  `status` tinyint NOT NULL DEFAULT 1 COMMENT '状态：1启用 0停用',
   `remark` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '备注',
   `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `create_by` bigint(20) NULL DEFAULT NULL COMMENT '创建人ID',
+  `create_by` bigint NULL DEFAULT NULL COMMENT '创建人ID',
   `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-  `update_by` bigint(20) NULL DEFAULT NULL COMMENT '更新人ID',
+  `update_by` bigint NULL DEFAULT NULL COMMENT '更新人ID',
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `uk_bed_code`(`bed_code` ASC) USING BTREE,
   INDEX `idx_room_id`(`room_id` ASC) USING BTREE,
@@ -75,7 +75,7 @@ CREATE TABLE `sys_bed`  (
   INDEX `idx_campus_code`(`campus_code` ASC) USING BTREE,
   INDEX `idx_bed_code`(`bed_code` ASC) USING BTREE,
   INDEX `idx_student_id`(`student_id` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 17 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '床位表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 17 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '床位表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_bed
@@ -90,20 +90,20 @@ INSERT INTO `sys_bed` VALUES (16, '4', '4', 51, '101', 1, 'A001', 'CAMPUS001', N
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_campus`;
 CREATE TABLE `sys_campus`  (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
   `campus_code` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '校区编码',
   `campus_name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '校区名称',
   `address` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '校区地址',
   `manager` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '负责人',
-  `status` tinyint(4) NOT NULL DEFAULT 1 COMMENT '状态：1启用 0停用',
-  `sort` int(11) NOT NULL DEFAULT 0 COMMENT '排序序号',
+  `status` tinyint NOT NULL DEFAULT 1 COMMENT '状态：1启用 0停用',
+  `sort` int NOT NULL DEFAULT 0 COMMENT '排序序号',
   `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `create_by` bigint(20) NULL DEFAULT NULL COMMENT '创建人ID',
+  `create_by` bigint NULL DEFAULT NULL COMMENT '创建人ID',
   `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-  `update_by` bigint(20) NULL DEFAULT NULL COMMENT '更新人ID',
+  `update_by` bigint NULL DEFAULT NULL COMMENT '更新人ID',
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `uk_campus_code`(`campus_code` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '校区表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '校区表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_campus
@@ -115,38 +115,38 @@ INSERT INTO `sys_campus` VALUES (1, 'CAMPUS001', '主校区', '北京市海淀�
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_check_in`;
 CREATE TABLE `sys_check_in`  (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键ID',
-  `student_id` bigint(20) NOT NULL COMMENT '学生ID',
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `student_id` bigint NOT NULL COMMENT '学生ID',
   `student_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '学生姓名（冗余）',
   `student_no` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '学号（冗余）',
-  `check_in_type` int(11) NOT NULL COMMENT '入住类型：1长期住宿 2临时住宿',
+  `check_in_type` int NOT NULL COMMENT '入住类型：1长期住宿 2临时住宿',
   `campus_code` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '校区编码',
   `floor_code` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '楼层编码',
-  `room_id` bigint(20) NULL DEFAULT NULL COMMENT '房间ID',
+  `room_id` bigint NULL DEFAULT NULL COMMENT '房间ID',
   `room_code` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '房间编码',
-  `bed_id` bigint(20) NULL DEFAULT NULL COMMENT '床位ID',
+  `bed_id` bigint NULL DEFAULT NULL COMMENT '床位ID',
   `bed_code` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '床位编码',
   `apply_date` date NULL DEFAULT NULL COMMENT '申请日期',
   `check_in_date` date NULL DEFAULT NULL COMMENT '入住日期',
   `expected_check_out_date` date NULL DEFAULT NULL COMMENT '预计退宿日期（临时住宿）',
-  `status` int(11) NOT NULL DEFAULT 1 COMMENT '状态：1待审核 2已通过 3已拒绝 4已入住',
-  `approver_id` bigint(20) NULL DEFAULT NULL COMMENT '审核人ID',
+  `status` int NOT NULL DEFAULT 1 COMMENT '状态：1待审核 2已通过 3已拒绝 4已入住',
+  `approver_id` bigint NULL DEFAULT NULL COMMENT '审核人ID',
   `approver_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '审核人姓名',
   `approve_time` datetime NULL DEFAULT NULL COMMENT '审核时间',
   `approve_opinion` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '审核意见',
   `apply_reason` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '申请原因/备注',
   `remark` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '备注',
   `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `create_by` bigint(20) NULL DEFAULT NULL COMMENT '创建人ID',
+  `create_by` bigint NULL DEFAULT NULL COMMENT '创建人ID',
   `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-  `update_by` bigint(20) NULL DEFAULT NULL COMMENT '更新人ID',
+  `update_by` bigint NULL DEFAULT NULL COMMENT '更新人ID',
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `idx_student_id`(`student_id` ASC) USING BTREE,
   INDEX `idx_student_no`(`student_no` ASC) USING BTREE,
   INDEX `idx_status`(`status` ASC) USING BTREE,
   INDEX `idx_check_in_date`(`check_in_date` ASC) USING BTREE,
   INDEX `idx_bed_id`(`bed_id` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '入住管理表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '入住管理表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_check_in
@@ -157,36 +157,36 @@ CREATE TABLE `sys_check_in`  (
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_check_out`;
 CREATE TABLE `sys_check_out`  (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键ID',
-  `student_id` bigint(20) NOT NULL COMMENT '学生ID',
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `student_id` bigint NOT NULL COMMENT '学生ID',
   `student_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '学生姓名（冗余）',
   `student_no` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '学号（冗余）',
   `campus_code` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '校区编码',
   `floor_code` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '楼层编码',
-  `room_id` bigint(20) NULL DEFAULT NULL COMMENT '房间ID',
+  `room_id` bigint NULL DEFAULT NULL COMMENT '房间ID',
   `room_code` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '房间编码',
-  `bed_id` bigint(20) NULL DEFAULT NULL COMMENT '床位ID',
+  `bed_id` bigint NULL DEFAULT NULL COMMENT '床位ID',
   `bed_code` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '床位编码',
   `apply_date` date NULL DEFAULT NULL COMMENT '申请日期',
   `check_out_date` date NULL DEFAULT NULL COMMENT '退宿日期',
-  `status` int(11) NOT NULL DEFAULT 1 COMMENT '状态：1待审核 2已通过 3已拒绝 4已完成',
-  `approver_id` bigint(20) NULL DEFAULT NULL COMMENT '审核人ID',
+  `status` int NOT NULL DEFAULT 1 COMMENT '状态：1待审核 2已通过 3已拒绝 4已完成',
+  `approver_id` bigint NULL DEFAULT NULL COMMENT '审核人ID',
   `approver_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '审核人姓名',
   `approve_time` datetime NULL DEFAULT NULL COMMENT '审核时间',
   `approve_opinion` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '审核意见',
   `check_out_reason` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '退宿理由（必填）',
   `remark` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '备注',
   `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `create_by` bigint(20) NULL DEFAULT NULL COMMENT '创建人ID',
+  `create_by` bigint NULL DEFAULT NULL COMMENT '创建人ID',
   `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-  `update_by` bigint(20) NULL DEFAULT NULL COMMENT '更新人ID',
+  `update_by` bigint NULL DEFAULT NULL COMMENT '更新人ID',
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `idx_student_id`(`student_id` ASC) USING BTREE,
   INDEX `idx_student_no`(`student_no` ASC) USING BTREE,
   INDEX `idx_status`(`status` ASC) USING BTREE,
   INDEX `idx_check_out_date`(`check_out_date` ASC) USING BTREE,
   INDEX `idx_bed_id`(`bed_id` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '退宿管理表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '退宿管理表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_check_out
@@ -197,26 +197,26 @@ CREATE TABLE `sys_check_out`  (
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_class`;
 CREATE TABLE `sys_class`  (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
   `class_code` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '班级编码',
   `class_name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '班级名称',
   `major_code` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '所属专业编码',
   `grade` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '年级',
   `teacher_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '负责人姓名（冗余字段）',
-  `teacher_id` bigint(20) NULL DEFAULT NULL COMMENT '负责人ID（关联sys_user）',
-  `enrollment_year` int(11) NOT NULL COMMENT '入学年份',
-  `current_count` int(11) NOT NULL DEFAULT 0 COMMENT '当前人数',
-  `status` tinyint(4) NOT NULL DEFAULT 1 COMMENT '状态：1启用 0停用',
+  `teacher_id` bigint NULL DEFAULT NULL COMMENT '负责人ID（关联sys_user）',
+  `enrollment_year` int NOT NULL COMMENT '入学年份',
+  `current_count` int NOT NULL DEFAULT 0 COMMENT '当前人数',
+  `status` tinyint NOT NULL DEFAULT 1 COMMENT '状态：1启用 0停用',
   `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `create_by` bigint(20) NULL DEFAULT NULL COMMENT '创建人ID',
+  `create_by` bigint NULL DEFAULT NULL COMMENT '创建人ID',
   `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-  `update_by` bigint(20) NULL DEFAULT NULL COMMENT '更新人ID',
+  `update_by` bigint NULL DEFAULT NULL COMMENT '更新人ID',
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `uk_class_code`(`class_code` ASC) USING BTREE,
   INDEX `idx_major_code`(`major_code` ASC) USING BTREE,
   INDEX `idx_status`(`status` ASC) USING BTREE,
   INDEX `idx_teacher_id`(`teacher_id` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 3 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '班级表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 3 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '班级表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_class
@@ -229,22 +229,22 @@ INSERT INTO `sys_class` VALUES (2, 'CS-SE202302', '2023级AI算法1班', 'CS-SE0
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_department`;
 CREATE TABLE `sys_department`  (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
   `dept_code` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '院系编码',
   `dept_name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '院系名称',
   `campus_code` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '所属校区编码',
   `leader` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '院系领导',
   `phone` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '联系电话',
-  `sort` int(11) NOT NULL DEFAULT 0 COMMENT '排序',
-  `status` tinyint(4) NOT NULL DEFAULT 1 COMMENT '状态：1启用 0停用',
+  `sort` int NOT NULL DEFAULT 0 COMMENT '排序',
+  `status` tinyint NOT NULL DEFAULT 1 COMMENT '状态：1启用 0停用',
   `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `create_by` bigint(20) NULL DEFAULT NULL COMMENT '创建人ID',
+  `create_by` bigint NULL DEFAULT NULL COMMENT '创建人ID',
   `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-  `update_by` bigint(20) NULL DEFAULT NULL COMMENT '更新人ID',
+  `update_by` bigint NULL DEFAULT NULL COMMENT '更新人ID',
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `uk_dept_code`(`dept_code` ASC) USING BTREE,
   INDEX `idx_campus_code`(`campus_code` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '院系表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '院系表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_department
@@ -256,25 +256,25 @@ INSERT INTO `sys_department` VALUES (1, 'CS001', '计算机科学与技术学院
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_dict_data`;
 CREATE TABLE `sys_dict_data`  (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
   `dict_code` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '字典编码',
   `label` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '字典标签',
   `value` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '字典值',
   `css_class` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT 'CSS类名',
   `list_class` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '表格回显样式',
-  `sort` int(11) NULL DEFAULT 0 COMMENT '排序',
+  `sort` int NULL DEFAULT 0 COMMENT '排序',
   `is_default` tinyint(1) NULL DEFAULT 0 COMMENT '是否默认：1是 0否',
   `status` tinyint(1) NULL DEFAULT 1 COMMENT '状态：1正常 0停用',
   `remark` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '备注',
   `create_time` datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `create_by` bigint(20) NULL DEFAULT NULL COMMENT '创建人ID',
+  `create_by` bigint NULL DEFAULT NULL COMMENT '创建人ID',
   `update_time` datetime NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-  `update_by` bigint(20) NULL DEFAULT NULL COMMENT '更新人ID',
+  `update_by` bigint NULL DEFAULT NULL COMMENT '更新人ID',
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `idx_dict_code`(`dict_code` ASC) USING BTREE,
   INDEX `idx_status`(`status` ASC) USING BTREE,
   INDEX `idx_sort`(`sort` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 203 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '字典数据表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 207 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '字典数据表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_dict_data
@@ -473,25 +473,29 @@ INSERT INTO `sys_dict_data` VALUES (199, 'student_nation', '赫哲族', '赫哲�
 INSERT INTO `sys_dict_data` VALUES (200, 'student_nation', '门巴族', '门巴族', '', 'info', 54, 0, 1, '', '2026-01-10 22:06:43', NULL, '2026-01-10 22:06:43', NULL);
 INSERT INTO `sys_dict_data` VALUES (201, 'student_nation', '珞巴族', '珞巴族', '', 'info', 55, 0, 1, '', '2026-01-10 22:06:43', NULL, '2026-01-10 22:06:43', NULL);
 INSERT INTO `sys_dict_data` VALUES (202, 'student_nation', '基诺族', '基诺族', '', 'info', 56, 0, 1, '', '2026-01-10 22:06:43', NULL, '2026-01-10 22:06:43', NULL);
+INSERT INTO `sys_dict_data` VALUES (203, 'check_in_status', '已撤回', '5', NULL, NULL, 5, 0, 1, NULL, '2026-01-16 12:19:02', NULL, '2026-01-16 12:19:02', NULL);
+INSERT INTO `sys_dict_data` VALUES (204, 'check_out_status', '已撤回', '5', NULL, NULL, 5, 0, 1, NULL, '2026-01-16 12:19:02', NULL, '2026-01-16 12:19:02', NULL);
+INSERT INTO `sys_dict_data` VALUES (205, 'transfer_status', '已撤回', '5', NULL, NULL, 5, 0, 1, NULL, '2026-01-16 12:19:02', NULL, '2026-01-16 12:19:02', NULL);
+INSERT INTO `sys_dict_data` VALUES (206, 'stay_status', '已撤回', '5', NULL, NULL, 5, 0, 1, NULL, '2026-01-16 12:19:02', NULL, '2026-01-16 12:19:02', NULL);
 
 -- ----------------------------
 -- Table structure for sys_dict_type
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_dict_type`;
 CREATE TABLE `sys_dict_type`  (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
   `dict_name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '字典名称',
   `dict_code` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '字典编码',
   `status` tinyint(1) NULL DEFAULT 1 COMMENT '状态：1正常 0停用',
   `remark` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '备注',
   `create_time` datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `create_by` bigint(20) NULL DEFAULT NULL COMMENT '创建人ID',
+  `create_by` bigint NULL DEFAULT NULL COMMENT '创建人ID',
   `update_time` datetime NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-  `update_by` bigint(20) NULL DEFAULT NULL COMMENT '更新人ID',
+  `update_by` bigint NULL DEFAULT NULL COMMENT '更新人ID',
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `uk_dict_code`(`dict_code` ASC) USING BTREE,
   INDEX `idx_status`(`status` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 43 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '字典类型表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 43 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '字典类型表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_dict_type
@@ -542,27 +546,27 @@ INSERT INTO `sys_dict_type` VALUES (42, '政治面貌', 'student_political_statu
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_floor`;
 CREATE TABLE `sys_floor`  (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
   `floor_code` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '楼层编码（如：F1、F2）',
   `floor_name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '楼层名称（如：1楼、2楼）',
-  `floor_number` int(11) NOT NULL COMMENT '楼层数（数字，如：1、2、3）',
+  `floor_number` int NOT NULL COMMENT '楼层数（数字，如：1、2、3）',
   `campus_code` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '所属校区编码（关联sys_campus）',
-  `gender_type` tinyint(4) NOT NULL DEFAULT 3 COMMENT '适用性别：1男 2女 3混合',
-  `total_rooms` int(11) NOT NULL DEFAULT 0 COMMENT '该楼层房间数（统计字段）',
-  `total_beds` int(11) NOT NULL DEFAULT 0 COMMENT '该楼层床位数（统计字段）',
-  `current_occupancy` int(11) NOT NULL DEFAULT 0 COMMENT '当前入住人数（统计字段）',
-  `sort` int(11) NOT NULL DEFAULT 0 COMMENT '排序',
-  `status` tinyint(4) NOT NULL DEFAULT 1 COMMENT '状态：1启用 0停用',
+  `gender_type` tinyint NOT NULL DEFAULT 3 COMMENT '适用性别：1男 2女 3混合',
+  `total_rooms` int NOT NULL DEFAULT 0 COMMENT '该楼层房间数（统计字段）',
+  `total_beds` int NOT NULL DEFAULT 0 COMMENT '该楼层床位数（统计字段）',
+  `current_occupancy` int NOT NULL DEFAULT 0 COMMENT '当前入住人数（统计字段）',
+  `sort` int NOT NULL DEFAULT 0 COMMENT '排序',
+  `status` tinyint NOT NULL DEFAULT 1 COMMENT '状态：1启用 0停用',
   `remark` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '备注',
   `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `create_by` bigint(20) NULL DEFAULT NULL COMMENT '创建人ID',
+  `create_by` bigint NULL DEFAULT NULL COMMENT '创建人ID',
   `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-  `update_by` bigint(20) NULL DEFAULT NULL COMMENT '更新人ID',
+  `update_by` bigint NULL DEFAULT NULL COMMENT '更新人ID',
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `uk_floor_code`(`floor_code` ASC) USING BTREE,
   INDEX `idx_campus_code`(`campus_code` ASC) USING BTREE,
   INDEX `idx_floor_code`(`floor_code` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '楼层表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '楼层表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_floor
@@ -574,7 +578,7 @@ INSERT INTO `sys_floor` VALUES (1, 'A001', '科学园A座', 5, 'CAMPUS001', 1, 2
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_major`;
 CREATE TABLE `sys_major`  (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
   `major_code` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '专业编码',
   `major_name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '专业名称',
   `dept_code` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '所属院系编码',
@@ -582,16 +586,16 @@ CREATE TABLE `sys_major`  (
   `type` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '学位类型（字典degree_type）',
   `duration` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '学制',
   `goal` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL COMMENT '培养目标',
-  `status` tinyint(4) NOT NULL DEFAULT 1 COMMENT '状态：1启用 0停用',
+  `status` tinyint NOT NULL DEFAULT 1 COMMENT '状态：1启用 0停用',
   `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `create_by` bigint(20) NULL DEFAULT NULL COMMENT '创建人ID',
+  `create_by` bigint NULL DEFAULT NULL COMMENT '创建人ID',
   `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-  `update_by` bigint(20) NULL DEFAULT NULL COMMENT '更新人ID',
+  `update_by` bigint NULL DEFAULT NULL COMMENT '更新人ID',
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `uk_major_code`(`major_code` ASC) USING BTREE,
   INDEX `idx_dept_code`(`dept_code` ASC) USING BTREE,
   INDEX `idx_status`(`status` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '专业表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '专业表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_major
@@ -603,25 +607,25 @@ INSERT INTO `sys_major` VALUES (1, 'CS-SE001', '软件工程', 'CS001', '王五'
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_menu`;
 CREATE TABLE `sys_menu`  (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键ID',
-  `parent_id` bigint(20) NULL DEFAULT 0 COMMENT '父菜单ID',
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `parent_id` bigint NULL DEFAULT 0 COMMENT '父菜单ID',
   `menu_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '菜单名称',
   `menu_type` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '菜单类型：M目录 C菜单 F按钮',
   `path` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '路由路径',
   `component` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '组件路径',
   `permission` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '权限标识',
   `icon` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '图标',
-  `sort` int(11) NULL DEFAULT 0 COMMENT '排序',
+  `sort` int NULL DEFAULT 0 COMMENT '排序',
   `visible` tinyint(1) NULL DEFAULT 1 COMMENT '是否可见：1显示 0隐藏',
   `status` tinyint(1) NULL DEFAULT 1 COMMENT '状态：1正常 0停用',
   `keep_alive` tinyint(1) NULL DEFAULT 1 COMMENT '页面缓存：1开启 0关闭',
   `create_time` datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `create_by` bigint(20) NULL DEFAULT NULL COMMENT '创建人ID',
+  `create_by` bigint NULL DEFAULT NULL COMMENT '创建人ID',
   `update_time` datetime NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-  `update_by` bigint(20) NULL DEFAULT NULL COMMENT '更新人ID',
+  `update_by` bigint NULL DEFAULT NULL COMMENT '更新人ID',
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `idx_parent_id`(`parent_id` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 142 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '系统菜单表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 142 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '系统菜单表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_menu
@@ -733,28 +737,28 @@ INSERT INTO `sys_menu` VALUES (141, 139, '删除留宿', 'F', '', '', 'system:st
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_oper_log`;
 CREATE TABLE `sys_oper_log`  (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '日志主键',
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '日志主键',
   `title` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '操作模块',
-  `business_type` int(11) NULL DEFAULT 0 COMMENT '业务类型（0其它 1新增 2修改 3删除）',
+  `business_type` int NULL DEFAULT 0 COMMENT '业务类型（0其它 1新增 2修改 3删除）',
   `method` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '方法名称',
   `request_method` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '请求方式',
-  `operator_type` int(11) NULL DEFAULT 0 COMMENT '操作类别（0其它 1后台用户 2手机端用户）',
+  `operator_type` int NULL DEFAULT 0 COMMENT '操作类别（0其它 1后台用户 2手机端用户）',
   `oper_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '操作人员',
-  `device_type` int(11) NULL DEFAULT NULL COMMENT '设备类型（字典sys_device_type：1桌面设备 2移动设备 3爬虫/Bot）',
+  `device_type` int NULL DEFAULT NULL COMMENT '设备类型（字典sys_device_type：1桌面设备 2移动设备 3爬虫/Bot）',
   `oper_url` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '请求URL',
   `oper_ip` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '主机地址',
   `oper_location` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '操作地点',
   `oper_param` varchar(2000) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '请求参数',
   `json_result` varchar(2000) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '返回参数',
-  `status` int(11) NULL DEFAULT 0 COMMENT '操作状态（0正常 1异常）',
+  `status` int NULL DEFAULT 0 COMMENT '操作状态（0正常 1异常）',
   `error_msg` varchar(2000) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '错误消息',
   `oper_time` datetime NULL DEFAULT NULL COMMENT '操作时间',
-  `cost_time` bigint(20) NULL DEFAULT NULL COMMENT '消耗时间（毫秒）',
+  `cost_time` bigint NULL DEFAULT NULL COMMENT '消耗时间（毫秒）',
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `idx_oper_time`(`oper_time` ASC) USING BTREE,
   INDEX `idx_business_type`(`business_type` ASC) USING BTREE,
   INDEX `idx_status`(`status` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 206 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '操作日志记录表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 206 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '操作日志记录表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_oper_log
@@ -970,19 +974,19 @@ INSERT INTO `sys_oper_log` VALUES (205, '修改状态', 2, 'com.sushe.backend.co
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_role`;
 CREATE TABLE `sys_role`  (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
   `role_code` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '角色编码',
   `role_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '角色名称',
-  `sort` int(11) NULL DEFAULT 0 COMMENT '排序',
+  `sort` int NULL DEFAULT 0 COMMENT '排序',
   `status` tinyint(1) NULL DEFAULT 1 COMMENT '状态：1正常 0停用',
   `remark` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '备注',
   `create_time` datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `create_by` bigint(20) NULL DEFAULT NULL COMMENT '创建人ID',
+  `create_by` bigint NULL DEFAULT NULL COMMENT '创建人ID',
   `update_time` datetime NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-  `update_by` bigint(20) NULL DEFAULT NULL COMMENT '更新人ID',
+  `update_by` bigint NULL DEFAULT NULL COMMENT '更新人ID',
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `uk_role_code`(`role_code` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 7 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '系统角色表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 7 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '系统角色表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_role
@@ -999,15 +1003,15 @@ INSERT INTO `sys_role` VALUES (6, 'TEST_ROLE', '测试角色', 100, 1, '这是�
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_role_menu`;
 CREATE TABLE `sys_role_menu`  (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键ID',
-  `role_id` bigint(20) NOT NULL COMMENT '角色ID',
-  `menu_id` bigint(20) NOT NULL COMMENT '菜单ID',
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `role_id` bigint NOT NULL COMMENT '角色ID',
+  `menu_id` bigint NOT NULL COMMENT '菜单ID',
   `create_time` datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `uk_role_menu`(`role_id` ASC, `menu_id` ASC) USING BTREE,
   INDEX `idx_role_id`(`role_id` ASC) USING BTREE,
   INDEX `idx_menu_id`(`menu_id` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1849 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '角色菜单关联表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 1849 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '角色菜单关联表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_role_menu
@@ -1121,29 +1125,29 @@ INSERT INTO `sys_role_menu` VALUES (1848, 1, 14, '2026-01-06 18:14:59');
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_room`;
 CREATE TABLE `sys_room`  (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
   `room_code` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '房间编码（如：101、102）',
   `room_number` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '房间号（如：101、102）',
-  `floor_id` bigint(20) NOT NULL COMMENT '所属楼层ID',
-  `floor_number` int(11) NULL DEFAULT NULL COMMENT '所属楼层数（冗余字段）',
+  `floor_id` bigint NOT NULL COMMENT '所属楼层ID',
+  `floor_number` int NULL DEFAULT NULL COMMENT '所属楼层数（冗余字段）',
   `floor_code` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '所属楼层编码（冗余字段）',
   `campus_code` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '所属校区编码（冗余字段）',
   `room_type` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '房间类型（字典room_type）：标准间、套间、单人间等',
-  `bed_count` int(11) NOT NULL DEFAULT 4 COMMENT '床位数（标准配置）',
-  `current_occupancy` int(11) NOT NULL DEFAULT 0 COMMENT '当前入住人数',
-  `max_occupancy` int(11) NULL DEFAULT NULL COMMENT '最大入住人数',
+  `bed_count` int NOT NULL DEFAULT 4 COMMENT '床位数（标准配置）',
+  `current_occupancy` int NOT NULL DEFAULT 0 COMMENT '当前入住人数',
+  `max_occupancy` int NULL DEFAULT NULL COMMENT '最大入住人数',
   `area` decimal(10, 2) NULL DEFAULT NULL COMMENT '房间面积（平方米）',
-  `has_air_conditioner` tinyint(4) NOT NULL DEFAULT 0 COMMENT '是否有空调：1是 0否',
-  `has_bathroom` tinyint(4) NOT NULL DEFAULT 0 COMMENT '是否有独立卫生间：1是 0否',
-  `has_balcony` tinyint(4) NOT NULL DEFAULT 0 COMMENT '是否有阳台：1是 0否',
-  `room_status` tinyint(4) NOT NULL DEFAULT 1 COMMENT '房间状态：1空闲 2已满 3维修中 4已预订',
-  `sort` int(11) NOT NULL DEFAULT 0 COMMENT '排序',
-  `status` tinyint(4) NOT NULL DEFAULT 1 COMMENT '状态：1启用 0停用',
+  `has_air_conditioner` tinyint NOT NULL DEFAULT 0 COMMENT '是否有空调：1是 0否',
+  `has_bathroom` tinyint NOT NULL DEFAULT 0 COMMENT '是否有独立卫生间：1是 0否',
+  `has_balcony` tinyint NOT NULL DEFAULT 0 COMMENT '是否有阳台：1是 0否',
+  `room_status` tinyint NOT NULL DEFAULT 1 COMMENT '房间状态：1空闲 2已满 3维修中 4已预订',
+  `sort` int NOT NULL DEFAULT 0 COMMENT '排序',
+  `status` tinyint NOT NULL DEFAULT 1 COMMENT '状态：1启用 0停用',
   `remark` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '备注',
   `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `create_by` bigint(20) NULL DEFAULT NULL COMMENT '创建人ID',
+  `create_by` bigint NULL DEFAULT NULL COMMENT '创建人ID',
   `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-  `update_by` bigint(20) NULL DEFAULT NULL COMMENT '更新人ID',
+  `update_by` bigint NULL DEFAULT NULL COMMENT '更新人ID',
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `uk_room_code`(`room_code` ASC) USING BTREE,
   INDEX `idx_floor_id`(`floor_id` ASC) USING BTREE,
@@ -1151,7 +1155,7 @@ CREATE TABLE `sys_room`  (
   INDEX `idx_campus_code`(`campus_code` ASC) USING BTREE,
   INDEX `idx_room_code`(`room_code` ASC) USING BTREE,
   INDEX `idx_floor_id_number`(`floor_id` ASC, `floor_number` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 76 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '房间表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 76 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '房间表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_room
@@ -1187,22 +1191,22 @@ INSERT INTO `sys_room` VALUES (75, '505', '505', 1, 5, 'A001', 'CAMPUS001', 'sta
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_semester`;
 CREATE TABLE `sys_semester`  (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键ID',
-  `academic_year_id` bigint(20) NOT NULL COMMENT '所属学年ID',
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `academic_year_id` bigint NOT NULL COMMENT '所属学年ID',
   `semester_code` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '学期编码',
   `semester_name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '学期名称',
   `start_date` date NOT NULL COMMENT '开始日期',
   `end_date` date NOT NULL COMMENT '结束日期',
   `semester_type` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '学期类型（如：第一学期、第二学期）',
   `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `create_by` bigint(20) NULL DEFAULT NULL COMMENT '创建人ID',
+  `create_by` bigint NULL DEFAULT NULL COMMENT '创建人ID',
   `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-  `update_by` bigint(20) NULL DEFAULT NULL COMMENT '更新人ID',
+  `update_by` bigint NULL DEFAULT NULL COMMENT '更新人ID',
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `uk_semester_code`(`semester_code` ASC) USING BTREE,
   INDEX `idx_academic_year_id`(`academic_year_id` ASC) USING BTREE,
   CONSTRAINT `fk_semester_academic_year` FOREIGN KEY (`academic_year_id`) REFERENCES `sys_academic_year` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '学期表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '学期表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_semester
@@ -1213,30 +1217,30 @@ CREATE TABLE `sys_semester`  (
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_stay`;
 CREATE TABLE `sys_stay`  (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键ID',
-  `student_id` bigint(20) NOT NULL COMMENT '学生ID',
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `student_id` bigint NOT NULL COMMENT '学生ID',
   `student_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '学生姓名（冗余）',
   `student_no` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '学号（冗余）',
   `campus_code` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '校区编码',
   `floor_code` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '楼层编码',
-  `room_id` bigint(20) NULL DEFAULT NULL COMMENT '房间ID',
+  `room_id` bigint NULL DEFAULT NULL COMMENT '房间ID',
   `room_code` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '房间编码',
-  `bed_id` bigint(20) NULL DEFAULT NULL COMMENT '床位ID',
+  `bed_id` bigint NULL DEFAULT NULL COMMENT '床位ID',
   `bed_code` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '床位编码',
   `apply_date` date NULL DEFAULT NULL COMMENT '申请日期',
   `stay_start_date` date NULL DEFAULT NULL COMMENT '留宿开始日期',
   `stay_end_date` date NULL DEFAULT NULL COMMENT '留宿结束日期',
-  `status` int(11) NOT NULL DEFAULT 1 COMMENT '状态：1待审核 2已通过 3已拒绝 4已完成',
-  `approver_id` bigint(20) NULL DEFAULT NULL COMMENT '审核人ID',
+  `status` int NOT NULL DEFAULT 1 COMMENT '状态：1待审核 2已通过 3已拒绝 4已完成',
+  `approver_id` bigint NULL DEFAULT NULL COMMENT '审核人ID',
   `approver_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '审核人姓名',
   `approve_time` datetime NULL DEFAULT NULL COMMENT '审核时间',
   `approve_opinion` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '审核意见',
   `stay_reason` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '留宿理由（必填）',
   `remark` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '备注',
   `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `create_by` bigint(20) NULL DEFAULT NULL COMMENT '创建人ID',
+  `create_by` bigint NULL DEFAULT NULL COMMENT '创建人ID',
   `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-  `update_by` bigint(20) NULL DEFAULT NULL COMMENT '更新人ID',
+  `update_by` bigint NULL DEFAULT NULL COMMENT '更新人ID',
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `idx_student_id`(`student_id` ASC) USING BTREE,
   INDEX `idx_student_no`(`student_no` ASC) USING BTREE,
@@ -1244,7 +1248,7 @@ CREATE TABLE `sys_stay`  (
   INDEX `idx_stay_start_date`(`stay_start_date` ASC) USING BTREE,
   INDEX `idx_stay_end_date`(`stay_end_date` ASC) USING BTREE,
   INDEX `idx_bed_id`(`bed_id` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '留宿管理表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '留宿管理表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_stay
@@ -1255,20 +1259,20 @@ CREATE TABLE `sys_stay`  (
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_student`;
 CREATE TABLE `sys_student`  (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
   `student_no` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '学号',
   `student_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '姓名',
-  `gender` int(11) NULL DEFAULT NULL COMMENT '性别（字典sys_user_sex）：0未知 1男 2女',
+  `gender` int NULL DEFAULT NULL COMMENT '性别（字典sys_user_sex）：0未知 1男 2女',
   `id_card` varchar(18) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '身份证号',
   `phone` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '手机号',
   `email` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '邮箱',
   `birth_date` date NULL DEFAULT NULL COMMENT '出生日期',
   `nation` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '民族',
   `political_status` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '政治面貌',
-  `enrollment_year` int(11) NULL DEFAULT NULL COMMENT '入学年份',
-  `schooling_length` int(11) NULL DEFAULT NULL COMMENT '学制（年）',
+  `enrollment_year` int NULL DEFAULT NULL COMMENT '入学年份',
+  `schooling_length` int NULL DEFAULT NULL COMMENT '学制（年）',
   `current_grade` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '当前年级',
-  `academic_status` int(11) NULL DEFAULT NULL COMMENT '学籍状态（字典academic_status）：1在读 2休学 3毕业 4退学',
+  `academic_status` int NULL DEFAULT NULL COMMENT '学籍状态（字典academic_status）：1在读 2休学 3毕业 4退学',
   `home_address` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '家庭地址',
   `emergency_contact` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '紧急联系人',
   `emergency_phone` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '紧急联系人电话',
@@ -1277,41 +1281,43 @@ CREATE TABLE `sys_student`  (
   `campus_code` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '校区编码',
   `dept_code` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '院系编码',
   `major_code` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '专业编码',
-  `class_id` bigint(20) NULL DEFAULT NULL COMMENT '班级ID',
+  `class_id` bigint NULL DEFAULT NULL COMMENT '班级ID',
   `class_code` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '班级编码',
-  `floor_id` bigint(20) NULL DEFAULT NULL COMMENT '楼层ID',
+  `floor_id` bigint NULL DEFAULT NULL COMMENT '楼层ID',
   `floor_code` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '楼层编码',
-  `room_id` bigint(20) NULL DEFAULT NULL COMMENT '房间ID',
+  `room_id` bigint NULL DEFAULT NULL COMMENT '房间ID',
   `room_code` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '房间编码',
-  `bed_id` bigint(20) NULL DEFAULT NULL COMMENT '床位ID',
+  `bed_id` bigint NULL DEFAULT NULL COMMENT '床位ID',
   `bed_code` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '床位编码',
-  `smoking_status` tinyint(4) NULL DEFAULT 0 COMMENT '吸烟状态：0不吸烟 1吸烟',
-  `smoking_tolerance` tinyint(4) NULL DEFAULT 0 COMMENT '是否接受室友吸烟：0不接受 1接受',
-  `sleep_schedule` tinyint(4) NULL DEFAULT 1 COMMENT '作息时间：0早睡早起(22:00-6:00) 1正常(23:00-7:00) 2晚睡晚起(24:00-8:00) 3夜猫子(01:00-9:00)',
-  `sleep_quality` tinyint(4) NULL DEFAULT 1 COMMENT '睡眠质量：0浅睡易醒 1正常 2深睡',
-  `snores` tinyint(4) NULL DEFAULT 0 COMMENT '是否打呼噜：0不打 1打',
-  `sensitive_to_light` tinyint(4) NULL DEFAULT 0 COMMENT '是否对光线敏感：0不敏感 1敏感',
-  `sensitive_to_sound` tinyint(4) NULL DEFAULT 0 COMMENT '是否对声音敏感：0不敏感 1敏感',
-  `cleanliness_level` tinyint(4) NULL DEFAULT 2 COMMENT '整洁程度：1非常整洁 2整洁 3一般 4随意 5不整洁',
-  `bedtime_cleanup` tinyint(4) NULL DEFAULT 1 COMMENT '睡前是否整理：0不整理 1偶尔整理 2经常整理 3总是整理',
-  `social_preference` tinyint(4) NULL DEFAULT 1 COMMENT '社交偏好：1喜欢安静 2中等 3喜欢热闹',
-  `allow_visitors` tinyint(4) NULL DEFAULT 1 COMMENT '是否允许室友带访客：0不允许 1偶尔可以 2可以',
-  `phone_call_time` tinyint(4) NULL DEFAULT 1 COMMENT '电话时间偏好：0喜欢在宿舍打电话 1偶尔在宿舍 2不在宿舍打电话',
-  `study_in_room` tinyint(4) NULL DEFAULT 1 COMMENT '是否在宿舍学习：0不在 1偶尔 2经常 3总是',
-  `study_environment` tinyint(4) NULL DEFAULT 1 COMMENT '学习环境偏好：1需要安静 2需要轻音乐 3可以接受声音',
-  `computer_usage_time` tinyint(4) NULL DEFAULT 2 COMMENT '电脑使用时间：0不用 1很少(1-2h/天) 2正常(3-5h/天) 3很多(6h+/天)',
-  `gaming_preference` tinyint(4) NULL DEFAULT 1 COMMENT '游戏偏好：0不玩游戏 1偶尔玩 2经常玩',
-  `music_preference` tinyint(4) NULL DEFAULT 1 COMMENT '听音乐偏好：0不听 1偶尔听 2经常听',
-  `music_volume` tinyint(4) NULL DEFAULT 1 COMMENT '音乐音量偏好：1喜欢小声 2中等 3喜欢大声',
-  `eat_in_room` tinyint(4) NULL DEFAULT 1 COMMENT '是否在宿舍吃东西：0不吃 1偶尔 2经常',
+  `smoking_status` tinyint NULL DEFAULT 0 COMMENT '吸烟状态：0不吸烟 1吸烟',
+  `smoking_tolerance` tinyint NULL DEFAULT 0 COMMENT '是否接受室友吸烟：0不接受 1接受',
+  `sleep_schedule` tinyint NULL DEFAULT 1 COMMENT '作息时间：0早睡早起(22:00-6:00) 1正常(23:00-7:00) 2晚睡晚起(24:00-8:00) 3夜猫子(01:00-9:00)',
+  `sleep_quality` tinyint NULL DEFAULT 1 COMMENT '睡眠质量：0浅睡易醒 1正常 2深睡',
+  `snores` tinyint NULL DEFAULT 0 COMMENT '是否打呼噜：0不打 1打',
+  `sensitive_to_light` tinyint NULL DEFAULT 0 COMMENT '是否对光线敏感：0不敏感 1敏感',
+  `sensitive_to_sound` tinyint NULL DEFAULT 0 COMMENT '是否对声音敏感：0不敏感 1敏感',
+  `cleanliness_level` tinyint NULL DEFAULT 2 COMMENT '整洁程度：1非常整洁 2整洁 3一般 4随意 5不整洁',
+  `bedtime_cleanup` tinyint NULL DEFAULT 1 COMMENT '睡前是否整理：0不整理 1偶尔整理 2经常整理 3总是整理',
+  `social_preference` tinyint NULL DEFAULT 1 COMMENT '社交偏好：1喜欢安静 2中等 3喜欢热闹',
+  `allow_visitors` tinyint NULL DEFAULT 1 COMMENT '是否允许室友带访客：0不允许 1偶尔可以 2可以',
+  `phone_call_time` tinyint NULL DEFAULT 1 COMMENT '电话时间偏好：0喜欢在宿舍打电话 1偶尔在宿舍 2不在宿舍打电话',
+  `study_in_room` tinyint NULL DEFAULT 1 COMMENT '是否在宿舍学习：0不在 1偶尔 2经常 3总是',
+  `study_environment` tinyint NULL DEFAULT 1 COMMENT '学习环境偏好：1需要安静 2需要轻音乐 3可以接受声音',
+  `computer_usage_time` tinyint NULL DEFAULT 2 COMMENT '电脑使用时间：0不用 1很少(1-2h/天) 2正常(3-5h/天) 3很多(6h+/天)',
+  `gaming_preference` tinyint NULL DEFAULT 1 COMMENT '游戏偏好：0不玩游戏 1偶尔玩 2经常玩',
+  `music_preference` tinyint NULL DEFAULT 1 COMMENT '听音乐偏好：0不听 1偶尔听 2经常听',
+  `music_volume` tinyint NULL DEFAULT 1 COMMENT '音乐音量偏好：1喜欢小声 2中等 3喜欢大声',
+  `eat_in_room` tinyint NULL DEFAULT 1 COMMENT '是否在宿舍吃东西：0不吃 1偶尔 2经常',
   `special_needs` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '特殊需求（如过敏、健康问题等）',
   `roommate_preference` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '室友偏好（如希望室友不抽烟、安静等）',
-  `status` tinyint(4) NOT NULL DEFAULT 1 COMMENT '状态：1启用 0停用',
+  `status` tinyint NOT NULL DEFAULT 1 COMMENT '状态：1启用 0停用',
   `remark` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '备注',
   `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `create_by` bigint(20) NULL DEFAULT NULL COMMENT '创建人ID',
+  `create_by` bigint NULL DEFAULT NULL COMMENT '创建人ID',
   `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-  `update_by` bigint(20) NULL DEFAULT NULL COMMENT '更新人ID',
+  `update_by` bigint NULL DEFAULT NULL COMMENT '更新人ID',
+  `password` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '密码（加密）',
+  `openid` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '微信openid',
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `uk_student_no`(`student_no` ASC) USING BTREE,
   INDEX `idx_student_name`(`student_name` ASC) USING BTREE,
@@ -1322,49 +1328,52 @@ CREATE TABLE `sys_student`  (
   INDEX `idx_major_code`(`major_code` ASC) USING BTREE,
   INDEX `idx_class_id`(`class_id` ASC) USING BTREE,
   INDEX `idx_bed_id`(`bed_id` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 7 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '学生表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 17 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '学生表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_student
 -- ----------------------------
-INSERT INTO `sys_student` VALUES (1, '2025001001', '张三', 1, NULL, '13800138000', 'zhangsan@example.com', NULL, NULL, NULL, 2025, 4, '2025级', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 1, 1, 0, 0, 0, 2, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, NULL, NULL, 1, NULL, '2026-01-10 12:02:06', NULL, '2026-01-10 12:02:06', NULL);
-INSERT INTO `sys_student` VALUES (4, '2025001002', '李四', 2, NULL, '13900139000', 'lisi@example.com', NULL, NULL, NULL, 2025, 4, '2025级', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 1, 1, 0, 0, 0, 2, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, NULL, NULL, 1, NULL, '2026-01-10 12:02:31', NULL, '2026-01-10 12:02:31', NULL);
-INSERT INTO `sys_student` VALUES (6, '2025001003', '王五', 1, NULL, '13700137000', 'wangwu@example.com', NULL, NULL, NULL, 2025, 4, '2025级', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 1, 1, 0, 0, 0, 2, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, NULL, NULL, 1, NULL, '2026-01-10 12:02:54', NULL, '2026-01-10 12:02:54', 1);
+INSERT INTO `sys_student` VALUES (1, '2025001001', '张三', 1, NULL, '13800138000', 'zhangsan@example.com', NULL, NULL, NULL, 2025, 4, '2025级', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 1, 1, 0, 0, 0, 2, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, NULL, NULL, 1, NULL, '2026-01-10 12:02:06', NULL, '2026-01-10 12:02:06', NULL, NULL, NULL);
+INSERT INTO `sys_student` VALUES (4, '2025001002', '李四', 2, NULL, '13900139000', 'lisi@example.com', NULL, NULL, NULL, 2025, 4, '2025级', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 1, 1, 0, 0, 0, 2, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, NULL, NULL, 1, NULL, '2026-01-10 12:02:31', NULL, '2026-01-10 12:02:31', NULL, NULL, NULL);
+INSERT INTO `sys_student` VALUES (6, '2025001003', '王五', 1, NULL, '13700137000', 'wangwu@example.com', NULL, NULL, NULL, 2025, 4, '2025级', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1, 0, 1, 1, 0, 0, 0, 2, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, NULL, NULL, 1, NULL, '2026-01-10 12:02:54', NULL, '2026-01-15 12:00:30', 1, NULL, NULL);
+INSERT INTO `sys_student` VALUES (14, '2021001', '张三', 1, '320102199901123456', '13800138001', 'zhangsan@example.com', NULL, NULL, NULL, 2021, 4, '大三', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 1, 1, 0, 0, 0, 2, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, NULL, NULL, 1, NULL, '2026-01-15 18:23:05', NULL, '2026-01-15 18:23:05', NULL, '$2a$10$kutnHxYZ9sAN0aluqHKBXuJctNg.HTztmKUwqcIsRlmqSYySqSinS', NULL);
+INSERT INTO `sys_student` VALUES (15, '2021002', '李四', 2, '320102199902234654', '13800138002', 'lisi@example.com', NULL, NULL, NULL, 2021, 4, '大三', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 1, 1, 0, 0, 0, 2, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, NULL, NULL, 1, NULL, '2026-01-15 18:23:05', NULL, '2026-01-15 18:23:05', NULL, '$2a$10$0QdMZpT9OAscydeo8reBAuWfvdrdkLUJ/BojEvR1AN.j6obO8/JDC', NULL);
+INSERT INTO `sys_student` VALUES (16, '2021003', '王五', 1, '320102199903111111', '13800138003', 'wangwu@example.com', NULL, NULL, NULL, 2021, 4, '大三', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 1, 1, 0, 0, 0, 2, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, NULL, NULL, 1, NULL, '2026-01-15 18:23:05', NULL, '2026-01-15 18:23:05', NULL, '$2a$10$eWQqpPDInOx7FbfUFyhr8O/s0zUtA6ILn9vcmPpT6/NeWx3RIajJG', 'test_openid_wangwu');
 
 -- ----------------------------
 -- Table structure for sys_transfer
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_transfer`;
 CREATE TABLE `sys_transfer`  (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键ID',
-  `student_id` bigint(20) NOT NULL COMMENT '学生ID',
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `student_id` bigint NOT NULL COMMENT '学生ID',
   `student_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '学生姓名（冗余）',
   `student_no` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '学号（冗余）',
   `original_campus_code` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '原校区编码',
   `original_floor_code` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '原楼层编码',
-  `original_room_id` bigint(20) NULL DEFAULT NULL COMMENT '原房间ID',
+  `original_room_id` bigint NULL DEFAULT NULL COMMENT '原房间ID',
   `original_room_code` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '原房间编码',
-  `original_bed_id` bigint(20) NULL DEFAULT NULL COMMENT '原床位ID',
+  `original_bed_id` bigint NULL DEFAULT NULL COMMENT '原床位ID',
   `original_bed_code` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '原床位编码',
   `target_campus_code` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '目标校区编码',
   `target_floor_code` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '目标楼层编码',
-  `target_room_id` bigint(20) NULL DEFAULT NULL COMMENT '目标房间ID',
+  `target_room_id` bigint NULL DEFAULT NULL COMMENT '目标房间ID',
   `target_room_code` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '目标房间编码',
-  `target_bed_id` bigint(20) NULL DEFAULT NULL COMMENT '目标床位ID',
+  `target_bed_id` bigint NULL DEFAULT NULL COMMENT '目标床位ID',
   `target_bed_code` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '目标床位编码',
   `apply_date` date NULL DEFAULT NULL COMMENT '申请日期',
   `transfer_date` date NULL DEFAULT NULL COMMENT '调宿日期',
-  `status` int(11) NOT NULL DEFAULT 1 COMMENT '状态：1待审核 2已通过 3已拒绝 4已完成',
-  `approver_id` bigint(20) NULL DEFAULT NULL COMMENT '审核人ID',
+  `status` int NOT NULL DEFAULT 1 COMMENT '状态：1待审核 2已通过 3已拒绝 4已完成',
+  `approver_id` bigint NULL DEFAULT NULL COMMENT '审核人ID',
   `approver_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '审核人姓名',
   `approve_time` datetime NULL DEFAULT NULL COMMENT '审核时间',
   `approve_opinion` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '审核意见',
   `transfer_reason` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '调宿原因',
   `remark` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '备注',
   `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `create_by` bigint(20) NULL DEFAULT NULL COMMENT '创建人ID',
+  `create_by` bigint NULL DEFAULT NULL COMMENT '创建人ID',
   `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-  `update_by` bigint(20) NULL DEFAULT NULL COMMENT '更新人ID',
+  `update_by` bigint NULL DEFAULT NULL COMMENT '更新人ID',
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `idx_student_id`(`student_id` ASC) USING BTREE,
   INDEX `idx_student_no`(`student_no` ASC) USING BTREE,
@@ -1372,7 +1381,7 @@ CREATE TABLE `sys_transfer`  (
   INDEX `idx_transfer_date`(`transfer_date` ASC) USING BTREE,
   INDEX `idx_original_bed_id`(`original_bed_id` ASC) USING BTREE,
   INDEX `idx_target_bed_id`(`target_bed_id` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '调宿管理表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '调宿管理表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_transfer
@@ -1383,7 +1392,7 @@ CREATE TABLE `sys_transfer`  (
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_user`;
 CREATE TABLE `sys_user`  (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
   `username` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '用户名',
   `password` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '密码（加密）',
   `nickname` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '昵称',
@@ -1393,26 +1402,26 @@ CREATE TABLE `sys_user`  (
   `manage_scope` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '管理范围',
   `status` tinyint(1) NULL DEFAULT 1 COMMENT '状态：1正常 0停用',
   `create_time` datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `create_by` bigint(20) NULL DEFAULT NULL COMMENT '创建人ID',
+  `create_by` bigint NULL DEFAULT NULL COMMENT '创建人ID',
   `update_time` datetime NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-  `update_by` bigint(20) NULL DEFAULT NULL COMMENT '更新人ID',
+  `update_by` bigint NULL DEFAULT NULL COMMENT '更新人ID',
   `last_login_time` datetime NULL DEFAULT NULL COMMENT '最后登录时间',
-  `gender` int(11) NULL DEFAULT NULL COMMENT '性别(字典sys_gender): 0未知 1男 2女',
+  `gender` int NULL DEFAULT NULL COMMENT '性别(字典sys_gender): 0未知 1男 2女',
   `address` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '地址',
   `introduction` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '个人介绍',
   `cp_user_id` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '企业微信ID',
   `openid` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '微信openid',
-  `del_flag` int(11) NULL DEFAULT 0 COMMENT '删除标志: 0正常 1删除',
+  `del_flag` int NULL DEFAULT 0 COMMENT '删除标志: 0正常 1删除',
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `uk_username`(`username` ASC) USING BTREE,
   INDEX `idx_phone`(`phone` ASC) USING BTREE,
   INDEX `idx_college`(`manage_scope` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 3 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '系统用户表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 3 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '系统用户表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_user
 -- ----------------------------
-INSERT INTO `sys_user` VALUES (1, 'superAdmin', '$2a$10$LGpvVk9hFrfIIVRnWHoRVe.FkSVbqJ0CtyrY/WPLUva9e6xU7b/Ta', '超级管理员', NULL, 'superAdmin@example.com', '17876648229', '{\"campusIds\":[1],\"departmentIds\":[1],\"majorIds\":[1],\"classIds\":[1,2]}', 1, '2025-12-30 17:19:05', NULL, '2026-01-06 11:47:55', 1, '2026-01-10 19:54:17', 1, NULL, NULL, NULL, NULL, 0);
+INSERT INTO `sys_user` VALUES (1, 'superAdmin', '$2a$10$LGpvVk9hFrfIIVRnWHoRVe.FkSVbqJ0CtyrY/WPLUva9e6xU7b/Ta', '超级管理员', NULL, 'superAdmin@example.com', '17876648229', '{\"campusIds\":[1],\"departmentIds\":[1],\"majorIds\":[1],\"classIds\":[1,2]}', 1, '2025-12-30 17:19:05', NULL, '2026-01-06 11:47:55', 1, '2026-01-16 14:39:00', 1, NULL, NULL, NULL, NULL, 0);
 INSERT INTO `sys_user` VALUES (2, 'testuser', '$2a$10$LGpvVk9hFrfIIVRnWHoRVe.FkSVbqJ0CtyrY/WPLUva9e6xU7b/Ta', '测试用户', NULL, 'test@example.com', '13800138000', '', 1, '2025-12-31 11:41:22', NULL, '2026-01-03 16:43:14', 1, '2026-01-02 16:55:05', NULL, NULL, NULL, NULL, NULL, 0);
 
 -- ----------------------------
@@ -1420,15 +1429,15 @@ INSERT INTO `sys_user` VALUES (2, 'testuser', '$2a$10$LGpvVk9hFrfIIVRnWHoRVe.FkS
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_user_menu`;
 CREATE TABLE `sys_user_menu`  (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键ID',
-  `user_id` bigint(20) NOT NULL COMMENT '用户ID',
-  `menu_id` bigint(20) NOT NULL COMMENT '菜单ID',
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `user_id` bigint NOT NULL COMMENT '用户ID',
+  `menu_id` bigint NOT NULL COMMENT '菜单ID',
   `create_time` datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `uk_user_menu`(`user_id` ASC, `menu_id` ASC) USING BTREE,
   INDEX `idx_user_id`(`user_id` ASC) USING BTREE,
   INDEX `idx_menu_id`(`menu_id` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 564 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '用户菜单关联表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 564 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '用户菜单关联表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_user_menu
@@ -1540,15 +1549,15 @@ INSERT INTO `sys_user_menu` VALUES (563, 1, 14, '2026-01-06 18:15:05');
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_user_role`;
 CREATE TABLE `sys_user_role`  (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键ID',
-  `user_id` bigint(20) NOT NULL COMMENT '用户ID',
-  `role_id` bigint(20) NOT NULL COMMENT '角色ID',
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `user_id` bigint NOT NULL COMMENT '用户ID',
+  `role_id` bigint NOT NULL COMMENT '角色ID',
   `create_time` datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `uk_user_role`(`user_id` ASC, `role_id` ASC) USING BTREE,
   INDEX `idx_user_id`(`user_id` ASC) USING BTREE,
   INDEX `idx_role_id`(`role_id` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 79 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '用户角色关联表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 79 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '用户角色关联表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_user_role

@@ -1,13 +1,17 @@
 package com.sushe.backend.controller.accommodation;
 
 import com.sushe.backend.common.result.PageResult;
+import com.sushe.backend.common.result.R;
 import com.sushe.backend.controller.base.BaseCrudController;
 import com.sushe.backend.controller.base.BatchDeleteController;
 import com.sushe.backend.dto.stay.StayQueryDTO;
 import com.sushe.backend.dto.stay.StaySaveDTO;
 import com.sushe.backend.service.SysStayService;
 import com.sushe.backend.vo.StayVO;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -53,6 +57,16 @@ public class SysStayController extends BaseCrudController<StayVO, StayQueryDTO, 
     @Override
     public boolean callBatchDelete(Long[] ids) {
         return stayService.batchDelete(ids);
+    }
+
+    /**
+     * 撤回留宿申请
+     */
+    @Operation(summary = "撤回留宿申请")
+    @PostMapping("/{id}/cancel")
+    public R<Void> cancel(@PathVariable Long id) {
+        boolean success = stayService.cancelStay(id);
+        return success ? R.ok() : R.fail("撤回失败");
     }
 }
 

@@ -30,7 +30,7 @@
         </view>
 
         <!-- 申请信息卡片 -->
-        <view class="glass-card info-card">
+        <view class="info-card glass-card">
           <!-- 卡片头部 -->
           <view class="card-header">
             <view class="card-header-left">
@@ -216,10 +216,18 @@
 
       <!-- 底部操作栏 -->
       <view class="bottom-actions">
-        <view class="action-btn cancel-btn" @click="handleCancel">
+        <view
+          v-if="canCancel"
+          class="action-btn cancel-btn"
+          @click="handleCancel"
+        >
           撤回申请
         </view>
-        <view class="action-btn primary-btn" @click="handleUrge">
+        <view
+          class="action-btn primary-btn"
+          :class="{ 'full-width': !canCancel }"
+          @click="handleUrge"
+        >
           <u-icon name="bell" size="20" color="#fff" />
           <text>催办一下</text>
         </view>
@@ -231,6 +239,10 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue';
 import { getApplyTypeName, getStatusText } from '@/utils/apply';
+import { cancelCheckInAPI } from '@/api/accommodation/check-in';
+import { cancelCheckOutAPI } from '@/api/accommodation/check-out';
+import { cancelTransferAPI } from '@/api/accommodation/transfer';
+import { cancelStayAPI } from '@/api/accommodation/stay';
 
 const defaultAvatar = 'https://via.placeholder.com/150';
 
@@ -293,6 +305,14 @@ const currentStep = computed(() => {
   return 2;
 });
 
+// 是否可以撤回（只有待审批状态才能撤回）
+const canCancel = computed(() => {
+  if (!detail.value) return false;
+  const status = detail.value.status;
+  // 状态为1或'pending'表示待审批，可以撤回
+  return status === 1 || status === 'pending';
+});
+
 // 进度步骤
 const progressSteps = computed(() => {
   return [
@@ -325,19 +345,43 @@ const progressSteps = computed(() => {
 });
 
 // 撤回申请
-function handleCancel() {
+async function handleCancel() {
+  if (!canCancel.value) {
+    uni.showToast({ title: '当前状态不可撤回', icon: 'none' });
+    return;
+  }
+
   uni.showModal({
     title: '确认撤回',
-    content: '确定要撤回此申请吗？',
-    success: (res) => {
+    content: '确定要撤回此申请吗？撤回后需要重新提交。',
+    success: async (res) => {
       if (res.confirm) {
-        uni.showToast({
-          title: '撤回成功',
-          icon: 'success',
-        });
-        setTimeout(() => {
-          uni.navigateBack();
-        }, 1500);
+        uni.showLoading({ title: '撤回中...' });
+        try {
+          // 根据申请类型调用对应的撤回API
+          const cancelAPIs: Record<string, (id: number) => Promise<any>> = {
+            'check-in': cancelCheckInAPI,
+            'check-out': cancelCheckOutAPI,
+            'transfer': cancelTransferAPI,
+            'stay': cancelStayAPI,
+          };
+          const cancelFn = cancelAPIs[applyType.value];
+          if (cancelFn) {
+            await cancelFn(applyId.value);
+          }
+          uni.hideLoading();
+          uni.showToast({ title: '撤回成功', icon: 'success' });
+          setTimeout(() => {
+            uni.navigateBack();
+          }, 1500);
+        }
+        catch (error: any) {
+          uni.hideLoading();
+          uni.showToast({
+            title: error?.message || '撤回失败',
+            icon: 'none',
+          });
+        }
       }
     },
   });
@@ -1043,6 +1087,10 @@ $glass-border: rgb(255 255 255 / 60%);
 
     &:active {
       background: $primary-dark;
+    }
+
+    &.full-width {
+      flex: 1;
     }
   }
 }

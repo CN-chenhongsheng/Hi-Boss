@@ -72,15 +72,21 @@
       "root": "pages/profile",
       "pages": [
         {
-          "path": "lifestyle/index",
+          "path": "edit/index",
           "style": {
-            "navigationBarTitleText": "生活习惯",
+            "navigationStyle": "custom"
+          }
+        },
+        {
+          "path": "change-password/index",
+          "style": {
             "navigationStyle": "custom"
           }
         },
         {
           "path": "student-habits/index",
           "style": {
+            "navigationBarTitleText": "完善生活习惯",
             "navigationStyle": "custom"
           }
         }

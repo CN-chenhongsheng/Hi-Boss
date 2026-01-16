@@ -49,10 +49,18 @@ public interface SysCheckOutService extends IService<SysCheckOut> {
 
     /**
      * 批量删除退宿管理
-     * 
+     *
      * @param ids 退宿记录ID数组
      * @return 是否成功
      */
     boolean batchDelete(Long[] ids);
+
+    /**
+     * 撤回退宿申请
+     *
+     * @param id 退宿记录ID
+     * @return 是否成功
+     */
+    boolean cancelCheckOut(Long id);
 }
 

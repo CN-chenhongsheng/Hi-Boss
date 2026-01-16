@@ -69,3 +69,12 @@ export function approveCheckInAPI(data: ICheckInApprovalParams) {
     data,
   });
 }
+
+/**
+ * 撤回入住申请
+ */
+export function cancelCheckInAPI(id: number) {
+  return post({
+    url: `/api/v1/system/check-in/${id}/cancel`,
+  });
+}

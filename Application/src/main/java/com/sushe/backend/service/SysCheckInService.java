@@ -49,10 +49,18 @@ public interface SysCheckInService extends IService<SysCheckIn> {
 
     /**
      * 批量删除入住管理
-     * 
+     *
      * @param ids 入住记录ID数组
      * @return 是否成功
      */
     boolean batchDelete(Long[] ids);
+
+    /**
+     * 撤回入住申请
+     *
+     * @param id 入住记录ID
+     * @return 是否成功
+     */
+    boolean cancelCheckIn(Long id);
 }
 

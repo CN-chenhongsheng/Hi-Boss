@@ -109,11 +109,11 @@
 
         <!-- 功能菜单列表 -->
         <view class="glass-card menu-list">
-          <!-- 生活习惯 -->
-          <view class="menu-item" @click="handleMenuClick('lifestyle')">
-            <u-icon name="grid" size="20" color="#111817" />
+          <!-- 修改密码 -->
+          <view class="menu-item" @click="handleMenuClick('password')">
+            <u-icon name="lock" size="20" color="#111817" />
             <view class="menu-label">
-              生活习惯
+              修改密码
             </view>
             <u-icon name="arrow-right" size="20" color="#9ca3af" />
           </view>
@@ -177,10 +177,7 @@ onShow(() => {
 
 // 编辑个人信息
 function handleEdit() {
-  uni.showToast({
-    title: '编辑功能开发中',
-    icon: 'none',
-  });
+  uni.navigateTo({ url: '/pages/profile/edit/index' });
 }
 
 // 快速操作
@@ -211,8 +208,8 @@ function handleQuickAction(type: string) {
 // 菜单点击
 function handleMenuClick(type: string) {
   const actions: Record<string, () => void> = {
-    lifestyle: () => {
-      uni.navigateTo({ url: '/pages/profile/lifestyle/index' });
+    password: () => {
+      uni.navigateTo({ url: '/pages/profile/change-password/index' });
     },
     settings: () => {
       uni.showToast({
@@ -247,7 +244,6 @@ async function handleLogout() {
     success: async (res) => {
       if (res.confirm) {
         try {
-          // @ts-expect-error - logout方法在store中已定义
           await userStore.logout();
           uni.reLaunch({ url: '/pages/common/login/index' });
         }

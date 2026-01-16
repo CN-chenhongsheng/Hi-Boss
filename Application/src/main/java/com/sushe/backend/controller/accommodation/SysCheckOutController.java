@@ -1,13 +1,17 @@
 package com.sushe.backend.controller.accommodation;
 
 import com.sushe.backend.common.result.PageResult;
+import com.sushe.backend.common.result.R;
 import com.sushe.backend.controller.base.BaseCrudController;
 import com.sushe.backend.controller.base.BatchDeleteController;
 import com.sushe.backend.dto.checkout.CheckOutQueryDTO;
 import com.sushe.backend.dto.checkout.CheckOutSaveDTO;
 import com.sushe.backend.service.SysCheckOutService;
 import com.sushe.backend.vo.CheckOutVO;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -53,6 +57,16 @@ public class SysCheckOutController extends BaseCrudController<CheckOutVO, CheckO
     @Override
     public boolean callBatchDelete(Long[] ids) {
         return checkOutService.batchDelete(ids);
+    }
+
+    /**
+     * 撤回退宿申请
+     */
+    @Operation(summary = "撤回退宿申请")
+    @PostMapping("/{id}/cancel")
+    public R<Void> cancel(@PathVariable Long id) {
+        boolean success = checkOutService.cancelCheckOut(id);
+        return success ? R.ok() : R.fail("撤回失败");
     }
 }
 

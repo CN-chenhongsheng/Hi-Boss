@@ -119,6 +119,31 @@ public class SysTransferServiceImpl extends ServiceImpl<SysTransferMapper, SysTr
     }
 
     /**
+     * 撤回调宿申请
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public boolean cancelTransfer(Long id) {
+        if (id == null) {
+            throw new BusinessException("调宿记录ID不能为空");
+        }
+
+        SysTransfer transfer = getById(id);
+        if (transfer == null) {
+            throw new BusinessException("调宿记录不存在");
+        }
+
+        // 只有待审核状态才能撤回
+        if (transfer.getStatus() != 1) {
+            throw new BusinessException("只有待审核状态的申请才能撤回");
+        }
+
+        // 更新状态为已撤回（状态5）
+        transfer.setStatus(5);
+        return updateById(transfer);
+    }
+
+    /**
      * 实体转VO
      */
     private TransferVO convertToVO(SysTransfer transfer) {

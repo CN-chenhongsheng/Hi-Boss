@@ -1,13 +1,17 @@
 package com.sushe.backend.controller.accommodation;
 
 import com.sushe.backend.common.result.PageResult;
+import com.sushe.backend.common.result.R;
 import com.sushe.backend.controller.base.BaseCrudController;
 import com.sushe.backend.controller.base.BatchDeleteController;
 import com.sushe.backend.dto.transfer.TransferQueryDTO;
 import com.sushe.backend.dto.transfer.TransferSaveDTO;
 import com.sushe.backend.service.SysTransferService;
 import com.sushe.backend.vo.TransferVO;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -53,6 +57,16 @@ public class SysTransferController extends BaseCrudController<TransferVO, Transf
     @Override
     public boolean callBatchDelete(Long[] ids) {
         return transferService.batchDelete(ids);
+    }
+
+    /**
+     * 撤回调宿申请
+     */
+    @Operation(summary = "撤回调宿申请")
+    @PostMapping("/{id}/cancel")
+    public R<Void> cancel(@PathVariable Long id) {
+        boolean success = transferService.cancelTransfer(id);
+        return success ? R.ok() : R.fail("撤回失败");
     }
 }
 

@@ -120,6 +120,31 @@ public class SysCheckInServiceImpl extends ServiceImpl<SysCheckInMapper, SysChec
     }
 
     /**
+     * 撤回入住申请
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public boolean cancelCheckIn(Long id) {
+        if (id == null) {
+            throw new BusinessException("入住记录ID不能为空");
+        }
+
+        SysCheckIn checkIn = getById(id);
+        if (checkIn == null) {
+            throw new BusinessException("入住记录不存在");
+        }
+
+        // 只有待审核状态才能撤回
+        if (checkIn.getStatus() != 1) {
+            throw new BusinessException("只有待审核状态的申请才能撤回");
+        }
+
+        // 更新状态为已撤回（状态5）
+        checkIn.setStatus(5);
+        return updateById(checkIn);
+    }
+
+    /**
      * 实体转VO
      */
     private CheckInVO convertToVO(SysCheckIn checkIn) {

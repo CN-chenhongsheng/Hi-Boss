@@ -49,10 +49,18 @@ public interface SysTransferService extends IService<SysTransfer> {
 
     /**
      * 批量删除调宿管理
-     * 
+     *
      * @param ids 调宿记录ID数组
      * @return 是否成功
      */
     boolean batchDelete(Long[] ids);
+
+    /**
+     * 撤回调宿申请
+     *
+     * @param id 调宿记录ID
+     * @return 是否成功
+     */
+    boolean cancelTransfer(Long id);
 }
 

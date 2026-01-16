@@ -69,3 +69,12 @@ export function approveTransferAPI(data: ITransferApprovalParams) {
     data,
   });
 }
+
+/**
+ * 撤回调宿申请
+ */
+export function cancelTransferAPI(id: number) {
+  return post({
+    url: `/api/v1/system/transfer/${id}/cancel`,
+  });
+}
