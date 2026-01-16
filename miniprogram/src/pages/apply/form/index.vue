@@ -119,6 +119,50 @@
       </view>
     </view>
 
+    <!-- 报修类型选择弹窗 - 最外层 -->
+    <view
+      v-if="showRepairTypePicker"
+      class="picker-overlay"
+      @click="closeRepairTypePicker"
+    />
+    <view
+      v-if="showRepairTypePicker"
+      class="custom-picker-popup"
+    >
+      <view class="picker-popup-header">
+        <view class="cancel-btn picker-popup-btn" @click="closeRepairTypePicker">
+          取消
+        </view>
+        <view class="picker-popup-title">
+          报修类型
+        </view>
+        <view class="picker-popup-btn confirm-btn" @click="confirmRepairType">
+          完成
+        </view>
+      </view>
+      <view class="picker-popup-content">
+        <view
+          v-for="(option, index) in repairTypeOptions"
+          :key="index"
+          class="picker-popup-item"
+          :class="{ active: tempRepairTypeIndex === index }"
+          @click="handleSelectRepairType(index)"
+        >
+          <view class="picker-item-icon">
+            <u-icon
+              v-if="tempRepairTypeIndex === index"
+              name="checkmark"
+              size="20"
+              color="#0adbc3"
+            />
+          </view>
+          <view class="picker-item-text">
+            {{ option.label }}
+          </view>
+        </view>
+      </view>
+    </view>
+
     <!-- 签名弹窗 - 最外层 -->
     <view
       v-if="signaturePickerState.show"
@@ -302,6 +346,16 @@
               :form-data="getFormDataForComponent()"
               @update="handleFormUpdate"
             />
+            <template v-else-if="formData.applyType === 'repair'">
+              <RepairTypePicker
+                v-model="formData.repairType"
+                :options="repairTypeOptions"
+              />
+              <Repair
+                :form-data="getFormDataForComponent()"
+                @update="handleFormUpdate"
+              />
+            </template>
           </view>
         </main>
 
@@ -328,13 +382,15 @@ import TempCheckIn from './components/temp-check-in.vue';
 import Transfer from './components/transfer.vue';
 import CheckOut from './components/check-out.vue';
 import Stay from './components/stay.vue';
+import Repair from './components/repair.vue';
 import ApplyTypePicker from './components/apply-type-picker.vue';
+import RepairTypePicker from './components/repair-type-picker.vue';
 import type { IApplyFormData } from '@/types';
 import useUserStore from '@/store/modules/user';
 import { useFormValidation } from '@/composables/useFormValidation';
 
 // 类型定义
-type ApplyType = 'normalCheckIn' | 'tempCheckIn' | 'transfer' | 'checkOut' | 'stay';
+type ApplyType = 'normalCheckIn' | 'tempCheckIn' | 'transfer' | 'checkOut' | 'stay' | 'repair';
 type DateTab = 'start' | 'end';
 
 interface ApplyTypeOption {
@@ -368,6 +424,11 @@ interface SignaturePickerState {
   onConfirm: ((value: string) => void) | null;
 }
 
+interface RepairTypeOption {
+  label: string;
+  value: number;
+}
+
 const userStore = useUserStore();
 const { validateForm } = useFormValidation();
 
@@ -378,6 +439,7 @@ const applyTypeOptions: ApplyTypeOption[] = [
   { label: '调宿申请', value: 'transfer' },
   { label: '退宿申请', value: 'checkOut' },
   { label: '留宿申请', value: 'stay' },
+  { label: '故障报修', value: 'repair' },
 ];
 
 // 表单数据
@@ -393,6 +455,10 @@ const formData = reactive<IApplyFormData>({
   parentAgree: '',
   stayStartDate: '',
   stayEndDate: '',
+  // 报修申请字段
+  repairType: undefined,
+  phone: '',
+  description: '',
 });
 
 const applyTypeIndex = ref(0);
@@ -427,6 +493,17 @@ const filteredApplyTypeIndex = computed(() => {
 
 // 弹窗控制
 const showApplyTypePicker = ref(false);
+
+// 报修类型选择器
+const repairTypeOptions: RepairTypeOption[] = [
+  { label: '水电', value: 1 },
+  { label: '门窗', value: 2 },
+  { label: '家具', value: 3 },
+  { label: '网络', value: 4 },
+  { label: '其他', value: 99 },
+];
+const showRepairTypePicker = ref(false);
+const tempRepairTypeIndex = ref(-1);
 
 // 日期范围选择器状态
 const dateRangePickerState = reactive<DateRangePickerState>({
@@ -522,8 +599,11 @@ function getFormDataForComponent(): IApplyFormData {
 }
 
 // 处理表单更新
-function handleFormUpdate<K extends keyof IApplyFormData>(field: K, value: IApplyFormData[K]): void {
-  formData[field] = value;
+function handleFormUpdate(field: string, value: any): void {
+  // 类型安全的字段更新
+  if (field in formData) {
+    (formData as any)[field] = value;
+  }
 }
 
 // 初始化日期选项
@@ -775,17 +855,18 @@ function initSignatureCanvas(): void {
   // #endif
 }
 
-function handleSignatureTouchStart(e: TouchEvent): void {
+function handleSignatureTouchStart(e: any): void {
   isDrawing = true;
-  const touch = e.touches[0];
+  const touch = e.touches?.[0] || e.detail?.touches?.[0];
 
   // #ifdef MP-WEIXIN
   const query = uni.createSelectorQuery();
   query.select('#signatureCanvas').boundingClientRect((rect: any) => {
-    if (rect) {
-      // 小程序中使用 clientX 和 clientY
-      lastX = (touch.clientX || touch.x) - rect.left;
-      lastY = (touch.clientY || touch.y) - rect.top;
+    if (rect && touch) {
+      // 小程序中使用 clientX 和 clientY，兼容 x 和 y 属性
+      const touchAny = touch as any;
+      lastX = (touch.clientX ?? touchAny.x ?? 0) - rect.left;
+      lastY = (touch.clientY ?? touchAny.y ?? 0) - rect.top;
       if (signatureCtx) {
         signatureCtx.beginPath();
         signatureCtx.moveTo(lastX, lastY);
@@ -795,30 +876,33 @@ function handleSignatureTouchStart(e: TouchEvent): void {
   // #endif
 
   // #ifdef H5
-  const rect = (e.target as HTMLElement).getBoundingClientRect();
-  lastX = e.touches[0].clientX - rect.left;
-  lastY = e.touches[0].clientY - rect.top;
-  if (signatureCtx) {
-    signatureCtx.beginPath();
-    signatureCtx.moveTo(lastX, lastY);
+  if (touch && e.target) {
+    const rect = (e.target as HTMLElement).getBoundingClientRect();
+    lastX = touch.clientX - rect.left;
+    lastY = touch.clientY - rect.top;
+    if (signatureCtx) {
+      signatureCtx.beginPath();
+      signatureCtx.moveTo(lastX, lastY);
+    }
   }
   // #endif
 }
 
-function handleSignatureTouchMove(e: TouchEvent): void {
+function handleSignatureTouchMove(e: any): void {
   if (!isDrawing || !signatureCtx) return;
-  e.preventDefault();
-  const touch = e.touches[0];
+  e.preventDefault?.();
+  const touch = e.touches?.[0] || e.detail?.touches?.[0];
   let currentX = 0;
   let currentY = 0;
 
   // #ifdef MP-WEIXIN
   const query = uni.createSelectorQuery();
   query.select('#signatureCanvas').boundingClientRect((data: any) => {
-    if (data) {
-      // 小程序中使用 clientX 和 clientY
-      currentX = (touch.clientX || touch.x) - data.left;
-      currentY = (touch.clientY || touch.y) - data.top;
+    if (data && touch) {
+      // 小程序中使用 clientX 和 clientY，兼容 x 和 y 属性
+      const touchAny = touch as any;
+      currentX = (touch.clientX ?? touchAny.x ?? 0) - data.left;
+      currentY = (touch.clientY ?? touchAny.y ?? 0) - data.top;
       signatureCtx.lineTo(currentX, currentY);
       signatureCtx.stroke();
       lastX = currentX;
@@ -828,13 +912,15 @@ function handleSignatureTouchMove(e: TouchEvent): void {
   // #endif
 
   // #ifdef H5
-  const rect = (e.target as HTMLElement).getBoundingClientRect();
-  currentX = e.touches[0].clientX - rect.left;
-  currentY = e.touches[0].clientY - rect.top;
-  signatureCtx.lineTo(currentX, currentY);
-  signatureCtx.stroke();
-  lastX = currentX;
-  lastY = currentY;
+  if (touch && e.target) {
+    const rect = (e.target as HTMLElement).getBoundingClientRect();
+    currentX = touch.clientX - rect.left;
+    currentY = touch.clientY - rect.top;
+    signatureCtx.lineTo(currentX, currentY);
+    signatureCtx.stroke();
+    lastX = currentX;
+    lastY = currentY;
+  }
   // #endif
 }
 
@@ -930,10 +1016,43 @@ function confirmSignature() {
   // #endif
 }
 
+// 打开报修类型选择器
+function openRepairTypePicker(): void {
+  // 初始化临时选中索引为当前选中索引
+  if (formData.repairType) {
+    const index = repairTypeOptions.findIndex(opt => opt.value === formData.repairType);
+    tempRepairTypeIndex.value = index >= 0 ? index : -1;
+  }
+  else {
+    tempRepairTypeIndex.value = -1;
+  }
+  showRepairTypePicker.value = true;
+}
+
+// 选择报修类型（在弹窗中）
+function handleSelectRepairType(index: number): void {
+  tempRepairTypeIndex.value = index;
+}
+
+// 确认报修类型
+function confirmRepairType(): void {
+  if (tempRepairTypeIndex.value >= 0 && tempRepairTypeIndex.value < repairTypeOptions.length) {
+    const selectedOption = repairTypeOptions[tempRepairTypeIndex.value];
+    formData.repairType = selectedOption.value;
+  }
+  closeRepairTypePicker();
+}
+
+// 关闭报修类型选择器
+function closeRepairTypePicker(): void {
+  showRepairTypePicker.value = false;
+}
+
 // Provide 给子组件使用
 provide('openDateRangePicker', openDateRangePicker);
 provide('openSignaturePicker', openSignaturePicker);
 provide('openApplyTypePicker', openApplyTypePicker);
+provide('openRepairTypePicker', openRepairTypePicker);
 
 // 页面加载时接收参数
 onLoad((options: any) => {
@@ -944,6 +1063,7 @@ onLoad((options: any) => {
       transfer: 'transfer',
       checkOut: 'checkOut',
       stay: 'stay',
+      repair: 'repair',
     };
     const defaultType = typeMap[options.type];
     if (defaultType) {

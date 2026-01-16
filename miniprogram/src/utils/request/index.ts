@@ -66,6 +66,10 @@ export function post<T = any>(config: HttpRequestConfig): Promise<T> {
   return request({ ...config, method: 'POST' });
 }
 
+export function put<T = any>(config: HttpRequestConfig): Promise<T> {
+  return request({ ...config, method: 'PUT' });
+}
+
 export function upload<T = any>(config: HttpRequestConfig): Promise<T> {
   return request({ ...config, method: 'UPLOAD' });
 }

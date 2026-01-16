@@ -8,6 +8,8 @@ import { showMessage } from './status';
 import { getToken } from '@/utils/auth';
 import storage from '@/utils/storage';
 import useUserStore from '@/store/modules/user';
+import { refreshTokenAPI } from '@/api';
+import { ROUTE_CONSTANTS } from '@/constants';
 
 // 是否正在刷新token的标记
 let isRefreshing: boolean = false;
@@ -100,26 +102,51 @@ function responseInterceptors(http: HttpRequestAbstract) {
         return data.data !== undefined ? data.data : data;
       }
 
-      // 登录状态失效，重新登录
+      // 登录状态失效，尝试刷新token或跳转登录
       if (data.code === 401) {
-        // 是否在获取token中,防止重复获取
+        // 是否在刷新token中,防止重复刷新
         if (!isRefreshing) {
-          // 修改登录状态为true
           isRefreshing = true;
-          await useUserStore().authLogin();
-          // 登录完成之后，开始执行队列请求
-          requestQueue.forEach(cb => cb());
-          // 重试完了清空这个队列
-          requestQueue = [];
-          isRefreshing = false;
-          // 重新执行本次请求
-          return http.request(config);
+          const userStore = useUserStore();
+
+          try {
+            // 如果有 refreshToken，尝试刷新
+            if (userStore.refreshToken) {
+              const refreshRes = await refreshTokenAPI(userStore.refreshToken);
+              const transformed = userStore.transformLoginResponse(refreshRes);
+              userStore.setToken(transformed.accessToken, transformed.refreshToken);
+              userStore.setUserInfo(transformed.userInfo);
+
+              // 刷新成功，执行队列请求
+              requestQueue.forEach(cb => cb());
+              requestQueue = [];
+              isRefreshing = false;
+
+              // 重新执行本次请求
+              return http.request(config);
+            }
+            else {
+              // 没有 refreshToken，清除登录状态并跳转登录页
+              userStore.resetInfo();
+              uni.reLaunch({ url: ROUTE_CONSTANTS.LOGIN });
+              isRefreshing = false;
+              return Promise.reject(new Error('登录已过期，请重新登录'));
+            }
+          }
+          catch (error) {
+            // 刷新token失败，清除登录状态并跳转登录页
+            userStore.resetInfo();
+            uni.reLaunch({ url: ROUTE_CONSTANTS.LOGIN });
+            requestQueue = [];
+            isRefreshing = false;
+            return Promise.reject(error);
+          }
         }
         else {
-          return new Promise((resolve) => {
-            // 将resolve放进队列，用一个函数形式来保存，等登录后直接执行
+          // 正在刷新中，将请求加入队列
+          return new Promise((resolve, reject) => {
             requestQueue.push(() => {
-              resolve(http.request(config));
+              http.request(config).then(resolve).catch(reject);
             });
           });
         }

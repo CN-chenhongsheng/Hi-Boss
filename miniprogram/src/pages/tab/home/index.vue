@@ -262,6 +262,7 @@ import { storeToRefs } from 'pinia';
 import type { IApplyDisplay, INoticeDisplay, IQuickService } from '@/types';
 import useUserStore from '@/store/modules/user';
 import { ROUTE_CONSTANTS } from '@/constants';
+import { USE_MOCK } from '@/mock';
 
 const userStore = useUserStore();
 const { userInfo, isLoggedIn } = storeToRefs(userStore);
@@ -320,7 +321,7 @@ const quickServices = ref<IQuickService[]>([
   { id: 2, name: '调宿申请', icon: 'reload', color: '#6366f1', type: 'transfer', path: '/pages/apply/form/index' },
   { id: 3, name: '退宿申请', icon: 'arrow-left', color: '#f43f5e', type: 'checkOut', path: '/pages/apply/form/index' },
   { id: 4, name: '留宿申请', icon: 'calendar', color: '#3b82f6', type: 'stay', path: '/pages/apply/form/index' },
-  { id: 5, name: '故障报修', icon: 'setting', color: '#f97316', type: 'repair', path: '/pages/service/repair/index' },
+  { id: 5, name: '故障报修', icon: 'setting', color: '#f97316', type: 'repair', path: '/pages/apply/form/index' },
   { id: 6, name: '个人情况', icon: 'account', color: '#a855f7', type: 'habits', path: '/pages/profile/student-habits/index' },
 ]);
 
@@ -478,8 +479,7 @@ function handleGoLogin(): void {
 // 加载数据
 async function loadData(): Promise<void> {
   try {
-    // TODO: 调用API加载数据
-    // 模拟数据
+    // 通知列表 - 暂时使用写死的数据（接口未完成）
     noticeList.value = [
       {
         id: 1,
@@ -510,99 +510,111 @@ async function loadData(): Promise<void> {
       },
     ];
 
-    applyList.value = [
-      {
-        id: 1,
-        type: 'repair',
-        typeName: '洗手台报修',
-        icon: 'setting',
-        iconColor: '#f97316',
-        bgColor: 'rgba(249, 115, 22, 0.1)',
-        statusText: '处理中',
-        statusClass: 'status-processing',
-        applyDate: '01-07 14:30',
-      },
-      {
-        id: 2,
-        type: 'transfer',
-        typeName: '调宿申请',
-        icon: 'reload',
-        iconColor: '#6366f1',
-        bgColor: 'rgba(99, 102, 241, 0.1)',
-        statusText: '审核中',
-        statusClass: 'status-pending',
-        applyDate: '01-05 10:20',
-      },
-      {
-        id: 3,
-        type: 'check-in',
-        typeName: '入住申请',
-        icon: 'checkmark-circle',
-        iconColor: '#22c55e',
-        bgColor: 'rgba(34, 197, 94, 0.1)',
-        statusText: '已通过',
-        statusClass: 'status-approved',
-        applyDate: '12-25',
-      },
-      {
-        id: 4,
-        type: 'stay',
-        typeName: '留宿申请',
-        icon: 'calendar',
-        iconColor: '#3b82f6',
-        bgColor: 'rgba(59, 130, 246, 0.1)',
-        statusText: '已通过',
-        statusClass: 'status-approved',
-        applyDate: '12-20',
-      },
-      {
-        id: 5,
-        type: 'check-out',
-        typeName: '退宿申请',
-        icon: 'arrow-left',
-        iconColor: '#f43f5e',
-        bgColor: 'rgba(244, 63, 94, 0.1)',
-        statusText: '审核中',
-        statusClass: 'status-pending',
-        applyDate: '01-03 16:45',
-      },
-      {
-        id: 6,
-        type: 'repair',
-        typeName: '门锁维修',
-        icon: 'setting',
-        iconColor: '#f97316',
-        bgColor: 'rgba(249, 115, 22, 0.1)',
-        statusText: '已完成',
-        statusClass: 'status-approved',
-        applyDate: '12-28',
-      },
-      {
-        id: 7,
-        type: 'transfer',
-        typeName: '调宿申请',
-        icon: 'reload',
-        iconColor: '#ef4444',
-        bgColor: 'rgba(239, 68, 68, 0.1)',
-        statusText: '已拒绝',
-        statusClass: 'status-rejected',
-        applyDate: '12-15',
-      },
-      {
-        id: 8,
-        type: 'repair',
-        typeName: '空调故障',
-        icon: 'setting',
-        iconColor: '#f97316',
-        bgColor: 'rgba(249, 115, 22, 0.1)',
-        statusText: '处理中',
-        statusClass: 'status-processing',
-        applyDate: '01-06 09:15',
-      },
-    ];
+    // 申请列表 - 根据 USE_MOCK 决定使用 Mock 数据或真实 API
+    if (USE_MOCK) {
+      applyList.value = [
+        {
+          id: 1,
+          type: 'repair',
+          typeName: '洗手台报修',
+          icon: 'setting',
+          iconColor: '#f97316',
+          bgColor: 'rgba(249, 115, 22, 0.1)',
+          statusText: '处理中',
+          statusClass: 'status-processing',
+          applyDate: '01-07 14:30',
+        },
+        {
+          id: 2,
+          type: 'transfer',
+          typeName: '调宿申请',
+          icon: 'reload',
+          iconColor: '#6366f1',
+          bgColor: 'rgba(99, 102, 241, 0.1)',
+          statusText: '审核中',
+          statusClass: 'status-pending',
+          applyDate: '01-05 10:20',
+        },
+        {
+          id: 3,
+          type: 'check-in',
+          typeName: '入住申请',
+          icon: 'checkmark-circle',
+          iconColor: '#22c55e',
+          bgColor: 'rgba(34, 197, 94, 0.1)',
+          statusText: '已通过',
+          statusClass: 'status-approved',
+          applyDate: '12-25',
+        },
+        {
+          id: 4,
+          type: 'stay',
+          typeName: '留宿申请',
+          icon: 'calendar',
+          iconColor: '#3b82f6',
+          bgColor: 'rgba(59, 130, 246, 0.1)',
+          statusText: '已通过',
+          statusClass: 'status-approved',
+          applyDate: '12-20',
+        },
+        {
+          id: 5,
+          type: 'check-out',
+          typeName: '退宿申请',
+          icon: 'arrow-left',
+          iconColor: '#f43f5e',
+          bgColor: 'rgba(244, 63, 94, 0.1)',
+          statusText: '审核中',
+          statusClass: 'status-pending',
+          applyDate: '01-03 16:45',
+        },
+        {
+          id: 6,
+          type: 'repair',
+          typeName: '门锁维修',
+          icon: 'setting',
+          iconColor: '#f97316',
+          bgColor: 'rgba(249, 115, 22, 0.1)',
+          statusText: '已完成',
+          statusClass: 'status-approved',
+          applyDate: '12-28',
+        },
+        {
+          id: 7,
+          type: 'transfer',
+          typeName: '调宿申请',
+          icon: 'reload',
+          iconColor: '#ef4444',
+          bgColor: 'rgba(239, 68, 68, 0.1)',
+          statusText: '已拒绝',
+          statusClass: 'status-rejected',
+          applyDate: '12-15',
+        },
+        {
+          id: 8,
+          type: 'repair',
+          typeName: '空调故障',
+          icon: 'setting',
+          iconColor: '#f97316',
+          bgColor: 'rgba(249, 115, 22, 0.1)',
+          statusText: '处理中',
+          statusClass: 'status-processing',
+          applyDate: '01-06 09:15',
+        },
+      ];
+    }
+    else {
+      // TODO: 真实API调用 - 待接口完成后实现
+      // const statistics = await getStudentHomeStatisticsAPI();
+      // if (statistics) {
+      //   // 根据统计数据加载申请列表
+      //   applyList.value = await loadApplyList();
+      // }
+      applyList.value = [];
+    }
   }
   catch (error) {
-    // Error handling will be implemented with proper error management
+    console.error('加载首页数据失败:', error);
   }
 }
 

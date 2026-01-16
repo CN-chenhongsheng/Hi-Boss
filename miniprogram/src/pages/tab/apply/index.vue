@@ -143,7 +143,6 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue';
-import { storeToRefs } from 'pinia';
 import { onShow } from '@dcloudio/uni-app';
 import type { IApplyListItem } from '@/types';
 import { ApplyStatus } from '@/types';

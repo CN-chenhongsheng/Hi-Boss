@@ -50,6 +50,10 @@ export interface IApplyFormData {
   parentAgree: string;
   stayStartDate: string;
   stayEndDate: string;
+  // 报修申请字段
+  repairType?: number;
+  phone?: string;
+  description?: string;
 }
 
 /** 首页快捷服务入口 */

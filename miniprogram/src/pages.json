@@ -126,12 +126,6 @@
       "root": "pages/service",
       "pages": [
         {
-          "path": "repair/index",
-          "style": {
-            "navigationBarTitleText": "报修申请"
-          }
-        },
-        {
           "path": "repair-list/index",
           "style": {
             "navigationBarTitleText": "报修记录"
