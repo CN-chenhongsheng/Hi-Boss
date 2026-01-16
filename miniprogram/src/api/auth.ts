@@ -20,7 +20,7 @@ export interface IBackendLoginResponse {
 }
 
 /**
- * 用户登录（管理员/宿管员）
+ * 用户登录
  */
 export function loginAPI(data: ILoginParams) {
   return post<IBackendLoginResponse>({

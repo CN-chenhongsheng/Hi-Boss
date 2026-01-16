@@ -33,27 +33,6 @@ const useUserStore = defineStore('user', {
     isStudent(state): boolean {
       return state.userInfo?.role === 'student';
     },
-
-    /**
-     * 是否是宿管员
-     */
-    isDormManager(state): boolean {
-      return state.userInfo?.role === 'dorm_manager';
-    },
-
-    /**
-     * 是否是管理员
-     */
-    isAdmin(state): boolean {
-      return state.userInfo?.role === 'admin';
-    },
-
-    /**
-     * 是否有管理权限（宿管员或管理员）
-     */
-    hasManagePermission(state): boolean {
-      return state.userInfo?.role === 'dorm_manager' || state.userInfo?.role === 'admin';
-    },
   },
 
   actions: {
@@ -110,7 +89,7 @@ const useUserStore = defineStore('user', {
     },
 
     /**
-     * 用户名密码登录（管理员/宿管员）
+     * 用户名密码登录
      */
     async login(loginForm: ILoginParams) {
       try {

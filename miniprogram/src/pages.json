@@ -25,19 +25,6 @@
       }
     },
     {
-      "path": "pages/tab/statistics/index",
-      "style": {
-        "navigationBarTitleText": "数据统计"
-      }
-    },
-    {
-      "path": "pages/tab/message/index",
-      "style": {
-        "navigationBarTitleText": "消息中心",
-        "navigationStyle": "custom"
-      }
-    },
-    {
       "path": "pages/tab/profile/index",
       "style": {
         "navigationStyle": "custom"
@@ -155,28 +142,12 @@
           "style": {
             "navigationBarTitleText": "公告详情"
           }
-        }
-      ]
-    },
-    {
-      "root": "pages/admin",
-      "pages": [
-        {
-          "path": "approval-detail/index",
-          "style": {
-            "navigationBarTitleText": "审批详情"
-          }
         },
         {
-          "path": "statistics/index",
+          "path": "message/index",
           "style": {
-            "navigationBarTitleText": "数据统计"
-          }
-        },
-        {
-          "path": "notice-manage/index",
-          "style": {
-            "navigationBarTitleText": "公告管理"
+            "navigationBarTitleText": "消息中心",
+            "navigationStyle": "custom"
           }
         }
       ]

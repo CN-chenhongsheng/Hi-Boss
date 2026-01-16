@@ -18,10 +18,10 @@
           <view class="header-left">
             <view class="header-title-group">
               <text class="header-title">
-                {{ pageTitle }}
+                我的申请
               </text>
               <text class="header-subtitle">
-                {{ hasManagePermission ? 'Approval Center' : 'My Applications' }}
+                My Applications
               </text>
             </view>
           </view>
@@ -146,7 +146,7 @@ import { computed, onMounted, ref } from 'vue';
 import { storeToRefs } from 'pinia';
 import { onShow } from '@dcloudio/uni-app';
 import type { IApplyListItem } from '@/types';
-import { ApplyStatus, UserRole } from '@/types';
+import { ApplyStatus } from '@/types';
 import useUserStore from '@/store/modules/user';
 import {
   formatTime,
@@ -166,7 +166,6 @@ interface TabItem {
 }
 
 const userStore = useUserStore();
-const { userInfo } = storeToRefs(userStore);
 
 // 页面显示时检查登录状态
 onShow(() => {
@@ -205,26 +204,13 @@ const indicatorStyle = computed(() => {
   };
 });
 
-const hasManagePermission = computed(() => {
-  const role = userInfo.value?.role;
-  return role === UserRole.DORM_MANAGER || role === UserRole.ADMIN;
-});
-
-const pageTitle = computed(() => {
-  return hasManagePermission.value ? '审批中心' : '我的申请';
-});
-
 function handleTabChange(value: 'all' | ApplyStatus): void {
   activeTab.value = value;
   loadData();
 }
 
 function handleViewDetail(item: IApplyListItem): void {
-  const basePath = hasManagePermission.value
-    ? ROUTE_CONSTANTS.ADMIN_APPROVAL_DETAIL
-    : ROUTE_CONSTANTS.STUDENT_APPLY_DETAIL;
-
-  uni.navigateTo({ url: `${basePath}?id=${item.id}&type=${item.type}` });
+  uni.navigateTo({ url: `${ROUTE_CONSTANTS.STUDENT_APPLY_DETAIL}?id=${item.id}&type=${item.type}` });
 }
 
 async function loadData(): Promise<void> {

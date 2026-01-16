@@ -186,11 +186,11 @@ function handleQuickAction(type: string) {
     apply: '/pages/apply/form/index',
     repair: '/pages/service/repair-list/index',
     roommates: '/pages/common/dorm-info/index',
-    notice: '/pages/tab/message/index',
+    notice: '/pages/service/message/index',
   };
 
   if (routes[type]) {
-    if (type === 'apply' || type === 'notice') {
+    if (type === 'apply') {
       uni.switchTab({ url: routes[type] });
     }
     else {

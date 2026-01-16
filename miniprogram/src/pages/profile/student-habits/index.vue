@@ -16,7 +16,15 @@
 
     <!-- 表单内容区域 -->
     <scroll-view class="content-scroll" scroll-y>
-      <view class="form-container">
+      <!-- 加载状态 -->
+      <view v-if="loading" class="loading-container">
+        <u-loading-icon mode="spinner" size="40" color="#0adbc3" />
+        <view class="loading-text">
+          加载中...
+        </view>
+      </view>
+
+      <view v-else class="form-container">
         <!-- 提示卡片 -->
         <view class="glass-card info-card">
           <view class="info-icon">
@@ -509,7 +517,12 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
+import { onLoad } from '@dcloudio/uni-app';
 import type { IOptionItem, IStudentHabitsForm } from '@/types/api/student-habits';
+import { getStudentHabits, updateStudentHabits } from '@/api/student-habits';
+
+// 加载状态
+const loading = ref(false);
 
 // 表单数据
 const formData = ref<IStudentHabitsForm>({
@@ -681,8 +694,60 @@ function validateForm(): boolean {
   return true;
 }
 
+// 加载数据
+async function loadData() {
+  loading.value = true;
+  try {
+    const data = await getStudentHabits();
+    if (data) {
+      // 填充表单数据，处理null值
+      formData.value = {
+        sleepSchedule: data.sleepSchedule ?? null,
+        sleepQuality: data.sleepQuality ?? null,
+        snores: data.snores ?? null,
+        sensitiveToLight: data.sensitiveToLight ?? null,
+        sensitiveToSound: data.sensitiveToSound ?? null,
+        smokingStatus: data.smokingStatus ?? null,
+        smokingTolerance: data.smokingTolerance ?? null,
+        cleanlinessLevel: data.cleanlinessLevel ?? null,
+        bedtimeCleanup: data.bedtimeCleanup ?? null,
+        socialPreference: data.socialPreference ?? null,
+        allowVisitors: data.allowVisitors ?? null,
+        phoneCallTime: data.phoneCallTime ?? null,
+        eatInRoom: data.eatInRoom ?? null,
+        studyInRoom: data.studyInRoom ?? null,
+        studyEnvironment: data.studyEnvironment ?? null,
+        computerUsageTime: data.computerUsageTime ?? null,
+        gamingPreference: data.gamingPreference ?? null,
+        musicPreference: data.musicPreference ?? null,
+        musicVolume: data.musicVolume ?? null,
+        specialNeeds: data.specialNeeds || '',
+        roommatePreference: data.roommatePreference || '',
+      };
+    }
+  }
+  catch (error: any) {
+    // 如果是404或数据不存在，不显示错误，允许用户填写新数据
+    if (error?.statusCode !== 404 && error?.data?.code !== 404) {
+      uni.showToast({
+        title: error?.data?.message || error?.message || '获取数据失败',
+        icon: 'none',
+        duration: 2000,
+      });
+    }
+  }
+  finally {
+    loading.value = false;
+  }
+}
+
+// 页面加载时获取数据
+onLoad(() => {
+  loadData();
+});
+
 // 提交
-function handleSubmit(): void {
+async function handleSubmit(): Promise<void> {
   // 验证表单
   if (!validateForm()) {
     return;
@@ -694,23 +759,9 @@ function handleSubmit(): void {
     mask: true,
   });
 
-  // 打印提交的数据（用于调试）
-  console.log('提交的表单数据：', formData.value);
-
-  // 模拟API调用延迟
-  setTimeout(() => {
+  try {
+    await updateStudentHabits(formData.value);
     uni.hideLoading();
-
-    // TODO: 实际项目中这里应该调用API
-    // 示例：
-    // import { updateStudentHabits } from '@/api/student';
-    // updateStudentHabits(formData.value).then(() => {
-    //   uni.showToast({ title: '提交成功', icon: 'success' });
-    //   setTimeout(() => uni.navigateBack(), 2000);
-    // }).catch(() => {
-    //   uni.showToast({ title: '提交失败', icon: 'error' });
-    // });
-
     uni.showModal({
       title: '提交成功',
       content: '您的生活习惯信息已保存，我们将为您匹配更合适的室友。',
@@ -721,7 +772,15 @@ function handleSubmit(): void {
         }, 500);
       },
     });
-  }, 1000);
+  }
+  catch (error: any) {
+    uni.hideLoading();
+    uni.showToast({
+      title: error?.data?.message || error?.message || '提交失败，请稍后重试',
+      icon: 'none',
+      duration: 2000,
+    });
+  }
 }
 </script>
 
@@ -806,6 +865,21 @@ $bg-light: #F0F4F8;
   position: relative;
   z-index: 10;
   height: calc(100vh - var(--status-bar-height) - 84rpx - 120rpx);
+}
+
+// 加载容器
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 200rpx 32rpx;
+  gap: 24rpx;
+
+  .loading-text {
+    font-size: 28rpx;
+    color: #64748b;
+  }
 }
 
 // 表单容器

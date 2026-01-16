@@ -1,5 +1,6 @@
 package com.sushe.backend.service;
 
+import com.sushe.backend.dto.student.StudentLifestyleDTO;
 import com.sushe.backend.vo.student.DormInfoVO;
 import com.sushe.backend.vo.student.RoommateVO;
 
@@ -26,4 +27,19 @@ public interface StudentService {
      * @return 室友列表
      */
     List<RoommateVO> getCurrentStudentRoommates();
+
+    /**
+     * 获取当前学生的生活习惯信息
+     *
+     * @return 生活习惯信息
+     */
+    StudentLifestyleDTO getCurrentStudentHabits();
+
+    /**
+     * 更新当前学生的生活习惯信息
+     *
+     * @param dto 生活习惯DTO
+     * @return 是否成功
+     */
+    boolean updateCurrentStudentHabits(StudentLifestyleDTO dto);
 }

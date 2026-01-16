@@ -1,9 +1,11 @@
 package com.sushe.backend.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.sushe.backend.common.context.UserContext;
 import com.sushe.backend.common.exception.BusinessException;
+import com.sushe.backend.dto.student.StudentLifestyleDTO;
 import com.sushe.backend.entity.SysBed;
 import com.sushe.backend.entity.SysCampus;
 import com.sushe.backend.entity.SysFloor;
@@ -15,6 +17,7 @@ import com.sushe.backend.mapper.SysFloorMapper;
 import com.sushe.backend.mapper.SysRoomMapper;
 import com.sushe.backend.mapper.SysStudentMapper;
 import com.sushe.backend.service.StudentService;
+import com.sushe.backend.service.SysStudentService;
 import com.sushe.backend.vo.student.DormInfoVO;
 import com.sushe.backend.vo.student.RoommateVO;
 import lombok.RequiredArgsConstructor;
@@ -41,6 +44,7 @@ public class StudentServiceImpl implements StudentService {
     private final SysFloorMapper floorMapper;
     private final SysRoomMapper roomMapper;
     private final SysBedMapper bedMapper;
+    private final SysStudentService sysStudentService;
 
     @Override
     public DormInfoVO getCurrentStudentDormInfo() {
@@ -138,5 +142,49 @@ public class StudentServiceImpl implements StudentService {
             vo.setAvatar(null);
             return vo;
         }).collect(Collectors.toList());
+    }
+
+    @Override
+    public StudentLifestyleDTO getCurrentStudentHabits() {
+        // 获取当前登录用户
+        String username = UserContext.getUsername();
+        if (StrUtil.isBlank(username)) {
+            throw new BusinessException("用户未登录");
+        }
+
+        // 根据学号查询学生信息
+        LambdaQueryWrapper<SysStudent> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(SysStudent::getStudentNo, username);
+        SysStudent student = studentMapper.selectOne(wrapper);
+
+        if (student == null) {
+            throw new BusinessException("学生信息不存在");
+        }
+
+        // 转换为DTO
+        StudentLifestyleDTO dto = new StudentLifestyleDTO();
+        BeanUtil.copyProperties(student, dto);
+        return dto;
+    }
+
+    @Override
+    public boolean updateCurrentStudentHabits(StudentLifestyleDTO dto) {
+        // 获取当前登录用户
+        String username = UserContext.getUsername();
+        if (StrUtil.isBlank(username)) {
+            throw new BusinessException("用户未登录");
+        }
+
+        // 根据学号查询学生信息
+        LambdaQueryWrapper<SysStudent> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(SysStudent::getStudentNo, username);
+        SysStudent student = studentMapper.selectOne(wrapper);
+
+        if (student == null) {
+            throw new BusinessException("学生信息不存在");
+        }
+
+        // 调用更新方法
+        return sysStudentService.updateLifestyle(student.getId(), dto);
     }
 }

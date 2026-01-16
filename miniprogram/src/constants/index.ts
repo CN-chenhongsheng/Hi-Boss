@@ -63,11 +63,9 @@ export const ROUTE_CONSTANTS = {
   // 个人中心页
   PROFILE: '/pages/tab/profile/index',
   // 消息页
-  MESSAGE: '/pages/tab/message/index',
+  MESSAGE: '/pages/service/message/index',
   // 学生申请详情页
   STUDENT_APPLY_DETAIL: '/pages/apply/detail/index',
-  // 管理员审批详情页
-  ADMIN_APPROVAL_DETAIL: '/pages/admin/approval-detail/index',
   // 申请表单页
   APPLY_FORM: '/pages/apply/form/index',
   // 登录页
