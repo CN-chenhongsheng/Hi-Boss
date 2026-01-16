@@ -1,4 +1,4 @@
-package com.sushe.backend.controller;
+package com.sushe.backend.controller.mobile;
 
 import com.sushe.backend.common.result.R;
 import com.sushe.backend.dto.student.StudentLifestyleDTO;

@@ -22,7 +22,6 @@
           <view class="profile-decor">
             <view class="decor-circle decor-1" />
             <view class="decor-circle decor-2" />
-            <view class="decor-circle decor-3" />
           </view>
 
           <view class="profile-content">
@@ -46,18 +45,19 @@
 
             <!-- 用户信息 -->
             <view class="user-details">
-              <view class="user-name">
-                {{ userInfo?.studentInfo?.studentName || userInfo?.nickname || '未登录' }}
+              <view class="name-row">
+                <view class="user-name">
+                  {{ userInfo?.studentInfo?.studentName || userInfo?.nickname || '未登录' }}
+                </view>
+                <view class="edit-btn" @click="handleEdit">
+                  <u-icon name="edit-pen" size="14" color="#10b981" />
+                  <text>编辑</text>
+                </view>
               </view>
               <view class="role-tag">
                 <u-icon name="star" size="14" color="#f59e0b" />
                 <text>{{ userInfo?.roleName || '学生' }}</text>
               </view>
-            </view>
-
-            <!-- 编辑按钮 -->
-            <view class="edit-float-btn" @click="handleEdit">
-              <u-icon name="edit-pen" size="18" color="#fff" />
             </view>
           </view>
 
@@ -83,7 +83,7 @@
           <view class="action-grid">
             <!-- 我的申请 -->
             <view class="action-card" @click="handleQuickAction('apply')">
-              <view class="action-icon apply-icon">
+              <view class="apply-icon action-icon">
                 <u-icon name="list" size="26" color="#fff" />
               </view>
               <view class="action-info">
@@ -430,8 +430,8 @@ $shadow-lg: 0 8rpx 32rpx rgb(0 0 0 / 8%);
       border-radius: 50%;
 
       &.decor-1 {
-        top: -60rpx;
-        right: -40rpx;
+        right: -10rpx;
+        bottom: -80rpx;
         width: 200rpx;
         height: 200rpx;
         background: linear-gradient(135deg, #a7f3d0 0%, #6ee7b7 100%);
@@ -439,17 +439,8 @@ $shadow-lg: 0 8rpx 32rpx rgb(0 0 0 / 8%);
       }
 
       &.decor-2 {
-        top: 40rpx;
-        right: 60rpx;
-        width: 80rpx;
-        height: 80rpx;
-        background: linear-gradient(135deg, #fde68a 0%, #fbbf24 100%);
-        opacity: 0.5;
-      }
-
-      &.decor-3 {
-        bottom: -30rpx;
-        left: -20rpx;
+        bottom: -50rpx;
+        left: -50rpx;
         width: 120rpx;
         height: 120rpx;
         background: linear-gradient(135deg, #c7d2fe 0%, #a5b4fc 100%);
@@ -532,14 +523,45 @@ $shadow-lg: 0 8rpx 32rpx rgb(0 0 0 / 8%);
   flex: 1;
   min-width: 0;
 
-  .user-name {
-    overflow: hidden;
+  .name-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     margin-bottom: 12rpx;
-    font-size: 40rpx;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    color: $text-main;
-    font-weight: 700;
+    gap: 12rpx;
+
+    .user-name {
+      overflow: hidden;
+      min-width: 0;
+      font-size: 40rpx;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      color: $text-main;
+      font-weight: 700;
+      flex: 1;
+    }
+
+    .edit-btn {
+      display: flex;
+      align-items: center;
+      gap: 6rpx;
+      padding: 6rpx 16rpx;
+      background: rgb(16 185 129 / 10%);
+      border-radius: 20rpx;
+      transition: all 0.2s;
+      flex-shrink: 0;
+
+      text {
+        font-size: 22rpx;
+        color: #10b981;
+        font-weight: 600;
+      }
+
+      &:active {
+        background: rgb(16 185 129 / 20%);
+        transform: scale(0.95);
+      }
+    }
   }
 
   .role-tag {
@@ -555,27 +577,6 @@ $shadow-lg: 0 8rpx 32rpx rgb(0 0 0 / 8%);
       color: #92400e;
       font-weight: 600;
     }
-  }
-}
-
-// 编辑浮动按钮
-.edit-float-btn {
-  position: absolute;
-  top: 24rpx;
-  right: 24rpx;
-  z-index: 20;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 64rpx;
-  height: 64rpx;
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-  border-radius: 50%;
-  box-shadow: 0 4rpx 12rpx rgb(16 185 129 / 40%);
-  transition: all 0.2s;
-
-  &:active {
-    transform: scale(0.95);
   }
 }
 

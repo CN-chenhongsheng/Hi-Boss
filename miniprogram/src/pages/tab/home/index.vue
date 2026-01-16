@@ -439,6 +439,22 @@ function getGradientStyle(color: string): { background: string } {
 
 // 快捷入口点击
 function handleQuickEntry(item: IQuickService): void {
+  // 检查登录状态（个人情况需要登录）
+  if (item.type === 'habits' && !isLoggedIn.value) {
+    uni.showModal({
+      title: '提示',
+      content: '请先登录后再查看和完善个人情况',
+      confirmText: '去登录',
+      cancelText: '取消',
+      success: (res) => {
+        if (res.confirm) {
+          uni.navigateTo({ url: ROUTE_CONSTANTS.LOGIN });
+        }
+      },
+    });
+    return;
+  }
+
   // 其他业务类型跳转到form页面，传递type参数
   if (item.type && item.path === '/pages/apply/form/index') {
     uni.navigateTo({ url: `${item.path}?type=${item.type}` });
@@ -618,7 +634,10 @@ async function loadData(): Promise<void> {
   }
 }
 
-onMounted(() => {
+onMounted(async () => {
+  // 检查登录状态（如果有token会自动获取用户信息）
+  await userStore.checkLoginStatus();
+  // 加载页面数据
   loadData();
 });
 </script>

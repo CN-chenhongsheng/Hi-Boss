@@ -520,6 +520,10 @@ import { ref } from 'vue';
 import { onLoad } from '@dcloudio/uni-app';
 import type { IOptionItem, IStudentHabitsForm } from '@/types/api/student-habits';
 import { getStudentHabits, updateStudentHabits } from '@/api/student-habits';
+import useUserStore from '@/store/modules/user';
+import { ROUTE_CONSTANTS } from '@/constants';
+
+const userStore = useUserStore();
 
 // 加载状态
 const loading = ref(false);
@@ -742,7 +746,34 @@ async function loadData() {
 }
 
 // 页面加载时获取数据
-onLoad(() => {
+onLoad(async () => {
+  // 先检查登录状态（如果有token会自动获取用户信息）
+  const isUserLoggedIn = await userStore.checkLoginStatus();
+
+  // 如果未登录，显示提示
+  if (!isUserLoggedIn) {
+    uni.showModal({
+      title: '提示',
+      content: '请先登录后再查看和完善个人情况',
+      confirmText: '去登录',
+      cancelText: '返回',
+      success: (res) => {
+        if (res.confirm) {
+          // 跳转到登录页
+          uni.redirectTo({
+            url: ROUTE_CONSTANTS.LOGIN,
+          });
+        }
+        else {
+          // 返回上一页
+          uni.navigateBack();
+        }
+      },
+    });
+    return;
+  }
+
+  // 已登录，加载数据
   loadData();
 });
 
