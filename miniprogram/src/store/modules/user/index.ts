@@ -6,7 +6,7 @@
 import { defineStore } from 'pinia';
 import type { UserState, providerType } from './types';
 import type { ILoginParams, IUser, UserRole } from '@/types';
-import { getUserInfoAPI, loginAPI, logoutAPI, studentLoginAPI, wxLoginAPI } from '@/api';
+import { type IBackendLoginResponse, getUserInfoAPI, loginAPI, logoutAPI, studentLoginAPI, wxLoginAPI } from '@/api';
 import { clearToken, getToken, setToken } from '@/utils/auth';
 import { USE_MOCK, getMockUserByRole, mockLoginResponse } from '@/mock';
 import { UserRole as UserRoleEnum } from '@/types';
@@ -58,6 +58,28 @@ const useUserStore = defineStore('user', {
 
   actions: {
     /**
+     * 将后端登录响应转换为前端格式
+     */
+    transformLoginResponse(res: IBackendLoginResponse) {
+      if (!res || !res.token) {
+        throw new Error('登录失败：服务器返回数据无效');
+      }
+
+      return {
+        accessToken: res.token,
+        refreshToken: '', // 后端通过 Cookie 返回，前端无需处理
+        userInfo: {
+          id: res.userId,
+          username: res.username,
+          nickname: res.nickname,
+          avatar: res.avatar,
+          role: res.role as UserRole,
+          studentInfo: res.studentInfo,
+        },
+      };
+    },
+
+    /**
      * 设置用户信息
      */
     setUserInfo(userInfo: IUser) {
@@ -102,9 +124,10 @@ const useUserStore = defineStore('user', {
 
         // 真实API调用
         const res = await loginAPI(loginForm);
-        this.setToken(res.accessToken, res.refreshToken);
-        this.setUserInfo(res.userInfo);
-        return res;
+        const transformed = this.transformLoginResponse(res);
+        this.setToken(transformed.accessToken, transformed.refreshToken);
+        this.setUserInfo(transformed.userInfo);
+        return transformed;
       }
       catch (error) {
         console.error('登录失败:', error);
@@ -127,34 +150,10 @@ const useUserStore = defineStore('user', {
 
         // 真实API调用
         const res = await studentLoginAPI({ studentNo, password });
-
-        // 检查 res 是否有效
-        if (!res) {
-          throw new Error('登录失败：服务器返回数据为空');
-        }
-
-        // 后端返回的数据结构：{ token, userId, username, nickname, avatar, role, studentInfo }
-        // 前端期望的结构：{ accessToken, refreshToken?, userInfo, expiresIn? }
-        const accessToken = res.token;
-        const refreshToken = '';
-
-        if (!accessToken) {
-          throw new Error('登录失败：未获取到访问令牌');
-        }
-
-        // 构建用户信息对象
-        const userInfo: any = {
-          id: res?.userId,
-          username: res?.username,
-          nickname: res?.nickname,
-          avatar: res?.avatar,
-          role: res?.role,
-          studentInfo: res?.studentInfo,
-        };
-
-        this.setToken(accessToken, refreshToken);
-        this.setUserInfo(userInfo);
-        return res;
+        const transformed = this.transformLoginResponse(res);
+        this.setToken(transformed.accessToken, transformed.refreshToken);
+        this.setUserInfo(transformed.userInfo);
+        return transformed;
       }
       catch (error) {
         console.error('[Store] 学生登录失败:', error);
@@ -183,9 +182,10 @@ const useUserStore = defineStore('user', {
 
                 // 真实API调用
                 const res = await wxLoginAPI(result.code);
-                this.setToken(res.accessToken, res.refreshToken);
-                this.setUserInfo(res.userInfo);
-                resolve(res);
+                const transformed = this.transformLoginResponse(res);
+                this.setToken(transformed.accessToken, transformed.refreshToken);
+                this.setUserInfo(transformed.userInfo);
+                resolve(transformed);
               }
               else {
                 reject(new Error(result.errMsg));

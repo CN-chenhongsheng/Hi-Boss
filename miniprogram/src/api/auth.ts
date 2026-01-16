@@ -4,12 +4,12 @@
  */
 
 import { post } from '@/utils/request';
-import type { ILoginParams, ILoginResponse, IStudent } from '@/types';
+import type { ILoginParams, IStudent } from '@/types';
 
 /**
- * 学生登录响应（后端返回的原始格式）
+ * 后端登录响应（统一格式，对应后端 LoginVO）
  */
-export interface IStudentLoginResponse {
+export interface IBackendLoginResponse {
   token: string;
   userId: number;
   username: string;
@@ -23,7 +23,7 @@ export interface IStudentLoginResponse {
  * 用户登录（管理员/宿管员）
  */
 export function loginAPI(data: ILoginParams) {
-  return post<ILoginResponse>({
+  return post<IBackendLoginResponse>({
     url: '/api/v1/auth/login',
     data,
   });
@@ -33,7 +33,7 @@ export function loginAPI(data: ILoginParams) {
  * 学生登录（学号+密码）
  */
 export function studentLoginAPI(data: { studentNo: string; password: string }) {
-  return post<IStudentLoginResponse>({
+  return post<IBackendLoginResponse>({
     url: '/api/v1/auth/student/login',
     data,
   });
@@ -52,7 +52,7 @@ export function logoutAPI() {
  * 刷新token
  */
 export function refreshTokenAPI(refreshToken: string) {
-  return post<ILoginResponse>({
+  return post<IBackendLoginResponse>({
     url: '/api/v1/auth/refresh',
     data: { refreshToken },
   });
@@ -62,7 +62,7 @@ export function refreshTokenAPI(refreshToken: string) {
  * 微信小程序登录
  */
 export function wxLoginAPI(code: string) {
-  return post<ILoginResponse>({
+  return post<IBackendLoginResponse>({
     url: '/api/v1/auth/wx-login',
     data: { code },
   });
