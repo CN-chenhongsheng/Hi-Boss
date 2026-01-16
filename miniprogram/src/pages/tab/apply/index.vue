@@ -144,6 +144,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue';
 import { storeToRefs } from 'pinia';
+import { onShow } from '@dcloudio/uni-app';
 import type { IApplyListItem } from '@/types';
 import { ApplyStatus, UserRole } from '@/types';
 import useUserStore from '@/store/modules/user';
@@ -166,6 +167,13 @@ interface TabItem {
 
 const userStore = useUserStore();
 const { userInfo } = storeToRefs(userStore);
+
+// 页面显示时检查登录状态
+onShow(() => {
+  if (!userStore.token) {
+    uni.reLaunch({ url: '/pages/common/login/index' });
+  }
+});
 
 const tabs = ref<TabItem[]>([
   { label: '全部', value: 'all', count: 0, icon: 'list' },

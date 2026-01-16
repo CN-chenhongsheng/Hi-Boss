@@ -29,14 +29,16 @@ public class AuthInterceptor implements HandlerInterceptor {
      * 白名单路径（不需要登录验证）
      */
     private static final String[] WHITELIST = {
-            "/v1/auth/login",
-            "/v1/auth/refresh",
-            "/v1/auth/logout",
-            "/doc.html",
-            "/webjars",
-            "/swagger-resources",
-            "/v3/api-docs",
-            "/favicon.ico"
+            "/v1/auth/login",           // 管理员/宿管员登录
+            "/v1/auth/student/login",  // 学生登录
+            "/v1/auth/wx-login",       // 微信登录
+            "/v1/auth/refresh",        // Token刷新
+            "/v1/auth/logout",         // 登出
+            "/doc.html",               // Swagger 文档
+            "/webjars",                // Swagger 静态资源
+            "/swagger-resources",       // Swagger 资源
+            "/v3/api-docs",            // Swagger API 文档
+            "/favicon.ico"             // 网站图标
     };
 
     @Override

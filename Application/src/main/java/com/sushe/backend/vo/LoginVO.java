@@ -33,5 +33,11 @@ public class LoginVO {
 
     @Schema(description = "头像")
     private String avatar;
+
+    @Schema(description = "用户角色：student-学生, dorm_manager-宿管员, admin-管理员")
+    private String role;
+
+    @Schema(description = "学生信息（学生角色时返回）")
+    private StudentVO studentInfo;
 }
 

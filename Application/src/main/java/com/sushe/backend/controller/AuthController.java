@@ -3,6 +3,8 @@ package com.sushe.backend.controller;
 import com.sushe.backend.common.annotation.RateLimit;
 import com.sushe.backend.common.result.R;
 import com.sushe.backend.dto.auth.LoginDTO;
+import com.sushe.backend.dto.auth.StudentLoginDTO;
+import com.sushe.backend.dto.auth.WxLoginDTO;
 import com.sushe.backend.service.AuthService;
 import com.sushe.backend.vo.LoginVO;
 import com.sushe.backend.vo.UserInfoVO;
@@ -41,6 +43,34 @@ public class AuthController {
                             HttpServletResponse response) {
         log.info("用户登录请求: {}", loginDTO.getUsername());
         LoginVO loginVO = authService.login(loginDTO, request, response);
+        return R.ok(loginVO);
+    }
+
+    /**
+     * 学生登录
+     */
+    @Operation(summary = "学生登录")
+    @PostMapping("/student/login")
+    @RateLimit(key = "student-login", time = 60, count = 5, message = "登录请求过于频繁，请稍后再试")
+    public R<LoginVO> studentLogin(@Valid @RequestBody StudentLoginDTO studentLoginDTO,
+                                   HttpServletRequest request,
+                                   HttpServletResponse response) {
+        log.info("学生登录请求: {}", studentLoginDTO.getStudentNo());
+        LoginVO loginVO = authService.studentLogin(studentLoginDTO, request, response);
+        return R.ok(loginVO);
+    }
+
+    /**
+     * 微信小程序登录
+     */
+    @Operation(summary = "微信小程序登录")
+    @PostMapping("/wx-login")
+    @RateLimit(key = "wx-login", time = 60, count = 10, message = "登录请求过于频繁，请稍后再试")
+    public R<LoginVO> wxLogin(@Valid @RequestBody WxLoginDTO wxLoginDTO,
+                              HttpServletRequest request,
+                              HttpServletResponse response) {
+        log.info("微信登录请求");
+        LoginVO loginVO = authService.wxLogin(wxLoginDTO, request, response);
         return R.ok(loginVO);
     }
 

@@ -25,6 +25,20 @@ function requestInterceptors(http: HttpRequestAbstract) {
       // 初始化请求拦截器时，会执行此方法，此时data为undefined，赋予默认{}
       config.data = config.data || {};
 
+      // 从多个地方尝试获取 baseURL
+      let baseURL = config.baseURL || (http as any).config?.baseURL || '';
+      // 如果还是为空，尝试从环境变量读取
+      if (!baseURL) {
+        baseURL = (import.meta.env.VITE_APP_BASE_API || '').trim();
+        if (baseURL.endsWith('/api') && !baseURL.endsWith('/api/')) {
+          baseURL = baseURL.slice(0, -4);
+        }
+        // 如果获取到了，设置到 config 中
+        if (baseURL) {
+          config.baseURL = baseURL;
+        }
+      }
+
       // 是否需要设置 token
       const isToken = config.custom?.auth === false;
       // 是否需要防止数据重复提交
@@ -61,8 +75,9 @@ function requestInterceptors(http: HttpRequestAbstract) {
       }
       return config;
     },
-    (config: any) => // 可使用async await 做异步操作
-      Promise.reject(config),
+    (config: any) => { // 可使用async await 做异步操作
+      return Promise.reject(config);
+    },
   );
 }
 function responseInterceptors(http: HttpRequestAbstract) {
@@ -80,8 +95,10 @@ function responseInterceptors(http: HttpRequestAbstract) {
       const custom = config?.custom;
 
       // 请求成功则返回结果
-      if (data.code === 200)
-        return data || {};
+      if (data.code === 200) {
+        // 直接返回 data 字段的内容
+        return data.data !== undefined ? data.data : data;
+      }
 
       // 登录状态失效，重新登录
       if (data.code === 401) {

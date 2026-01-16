@@ -160,12 +160,20 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
+import { onShow } from '@dcloudio/uni-app';
 import useUserStore from '@/store/modules/user';
 
 const userStore = useUserStore();
 const defaultAvatar = 'https://lh3.googleusercontent.com/aida-public/AB6AXuB1JhVdkgPRVmEBExS0YehcQ10P72onHobtiZJ0rdv4crelIznydQa9E0SH0nqNH0mDheCZuKECSYNzW6swWmOyiY2JuW3KRd8mI67CiEYqLla4FXLPapNSkbn-r9kLNFa9RU82GWhiG7IKB7VQiqw_cgfAKdQ4uw9fMKA_1GBRiITCRXLqnw2FgJ4GxGa_4T_EQQvbIer3JkyPy8qkEDBrUFOMntcaEexRiAYr7jTrxmY8H7qMkTE-kpUExISpzTxkifDrhBj4Ow7S';
 
 const userInfo = computed(() => userStore.userInfo);
+
+// 页面显示时检查登录状态
+onShow(() => {
+  if (!userStore.token) {
+    uni.reLaunch({ url: '/pages/common/login/index' });
+  }
+});
 
 // 编辑个人信息
 function handleEdit() {

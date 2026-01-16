@@ -4,14 +4,37 @@
  */
 
 import { post } from '@/utils/request';
-import type { ILoginParams, ILoginResponse } from '@/types';
+import type { ILoginParams, ILoginResponse, IStudent } from '@/types';
 
 /**
- * 用户登录
+ * 学生登录响应（后端返回的原始格式）
+ */
+export interface IStudentLoginResponse {
+  token: string;
+  userId: number;
+  username: string;
+  nickname?: string;
+  avatar?: string;
+  role: string;
+  studentInfo?: IStudent;
+}
+
+/**
+ * 用户登录（管理员/宿管员）
  */
 export function loginAPI(data: ILoginParams) {
   return post<ILoginResponse>({
     url: '/api/v1/auth/login',
+    data,
+  });
+}
+
+/**
+ * 学生登录（学号+密码）
+ */
+export function studentLoginAPI(data: { studentNo: string; password: string }) {
+  return post<IStudentLoginResponse>({
+    url: '/api/v1/auth/student/login',
     data,
   });
 }

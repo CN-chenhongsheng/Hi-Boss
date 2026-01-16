@@ -10,18 +10,50 @@ const http = new Request();
 export function setupRequest() {
   http.setConfig((defaultConfig: HttpRequestConfig) => {
     /* defaultConfig 为默认全局配置 */
-    defaultConfig.baseURL = import.meta.env.VITE_APP_BASE_API;
+    let baseURL = import.meta.env.VITE_APP_BASE_API || '';
+    // 去除前后空格
+    baseURL = baseURL.trim();
+
+    // 处理 baseURL：如果以 /api 结尾，且 API 路径也以 /api 开头，则去掉 baseURL 末尾的 /api
+    // 因为所有 API 路径都已经包含了 /api 前缀
+    if (baseURL.endsWith('/api') && !baseURL.endsWith('/api/')) {
+      baseURL = baseURL.slice(0, -4); // 去掉末尾的 '/api'
+    }
+
+    // 确保 baseURL 不为空
+    if (!baseURL) {
+      console.error('[Request] baseURL 为空，请检查环境变量 VITE_APP_BASE_API');
+      baseURL = 'http://localhost:8080'; // 默认值
+    }
+
+    defaultConfig.baseURL = baseURL;
     return defaultConfig;
   });
+
   requestInterceptors(http);
   responseInterceptors(http);
 }
 
 export function request<T = any>(config: HttpRequestConfig): Promise<T> {
-  return new Promise((resolve) => {
-    http.request(config).then((res: HttpResponse<IResponse<T>>) => {
-      const { data } = res.data;
-      resolve(data as T);
+  // 确保 baseURL 被设置
+  if (!config.baseURL) {
+    const baseURL = (http as any).config?.baseURL || '';
+    if (baseURL) {
+      config.baseURL = baseURL;
+    }
+  }
+  return new Promise((resolve, reject) => {
+    http.request(config).then((res: HttpResponse<IResponse<T>> | any) => {
+      // uview-plus 的 luch-request 库中，响应拦截器返回的值会替换整个 response
+      // res 本身就是拦截器返回的值（data.data），直接使用
+      resolve(res as T);
+    }).catch((error) => {
+      console.error('[Request] http.request 捕获错误', {
+        url: config.url,
+        error,
+        errorMsg: error?.errMsg || error?.message,
+      });
+      reject(error);
     });
   });
 }

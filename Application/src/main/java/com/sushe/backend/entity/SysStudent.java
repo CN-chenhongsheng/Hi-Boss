@@ -228,5 +228,13 @@ public class SysStudent extends BaseEntity {
     @Schema(description = "室友偏好（如希望室友不抽烟、安静等）")
     @TableField("roommate_preference")
     private String roommatePreference;
+
+    @Schema(description = "密码（加密）")
+    @TableField("password")
+    private String password;
+
+    @Schema(description = "微信openid")
+    @TableField("openid")
+    private String openid;
 }
 

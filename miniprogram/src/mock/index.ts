@@ -10,8 +10,10 @@ export * from './user';
 
 /**
  * 是否启用Mock数据
+ * 注意：已禁用 Mock，使用真实 API 接口
  */
-export const USE_MOCK = import.meta.env.VITE_USE_MOCK === 'true';
+export const USE_MOCK = false; // 强制禁用 Mock，使用真实接口
+// export const USE_MOCK = import.meta.env.VITE_USE_MOCK === 'true'; // 原配置（已注释）
 
 /**
  * Mock延迟时间（毫秒）

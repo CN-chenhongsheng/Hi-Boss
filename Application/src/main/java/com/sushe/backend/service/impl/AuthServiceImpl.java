@@ -1,17 +1,23 @@
 package com.sushe.backend.service.impl;
 
 import cn.dev33.satoken.stp.StpUtil;
+import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.sushe.backend.common.exception.BusinessException;
 import com.sushe.backend.dto.auth.LoginDTO;
+import com.sushe.backend.dto.auth.StudentLoginDTO;
+import com.sushe.backend.dto.auth.WxLoginDTO;
+import com.sushe.backend.entity.SysStudent;
 import com.sushe.backend.entity.SysUser;
 import com.sushe.backend.mapper.SysMenuMapper;
 import com.sushe.backend.mapper.SysRoleMapper;
+import com.sushe.backend.mapper.SysStudentMapper;
 import com.sushe.backend.mapper.SysUserMapper;
 import com.sushe.backend.service.AuthService;
 import com.sushe.backend.service.UserOnlineService;
 import com.sushe.backend.util.RefreshTokenUtil;
 import com.sushe.backend.vo.LoginVO;
+import com.sushe.backend.vo.StudentVO;
 import com.sushe.backend.vo.UserInfoVO;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -41,6 +47,7 @@ public class AuthServiceImpl implements AuthService {
     private final SysMenuMapper menuMapper;
     private final BCryptPasswordEncoder passwordEncoder;
     private final UserOnlineService userOnlineService;
+    private final SysStudentMapper studentMapper;
 
     /**
      * Refresh Token Cookie 名称
@@ -352,6 +359,106 @@ public class AuthServiceImpl implements AuthService {
      */
     private boolean isProdEnvironment() {
         return "prod".equals(activeProfile);
+    }
+
+    @Override
+    public LoginVO studentLogin(StudentLoginDTO studentLoginDTO, HttpServletRequest request, HttpServletResponse response) {
+        log.info("学生登录: {}", studentLoginDTO.getStudentNo());
+
+        // 1. 查询并验证学生
+        SysStudent student = validateStudentCredentials(studentLoginDTO);
+
+        // 2. 执行登录并生成令牌
+        String accessToken = performLogin(student.getId());
+
+        // 3. 生成并设置 Refresh Token
+        generateRefreshToken(student.getId(), response);
+
+        // 4. 构建返回数据
+        return buildStudentLoginResponse(student, accessToken);
+    }
+
+    @Override
+    public LoginVO wxLogin(WxLoginDTO wxLoginDTO, HttpServletRequest request, HttpServletResponse response) {
+        log.info("微信小程序登录: code={}", wxLoginDTO.getCode());
+
+        // TODO: 调用微信接口获取 openid
+        // 这里需要配置微信小程序的 AppID 和 AppSecret
+        // String openid = getOpenIdFromWxCode(wxLoginDTO.getCode());
+        
+        // 临时方案：直接使用 code 作为 openid 用于测试
+        String openid = wxLoginDTO.getCode();
+
+        // 根据 openid 查询学生
+        SysStudent student = studentMapper.selectOne(
+                new LambdaQueryWrapper<SysStudent>()
+                        .eq(SysStudent::getOpenid, openid)
+        );
+
+        if (student == null) {
+            throw new BusinessException("未找到绑定的学生信息，请先绑定学号");
+        }
+
+        if (student.getStatus() == 0) {
+            throw new BusinessException("账号已被停用，请联系管理员");
+        }
+
+        // 执行登录并生成令牌
+        String accessToken = performLogin(student.getId());
+
+        // 生成并设置 Refresh Token
+        generateRefreshToken(student.getId(), response);
+
+        // 构建返回数据
+        return buildStudentLoginResponse(student, accessToken);
+    }
+
+    /**
+     * 验证学生凭据
+     */
+    private SysStudent validateStudentCredentials(StudentLoginDTO loginDTO) {
+        SysStudent student = studentMapper.selectOne(
+                new LambdaQueryWrapper<SysStudent>()
+                        .eq(SysStudent::getStudentNo, loginDTO.getStudentNo())
+        );
+
+        if (student == null) {
+            throw new BusinessException("学号或密码错误");
+        }
+
+        // 验证密码
+        if (student.getPassword() == null || student.getPassword().isBlank()) {
+            throw new BusinessException("密码未设置，请联系管理员");
+        }
+
+        if (!passwordEncoder.matches(loginDTO.getPassword(), student.getPassword())) {
+            throw new BusinessException("学号或密码错误");
+        }
+
+        if (student.getStatus() == 0) {
+            throw new BusinessException("账号已被停用，请联系管理员");
+        }
+
+        return student;
+    }
+
+    /**
+     * 构建学生登录响应
+     */
+    private LoginVO buildStudentLoginResponse(SysStudent student, String accessToken) {
+        // 转换学生信息为 VO
+        StudentVO studentVO = new StudentVO();
+        BeanUtil.copyProperties(student, studentVO);
+
+        return LoginVO.builder()
+                .token(accessToken)
+                .userId(student.getId())
+                .username(student.getStudentNo())
+                .nickname(student.getStudentName())
+                .avatar(null) // 学生暂无头像
+                .role("student")
+                .studentInfo(studentVO)
+                .build();
     }
 }
 

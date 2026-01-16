@@ -1,6 +1,8 @@
 package com.sushe.backend.service;
 
 import com.sushe.backend.dto.auth.LoginDTO;
+import com.sushe.backend.dto.auth.StudentLoginDTO;
+import com.sushe.backend.dto.auth.WxLoginDTO;
 import com.sushe.backend.vo.LoginVO;
 import com.sushe.backend.vo.UserInfoVO;
 import jakarta.servlet.http.HttpServletRequest;
@@ -23,6 +25,26 @@ public interface AuthService {
      * @return 登录结果
      */
     LoginVO login(LoginDTO loginDTO, HttpServletRequest request, HttpServletResponse response);
+
+    /**
+     * 学生登录
+     *
+     * @param studentLoginDTO 学生登录参数
+     * @param request HTTP请求
+     * @param response HTTP响应
+     * @return 登录结果
+     */
+    LoginVO studentLogin(StudentLoginDTO studentLoginDTO, HttpServletRequest request, HttpServletResponse response);
+
+    /**
+     * 微信小程序登录
+     *
+     * @param wxLoginDTO 微信登录参数
+     * @param request HTTP请求
+     * @param response HTTP响应
+     * @return 登录结果
+     */
+    LoginVO wxLogin(WxLoginDTO wxLoginDTO, HttpServletRequest request, HttpServletResponse response);
 
     /**
      * 刷新 Access Token

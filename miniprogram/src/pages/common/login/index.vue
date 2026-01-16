@@ -275,15 +275,41 @@ async function handlePasswordLogin() {
   }
 
   try {
-    await (userStore as any).login({
-      username: formData.value.username,
-      password: formData.value.password,
-    });
-    uni.reLaunch({ url: '/pages/tab/home/index' });
+    // 判断是学号还是工号
+    // 学号通常是纯数字，工号可能包含字母
+    const isStudentNo = /^\d+$/.test(formData.value.username);
+
+    if (isStudentNo) {
+      // 学生登录
+      uni.showLoading({ title: '登录中...', mask: true });
+      await (userStore as any).studentLogin(
+        formData.value.username,
+        formData.value.password,
+      );
+      uni.hideLoading();
+      uni.showToast({ title: '登录成功', icon: 'success' });
+      setTimeout(() => {
+        uni.reLaunch({ url: '/pages/tab/home/index' });
+      }, 500);
+    }
+    else {
+      // 管理员/宿管员登录
+      uni.showLoading({ title: '登录中...', mask: true });
+      await (userStore as any).login({
+        username: formData.value.username,
+        password: formData.value.password,
+      });
+      uni.hideLoading();
+      uni.showToast({ title: '登录成功', icon: 'success' });
+      setTimeout(() => {
+        uni.reLaunch({ url: '/pages/tab/home/index' });
+      }, 500);
+    }
   }
-  catch (error) {
-    console.error('登录失败:', error);
-    uni.showToast({ title: '登录失败', icon: 'none' });
+  catch (error: any) {
+    uni.hideLoading();
+    const errorMsg = error?.data?.message || error?.message || '登录失败，请检查账号密码';
+    uni.showToast({ title: errorMsg, icon: 'none', duration: 2000 });
   }
 }
 
@@ -312,12 +338,19 @@ async function handleCodeLogin() {
 // 微信登录
 async function handleWechatLogin() {
   try {
+    uni.showLoading({ title: '微信登录中...', mask: true });
     await (userStore as any).wxLogin();
-    uni.reLaunch({ url: '/pages/tab/home/index' });
+    uni.hideLoading();
+    uni.showToast({ title: '登录成功', icon: 'success' });
+    setTimeout(() => {
+      uni.reLaunch({ url: '/pages/tab/home/index' });
+    }, 500);
   }
-  catch (error) {
+  catch (error: any) {
+    uni.hideLoading();
     console.error('微信登录失败:', error);
-    uni.showToast({ title: '微信登录失败', icon: 'none' });
+    const errorMsg = error?.data?.message || error?.message || '微信登录失败';
+    uni.showToast({ title: errorMsg, icon: 'none', duration: 2000 });
   }
 }
 

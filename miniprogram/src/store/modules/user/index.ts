@@ -6,9 +6,10 @@
 import { defineStore } from 'pinia';
 import type { UserState, providerType } from './types';
 import type { ILoginParams, IUser, UserRole } from '@/types';
-import { getUserInfoAPI, loginAPI, logoutAPI, wxLoginAPI } from '@/api';
+import { getUserInfoAPI, loginAPI, logoutAPI, studentLoginAPI, wxLoginAPI } from '@/api';
 import { clearToken, getToken, setToken } from '@/utils/auth';
 import { USE_MOCK, getMockUserByRole, mockLoginResponse } from '@/mock';
+import { UserRole as UserRoleEnum } from '@/types';
 
 const useUserStore = defineStore('user', {
   state: (): UserState => ({
@@ -87,7 +88,7 @@ const useUserStore = defineStore('user', {
     },
 
     /**
-     * 用户名密码登录
+     * 用户名密码登录（管理员/宿管员）
      */
     async login(loginForm: ILoginParams) {
       try {
@@ -107,6 +108,56 @@ const useUserStore = defineStore('user', {
       }
       catch (error) {
         console.error('登录失败:', error);
+        throw error;
+      }
+    },
+
+    /**
+     * 学生登录（学号+密码）
+     */
+    async studentLogin(studentNo: string, password: string) {
+      try {
+        // Mock数据模式
+        if (USE_MOCK) {
+          const mockData = mockLoginResponse;
+          this.setToken(mockData.accessToken, mockData.refreshToken);
+          this.setUserInfo(mockData.userInfo);
+          return mockData;
+        }
+
+        // 真实API调用
+        const res = await studentLoginAPI({ studentNo, password });
+
+        // 检查 res 是否有效
+        if (!res) {
+          throw new Error('登录失败：服务器返回数据为空');
+        }
+
+        // 后端返回的数据结构：{ token, userId, username, nickname, avatar, role, studentInfo }
+        // 前端期望的结构：{ accessToken, refreshToken?, userInfo, expiresIn? }
+        const accessToken = res.token;
+        const refreshToken = '';
+
+        if (!accessToken) {
+          throw new Error('登录失败：未获取到访问令牌');
+        }
+
+        // 构建用户信息对象
+        const userInfo: any = {
+          id: res?.userId,
+          username: res?.username,
+          nickname: res?.nickname,
+          avatar: res?.avatar,
+          role: res?.role,
+          studentInfo: res?.studentInfo,
+        };
+
+        this.setToken(accessToken, refreshToken);
+        this.setUserInfo(userInfo);
+        return res;
+      }
+      catch (error) {
+        console.error('[Store] 学生登录失败:', error);
         throw error;
       }
     },
@@ -160,7 +211,7 @@ const useUserStore = defineStore('user', {
       try {
         // Mock数据模式
         if (USE_MOCK) {
-          const mockUser = getMockUserByRole('student');
+          const mockUser = getMockUserByRole(UserRoleEnum.STUDENT);
           this.setUserInfo(mockUser);
           return mockUser;
         }
@@ -215,7 +266,7 @@ const useUserStore = defineStore('user', {
   persist: {
     key: 'user-store',
     paths: ['userInfo', 'token', 'refreshToken', 'isLoggedIn'],
-  },
+  } as any,
 });
 
 export default useUserStore;
