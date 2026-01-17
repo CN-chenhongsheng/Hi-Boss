@@ -449,56 +449,6 @@
           </view>
         </view>
 
-        <!-- 额外信息 -->
-        <view class="section-card glass-card">
-          <view class="section-header">
-            <view class="section-icon" style="background: rgb(59 130 246 / 10%);">
-              <u-icon name="file-text" size="20" color="#3b82f6" />
-            </view>
-            <view class="section-title">
-              额外信息
-            </view>
-          </view>
-
-          <!-- 特殊需求 -->
-          <view class="form-item">
-            <view class="form-label">
-              <text class="label-text">
-                特殊需求
-              </text>
-              <text class="label-hint">
-                （如过敏、健康问题等）
-              </text>
-            </view>
-            <u-textarea
-              v-model="formData.specialNeeds"
-              placeholder="请输入您的特殊需求"
-              :maxlength="500"
-              count
-              :custom-style="textareaStyle"
-            />
-          </view>
-
-          <!-- 室友偏好 -->
-          <view class="form-item">
-            <view class="form-label">
-              <text class="label-text">
-                室友偏好
-              </text>
-              <text class="label-hint">
-                （如希望室友不抽烟、安静等）
-              </text>
-            </view>
-            <u-textarea
-              v-model="formData.roommatePreference"
-              placeholder="请输入您对室友的期望"
-              :maxlength="200"
-              count
-              :custom-style="textareaStyle"
-            />
-          </view>
-        </view>
-
         <!-- 底部安全区域 -->
         <view class="safe-bottom" />
       </view>
@@ -549,8 +499,6 @@ const formData = ref<IStudentHabitsForm>({
   gamingPreference: null,
   musicPreference: null,
   musicVolume: null,
-  specialNeeds: '',
-  roommatePreference: '',
 });
 
 // 选项配置
@@ -652,14 +600,6 @@ const volumeOptions: IOptionItem[] = [
   { label: '喜欢大声', value: 3 },
 ];
 
-// 文本域样式
-const textareaStyle = {
-  backgroundColor: '#f8fafc',
-  borderRadius: '16rpx',
-  padding: '24rpx',
-  fontSize: '28rpx',
-};
-
 // 验证表单
 function validateForm(): boolean {
   // 检查必填的选择题是否已填写（至少一项）
@@ -670,25 +610,6 @@ function validateForm(): boolean {
   if (!hasBasicInfo) {
     uni.showToast({
       title: '请至少填写一项生活习惯',
-      icon: 'none',
-      duration: 2000,
-    });
-    return false;
-  }
-
-  // 验证文本字段长度
-  if (formData.value.specialNeeds && formData.value.specialNeeds.length > 500) {
-    uni.showToast({
-      title: '特殊需求不能超过500字符',
-      icon: 'none',
-      duration: 2000,
-    });
-    return false;
-  }
-
-  if (formData.value.roommatePreference && formData.value.roommatePreference.length > 200) {
-    uni.showToast({
-      title: '室友偏好不能超过200字符',
       icon: 'none',
       duration: 2000,
     });
@@ -725,8 +646,6 @@ async function loadData() {
         gamingPreference: data.gamingPreference ?? null,
         musicPreference: data.musicPreference ?? null,
         musicVolume: data.musicVolume ?? null,
-        specialNeeds: data.specialNeeds || '',
-        roommatePreference: data.roommatePreference || '',
       };
     }
   }

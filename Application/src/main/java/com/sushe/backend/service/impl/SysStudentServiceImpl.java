@@ -197,12 +197,6 @@ public class SysStudentServiceImpl extends ServiceImpl<SysStudentMapper, SysStud
         if (dto.getEatInRoom() != null) {
             student.setEatInRoom(dto.getEatInRoom());
         }
-        if (dto.getSpecialNeeds() != null) {
-            student.setSpecialNeeds(dto.getSpecialNeeds());
-        }
-        if (dto.getRoommatePreference() != null) {
-            student.setRoommatePreference(dto.getRoommatePreference());
-        }
 
         return updateById(student);
     }

@@ -260,11 +260,5 @@ public class StudentVO implements Serializable {
 
     @Schema(description = "是否在宿舍吃东西文本")
     private String eatInRoomText;
-
-    @Schema(description = "特殊需求（如过敏、健康问题等）")
-    private String specialNeeds;
-
-    @Schema(description = "室友偏好（如希望室友不抽烟、安静等）")
-    private String roommatePreference;
 }
 

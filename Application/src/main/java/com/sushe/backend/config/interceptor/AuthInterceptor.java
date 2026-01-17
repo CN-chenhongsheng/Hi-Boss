@@ -2,7 +2,9 @@ package com.sushe.backend.config.interceptor;
 
 import cn.dev33.satoken.stp.StpUtil;
 import com.sushe.backend.common.context.UserContext;
+import com.sushe.backend.entity.SysStudent;
 import com.sushe.backend.entity.SysUser;
+import com.sushe.backend.mapper.SysStudentMapper;
 import com.sushe.backend.mapper.SysUserMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -14,6 +16,7 @@ import org.springframework.web.servlet.HandlerInterceptor;
 /**
  * 认证拦截器
  * 验证 Token 并将用户信息存入 ThreadLocal
+ * 支持管理员/宿管员（sys_user）和学生（sys_student）两种类型的认证
  * 
  * @author 陈鸿昇
  * @since 2025-12-31
@@ -24,6 +27,7 @@ import org.springframework.web.servlet.HandlerInterceptor;
 public class AuthInterceptor implements HandlerInterceptor {
 
     private final SysUserMapper userMapper;
+    private final SysStudentMapper studentMapper;
 
     /**
      * 白名单路径（不需要登录验证）
@@ -94,30 +98,53 @@ public class AuthInterceptor implements HandlerInterceptor {
                 Long userId = Long.valueOf(loginId.toString());
                 log.debug("Token 验证成功，用户ID: {}", userId);
 
-                // 5. 查询用户信息
+                // 5. 查询用户信息：先查询管理员/宿管员（sys_user），如果不存在则查询学生（sys_student）
                 SysUser user = userMapper.selectById(userId);
-                if (user == null) {
-                    log.warn("用户不存在，用户ID：{}", userId);
-                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                    return false;
-                }
-
-                // 6. 检查用户状态
-                if (user.getStatus() == 0) {
-                    log.warn("用户已被停用，用户ID：{}", userId);
-                    response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-                    return false;
-                }
-
-                // 7. 将用户信息存入 ThreadLocal
                 UserContext.LoginUser loginUser = new UserContext.LoginUser();
-                loginUser.setUserId(user.getId());
-                loginUser.setUsername(user.getUsername());
-                loginUser.setNickname(user.getNickname());
-                loginUser.setAvatar(user.getAvatar());
-                UserContext.setUser(loginUser);
 
-                log.debug("用户信息已存入 ThreadLocal，用户ID：{}，用户名：{}", userId, user.getUsername());
+                if (user != null) {
+                    // 管理员/宿管员登录
+                    // 6. 检查用户状态
+                    if (user.getStatus() == 0) {
+                        log.warn("用户已被停用，用户ID：{}", userId);
+                        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                        return false;
+                    }
+
+                    // 7. 将用户信息存入 ThreadLocal
+                    loginUser.setUserId(user.getId());
+                    loginUser.setUsername(user.getUsername());
+                    loginUser.setNickname(user.getNickname());
+                    loginUser.setAvatar(user.getAvatar());
+                    UserContext.setUser(loginUser);
+
+                    log.debug("管理员/宿管员信息已存入 ThreadLocal，用户ID：{}，用户名：{}", userId, user.getUsername());
+                } else {
+                    // 学生登录，查询学生信息
+                    SysStudent student = studentMapper.selectById(userId);
+                    if (student == null) {
+                        log.warn("用户不存在，用户ID：{}（既不是管理员也不是学生）", userId);
+                        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                        return false;
+                    }
+
+                    // 6. 检查学生状态
+                    if (student.getStatus() == 0) {
+                        log.warn("学生已被停用，学生ID：{}", userId);
+                        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                        return false;
+                    }
+
+                    // 7. 将学生信息存入 ThreadLocal
+                    loginUser.setUserId(student.getId());
+                    loginUser.setUsername(student.getStudentNo());
+                    loginUser.setNickname(student.getStudentName());
+                    loginUser.setAvatar(null); // 学生暂无头像
+                    UserContext.setUser(loginUser);
+
+                    log.debug("学生信息已存入 ThreadLocal，学生ID：{}，学号：{}", userId, student.getStudentNo());
+                }
+
                 return true;
             } catch (Exception e) {
                 log.warn("Token 验证失败：{}", e.getMessage());

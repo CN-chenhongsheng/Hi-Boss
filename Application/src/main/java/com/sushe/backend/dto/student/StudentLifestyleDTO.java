@@ -70,11 +70,5 @@ public class StudentLifestyleDTO {
 
     @Schema(description = "是否在宿舍吃东西：0不吃 1偶尔 2经常")
     private Integer eatInRoom;
-
-    @Schema(description = "特殊需求（如过敏、健康问题等）")
-    private String specialNeeds;
-
-    @Schema(description = "室友偏好（如希望室友不抽烟、安静等）")
-    private String roommatePreference;
 }
 

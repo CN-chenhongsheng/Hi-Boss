@@ -221,14 +221,6 @@ public class SysStudent extends BaseEntity {
     @TableField("eat_in_room")
     private Integer eatInRoom;
 
-    @Schema(description = "特殊需求（如过敏、健康问题等）")
-    @TableField("special_needs")
-    private String specialNeeds;
-
-    @Schema(description = "室友偏好（如希望室友不抽烟、安静等）")
-    @TableField("roommate_preference")
-    private String roommatePreference;
-
     @Schema(description = "密码（加密）")
     @TableField("password")
     private String password;

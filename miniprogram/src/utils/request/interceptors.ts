@@ -46,8 +46,8 @@ function requestInterceptors(http: HttpRequestAbstract) {
       // 是否需要防止数据重复提交
       const isRepeatSubmit = config.custom?.repeatSubmit === false;
       if (getToken() && !isToken && config.header) {
-        // token设置
-        config.header.token = getToken();
+        // token设置 - 使用 Authorization 头，Bearer 格式（与后端认证拦截器匹配）
+        config.header.Authorization = `Bearer ${getToken()}`;
       }
 
       if (!isRepeatSubmit && (config.method === 'POST' || config.method === 'UPLOAD')) {
