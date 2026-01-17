@@ -1,6 +1,7 @@
 import { AppRouteRecord } from '@/types/router'
 import { dashboardRoutes } from './dashboard'
 import { systemRoutes } from './system'
+import { approvalRoutes } from './approval'
 import { resultRoutes } from './result'
 import { exceptionRoutes } from './exception'
 
@@ -10,6 +11,7 @@ import { exceptionRoutes } from './exception'
 export const routeModules: AppRouteRecord[] = [
   dashboardRoutes,
   systemRoutes,
+  approvalRoutes,
   resultRoutes,
   exceptionRoutes
 ]

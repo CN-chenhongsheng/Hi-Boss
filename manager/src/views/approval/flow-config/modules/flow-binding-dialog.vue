@@ -1,0 +1,211 @@
+<!-- 流程绑定弹窗 -->
+<template>
+  <ElDialog
+    v-model="dialogVisible"
+    title="流程绑定管理"
+    width="700px"
+    :close-on-click-modal="false"
+    destroy-on-close
+  >
+    <ElTable :data="bindingList" v-loading="loading">
+      <ElTableColumn prop="businessTypeText" label="业务类型" width="120" />
+      <ElTableColumn prop="flowName" label="绑定流程">
+        <template #default="{ row }">
+          <span v-if="row.flowName">{{ row.flowName }}</span>
+          <span v-else class="text-gray-400">未绑定</span>
+        </template>
+      </ElTableColumn>
+      <ElTableColumn prop="statusText" label="状态" width="80">
+        <template #default="{ row }">
+          <ElTag v-if="row.flowId" :type="row.status === 1 ? 'success' : 'info'" size="small">
+            {{ row.statusText }}
+          </ElTag>
+          <span v-else>-</span>
+        </template>
+      </ElTableColumn>
+      <ElTableColumn label="操作" width="150" fixed="right">
+        <template #default="{ row }">
+          <ElButton size="small" link type="primary" @click="openBindDialog(row)">
+            {{ row.flowId ? '更换' : '绑定' }}
+          </ElButton>
+          <ElButton v-if="row.flowId" size="small" link type="danger" @click="handleUnbind(row)">
+            解绑
+          </ElButton>
+        </template>
+      </ElTableColumn>
+    </ElTable>
+
+    <template #footer>
+      <ElButton @click="dialogVisible = false" v-ripple>关闭</ElButton>
+    </template>
+
+    <!-- 绑定选择弹窗 -->
+    <ElDialog v-model="bindDialogVisible" title="选择流程" width="500px" append-to-body>
+      <ElForm :model="bindForm" label-width="80px">
+        <ElFormItem label="业务类型">
+          <ElInput v-model="bindForm.businessTypeText" disabled />
+        </ElFormItem>
+        <ElFormItem label="选择流程" required>
+          <ElSelect
+            v-model="bindForm.flowId"
+            placeholder="请选择流程"
+            style="width: 100%"
+            filterable
+          >
+            <ElOption
+              v-for="flow in flowOptions"
+              :key="flow.id"
+              :label="flow.flowName"
+              :value="flow.id"
+            >
+              <span>{{ flow.flowName }}</span>
+              <span class="text-gray-400 ml-2">({{ flow.flowCode }})</span>
+            </ElOption>
+          </ElSelect>
+        </ElFormItem>
+      </ElForm>
+      <template #footer>
+        <ElButton @click="bindDialogVisible = false" v-ripple>取消</ElButton>
+        <ElButton type="primary" :loading="bindLoading" @click="handleBind" v-ripple>
+          确定
+        </ElButton>
+      </template>
+    </ElDialog>
+  </ElDialog>
+</template>
+
+<script setup lang="ts">
+  import {
+    fetchGetAllBindings,
+    fetchGetAllFlows,
+    fetchBindFlow,
+    fetchUnbindFlow,
+    type ApprovalFlowBinding,
+    type ApprovalFlow
+  } from '@/api/approval-manage'
+  import { ElMessageBox, ElMessage } from 'element-plus'
+
+  interface BindingItem extends Partial<ApprovalFlowBinding> {
+    businessType: string
+    businessTypeText: string
+  }
+
+  const props = defineProps<{
+    modelValue: boolean
+  }>()
+
+  const emit = defineEmits<{
+    'update:modelValue': [value: boolean]
+    success: []
+  }>()
+
+  const dialogVisible = computed({
+    get: () => props.modelValue,
+    set: (val) => emit('update:modelValue', val)
+  })
+
+  const loading = ref(false)
+  const bindingList = ref<BindingItem[]>([])
+  const flowOptions = ref<ApprovalFlow[]>([])
+  const bindDialogVisible = ref(false)
+  const bindLoading = ref(false)
+  const bindForm = reactive({
+    businessType: '',
+    businessTypeText: '',
+    flowId: null as number | null
+  })
+
+  const businessTypes = [
+    { value: 'check_in', label: '入住申请' },
+    { value: 'transfer', label: '调宿申请' },
+    { value: 'check_out', label: '退宿申请' },
+    { value: 'stay', label: '留宿申请' }
+  ]
+
+  // 监听弹窗打开
+  watch(
+    () => props.modelValue,
+    async (val) => {
+      if (val) {
+        await loadData()
+      }
+    }
+  )
+
+  const loadData = async () => {
+    loading.value = true
+    try {
+      const [bindings, flows] = await Promise.all([fetchGetAllBindings(), fetchGetAllFlows()])
+
+      flowOptions.value = flows
+
+      // 构建绑定列表（确保所有业务类型都显示）
+      bindingList.value = businessTypes.map((bt) => {
+        const binding = bindings.find((b) => b.businessType === bt.value)
+        return {
+          businessType: bt.value,
+          businessTypeText: bt.label,
+          ...binding
+        }
+      })
+    } catch (error) {
+      console.error('加载数据失败:', error)
+    } finally {
+      loading.value = false
+    }
+  }
+
+  const openBindDialog = async (row: BindingItem) => {
+    bindForm.businessType = row.businessType
+    bindForm.businessTypeText = row.businessTypeText
+    bindForm.flowId = row.flowId || null
+
+    // 加载该业务类型对应的流程
+    try {
+      const flows = await fetchGetAllFlows(row.businessType)
+      flowOptions.value = flows
+    } catch (error) {
+      console.error('加载流程失败:', error)
+    }
+
+    bindDialogVisible.value = true
+  }
+
+  const handleBind = async () => {
+    if (!bindForm.flowId) {
+      ElMessage.warning('请选择流程')
+      return
+    }
+
+    bindLoading.value = true
+    try {
+      await fetchBindFlow({
+        businessType: bindForm.businessType,
+        flowId: bindForm.flowId,
+        status: 1
+      })
+      bindDialogVisible.value = false
+      await loadData()
+      emit('success')
+    } catch (error) {
+      console.error('绑定失败:', error)
+    } finally {
+      bindLoading.value = false
+    }
+  }
+
+  const handleUnbind = async (row: BindingItem) => {
+    try {
+      await ElMessageBox.confirm(`确定要解绑"${row.businessTypeText}"的流程吗？`, '解绑确认', {
+        type: 'warning'
+      })
+      await fetchUnbindFlow(row.businessType)
+      await loadData()
+      emit('success')
+    } catch (error) {
+      if (error !== 'cancel') {
+        console.error('解绑失败:', error)
+      }
+    }
+  }
+</script>

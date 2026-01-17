@@ -239,10 +239,11 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue';
 import { getApplyTypeName, getStatusText } from '@/utils/apply';
-import { cancelCheckInAPI } from '@/api/accommodation/check-in';
-import { cancelCheckOutAPI } from '@/api/accommodation/check-out';
-import { cancelTransferAPI } from '@/api/accommodation/transfer';
-import { cancelStayAPI } from '@/api/accommodation/stay';
+import { cancelCheckInAPI, getCheckInDetailAPI } from '@/api/accommodation/check-in';
+import { cancelCheckOutAPI, getCheckOutDetailAPI } from '@/api/accommodation/check-out';
+import { cancelTransferAPI, getTransferDetailAPI } from '@/api/accommodation/transfer';
+import { cancelStayAPI, getStayDetailAPI } from '@/api/accommodation/stay';
+import { type IApprovalInstance, type IApprovalRecord, getApprovalInstanceByBusinessAPI } from '@/api/approval';
 
 const defaultAvatar = 'https://via.placeholder.com/150';
 
@@ -250,6 +251,7 @@ const defaultAvatar = 'https://via.placeholder.com/150';
 const detail = ref<any>(null);
 const applyType = ref('');
 const applyId = ref(0);
+const approvalInstance = ref<IApprovalInstance | null>(null);
 
 // 学生信息
 const studentInfo = computed(() => ({
@@ -313,35 +315,49 @@ const canCancel = computed(() => {
   return status === 1 || status === 'pending';
 });
 
-// 进度步骤
+// 进度步骤（基于审批记录动态生成）
 const progressSteps = computed(() => {
-  return [
+  const records = approvalInstance.value?.records || [];
+  const nodes = approvalInstance.value?.nodes || [];
+
+  // 基础步骤：提交申请
+  const steps: any[] = [
     {
       title: '提交申请',
-      time: detail.value?.applyDate || '10-24 09:00',
+      time: detail.value?.applyDate || approvalInstance.value?.startTime || '--',
       desc: '申请已成功提交至系统',
-    },
-    {
-      title: '辅导员审核',
-      time: detail.value?.approveTime || '10-24 14:30',
-      desc: '申请已通过审核',
-      reviewer: detail.value?.reviewer || {
-        avatar: 'https://via.placeholder.com/40',
-        name: '李老师',
-      },
-      reviewReason: detail.value?.approveOpinion || '情况属实，符合学校调宿管理规定，同意调整。',
-    },
-    {
-      title: '宿管站确认',
-      time: '',
-      desc: '等待宿管站分配床位并确认',
-    },
-    {
-      title: '完成',
-      time: detail.value?.completeTime || '--',
-      desc: '流程结束，可办理入住',
+      completed: true,
     },
   ];
+
+  // 根据流程节点添加步骤
+  nodes.forEach((node) => {
+    const record = records.find(r => r.nodeId === node.id);
+    steps.push({
+      title: node.nodeName,
+      time: record?.approveTime || '',
+      desc: record ? (record.action === 1 ? '审批通过' : '审批拒绝') : '等待审批',
+      completed: !!record,
+      reviewer: record
+        ? {
+            avatar: 'https://via.placeholder.com/40',
+            name: record.approverName,
+          }
+        : null,
+      reviewReason: record?.opinion || '',
+      action: record?.action,
+    });
+  });
+
+  // 添加完成步骤
+  steps.push({
+    title: '完成',
+    time: approvalInstance.value?.endTime || '--',
+    desc: '流程结束',
+    completed: approvalInstance.value?.status === 2, // 2表示已通过
+  });
+
+  return steps;
 });
 
 // 撤回申请
@@ -398,32 +414,43 @@ function handleUrge() {
 // 加载详情
 async function loadDetail() {
   try {
-    // TODO: 调用API加载数据
-    // 模拟数据
-    detail.value = {
-      id: applyId.value,
-      applyNo: '20231024001',
-      status: 1,
-      applyDate: '10-24 09:00',
-      approveTime: '10-24 14:30',
-      approverName: '李老师',
-      approveOpinion: '情况属实，符合学校调宿管理规定，同意调整。',
-      targetDorm: 'A栋 - 304 (4人间)',
-      applyReason: '因作息时间差异较大，希望能调整到同班级宿舍，以便更好休息和学习。',
-      studentInfo: {
-        avatar: 'https://via.placeholder.com/150',
-        name: '张三',
-        grade: '2021级',
-        department: '计算机系',
-        level: '本科生',
-      },
-      reviewer: {
-        avatar: 'https://via.placeholder.com/40',
-        name: '李老师',
-      },
+    uni.showLoading({ title: '加载中...' });
+
+    // 根据申请类型调用对应的详情API
+    const detailAPIs: Record<string, (id: number) => Promise<any>> = {
+      'check-in': getCheckInDetailAPI,
+      'check-out': getCheckOutDetailAPI,
+      'transfer': getTransferDetailAPI,
+      'stay': getStayDetailAPI,
     };
+
+    const detailFn = detailAPIs[applyType.value];
+    if (detailFn) {
+      detail.value = await detailFn(applyId.value);
+    }
+
+    // 加载审批实例信息
+    const businessTypeMap: Record<string, string> = {
+      'check-in': 'check_in',
+      'check-out': 'check_out',
+      'transfer': 'transfer',
+      'stay': 'stay',
+    };
+    const businessType = businessTypeMap[applyType.value];
+    if (businessType) {
+      try {
+        approvalInstance.value = await getApprovalInstanceByBusinessAPI(businessType, applyId.value);
+      }
+      catch {
+        // 可能没有审批实例（如未发起审批流程）
+        approvalInstance.value = null;
+      }
+    }
+
+    uni.hideLoading();
   }
   catch (error) {
+    uni.hideLoading();
     console.error('加载失败:', error);
     uni.showToast({
       title: '加载失败',

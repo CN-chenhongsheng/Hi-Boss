@@ -243,6 +243,12 @@
       "userCenter": "User Center",
       "menu": "Menu Manage",
       "dict": "Dict Manage"
+    },
+    "approval": {
+      "title": "Approval",
+      "flowConfig": "Flow Config",
+      "pending": "Pending",
+      "history": "History"
     }
   },
   "table": {

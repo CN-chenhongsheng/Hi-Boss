@@ -243,6 +243,12 @@
       "userCenter": "个人中心",
       "menu": "菜单管理",
       "dict": "字典管理"
+    },
+    "approval": {
+      "title": "审批管理",
+      "flowConfig": "流程配置",
+      "pending": "待办审批",
+      "history": "审批记录"
     }
   },
   "table": {

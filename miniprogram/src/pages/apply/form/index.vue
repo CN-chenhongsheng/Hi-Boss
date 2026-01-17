@@ -388,6 +388,10 @@ import RepairTypePicker from './components/repair-type-picker.vue';
 import type { IApplyFormData } from '@/types';
 import useUserStore from '@/store/modules/user';
 import { useFormValidation } from '@/composables/useFormValidation';
+import { submitCheckInAPI } from '@/api/accommodation/check-in';
+import { submitTransferAPI } from '@/api/accommodation/transfer';
+import { submitCheckOutAPI } from '@/api/accommodation/check-out';
+import { submitStayAPI } from '@/api/accommodation/stay';
 
 // 类型定义
 type ApplyType = 'normalCheckIn' | 'tempCheckIn' | 'transfer' | 'checkOut' | 'stay' | 'repair';
@@ -1103,17 +1107,60 @@ function handleCancel() {
 }
 
 // 提交
-function handleSubmit() {
+async function handleSubmit() {
   if (!validateForm(formData)) {
     return;
   }
 
-  // TODO: 调用API提交申请
   uni.showLoading({
     title: '提交中...',
   });
 
-  setTimeout(() => {
+  try {
+    const applyType = formData.applyType;
+
+    if (applyType === 'normalCheckIn' || applyType === 'tempCheckIn') {
+      // 入住申请
+      await submitCheckInAPI({
+        checkInType: applyType === 'normalCheckIn' ? 1 : 2,
+        checkInDate: formData.stayStartDate || new Date().toISOString().slice(0, 10),
+        expectedCheckOutDate: applyType === 'tempCheckIn' ? formData.stayEndDate : undefined,
+        applyReason: formData.reason,
+      });
+    }
+    else if (applyType === 'transfer') {
+      // 调宿申请
+      await submitTransferAPI({
+        transferReason: formData.reason,
+      });
+    }
+    else if (applyType === 'checkOut') {
+      // 退宿申请
+      await submitCheckOutAPI({
+        checkOutReason: formData.reason,
+        checkOutDate: formData.stayStartDate || new Date().toISOString().slice(0, 10),
+      });
+    }
+    else if (applyType === 'stay') {
+      // 留宿申请
+      await submitStayAPI({
+        stayStartDate: formData.stayStartDate || '',
+        stayEndDate: formData.stayEndDate || '',
+        stayReason: formData.reason,
+        parentName: formData.parentName,
+        parentPhone: formData.parentPhone,
+      });
+    }
+    else if (applyType === 'repair') {
+      // 报修申请 - 暂时提示
+      uni.hideLoading();
+      uni.showToast({
+        title: '报修功能开发中',
+        icon: 'none',
+      });
+      return;
+    }
+
     uni.hideLoading();
     uni.showToast({
       title: '提交成功',
@@ -1122,7 +1169,14 @@ function handleSubmit() {
     setTimeout(() => {
       uni.navigateBack();
     }, 1500);
-  }, 1000);
+  }
+  catch (error: any) {
+    uni.hideLoading();
+    uni.showToast({
+      title: error?.message || '提交失败',
+      icon: 'none',
+    });
+  }
 }
 </script>
 

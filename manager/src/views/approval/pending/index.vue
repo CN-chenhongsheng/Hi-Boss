@@ -1,0 +1,231 @@
+<!-- 待办审批页面 -->
+<template>
+  <div class="art-full-height">
+    <!-- 搜索 -->
+    <ElCard v-show="showSearchBar" class="art-search-card" shadow="never">
+      <ElForm :model="formFilters" label-width="80px">
+        <ElRow :gutter="16">
+          <ElCol :xs="24" :sm="12" :md="8" :lg="6">
+            <ElFormItem label="业务类型">
+              <ElSelect
+                v-model="formFilters.businessType"
+                placeholder="请选择业务类型"
+                clearable
+                style="width: 100%"
+              >
+                <ElOption
+                  v-for="item in businessTypeOptions"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"
+                />
+              </ElSelect>
+            </ElFormItem>
+          </ElCol>
+          <ElCol :xs="24" :sm="12" :md="8" :lg="6">
+            <ElFormItem label="申请人">
+              <ElInput
+                v-model="formFilters.applicantName"
+                placeholder="请输入申请人姓名"
+                clearable
+                @keyup.enter="handleSearch"
+              />
+            </ElFormItem>
+          </ElCol>
+          <ElCol :xs="24" :sm="12" :md="8" :lg="6">
+            <ElFormItem label=" ">
+              <ElSpace>
+                <ElButton type="primary" @click="handleSearch" v-ripple>
+                  <i class="ri-search-line mr-1"></i>
+                  查询
+                </ElButton>
+                <ElButton @click="handleReset" v-ripple>
+                  <i class="ri-refresh-line mr-1"></i>
+                  重置
+                </ElButton>
+              </ElSpace>
+            </ElFormItem>
+          </ElCol>
+        </ElRow>
+      </ElForm>
+    </ElCard>
+
+    <ElCard
+      class="art-table-card"
+      shadow="never"
+      :style="{ 'margin-top': showSearchBar ? '12px' : '0' }"
+    >
+      <!-- 统计信息 -->
+      <div class="mb-4 flex gap-4">
+        <ElTag v-for="(count, type) in pendingCount" :key="type" size="large">
+          {{ getBusinessTypeLabel(type as string) }}: {{ count }}
+        </ElTag>
+      </div>
+
+      <ArtTableHeader
+        v-model:columns="columnChecks"
+        v-model:showSearchBar="showSearchBar"
+        :loading="loading"
+        @refresh="refreshData"
+      />
+
+      <!-- 表格 -->
+      <ArtTable
+        :loading="loading"
+        :data="data"
+        :columns="columns"
+        :pagination="pagination"
+        @pagination:size-change="handleSizeChange"
+        @pagination:current-change="handleCurrentChange"
+      />
+    </ElCard>
+
+    <!-- 审批弹窗 -->
+    <ApprovalDialog
+      v-model="approvalDialogVisible"
+      :instance-data="currentInstance"
+      @success="handleApprovalSuccess"
+    />
+  </div>
+</template>
+
+<script setup lang="ts">
+  import { useTable } from '@/hooks/core/useTable'
+  import {
+    fetchGetPendingList,
+    fetchGetPendingCount,
+    type ApprovalInstance
+  } from '@/api/approval-manage'
+  import ApprovalDialog from './modules/approval-dialog.vue'
+  import { ElTag } from 'element-plus'
+
+  defineOptions({ name: 'ApprovalPending' })
+
+  const businessTypeOptions = [
+    { label: '入住申请', value: 'check_in' },
+    { label: '调宿申请', value: 'transfer' },
+    { label: '退宿申请', value: 'check_out' },
+    { label: '留宿申请', value: 'stay' }
+  ]
+
+  const getBusinessTypeLabel = (value: string) => {
+    const option = businessTypeOptions.find((o) => o.value === value)
+    return option?.label || value
+  }
+
+  // 搜索相关
+  const initialSearchState = {
+    pageNum: 1,
+    pageSize: 20,
+    businessType: undefined,
+    applicantName: undefined
+  }
+
+  const formFilters = reactive({ ...initialSearchState })
+  const showSearchBar = ref(false)
+  const approvalDialogVisible = ref(false)
+  const currentInstance = ref<ApprovalInstance | null>(null)
+  const pendingCount = ref<Record<string, number>>({})
+
+  const {
+    columns,
+    columnChecks,
+    data,
+    loading,
+    pagination,
+    getData,
+    resetSearchParams,
+    handleSizeChange,
+    handleCurrentChange,
+    refreshData
+  } = useTable({
+    core: {
+      apiFn: fetchGetPendingList,
+      apiParams: computed(() => ({
+        pageNum: formFilters.pageNum,
+        pageSize: formFilters.pageSize,
+        businessType: formFilters.businessType || undefined,
+        applicantName: formFilters.applicantName || undefined
+      })),
+      paginationKey: {
+        current: 'pageNum',
+        size: 'pageSize'
+      },
+      columnsFactory: () => [
+        {
+          prop: 'businessType',
+          label: '业务类型',
+          width: 120,
+          formatter: (row: ApprovalInstance) => {
+            return h(ElTag, { type: 'info', size: 'small' }, () => row.businessTypeText)
+          }
+        },
+        {
+          prop: 'applicantName',
+          label: '申请人',
+          width: 120
+        },
+        {
+          prop: 'flowName',
+          label: '审批流程',
+          minWidth: 150
+        },
+        {
+          prop: 'currentNodeName',
+          label: '当前节点',
+          width: 120,
+          formatter: (row: ApprovalInstance) => {
+            return h(ElTag, { type: 'warning', size: 'small' }, () => row.currentNodeName)
+          }
+        },
+        {
+          prop: 'startTime',
+          label: '提交时间',
+          width: 180
+        },
+        {
+          prop: 'action',
+          label: '操作',
+          width: 120,
+          fixed: 'right',
+          formatter: (row: ApprovalInstance) => {
+            return [{ type: 'view', onClick: () => openApprovalDialog(row), label: '审批' }]
+          }
+        }
+      ]
+    }
+  })
+
+  // 加载待办数量统计
+  const loadPendingCount = async () => {
+    try {
+      pendingCount.value = await fetchGetPendingCount()
+    } catch (error) {
+      console.error('加载待办数量失败:', error)
+    }
+  }
+
+  onMounted(() => {
+    loadPendingCount()
+  })
+
+  const handleSearch = async (): Promise<void> => {
+    formFilters.pageNum = 1
+    await getData()
+  }
+
+  const handleReset = async (): Promise<void> => {
+    Object.assign(formFilters, { ...initialSearchState })
+    await resetSearchParams()
+  }
+
+  const openApprovalDialog = (row: ApprovalInstance) => {
+    currentInstance.value = row
+    approvalDialogVisible.value = true
+  }
+
+  const handleApprovalSuccess = async () => {
+    await refreshData()
+    await loadPendingCount()
+  }
+</script>

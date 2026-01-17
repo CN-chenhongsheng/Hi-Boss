@@ -51,6 +51,41 @@
         @pagination:current-change="handleCurrentChange"
       />
     </ElCard>
+
+    <!-- 申请详情抽屉 -->
+    <ApplyDrawer
+      v-model="drawerVisible"
+      business-type="transfer"
+      :business-id="currentRow?.id || null"
+      @approval-success="handleRefresh"
+    >
+      <template #detail>
+        <ElDescriptions :column="2" border v-if="currentRow">
+          <ElDescriptionsItem label="学号">{{ currentRow.studentNo }}</ElDescriptionsItem>
+          <ElDescriptionsItem label="学生姓名">{{ currentRow.studentName }}</ElDescriptionsItem>
+          <ElDescriptionsItem label="原校区">{{
+            currentRow.originalCampusName
+          }}</ElDescriptionsItem>
+          <ElDescriptionsItem label="原房间">{{ currentRow.originalRoomCode }}</ElDescriptionsItem>
+          <ElDescriptionsItem label="原床位">{{ currentRow.originalBedCode }}</ElDescriptionsItem>
+          <ElDescriptionsItem label="目标校区">{{
+            currentRow.targetCampusName
+          }}</ElDescriptionsItem>
+          <ElDescriptionsItem label="目标房间">{{ currentRow.targetRoomCode }}</ElDescriptionsItem>
+          <ElDescriptionsItem label="目标床位">{{ currentRow.targetBedCode }}</ElDescriptionsItem>
+          <ElDescriptionsItem label="申请日期">{{ currentRow.applyDate }}</ElDescriptionsItem>
+          <ElDescriptionsItem label="调宿日期">{{ currentRow.transferDate }}</ElDescriptionsItem>
+          <ElDescriptionsItem label="状态">
+            <ElTag :type="getStatusTagType(currentRow.status)" size="small">
+              {{ currentRow.statusText }}
+            </ElTag>
+          </ElDescriptionsItem>
+          <ElDescriptionsItem label="调宿理由" :span="2">
+            {{ currentRow.transferReason || '-' }}
+          </ElDescriptionsItem>
+        </ElDescriptions>
+      </template>
+    </ApplyDrawer>
   </div>
 </template>
 
@@ -62,8 +97,9 @@
     fetchDeleteTransfer,
     fetchBatchDeleteTransfer
   } from '@/api/accommodation-manage'
-  import { ElMessageBox } from 'element-plus'
+  import { ElMessageBox, ElTag } from 'element-plus'
   import TransferSearch from './modules/transfer-search.vue'
+  import ApplyDrawer from '../components/apply-drawer.vue'
 
   defineOptions({ name: 'AccommodationTransfer' })
 
@@ -74,6 +110,24 @@
   const selectedRows = ref<TransferListItem[]>([])
   const selectedIds = computed(() => selectedRows.value.map((item) => item.id))
   const selectedCount = computed(() => selectedRows.value.length)
+  const drawerVisible = ref(false)
+  const currentRow = ref<TransferListItem | null>(null)
+
+  // 状态标签类型
+  const getStatusTagType = (status: number) => {
+    switch (status) {
+      case 1:
+        return 'warning'
+      case 2:
+        return 'success'
+      case 3:
+        return 'danger'
+      case 4:
+        return 'info'
+      default:
+        return 'info'
+    }
+  }
 
   // 搜索表单
   const searchForm = ref<Api.AccommodationManage.TransferSearchParams>({
@@ -136,7 +190,7 @@
           width: 150,
           fixed: 'right',
           actions: [
-            { type: 'view', onClick: () => handleView() },
+            { type: 'view', onClick: (row: TransferListItem) => handleView(row) },
             {
               type: 'delete',
               onClick: (row: TransferListItem) => handleDelete(row),
@@ -167,8 +221,9 @@
   }
 
   // 查看
-  const handleView = () => {
-    // TODO: 打开查看对话框
+  const handleView = (row: TransferListItem) => {
+    currentRow.value = row
+    drawerVisible.value = true
   }
 
   // 删除

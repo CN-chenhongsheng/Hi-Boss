@@ -51,6 +51,35 @@
         @pagination:current-change="handleCurrentChange"
       />
     </ElCard>
+
+    <!-- 申请详情抽屉 -->
+    <ApplyDrawer
+      v-model="drawerVisible"
+      business-type="check_out"
+      :business-id="currentRow?.id || null"
+      @approval-success="handleRefresh"
+    >
+      <template #detail>
+        <ElDescriptions :column="2" border v-if="currentRow">
+          <ElDescriptionsItem label="学号">{{ currentRow.studentNo }}</ElDescriptionsItem>
+          <ElDescriptionsItem label="学生姓名">{{ currentRow.studentName }}</ElDescriptionsItem>
+          <ElDescriptionsItem label="校区">{{ currentRow.campusName }}</ElDescriptionsItem>
+          <ElDescriptionsItem label="院系">{{ currentRow.deptName }}</ElDescriptionsItem>
+          <ElDescriptionsItem label="房间编码">{{ currentRow.roomCode }}</ElDescriptionsItem>
+          <ElDescriptionsItem label="床位编码">{{ currentRow.bedCode }}</ElDescriptionsItem>
+          <ElDescriptionsItem label="申请日期">{{ currentRow.applyDate }}</ElDescriptionsItem>
+          <ElDescriptionsItem label="退宿日期">{{ currentRow.checkOutDate }}</ElDescriptionsItem>
+          <ElDescriptionsItem label="状态">
+            <ElTag :type="getStatusTagType(currentRow.status)" size="small">
+              {{ currentRow.statusText }}
+            </ElTag>
+          </ElDescriptionsItem>
+          <ElDescriptionsItem label="退宿理由" :span="2">
+            {{ currentRow.checkOutReason || '-' }}
+          </ElDescriptionsItem>
+        </ElDescriptions>
+      </template>
+    </ApplyDrawer>
   </div>
 </template>
 
@@ -62,8 +91,9 @@
     fetchDeleteCheckOut,
     fetchBatchDeleteCheckOut
   } from '@/api/accommodation-manage'
-  import { ElMessageBox } from 'element-plus'
+  import { ElMessageBox, ElTag } from 'element-plus'
   import CheckOutSearch from './modules/check-out-search.vue'
+  import ApplyDrawer from '../components/apply-drawer.vue'
 
   defineOptions({ name: 'AccommodationCheckOut' })
 
@@ -74,6 +104,24 @@
   const selectedRows = ref<CheckOutListItem[]>([])
   const selectedIds = computed(() => selectedRows.value.map((item) => item.id))
   const selectedCount = computed(() => selectedRows.value.length)
+  const drawerVisible = ref(false)
+  const currentRow = ref<CheckOutListItem | null>(null)
+
+  // 状态标签类型
+  const getStatusTagType = (status: number) => {
+    switch (status) {
+      case 1:
+        return 'warning'
+      case 2:
+        return 'success'
+      case 3:
+        return 'danger'
+      case 4:
+        return 'info'
+      default:
+        return 'info'
+    }
+  }
 
   // 搜索表单
   const searchForm = ref<Api.AccommodationManage.CheckOutSearchParams>({
@@ -135,7 +183,7 @@
           width: 150,
           fixed: 'right',
           actions: [
-            { type: 'view', onClick: () => handleView() },
+            { type: 'view', onClick: (row: CheckOutListItem) => handleView(row) },
             {
               type: 'delete',
               onClick: (row: CheckOutListItem) => handleDelete(row),
@@ -166,8 +214,9 @@
   }
 
   // 查看
-  const handleView = () => {
-    // TODO: 打开查看对话框
+  const handleView = (row: CheckOutListItem) => {
+    currentRow.value = row
+    drawerVisible.value = true
   }
 
   // 删除
