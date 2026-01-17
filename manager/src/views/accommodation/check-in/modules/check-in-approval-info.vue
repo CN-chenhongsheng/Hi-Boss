@@ -87,7 +87,7 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, watch } from 'vue'
+  import { ref, watch, computed } from 'vue'
   import { ElCard, ElTag } from 'element-plus'
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
   import ArtApprovalInfo from '@/components/core/layouts/art-approval-info/index.vue'
@@ -112,6 +112,11 @@
   const emit = defineEmits<Emits>()
 
   const checkInData = ref<Api.AccommodationManage.CheckInListItem | null>(props.checkInData || null)
+
+  // 计算标签类型，避免 ESLint 误报过滤器
+  const checkInTypeTag = computed<'primary' | 'warning'>(() => {
+    return checkInData.value?.checkInType === 1 ? 'primary' : 'warning'
+  })
 
   // 加载申请信息
   const loadCheckInData = async () => {
