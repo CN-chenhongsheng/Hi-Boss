@@ -223,7 +223,11 @@
 
     :deep(.el-card__header) {
       padding: 12px 16px;
-      background: var(--el-fill-color-lighter);
+      background: linear-gradient(
+        135deg,
+        #f8fafc 0%,
+        color-mix(in srgb, var(--el-color-primary) 6%, #fff) 100%
+      );
       border-bottom: 1px solid var(--el-border-color-lighter);
     }
 

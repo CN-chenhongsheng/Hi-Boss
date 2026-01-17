@@ -432,7 +432,11 @@
       align-items: center;
       justify-content: space-between;
       padding: 12px 16px;
-      background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+      background: linear-gradient(
+        135deg,
+        #f8fafc 0%,
+        color-mix(in srgb, var(--el-color-primary) 6%, #fff) 100%
+      );
       border-bottom: 1px solid #e2e8f0;
 
       &.draggable-header {

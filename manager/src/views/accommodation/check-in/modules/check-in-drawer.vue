@@ -72,7 +72,7 @@
       <ElTabs v-model="activeTab" class="check-in-detail-tabs">
         <!-- 学生信息标签页 -->
         <ElTabPane label="学生信息" name="student">
-          <StudentBasicInfo :data="studentData" />
+          <ArtBasicInfo :data="studentData" />
         </ElTabPane>
 
         <!-- 审批信息标签页 -->
@@ -80,6 +80,7 @@
           <CheckInApprovalInfo
             business-type="check_in"
             :business-id="checkInId"
+            :check-in-data="checkInDetail"
             @approval-success="handleApprovalSuccess"
           />
         </ElTabPane>
@@ -93,7 +94,7 @@
   import { ElTabs, ElTabPane } from 'element-plus'
   import ArtDrawer from '@/components/core/layouts/art-drawer/index.vue'
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
-  import StudentBasicInfo from '@/views/accommodation/student/modules/student-basic-info.vue'
+  import ArtBasicInfo from '@/components/core/layouts/art-basic-info/index.vue'
   import CheckInApprovalInfo from './check-in-approval-info.vue'
   import { fetchGetCheckInDetail, fetchGetStudentDetail } from '@/api/accommodation-manage'
   import { ElMessage } from 'element-plus'

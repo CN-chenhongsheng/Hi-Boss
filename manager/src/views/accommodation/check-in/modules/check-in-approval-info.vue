@@ -1,112 +1,97 @@
 <!-- 入住申请审批信息组件 -->
 <template>
-  <div class="check-in-approval-info">
-    <div v-loading="approvalLoading">
-      <template v-if="approvalInstance">
-        <!-- 审批状态 -->
-        <ElDescriptions :column="2" border class="mb-4">
-          <ElDescriptionsItem label="审批状态">
-            <ElTag :type="getStatusType(approvalInstance.status)" size="small">
-              {{ approvalInstance.statusText }}
-            </ElTag>
-          </ElDescriptionsItem>
-          <ElDescriptionsItem label="当前节点">
-            <ElTag v-if="approvalInstance.currentNodeName" type="warning" size="small">
-              {{ approvalInstance.currentNodeName }}
-            </ElTag>
-            <span v-else>-</span>
-          </ElDescriptionsItem>
-          <ElDescriptionsItem label="审批流程">
-            {{ approvalInstance.flowName }}
-          </ElDescriptionsItem>
-          <ElDescriptionsItem label="提交时间">
-            {{ approvalInstance.startTime }}
-          </ElDescriptionsItem>
-        </ElDescriptions>
-
-        <!-- 审批进度 -->
-        <div class="mb-2 font-medium">审批进度</div>
-        <ElTimeline v-if="approvalInstance.records?.length">
-          <ElTimelineItem
-            v-for="record in approvalInstance.records"
-            :key="record.id"
-            :type="record.action === 1 ? 'success' : 'danger'"
-            :timestamp="record.approveTime"
-            placement="top"
-          >
-            <div class="flex items-center gap-2">
-              <span class="font-medium">{{ record.nodeName }}</span>
-              <ElTag :type="record.action === 1 ? 'success' : 'danger'" size="small">
-                {{ record.actionText }}
-              </ElTag>
-            </div>
-            <div class="text-gray-500 text-sm mt-1">审批人：{{ record.approverName }}</div>
-            <div v-if="record.opinion" class="text-gray-600 mt-1">意见：{{ record.opinion }}</div>
-          </ElTimelineItem>
-        </ElTimeline>
-        <ElEmpty v-else description="暂无审批记录" :image-size="60" />
-
-        <!-- 审批操作 -->
-        <template v-if="approvalInstance.canApprove && approvalInstance.status === 1">
-          <ElDivider />
-          <div class="mb-2 font-medium">审批操作</div>
-          <ElForm label-width="80px">
-            <ElFormItem label="审批意见">
-              <ElInput
-                v-model="approvalOpinion"
-                type="textarea"
-                :rows="2"
-                placeholder="请输入审批意见（可选）"
-              />
-            </ElFormItem>
-            <ElFormItem>
-              <ElSpace>
-                <ElButton type="danger" :loading="rejectLoading" @click="handleApprove(2)" v-ripple>
-                  拒绝
-                </ElButton>
-                <ElButton
-                  type="primary"
-                  :loading="approveLoading"
-                  @click="handleApprove(1)"
-                  v-ripple
-                >
-                  通过
-                </ElButton>
-              </ElSpace>
-            </ElFormItem>
-          </ElForm>
-        </template>
+  <ArtApprovalInfo
+    :business-type="businessType"
+    :business-id="businessId"
+    @approval-success="handleApprovalSuccess"
+  >
+    <!-- 申请信息卡片 -->
+    <ElCard v-if="checkInData" class="info-card" shadow="hover">
+      <template #header>
+        <div class="card-header">
+          <ArtSvgIcon icon="ri:file-text-line" class="header-icon" />
+          <span class="header-title">申请信息</span>
+        </div>
       </template>
-
-      <!-- 未发起审批 -->
-      <ElEmpty v-else description="该申请尚未发起审批流程" :image-size="80" />
-    </div>
-  </div>
+      <div class="info-list">
+        <div v-if="checkInData.checkInTypeText" class="info-row">
+          <div class="row-label">
+            <ArtSvgIcon icon="ri:home-line" class="label-icon" />
+            <span>入住类型</span>
+          </div>
+          <div class="row-value">
+            <ElTag :type="checkInTypeTag" size="small">
+              {{ checkInData.checkInTypeText }}
+            </ElTag>
+          </div>
+        </div>
+        <div v-if="checkInData.campusName" class="info-row">
+          <div class="row-label">
+            <ArtSvgIcon icon="ri:map-pin-line" class="label-icon" />
+            <span>校区</span>
+          </div>
+          <div class="row-value">{{ checkInData.campusName }}</div>
+        </div>
+        <div v-if="checkInData.roomCode" class="info-row">
+          <div class="row-label">
+            <ArtSvgIcon icon="ri:door-open-line" class="label-icon" />
+            <span>房间编码</span>
+          </div>
+          <div class="row-value is-code">{{ checkInData.roomCode }}</div>
+        </div>
+        <div v-if="checkInData.bedCode" class="info-row">
+          <div class="row-label">
+            <ArtSvgIcon icon="ri:hotel-bed-line" class="label-icon" />
+            <span>床位编码</span>
+          </div>
+          <div class="row-value is-code">{{ checkInData.bedCode }}</div>
+        </div>
+        <div v-if="checkInData.applyDate" class="info-row">
+          <div class="row-label">
+            <ArtSvgIcon icon="ri:calendar-line" class="label-icon" />
+            <span>申请日期</span>
+          </div>
+          <div class="row-value">{{ checkInData.applyDate }}</div>
+        </div>
+        <div v-if="checkInData.checkInDate" class="info-row">
+          <div class="row-label">
+            <ArtSvgIcon icon="ri:calendar-check-line" class="label-icon" />
+            <span>入住日期</span>
+          </div>
+          <div class="row-value">{{ checkInData.checkInDate }}</div>
+        </div>
+        <div v-if="checkInData.expectedCheckOutDate" class="info-row">
+          <div class="row-label">
+            <ArtSvgIcon icon="ri:calendar-close-line" class="label-icon" />
+            <span>预计退宿日期</span>
+          </div>
+          <div class="row-value">{{ checkInData.expectedCheckOutDate }}</div>
+        </div>
+        <div v-if="checkInData.applyReason" class="info-row">
+          <div class="row-label">
+            <ArtSvgIcon icon="ri:file-edit-line" class="label-icon" />
+            <span>申请原因</span>
+          </div>
+          <div class="row-value">{{ checkInData.applyReason }}</div>
+        </div>
+        <div v-if="checkInData.remark" class="info-row">
+          <div class="row-label">
+            <ArtSvgIcon icon="ri:sticky-note-line" class="label-icon" />
+            <span>备注</span>
+          </div>
+          <div class="row-value">{{ checkInData.remark }}</div>
+        </div>
+      </div>
+    </ElCard>
+  </ArtApprovalInfo>
 </template>
 
 <script setup lang="ts">
   import { ref, watch } from 'vue'
-  import {
-    ElDescriptions,
-    ElDescriptionsItem,
-    ElTag,
-    ElTimeline,
-    ElTimelineItem,
-    ElEmpty,
-    ElDivider,
-    ElForm,
-    ElFormItem,
-    ElInput,
-    ElButton,
-    ElSpace,
-    ElMessage,
-    ElMessageBox
-  } from 'element-plus'
-  import {
-    fetchGetInstanceByBusiness,
-    fetchDoApprove,
-    type ApprovalInstance
-  } from '@/api/approval-manage'
+  import { ElCard, ElTag } from 'element-plus'
+  import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
+  import ArtApprovalInfo from '@/components/core/layouts/art-approval-info/index.vue'
+  import { fetchGetCheckInDetail } from '@/api/accommodation-manage'
 
   defineOptions({ name: 'CheckInApprovalInfo' })
 
@@ -115,6 +100,8 @@
     businessType: 'check_in'
     /** 业务ID（入住申请ID） */
     businessId: number | null
+    /** 入住申请数据（可选，用于显示申请信息） */
+    checkInData?: Api.AccommodationManage.CheckInListItem | null
   }
 
   interface Emits {
@@ -124,136 +111,144 @@
   const props = defineProps<Props>()
   const emit = defineEmits<Emits>()
 
-  const approvalLoading = ref(false)
-  const approveLoading = ref(false)
-  const rejectLoading = ref(false)
-  const approvalInstance = ref<ApprovalInstance | null>(null)
-  const approvalOpinion = ref('')
+  const checkInData = ref<Api.AccommodationManage.CheckInListItem | null>(props.checkInData || null)
 
-  const getStatusType = (status?: number) => {
-    switch (status) {
-      case 1:
-        return 'warning'
-      case 2:
-        return 'success'
-      case 3:
-        return 'danger'
-      case 4:
-        return 'info'
-      default:
-        return 'info'
-    }
-  }
-
-  const loadApprovalInfo = async () => {
+  // 加载申请信息
+  const loadCheckInData = async () => {
     if (!props.businessId) {
-      approvalInstance.value = null
+      checkInData.value = null
       return
     }
 
-    approvalLoading.value = true
-    try {
-      approvalInstance.value = await fetchGetInstanceByBusiness(
-        props.businessType,
-        props.businessId
-      )
-    } catch (error) {
-      console.error('加载审批信息失败:', error)
-      approvalInstance.value = null
-    } finally {
-      approvalLoading.value = false
+    // 如果没有传入 checkInData，则通过 businessId 获取
+    if (!props.checkInData && props.businessId) {
+      try {
+        checkInData.value = await fetchGetCheckInDetail(props.businessId)
+      } catch (error) {
+        console.warn('加载申请信息失败:', error)
+        checkInData.value = null
+      }
+    } else {
+      checkInData.value = props.checkInData || null
     }
   }
 
-  const handleApprove = async (action: 1 | 2) => {
-    if (!approvalInstance.value) return
-
-    const actionText = action === 1 ? '通过' : '拒绝'
-
-    try {
-      await ElMessageBox.confirm(`确定要${actionText}该申请吗？`, `确认${actionText}`, {
-        type: action === 1 ? 'success' : 'warning'
-      })
-
-      if (action === 1) {
-        approveLoading.value = true
-      } else {
-        rejectLoading.value = true
+  // 监听 checkInData prop 变化
+  watch(
+    () => props.checkInData,
+    (newVal) => {
+      if (newVal) {
+        checkInData.value = newVal
       }
-
-      await fetchDoApprove({
-        instanceId: approvalInstance.value.id,
-        action,
-        opinion: approvalOpinion.value || undefined
-      })
-
-      ElMessage.success(`审批${actionText}成功`)
-      approvalOpinion.value = ''
-
-      // 重新加载审批信息
-      await loadApprovalInfo()
-
-      emit('approval-success')
-    } catch (error) {
-      if (error !== 'cancel') {
-        console.error('审批失败:', error)
-      }
-    } finally {
-      approveLoading.value = false
-      rejectLoading.value = false
-    }
-  }
+    },
+    { immediate: true }
+  )
 
   // 监听业务ID变化
   watch(
     () => props.businessId,
     () => {
-      loadApprovalInfo()
+      loadCheckInData()
     },
     { immediate: true }
   )
+
+  // 处理审批成功
+  const handleApprovalSuccess = () => {
+    emit('approval-success')
+  }
 </script>
 
 <style lang="scss" scoped>
-  .check-in-approval-info {
-    .mb-2 {
-      margin-bottom: 8px;
+  .info-card {
+    border: 1px solid var(--el-border-color-lighter);
+    border-radius: var(--el-border-radius-base);
+    transition: all 0.3s;
+
+    &:hover {
+      border-color: var(--el-color-primary-light-7);
+      box-shadow: 0 2px 12px 0 rgb(0 0 0 / 10%);
     }
 
-    .mb-4 {
-      margin-bottom: 16px;
+    :deep(.el-card__header) {
+      padding: 12px 16px;
+      background: linear-gradient(
+        135deg,
+        #f8fafc 0%,
+        color-mix(in srgb, var(--el-color-primary) 6%, #fff) 100%
+      );
+      border-bottom: 1px solid var(--el-border-color-lighter);
     }
 
-    .mt-1 {
-      margin-top: 4px;
+    :deep(.el-card__body) {
+      padding: 4px 16px;
     }
 
-    .font-medium {
-      font-weight: 500;
-    }
-
-    .text-gray-500 {
-      color: var(--el-text-color-secondary);
-    }
-
-    .text-gray-600 {
-      color: var(--el-text-color-regular);
-    }
-
-    .text-sm {
-      font-size: 13px;
-    }
-
-    .flex {
+    .card-header {
       display: flex;
-    }
-
-    .items-center {
-      align-items: center;
-    }
-
-    .gap-2 {
       gap: 8px;
+      align-items: center;
+
+      .header-icon {
+        font-size: 18px;
+        color: var(--el-color-primary);
+      }
+
+      .header-title {
+        font-size: 15px;
+        font-weight: 600;
+        color: var(--el-text-color-primary);
+      }
+    }
+
+    .info-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .info-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--el-border-color-extra-light);
+
+      &:last-of-type {
+        border-bottom: none;
+      }
+
+      .row-label {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        font-size: 13px;
+        color: var(--el-text-color-secondary);
+
+        .label-icon {
+          width: 16px;
+          height: 16px;
+          color: var(--el-text-color-placeholder);
+        }
+      }
+
+      .row-value {
+        display: flex;
+        gap: 6px;
+        align-items: center;
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--el-text-color-primary);
+
+        &.is-code {
+          padding: 2px 8px;
+          font-family: 'SF Mono', Menlo, Consolas, monospace;
+          font-size: 12px;
+          color: var(--el-color-primary);
+          background: var(--el-color-primary-light-9);
+          border-radius: 4px;
+        }
+      }
     }
   }
 </style>

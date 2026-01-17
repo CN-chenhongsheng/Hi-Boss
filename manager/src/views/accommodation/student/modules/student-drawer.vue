@@ -72,7 +72,7 @@
       <ElTabs v-model="activeTab" class="student-detail-tabs">
         <!-- 基本信息标签页 -->
         <ElTabPane label="基本信息" name="basic">
-          <StudentBasicInfo :data="formData" />
+          <ArtBasicInfo :data="formData" />
         </ElTabPane>
 
         <!-- 生活习惯标签页 -->
@@ -89,7 +89,7 @@
   import { ElTabs, ElTabPane } from 'element-plus'
   import ArtDrawer from '@/components/core/layouts/art-drawer/index.vue'
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
-  import StudentBasicInfo from './student-basic-info.vue'
+  import ArtBasicInfo from '@/components/core/layouts/art-basic-info/index.vue'
   import StudentLifestyleInfo from './student-lifestyle-info.vue'
   import { fetchGetStudentDetail } from '@/api/accommodation-manage'
   import { ElMessage } from 'element-plus'

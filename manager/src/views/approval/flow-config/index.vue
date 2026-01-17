@@ -210,7 +210,7 @@
             return [
               { type: 'edit', onClick: () => showDialog('edit', row), label: '编辑' },
               {
-                type: 'assign',
+                type: 'share',
                 onClick: () => {
                   bindingDialogVisible.value = true
                 },

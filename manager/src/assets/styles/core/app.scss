@@ -191,6 +191,32 @@
     height: 100%;
     overflow: hidden;
   }
+
+  // 刷新抖动动画
+  &.shake-animation {
+    animation: table-card-shake 0.5s ease-in-out;
+  }
+}
+
+// 表格卡片抖动动画
+@keyframes table-card-shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  10%,
+  30%,
+  50%,
+  70%,
+  90% {
+    transform: translateX(-4px);
+  }
+  20%,
+  40%,
+  60%,
+  80% {
+    transform: translateX(4px);
+  }
 }
 
 // 容器全高

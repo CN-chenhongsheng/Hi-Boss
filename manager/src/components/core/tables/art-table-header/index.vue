@@ -243,6 +243,19 @@
   /** 刷新事件处理 */
   const refresh = () => {
     isManualRefresh.value = true
+
+    // 触发表格卡片抖动动画 - 找到最近的 art-table-card
+    const headerElement = document.getElementById('art-table-header')
+    if (headerElement) {
+      const tableCard = headerElement.closest('.art-table-card')
+      if (tableCard) {
+        tableCard.classList.add('shake-animation')
+        setTimeout(() => {
+          tableCard.classList.remove('shake-animation')
+        }, 500)
+      }
+    }
+
     emit('refresh')
   }
 
