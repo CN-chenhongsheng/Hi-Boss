@@ -137,14 +137,21 @@
       // 先设置 flowData，让 LogicFlow 开始渲染
       flowData.value = data
 
-      // 等待 LogicFlow 完全渲染后再更新节点样式
+      // 等待 LogicFlow 完全渲染后再更新节点样式和居中
       // 使用多个 nextTick 确保 LogicFlow 实例已准备好
       await nextTick()
 
       // 延迟一点时间确保 LogicFlow 完全初始化
       setTimeout(() => {
         updateNodeSelection(data)
-      }, 100)
+        // 确保画布居中显示
+        if (logicFlowRef.value) {
+          const lfInstance = logicFlowRef.value.getInstance()
+          if (lfInstance) {
+            lfInstance.fitView(50)
+          }
+        }
+      }, 200)
     } catch (err: any) {
       console.error('[UserScopeDialog] 加载数据失败:', err)
       error.value = err?.message || '加载数据失败，请稍后重试'
@@ -386,6 +393,16 @@
           // 延迟一点时间确保节点已完全渲染
           setTimeout(() => {
             updateNodeSelection(newData)
+            // 确保画布居中显示
+            lfInstance.fitView(50)
+          }, 150)
+        }
+      } else if (newData && newData.nodes.length > 0 && newRef) {
+        // 即使没有选中节点，也要确保画布居中
+        const lfInstance = newRef.getInstance()
+        if (lfInstance) {
+          setTimeout(() => {
+            lfInstance.fitView(50)
           }, 150)
         }
       }
@@ -408,7 +425,7 @@
       height: 100%;
       overflow: hidden;
       border: 1px solid var(--el-border-color-light);
-      border-radius: 4px;
+      border-radius: var(--el-border-radius-base);
     }
 
     .empty-message {

@@ -169,3 +169,30 @@ VALUES
 INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `menu_type`, `path`, `component`, `icon`, `sort`, `visible`, `status`, `create_time`)
 VALUES 
 (@max_menu_id + 4, @max_menu_id + 1, '审批记录', 2, '/approval/history', '/approval/history/index', 'ri:history-line', 3, 1, 1, NOW());
+
+-- =============================================
+-- 初始化业务类型字典数据
+-- =============================================
+
+-- 插入字典类型（如果不存在）
+INSERT INTO `sys_dict_type` (`dict_name`, `dict_code`, `status`, `remark`, `create_time`)
+SELECT '审批业务类型', 'business_type', 1, '审批流程关联的业务类型', NOW()
+FROM DUAL
+WHERE NOT EXISTS (SELECT 1 FROM `sys_dict_type` WHERE `dict_code` = 'business_type');
+
+-- 插入字典数据（如果不存在）
+INSERT INTO `sys_dict_data` (`dict_code`, `label`, `value`, `sort`, `status`, `create_time`)
+SELECT 'business_type', '入住申请', 'check_in', 1, 1, NOW() FROM DUAL
+WHERE NOT EXISTS (SELECT 1 FROM `sys_dict_data` WHERE `dict_code` = 'business_type' AND `value` = 'check_in');
+
+INSERT INTO `sys_dict_data` (`dict_code`, `label`, `value`, `sort`, `status`, `create_time`)
+SELECT 'business_type', '调宿申请', 'transfer', 2, 1, NOW() FROM DUAL
+WHERE NOT EXISTS (SELECT 1 FROM `sys_dict_data` WHERE `dict_code` = 'business_type' AND `value` = 'transfer');
+
+INSERT INTO `sys_dict_data` (`dict_code`, `label`, `value`, `sort`, `status`, `create_time`)
+SELECT 'business_type', '退宿申请', 'check_out', 3, 1, NOW() FROM DUAL
+WHERE NOT EXISTS (SELECT 1 FROM `sys_dict_data` WHERE `dict_code` = 'business_type' AND `value` = 'check_out');
+
+INSERT INTO `sys_dict_data` (`dict_code`, `label`, `value`, `sort`, `status`, `create_time`)
+SELECT 'business_type', '留宿申请', 'stay', 4, 1, NOW() FROM DUAL
+WHERE NOT EXISTS (SELECT 1 FROM `sys_dict_data` WHERE `dict_code` = 'business_type' AND `value` = 'stay');

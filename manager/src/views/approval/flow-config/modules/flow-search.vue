@@ -73,7 +73,8 @@
 </template>
 
 <script setup lang="ts">
-  import { computed } from 'vue'
+  import { computed, onMounted } from 'vue'
+  import { useBusinessType } from '@/hooks'
 
   interface SearchParams {
     flowName?: string
@@ -92,12 +93,12 @@
     reset: []
   }>()
 
-  const businessTypeOptions = [
-    { label: '入住申请', value: 'check_in' },
-    { label: '调宿申请', value: 'transfer' },
-    { label: '退宿申请', value: 'check_out' },
-    { label: '留宿申请', value: 'stay' }
-  ]
+  // 业务类型（从字典获取）
+  const { businessTypeOptions, fetchBusinessTypes } = useBusinessType()
+
+  onMounted(() => {
+    fetchBusinessTypes()
+  })
 
   const localModel = computed({
     get: () => props.modelValue,

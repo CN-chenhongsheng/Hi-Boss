@@ -38,3 +38,7 @@ export type { UseSSEOptions, UseSSEReturn, SSEEventHandler } from './core/useSSE
 // 用户在线状态
 export { useUserOnlineStatus } from './core/useUserOnlineStatus'
 export type { OnlineStatusUpdate } from './core/useUserOnlineStatus'
+
+// 业务类型管理
+export { useBusinessType } from './core/useBusinessType'
+export type { BusinessTypeOption } from './core/useBusinessType'

@@ -55,13 +55,6 @@
       shadow="never"
       :style="{ 'margin-top': showSearchBar ? '12px' : '0' }"
     >
-      <!-- 统计信息 -->
-      <div class="mb-4 flex gap-4">
-        <ElTag v-for="(count, type) in pendingCount" :key="type" size="large">
-          {{ getBusinessTypeLabel(type as string) }}: {{ count }}
-        </ElTag>
-      </div>
-
       <ArtTableHeader
         v-model:columns="columnChecks"
         v-model:showSearchBar="showSearchBar"
@@ -90,28 +83,21 @@
 </template>
 
 <script setup lang="ts">
+  import { onMounted } from 'vue'
   import { useTable } from '@/hooks/core/useTable'
-  import {
-    fetchGetPendingList,
-    fetchGetPendingCount,
-    type ApprovalInstance
-  } from '@/api/approval-manage'
+  import { fetchGetPendingList, type ApprovalInstance } from '@/api/approval-manage'
   import ApprovalDialog from './modules/approval-dialog.vue'
   import { ElTag } from 'element-plus'
+  import { useBusinessType } from '@/hooks'
 
   defineOptions({ name: 'ApprovalPending' })
 
-  const businessTypeOptions = [
-    { label: '入住申请', value: 'check_in' },
-    { label: '调宿申请', value: 'transfer' },
-    { label: '退宿申请', value: 'check_out' },
-    { label: '留宿申请', value: 'stay' }
-  ]
+  // 业务类型（从字典获取）
+  const { businessTypeOptions, fetchBusinessTypes } = useBusinessType()
 
-  const getBusinessTypeLabel = (value: string) => {
-    const option = businessTypeOptions.find((o) => o.value === value)
-    return option?.label || value
-  }
+  onMounted(() => {
+    fetchBusinessTypes()
+  })
 
   // 搜索相关
   const initialSearchState = {
@@ -125,7 +111,6 @@
   const showSearchBar = ref(false)
   const approvalDialogVisible = ref(false)
   const currentInstance = ref<ApprovalInstance | null>(null)
-  const pendingCount = ref<Record<string, number>>({})
 
   const {
     columns,
@@ -196,19 +181,6 @@
     }
   })
 
-  // 加载待办数量统计
-  const loadPendingCount = async () => {
-    try {
-      pendingCount.value = await fetchGetPendingCount()
-    } catch (error) {
-      console.error('加载待办数量失败:', error)
-    }
-  }
-
-  onMounted(() => {
-    loadPendingCount()
-  })
-
   const handleSearch = async (): Promise<void> => {
     formFilters.pageNum = 1
     await getData()
@@ -226,6 +198,5 @@
 
   const handleApprovalSuccess = async () => {
     await refreshData()
-    await loadPendingCount()
   }
 </script>

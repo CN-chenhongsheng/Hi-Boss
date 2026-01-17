@@ -16,6 +16,7 @@ import com.sushe.backend.mapper.SysCampusMapper;
 import com.sushe.backend.mapper.SysCheckOutMapper;
 import com.sushe.backend.mapper.SysStudentMapper;
 import com.sushe.backend.service.SysCheckOutService;
+import com.sushe.backend.service.SysApprovalService;
 import com.sushe.backend.util.DictUtils;
 import com.sushe.backend.vo.CheckOutVO;
 import lombok.RequiredArgsConstructor;
@@ -40,6 +41,7 @@ public class SysCheckOutServiceImpl extends ServiceImpl<SysCheckOutMapper, SysCh
 
     private final SysStudentMapper studentMapper;
     private final SysCampusMapper campusMapper;
+    private final SysApprovalService approvalService;
 
     @Override
     public PageResult<CheckOutVO> pageList(CheckOutQueryDTO queryDTO) {
@@ -89,12 +91,35 @@ public class SysCheckOutServiceImpl extends ServiceImpl<SysCheckOutMapper, SysCh
         checkOut.setStudentName(student.getStudentName());
         checkOut.setStudentNo(student.getStudentNo());
 
-        if (saveDTO.getId() == null) {
-            // 新增时默认状态为待审核
+        boolean isNew = saveDTO.getId() == null;
+        
+        if (isNew) {
+            // 新增时先保存记录（需要获取ID）
             if (checkOut.getStatus() == null) {
-                checkOut.setStatus(1);
+                checkOut.setStatus(1); // 临时状态，后续会根据审批结果更新
             }
-            return save(checkOut);
+            save(checkOut);
+            
+            // 发起审批流程
+            Long instanceId = approvalService.startApproval(
+                "check_out",
+                checkOut.getId(),
+                saveDTO.getStudentId(),
+                student.getStudentName()
+            );
+            
+            if (instanceId != null) {
+                // 有审批流程，状态设为"待审批"（状态1）
+                checkOut.setApprovalInstanceId(instanceId);
+                checkOut.setStatus(1);
+                log.info("退宿申请已发起审批，申请ID：{}，审批实例ID：{}", checkOut.getId(), instanceId);
+            } else {
+                // 无审批流程，直接通过，状态设为"已通过"（状态2）
+                checkOut.setStatus(2);
+                log.info("退宿申请无需审批，直接通过，申请ID：{}", checkOut.getId());
+            }
+            
+            return updateById(checkOut);
         } else {
             return updateById(checkOut);
         }

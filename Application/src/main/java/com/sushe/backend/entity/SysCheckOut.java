@@ -69,6 +69,10 @@ public class SysCheckOut extends BaseEntity {
     @TableField("status")
     private Integer status;
 
+    @Schema(description = "审批实例ID")
+    @TableField("approval_instance_id")
+    private Long approvalInstanceId;
+
     @Schema(description = "审核人ID")
     @TableField("approver_id")
     private Long approverId;

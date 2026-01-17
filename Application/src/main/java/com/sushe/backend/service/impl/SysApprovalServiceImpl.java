@@ -82,7 +82,9 @@ public class SysApprovalServiceImpl implements SysApprovalService {
         // 获取绑定的流程
         SysApprovalFlowBinding binding = bindingMapper.selectByBusinessType(businessType);
         if (binding == null || binding.getStatus() != 1) {
-            throw new BusinessException("该业务类型未配置审批流程");
+            // 无流程绑定时返回null，表示不需要审批，直接通过
+            log.info("业务类型 {} 未配置审批流程，无需审批，直接通过", businessType);
+            return null;
         }
 
         // 获取流程
@@ -495,5 +497,22 @@ public class SysApprovalServiceImpl implements SysApprovalService {
             case 4 -> "已撤回";
             default -> "未知";
         };
+    }
+
+    @Override
+    public boolean requiresApproval(String businessType) {
+        // 检查是否有启用的流程绑定
+        SysApprovalFlowBinding binding = bindingMapper.selectByBusinessType(businessType);
+        if (binding == null || binding.getStatus() != 1) {
+            return false;
+        }
+        
+        // 检查流程是否启用
+        SysApprovalFlow flow = flowMapper.selectById(binding.getFlowId());
+        if (flow == null || flow.getStatus() != 1) {
+            return false;
+        }
+        
+        return true;
     }
 }

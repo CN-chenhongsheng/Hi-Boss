@@ -46,6 +46,7 @@
         :pagination="pagination"
         :stripe="false"
         row-key="id"
+        :table-layout="'fixed'"
         @selection-change="handleSelectionChange"
         @pagination:size-change="handleSizeChange"
         @pagination:current-change="handleCurrentChange"
@@ -53,47 +54,27 @@
     </ElCard>
 
     <!-- 申请详情抽屉 -->
-    <ApplyDrawer
-      v-model="drawerVisible"
-      business-type="check_in"
-      :business-id="currentRow?.id || null"
+    <CheckInDrawer
+      :visible="drawerVisible"
+      :check-in-id="currentRow?.id || null"
+      :check-in-data="currentRow"
+      @update:visible="drawerVisible = $event"
       @approval-success="handleRefresh"
-    >
-      <template #detail>
-        <ElDescriptions :column="2" border v-if="currentRow">
-          <ElDescriptionsItem label="学号">{{ currentRow.studentNo }}</ElDescriptionsItem>
-          <ElDescriptionsItem label="学生姓名">{{ currentRow.studentName }}</ElDescriptionsItem>
-          <ElDescriptionsItem label="入住类型">{{ currentRow.checkInTypeText }}</ElDescriptionsItem>
-          <ElDescriptionsItem label="校区">{{ currentRow.campusName }}</ElDescriptionsItem>
-          <ElDescriptionsItem label="房间编码">{{ currentRow.roomCode }}</ElDescriptionsItem>
-          <ElDescriptionsItem label="床位编码">{{ currentRow.bedCode }}</ElDescriptionsItem>
-          <ElDescriptionsItem label="申请日期">{{ currentRow.applyDate }}</ElDescriptionsItem>
-          <ElDescriptionsItem label="入住日期">{{ currentRow.checkInDate }}</ElDescriptionsItem>
-          <ElDescriptionsItem label="状态">
-            <ElTag :type="getStatusTagType(currentRow.status)" size="small">
-              {{ currentRow.statusText }}
-            </ElTag>
-          </ElDescriptionsItem>
-          <ElDescriptionsItem label="申请原因" :span="2">
-            {{ currentRow.applyReason || '-' }}
-          </ElDescriptionsItem>
-        </ElDescriptions>
-      </template>
-    </ApplyDrawer>
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-  import { computed } from 'vue'
+  import { computed, ref } from 'vue'
   import { useTable } from '@/hooks/core/useTable'
   import {
     fetchGetCheckInPage,
     fetchDeleteCheckIn,
     fetchBatchDeleteCheckIn
   } from '@/api/accommodation-manage'
-  import { ElMessageBox, ElTag } from 'element-plus'
+  import { ElMessageBox } from 'element-plus'
   import CheckInSearch from './modules/check-in-search.vue'
-  import ApplyDrawer from '../components/apply-drawer.vue'
+  import CheckInDrawer from './modules/check-in-drawer.vue'
 
   defineOptions({ name: 'AccommodationCheckIn' })
 
@@ -106,22 +87,6 @@
   const selectedCount = computed(() => selectedRows.value.length)
   const drawerVisible = ref(false)
   const currentRow = ref<CheckInListItem | null>(null)
-
-  // 状态标签类型
-  const getStatusTagType = (status: number) => {
-    switch (status) {
-      case 1:
-        return 'warning' // 待审核
-      case 2:
-        return 'success' // 已通过
-      case 3:
-        return 'danger' // 已拒绝
-      case 4:
-        return 'info' // 已入住
-      default:
-        return 'info'
-    }
-  }
 
   // 搜索表单
   const searchForm = ref<Api.AccommodationManage.CheckInSearchParams>({
@@ -183,14 +148,17 @@
           label: '操作',
           width: 150,
           fixed: 'right',
-          actions: [
-            { type: 'view', onClick: (row: CheckInListItem) => handleView(row) },
-            {
-              type: 'delete',
-              onClick: (row: CheckInListItem) => handleDelete(row),
-              auth: 'system:checkIn:delete'
-            }
-          ]
+          formatter: (row: CheckInListItem) => {
+            return [
+              { type: 'view', onClick: () => handleView(row), label: '查看' },
+              {
+                type: 'delete',
+                onClick: () => handleDelete(row),
+                danger: true,
+                auth: 'system:checkIn:delete'
+              }
+            ]
+          }
         }
       ]
     }

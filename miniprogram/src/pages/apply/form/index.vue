@@ -1121,7 +1121,18 @@ async function handleSubmit() {
 
     if (applyType === 'normalCheckIn' || applyType === 'tempCheckIn') {
       // 入住申请
+      const studentId = userInfo.value?.studentInfo?.id || userInfo.value?.id;
+      if (!studentId) {
+        uni.hideLoading();
+        uni.showToast({
+          title: '无法获取学生信息',
+          icon: 'none',
+        });
+        return;
+      }
+
       await submitCheckInAPI({
+        studentId,
         checkInType: applyType === 'normalCheckIn' ? 1 : 2,
         checkInDate: formData.stayStartDate || new Date().toISOString().slice(0, 10),
         expectedCheckOutDate: applyType === 'tempCheckIn' ? formData.stayEndDate : undefined,
@@ -1130,20 +1141,53 @@ async function handleSubmit() {
     }
     else if (applyType === 'transfer') {
       // 调宿申请
+      const studentId = userInfo.value?.studentInfo?.id || userInfo.value?.id;
+      if (!studentId) {
+        uni.hideLoading();
+        uni.showToast({
+          title: '无法获取学生信息',
+          icon: 'none',
+        });
+        return;
+      }
+
       await submitTransferAPI({
+        studentId,
         transferReason: formData.reason,
       });
     }
     else if (applyType === 'checkOut') {
       // 退宿申请
+      const studentId = userInfo.value?.studentInfo?.id || userInfo.value?.id;
+      if (!studentId) {
+        uni.hideLoading();
+        uni.showToast({
+          title: '无法获取学生信息',
+          icon: 'none',
+        });
+        return;
+      }
+
       await submitCheckOutAPI({
+        studentId,
         checkOutReason: formData.reason,
         checkOutDate: formData.stayStartDate || new Date().toISOString().slice(0, 10),
       });
     }
     else if (applyType === 'stay') {
       // 留宿申请
+      const studentId = userInfo.value?.studentInfo?.id || userInfo.value?.id;
+      if (!studentId) {
+        uni.hideLoading();
+        uni.showToast({
+          title: '无法获取学生信息',
+          icon: 'none',
+        });
+        return;
+      }
+
       await submitStayAPI({
+        studentId,
         stayStartDate: formData.stayStartDate || '',
         stayEndDate: formData.stayEndDate || '',
         stayReason: formData.reason,

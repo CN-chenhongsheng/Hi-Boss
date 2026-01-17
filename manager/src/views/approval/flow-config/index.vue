@@ -21,7 +21,7 @@
       >
         <template #left>
           <ElSpace wrap>
-            <ElButton type="primary" @click="showDialog('add')" v-ripple>
+            <ElButton @click="showDialog('add')" v-ripple>
               <i class="ri-add-line mr-1"></i>
               新增流程
             </ElButton>
@@ -54,6 +54,7 @@
 </template>
 
 <script setup lang="ts">
+  import { onMounted } from 'vue'
   import { useTable } from '@/hooks/core/useTable'
   import {
     fetchGetFlowList,
@@ -66,18 +67,18 @@
   import FlowBindingDialog from './modules/flow-binding-dialog.vue'
   import { ElMessageBox, ElMessage, ElTag } from 'element-plus'
   import ArtSwitch from '@/components/core/forms/art-switch/index.vue'
+  import { useBusinessType } from '@/hooks'
 
   defineOptions({ name: 'FlowConfig' })
 
   type FlowListItem = ApprovalFlow & { _statusLoading?: boolean }
 
-  // 业务类型选项
-  const businessTypeOptions = [
-    { label: '入住申请', value: 'check_in' },
-    { label: '调宿申请', value: 'transfer' },
-    { label: '退宿申请', value: 'check_out' },
-    { label: '留宿申请', value: 'stay' }
-  ]
+  // 业务类型（从字典获取）
+  const { businessTypeOptions, fetchBusinessTypes } = useBusinessType()
+
+  onMounted(() => {
+    fetchBusinessTypes()
+  })
 
   // 搜索相关
   const initialSearchState = {
@@ -148,7 +149,9 @@
           label: '业务类型',
           width: 120,
           formatter: (row: FlowListItem) => {
-            const option = businessTypeOptions.find((o) => o.value === row.businessType)
+            const option = businessTypeOptions.value.find(
+              (o: { value: string; label: string }) => o.value === row.businessType
+            )
             return h(
               ElTag,
               { type: 'info', size: 'small' },
@@ -201,11 +204,19 @@
         {
           prop: 'action',
           label: '操作',
-          width: 150,
+          width: 200,
           fixed: 'right',
           formatter: (row: FlowListItem) => {
             return [
               { type: 'edit', onClick: () => showDialog('edit', row), label: '编辑' },
+              {
+                type: 'assign',
+                onClick: () => {
+                  bindingDialogVisible.value = true
+                },
+                label: '绑定',
+                icon: 'ri:link'
+              },
               {
                 type: 'delete',
                 onClick: () => deleteFlow(row),

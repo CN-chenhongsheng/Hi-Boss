@@ -84,6 +84,7 @@
     type ApprovalFlow
   } from '@/api/approval-manage'
   import { ElMessageBox, ElMessage } from 'element-plus'
+  import { useBusinessType } from '@/hooks'
 
   interface BindingItem extends Partial<ApprovalFlowBinding> {
     businessType: string
@@ -115,18 +116,16 @@
     flowId: null as number | null
   })
 
-  const businessTypes = [
-    { value: 'check_in', label: '入住申请' },
-    { value: 'transfer', label: '调宿申请' },
-    { value: 'check_out', label: '退宿申请' },
-    { value: 'stay', label: '留宿申请' }
-  ]
+  // 业务类型（从字典获取）
+  const { businessTypeOptions, fetchBusinessTypes } = useBusinessType()
 
   // 监听弹窗打开
   watch(
     () => props.modelValue,
     async (val) => {
       if (val) {
+        // 先获取业务类型，再加载数据
+        await fetchBusinessTypes()
         await loadData()
       }
     }
@@ -140,7 +139,7 @@
       flowOptions.value = flows
 
       // 构建绑定列表（确保所有业务类型都显示）
-      bindingList.value = businessTypes.map((bt) => {
+      bindingList.value = businessTypeOptions.value.map((bt) => {
         const binding = bindings.find((b) => b.businessType === bt.value)
         return {
           businessType: bt.value,

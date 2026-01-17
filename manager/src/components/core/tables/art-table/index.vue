@@ -41,7 +41,15 @@
             <component :is="col.renderFilter(filterScope)" />
           </template>
 
-          <template v-if="col.useSlot && col.prop" #default="slotScope">
+          <template v-if="col.formatter" #default="slotScope">
+            <component
+              v-if="typeof col.formatter(slotScope.row) === 'object'"
+              :is="col.formatter(slotScope.row)"
+            />
+            <span v-else>{{ col.formatter(slotScope.row) }}</span>
+          </template>
+
+          <template v-else-if="col.useSlot && col.prop" #default="slotScope">
             <slot
               :name="col.slotName || col.prop"
               v-bind="{
@@ -150,6 +158,7 @@
     columns: () => [],
     fit: true,
     showHeader: true,
+    tableLayout: 'fixed',
     stripe: undefined,
     border: undefined,
     size: undefined,

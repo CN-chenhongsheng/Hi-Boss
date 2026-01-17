@@ -16,6 +16,7 @@ import com.sushe.backend.mapper.SysCampusMapper;
 import com.sushe.backend.mapper.SysStudentMapper;
 import com.sushe.backend.mapper.SysStayMapper;
 import com.sushe.backend.service.SysStayService;
+import com.sushe.backend.service.SysApprovalService;
 import com.sushe.backend.util.DictUtils;
 import com.sushe.backend.vo.StayVO;
 import lombok.RequiredArgsConstructor;
@@ -40,6 +41,7 @@ public class SysStayServiceImpl extends ServiceImpl<SysStayMapper, SysStay> impl
 
     private final SysStudentMapper studentMapper;
     private final SysCampusMapper campusMapper;
+    private final SysApprovalService approvalService;
 
     @Override
     public PageResult<StayVO> pageList(StayQueryDTO queryDTO) {
@@ -91,12 +93,35 @@ public class SysStayServiceImpl extends ServiceImpl<SysStayMapper, SysStay> impl
         stay.setStudentName(student.getStudentName());
         stay.setStudentNo(student.getStudentNo());
 
-        if (saveDTO.getId() == null) {
-            // 新增时默认状态为待审核
+        boolean isNew = saveDTO.getId() == null;
+        
+        if (isNew) {
+            // 新增时先保存记录（需要获取ID）
             if (stay.getStatus() == null) {
-                stay.setStatus(1);
+                stay.setStatus(1); // 临时状态，后续会根据审批结果更新
             }
-            return save(stay);
+            save(stay);
+            
+            // 发起审批流程
+            Long instanceId = approvalService.startApproval(
+                "stay",
+                stay.getId(),
+                saveDTO.getStudentId(),
+                student.getStudentName()
+            );
+            
+            if (instanceId != null) {
+                // 有审批流程，状态设为"待审批"（状态1）
+                stay.setApprovalInstanceId(instanceId);
+                stay.setStatus(1);
+                log.info("留宿申请已发起审批，申请ID：{}，审批实例ID：{}", stay.getId(), instanceId);
+            } else {
+                // 无审批流程，直接通过，状态设为"已通过"（状态2）
+                stay.setStatus(2);
+                log.info("留宿申请无需审批，直接通过，申请ID：{}", stay.getId());
+            }
+            
+            return updateById(stay);
         } else {
             return updateById(stay);
         }

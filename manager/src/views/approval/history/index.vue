@@ -106,6 +106,7 @@
 </template>
 
 <script setup lang="ts">
+  import { onMounted } from 'vue'
   import { useTable } from '@/hooks/core/useTable'
   import {
     fetchGetRecordList,
@@ -114,15 +115,16 @@
     type ApprovalRecordQueryParams
   } from '@/api/approval-manage'
   import { ElTag } from 'element-plus'
+  import { useBusinessType } from '@/hooks'
 
   defineOptions({ name: 'ApprovalHistory' })
 
-  const businessTypeOptions = [
-    { label: '入住申请', value: 'check_in' },
-    { label: '调宿申请', value: 'transfer' },
-    { label: '退宿申请', value: 'check_out' },
-    { label: '留宿申请', value: 'stay' }
-  ]
+  // 业务类型（从字典获取）
+  const { businessTypeOptions, fetchBusinessTypes } = useBusinessType()
+
+  onMounted(() => {
+    fetchBusinessTypes()
+  })
 
   // 搜索相关
   const initialSearchState = {

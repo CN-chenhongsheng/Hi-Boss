@@ -16,6 +16,7 @@ import com.sushe.backend.mapper.SysCampusMapper;
 import com.sushe.backend.mapper.SysStudentMapper;
 import com.sushe.backend.mapper.SysTransferMapper;
 import com.sushe.backend.service.SysTransferService;
+import com.sushe.backend.service.SysApprovalService;
 import com.sushe.backend.util.DictUtils;
 import com.sushe.backend.vo.TransferVO;
 import lombok.RequiredArgsConstructor;
@@ -40,6 +41,7 @@ public class SysTransferServiceImpl extends ServiceImpl<SysTransferMapper, SysTr
 
     private final SysStudentMapper studentMapper;
     private final SysCampusMapper campusMapper;
+    private final SysApprovalService approvalService;
 
     @Override
     public PageResult<TransferVO> pageList(TransferQueryDTO queryDTO) {
@@ -89,12 +91,35 @@ public class SysTransferServiceImpl extends ServiceImpl<SysTransferMapper, SysTr
         transfer.setStudentName(student.getStudentName());
         transfer.setStudentNo(student.getStudentNo());
 
-        if (saveDTO.getId() == null) {
-            // 新增时默认状态为待审核
+        boolean isNew = saveDTO.getId() == null;
+        
+        if (isNew) {
+            // 新增时先保存记录（需要获取ID）
             if (transfer.getStatus() == null) {
-                transfer.setStatus(1);
+                transfer.setStatus(1); // 临时状态，后续会根据审批结果更新
             }
-            return save(transfer);
+            save(transfer);
+            
+            // 发起审批流程
+            Long instanceId = approvalService.startApproval(
+                "transfer",
+                transfer.getId(),
+                saveDTO.getStudentId(),
+                student.getStudentName()
+            );
+            
+            if (instanceId != null) {
+                // 有审批流程，状态设为"待审批"（状态1）
+                transfer.setApprovalInstanceId(instanceId);
+                transfer.setStatus(1);
+                log.info("调宿申请已发起审批，申请ID：{}，审批实例ID：{}", transfer.getId(), instanceId);
+            } else {
+                // 无审批流程，直接通过，状态设为"已通过"（状态2）
+                transfer.setStatus(2);
+                log.info("调宿申请无需审批，直接通过，申请ID：{}", transfer.getId());
+            }
+            
+            return updateById(transfer);
         } else {
             return updateById(transfer);
         }

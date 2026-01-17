@@ -24,9 +24,17 @@ public interface SysApprovalService {
      * @param businessId 业务数据ID
      * @param applicantId 申请人ID
      * @param applicantName 申请人姓名
-     * @return 审批实例ID
+     * @return 审批实例ID，如果该业务类型未配置审批流程则返回null（表示不需要审批，直接通过）
      */
     Long startApproval(String businessType, Long businessId, Long applicantId, String applicantName);
+
+    /**
+     * 检查业务类型是否需要审批
+     * 
+     * @param businessType 业务类型
+     * @return true需要审批，false不需要审批（直接通过）
+     */
+    boolean requiresApproval(String businessType);
 
     /**
      * 执行审批操作
