@@ -6,7 +6,7 @@
       v-show="showSearchBar"
       v-model="searchForm"
       @search="handleSearch"
-      @reset="resetSearchParams"
+      @reset="handleReset"
     ></StaySearch>
 
     <ElCard
@@ -64,14 +64,14 @@
 </template>
 
 <script setup lang="ts">
-  import { computed, ref } from 'vue'
+  import { computed, ref, h } from 'vue'
   import { useTable } from '@/hooks/core/useTable'
   import {
     fetchGetStayPage,
     fetchDeleteStay,
     fetchBatchDeleteStay
   } from '@/api/accommodation-manage'
-  import { ElMessageBox } from 'element-plus'
+  import { ElMessageBox, ElTag } from 'element-plus'
   import StaySearch from './modules/stay-search.vue'
   import StayDrawer from './modules/stay-drawer.vue'
 
@@ -136,11 +136,28 @@
         { prop: 'campusName', label: '校区', width: 120 },
         { prop: 'roomCode', label: '房间编码', width: 120 },
         { prop: 'bedCode', label: '床位编码', width: 120 },
-        { prop: 'applyDate', label: '申请日期', width: 120 },
-        { prop: 'stayStartDate', label: '留宿开始日期', width: 180 },
-        { prop: 'stayEndDate', label: '留宿结束日期', width: 180 },
+        { prop: 'applyDate', label: '申请日期', width: 120, sortable: true },
+        { prop: 'stayStartDate', label: '留宿开始日期', width: 180, sortable: true },
+        { prop: 'stayEndDate', label: '留宿结束日期', width: 180, sortable: true },
         { prop: 'stayReason', label: '留宿理由' },
-        { prop: 'statusText', label: '状态', width: 100 },
+        {
+          prop: 'status',
+          label: '状态',
+          width: 100,
+          formatter: (row: StayListItem) => {
+            const statusMap: Record<
+              number,
+              { type: 'warning' | 'success' | 'danger' | 'info'; text: string }
+            > = {
+              1: { type: 'warning', text: '待审核' },
+              2: { type: 'success', text: '已通过' },
+              3: { type: 'danger', text: '已拒绝' },
+              4: { type: 'info', text: '已完成' }
+            }
+            const config = statusMap[row.status] || { type: 'info', text: row.statusText || '未知' }
+            return h(ElTag, { type: config.type, size: 'small' }, () => config.text)
+          }
+        },
         {
           prop: 'action',
           label: '操作',
@@ -168,6 +185,13 @@
   const handleSearch = (params: Record<string, any>) => {
     Object.assign(searchParams, params, { pageNum: 1 })
     getData()
+  }
+
+  /**
+   * 重置搜索
+   */
+  const handleReset = () => {
+    resetSearchParams()
   }
 
   // 刷新数据

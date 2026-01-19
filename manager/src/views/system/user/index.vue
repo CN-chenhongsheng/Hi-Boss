@@ -324,6 +324,7 @@
           prop: 'lastLoginTime',
           label: '最后登录',
           width: 180,
+          sortable: true,
           formatter: (row) => row.lastLoginTime || '未登录'
         },
         {

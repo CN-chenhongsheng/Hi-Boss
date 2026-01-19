@@ -6,7 +6,7 @@
       v-show="showSearchBar"
       v-model="searchForm"
       @search="handleSearch"
-      @reset="resetSearchParams"
+      @reset="handleReset"
     ></TransferSearch>
 
     <ElCard
@@ -64,14 +64,14 @@
 </template>
 
 <script setup lang="ts">
-  import { computed, ref } from 'vue'
+  import { computed, ref, h } from 'vue'
   import { useTable } from '@/hooks/core/useTable'
   import {
     fetchGetTransferPage,
     fetchDeleteTransfer,
     fetchBatchDeleteTransfer
   } from '@/api/accommodation-manage'
-  import { ElMessageBox } from 'element-plus'
+  import { ElMessageBox, ElTag } from 'element-plus'
   import TransferSearch from './modules/transfer-search.vue'
   import TransferDrawer from './modules/transfer-drawer.vue'
 
@@ -139,9 +139,26 @@
         { prop: 'targetCampusName', label: '目标校区', width: 120 },
         { prop: 'targetRoomCode', label: '目标房间', width: 120 },
         { prop: 'targetBedCode', label: '目标床位', width: 120 },
-        { prop: 'applyDate', label: '申请日期', width: 180 },
-        { prop: 'transferDate', label: '调宿日期', width: 180 },
-        { prop: 'statusText', label: '状态', width: 100 },
+        { prop: 'applyDate', label: '申请日期', width: 180, sortable: true },
+        { prop: 'transferDate', label: '调宿日期', width: 180, sortable: true },
+        {
+          prop: 'status',
+          label: '状态',
+          width: 100,
+          formatter: (row: TransferListItem) => {
+            const statusMap: Record<
+              number,
+              { type: 'warning' | 'success' | 'danger' | 'info'; text: string }
+            > = {
+              1: { type: 'warning', text: '待审核' },
+              2: { type: 'success', text: '已通过' },
+              3: { type: 'danger', text: '已拒绝' },
+              4: { type: 'info', text: '已完成' }
+            }
+            const config = statusMap[row.status] || { type: 'info', text: row.statusText || '未知' }
+            return h(ElTag, { type: config.type, size: 'small' }, () => config.text)
+          }
+        },
         {
           prop: 'action',
           label: '操作',
@@ -169,6 +186,13 @@
   const handleSearch = (params: Record<string, any>) => {
     Object.assign(searchParams, params, { pageNum: 1 })
     getData()
+  }
+
+  /**
+   * 重置搜索
+   */
+  const handleReset = () => {
+    resetSearchParams()
   }
 
   // 刷新数据

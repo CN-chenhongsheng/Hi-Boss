@@ -262,7 +262,8 @@
         {
           prop: 'createTime',
           label: '创建时间',
-          width: 180
+          width: 180,
+          sortable: true
         },
         {
           prop: 'action',

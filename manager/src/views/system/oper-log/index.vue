@@ -163,7 +163,8 @@
         {
           prop: 'operTime',
           label: '操作时间',
-          width: 180
+          width: 180,
+          sortable: true
         },
         {
           prop: 'costTime',
