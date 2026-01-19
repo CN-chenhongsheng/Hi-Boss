@@ -207,8 +207,8 @@ public class CampusServiceImpl extends ServiceImpl<CampusMapper, Campus> impleme
 
             if (!majorCodes.isEmpty()) {
                 // 删除所有属于这些专业的班级
-                LambdaQueryWrapper<Class_> classWrapper = new LambdaQueryWrapper<>();
-                classWrapper.in(Class_::getMajorCode, majorCodes);
+                LambdaQueryWrapper<Class> classWrapper = new LambdaQueryWrapper<>();
+                classWrapper.in(Class::getMajorCode, majorCodes);
                 classMapper.delete(classWrapper);
             }
 

@@ -161,13 +161,19 @@
 
   const formData = reactive<ApprovalFlow>(initialFormData())
 
+  // ResizeObserver 用于监听容器尺寸变化
+  let resizeObserver: ResizeObserver | null = null
+
   // 初始化 LogicFlow
   const initLogicFlow = async () => {
     if (!lfContainerRef.value) return
 
     // 等待 DOM 完全渲染，确保容器尺寸正确
     await nextTick()
-    await new Promise((resolve) => setTimeout(resolve, 150))
+    // 增加延迟时间，确保弹窗完全展开
+    await new Promise((resolve) => setTimeout(resolve, 300))
+    // 使用 requestAnimationFrame 确保浏览器完成布局计算
+    await new Promise((resolve) => requestAnimationFrame(resolve))
 
     // 注册插件
     LogicFlow.use(MiniMap)
@@ -175,9 +181,9 @@
 
     // 获取容器的父元素尺寸（canvas-container）
     const parentEl = lfContainerRef.value.parentElement
-    const parentRect = parentEl?.getBoundingClientRect()
-    const width = parentRect?.width || 1000
-    const height = parentRect?.height || 400
+    // 如果尺寸为 0 或未定义，使用默认值，后续会在 renderFlow 中重新调整
+    const width = parentEl?.clientWidth || 800
+    const height = parentEl?.clientHeight || 600
 
     lfInstance = new LogicFlow({
       width,
@@ -220,8 +226,8 @@
     })
 
     // 监听边（连接线）点击 - 在边中间添加节点
-    lfInstance.on('edge:click', ({ data, e }) => {
-      handleEdgeClick(data, e)
+    lfInstance.on('edge:click', ({ data }) => {
+      handleEdgeClick(data)
     })
 
     // 监听自定义节点删除事件（从节点卡片删除按钮触发）
@@ -259,7 +265,21 @@
       clearSelection()
     })
 
-    // 渲染流程
+    // 监听容器尺寸变化，自动调整画布尺寸
+    if (parentEl) {
+      resizeObserver = new ResizeObserver(() => {
+        if (lfInstance && parentEl) {
+          const newWidth = parentEl.clientWidth
+          const newHeight = parentEl.clientHeight
+          if (newWidth > 0 && newHeight > 0) {
+            lfInstance.resize(newWidth, newHeight)
+          }
+        }
+      })
+      resizeObserver.observe(parentEl)
+    }
+
+    // 渲染流程（会在 renderFlow 中重新调整尺寸）
     renderFlow()
   }
 
@@ -291,26 +311,19 @@
         )
       }
 
+      // 获取容器实际尺寸并调整画布
+      const parentEl = lfContainerRef.value?.parentElement
+      if (parentEl && lfInstance) {
+        const actualWidth = parentEl.clientWidth
+        const actualHeight = parentEl.clientHeight
+        // 只有当尺寸大于 0 时才调整（避免在容器未完全渲染时使用错误尺寸）
+        if (actualWidth > 0 && actualHeight > 0) {
+          lfInstance.resize(actualWidth, actualHeight)
+        }
+      }
+
       // 重新渲染流程（包括所有节点和边）
       lfInstance.render(flowData)
-
-      // 等待 DOM 渲染完成后调整画布大小
-      nextTick(() => {
-        setTimeout(() => {
-          // 获取容器实际尺寸并调整画布
-          const parentEl = lfContainerRef.value?.parentElement
-          if (parentEl) {
-            const rect = parentEl.getBoundingClientRect()
-            lfInstance?.resize(rect.width, rect.height)
-          }
-
-          // 缩小后再居中，确保内容居中显示
-          lfInstance?.zoom(0.7)
-
-          // 先自适应视图并居中
-          lfInstance?.fitView(800)
-        }, 100)
-      })
     } catch (error) {
       console.error('[FlowEditDialog] 渲染流程失败:', error)
     }
@@ -841,6 +854,12 @@
     Object.assign(formData, initialFormData())
     clearSelection()
 
+    // 清理 ResizeObserver
+    if (resizeObserver) {
+      resizeObserver.disconnect()
+      resizeObserver = null
+    }
+
     // 销毁 LogicFlow 实例
     if (lfInstance) {
       lfInstance.destroy()
@@ -948,6 +967,12 @@
     if (handleNodeDeleteFromButton) {
       document.removeEventListener('logicflow-node-delete', handleNodeDeleteFromButton)
       handleNodeDeleteFromButton = null
+    }
+
+    // 清理 ResizeObserver
+    if (resizeObserver) {
+      resizeObserver.disconnect()
+      resizeObserver = null
     }
 
     // 清理 LogicFlow 实例

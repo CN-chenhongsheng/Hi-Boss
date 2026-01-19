@@ -37,7 +37,7 @@ import java.util.Map;
  */
 @Slf4j
 @RestController
-@RequestMapping("/v1/approval")
+@RequestMapping("/v1/system/approval")
 @RequiredArgsConstructor
 @Tag(name = "审批管理", description = "审批流程配置、审批操作等")
 public class ApprovalController {

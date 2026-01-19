@@ -39,7 +39,7 @@ import static org.mockito.Mockito.when;
  */
 @ExtendWith(MockitoExtension.class)
 @DisplayName("用户服务测试")
-public class SysUserServiceTest {
+public class UserServiceTest {
 
     @Mock
     private UserMapper userMapper;

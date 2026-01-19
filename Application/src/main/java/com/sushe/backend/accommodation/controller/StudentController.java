@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @author 陈鸿昇
  * @since 2026-01-06
  */
-@RestController
+@RestController("accommodationStudentController")
 @RequestMapping("/v1/system/student")
 @RequiredArgsConstructor
 public class StudentController extends BaseCrudController<StudentVO, StudentQueryDTO, StudentSaveDTO>

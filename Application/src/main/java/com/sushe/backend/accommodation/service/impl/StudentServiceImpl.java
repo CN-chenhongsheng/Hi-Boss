@@ -15,7 +15,7 @@ import com.sushe.backend.accommodation.vo.StudentVO;
 import com.sushe.backend.common.exception.BusinessException;
 import com.sushe.backend.common.result.PageResult;
 import com.sushe.backend.organization.entity.Campus;
-import com.sushe.backend.organization.entity.Class_;
+import com.sushe.backend.organization.entity.Class;
 import com.sushe.backend.organization.entity.Department;
 import com.sushe.backend.organization.entity.Major;
 import com.sushe.backend.organization.mapper.CampusMapper;
@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
  * @since 2026-01-06
  */
 @Slf4j
-@Service
+@Service("accommodationStudentServiceImpl")
 @RequiredArgsConstructor
 public class StudentServiceImpl extends ServiceImpl<StudentMapper, Student> implements StudentService {
 
@@ -257,7 +257,7 @@ public class StudentServiceImpl extends ServiceImpl<StudentMapper, Student> impl
 
         // 查询班级名称
         if (student.getClassId() != null) {
-            Class_ classEntity = classMapper.selectById(student.getClassId());
+            Class classEntity = classMapper.selectById(student.getClassId());
             if (classEntity != null) {
                 vo.setClassName(classEntity.getClassName());
             }

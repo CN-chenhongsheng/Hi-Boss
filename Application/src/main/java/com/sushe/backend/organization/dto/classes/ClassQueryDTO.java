@@ -31,6 +31,9 @@ public class ClassQueryDTO {
     @Schema(description = "年级")
     private String grade;
 
+    @Schema(description = "入学年份")
+    private Integer enrollmentYear;
+
     @Schema(description = "状态：1启用 0停用")
     private Integer status;
 

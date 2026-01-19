@@ -97,7 +97,7 @@ public class AuthInterceptor implements HandlerInterceptor {
                 log.debug("Token 验证成功，用户ID: {}", userId);
 
                 // 5. 查询用户信息：先查询管理员/宿管员（sys_user），如果不存在则查询学生（sys_student）
-                SysUser user = userMapper.selectById(userId);
+                User user = userMapper.selectById(userId);
                 UserContext.LoginUser loginUser = new UserContext.LoginUser();
 
                 if (user != null) {

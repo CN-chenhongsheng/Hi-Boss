@@ -1,10 +1,10 @@
 package com.sushe.backend.controller.mobile;
 
 import com.sushe.backend.common.result.R;
-import com.sushe.backend.dto.student.StudentLifestyleDTO;
+import com.sushe.backend.accommodation.dto.student.StudentLifestyleDTO;
 import com.sushe.backend.service.StudentService;
-import com.sushe.backend.vo.student.DormInfoVO;
-import com.sushe.backend.vo.student.RoommateVO;
+import com.sushe.backend.accommodation.vo.student.DormInfoVO;
+import com.sushe.backend.accommodation.vo.student.RoommateVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +25,7 @@ import java.util.List;
  */
 @Slf4j
 @Tag(name = "学生端", description = "学生端相关接口")
-@RestController
+@RestController("mobileStudentController")
 @RequestMapping("/v1/student")
 @RequiredArgsConstructor
 public class StudentController {

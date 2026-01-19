@@ -32,7 +32,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ActiveProfiles("test")
 @DisplayName("用户控制器集成测试")
 @Transactional
-public class SysUserControllerIntegrationTest {
+public class UserControllerIntegrationTest {
 
     @Autowired
     private MockMvc mockMvc;
