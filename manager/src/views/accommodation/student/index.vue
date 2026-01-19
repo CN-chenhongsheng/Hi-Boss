@@ -42,6 +42,7 @@
         :data="data"
         :pagination="pagination"
         :stripe="false"
+        :table-layout="'fixed'"
         row-key="id"
         @selection-change="handleSelectionChange"
         @pagination:size-change="handleSizeChange"
