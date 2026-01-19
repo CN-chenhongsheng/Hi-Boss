@@ -41,12 +41,10 @@
 
       <ArtTable
         :loading="loading"
-        :columns="columns"
         :data="data"
+        :columns="columns"
         :pagination="pagination"
-        :stripe="false"
         row-key="id"
-        :table-layout="'fixed'"
         @selection-change="handleSelectionChange"
         @pagination:size-change="handleSizeChange"
         @pagination:current-change="handleCurrentChange"
