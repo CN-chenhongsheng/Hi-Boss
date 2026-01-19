@@ -29,7 +29,7 @@
  * ```
  *
  * @module useTableColumns
- * @author HongSheng_Chen Team
+ * @author 陈鸿昇
  */
 
 import { ref, computed, watch, h } from 'vue'

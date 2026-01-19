@@ -20,7 +20,7 @@
  * - 类型提示和自动补全
  *
  * @module types/store/index
- * @author HongSheng_Chen Team
+ * @author 陈鸿昇
  */
 
 import { MenuThemeEnum, SystemThemeEnum } from '@/enums/appEnum'

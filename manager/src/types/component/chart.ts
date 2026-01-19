@@ -25,7 +25,7 @@
  * - 图表事件处理
  *
  * @module types/component/chart
- * @author HongSheng_Chen Team
+ * @author 陈鸿昇
  */
 import type { EChartsOption } from '@/plugins/echarts'
 
@@ -280,9 +280,7 @@ export interface MapChartProps extends BaseChartProps {
 
 // 双向堆叠柱状图 Props 接口（人口金字塔样式）
 export interface BidirectionalBarChartProps
-  extends BaseChartProps,
-    AxisDisplayProps,
-    InteractionProps {
+  extends BaseChartProps, AxisDisplayProps, InteractionProps {
   /** 正向数据（向上显示） */
   positiveData: number[]
   /** 负向数据（向下显示） */

@@ -27,7 +27,7 @@
  * ```
  *
  * @module useAuth
- * @author HongSheng_Chen Team
+ * @author 陈鸿昇
  */
 
 import { useRoute } from 'vue-router'

@@ -21,7 +21,7 @@
  * - 配置数据验证
  *
  * @module types/config/index
- * @author HongSheng_Chen Team
+ * @author 陈鸿昇
  */
 
 import { MenuTypeEnum, SystemThemeEnum } from '@/enums/appEnum'

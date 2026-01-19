@@ -28,7 +28,7 @@
  * ```
  *
  * @module useTheme
- * @author HongSheng_Chen Team
+ * @author 陈鸿昇
  */
 
 import { useSettingStore } from '@/store/modules/setting'

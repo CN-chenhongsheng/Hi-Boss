@@ -17,7 +17,7 @@
  * - 权限控制
  *
  * @module types/router/index
- * @author HongSheng_Chen Team
+ * @author 陈鸿昇
  */
 
 import { RouteRecordRaw } from 'vue-router'

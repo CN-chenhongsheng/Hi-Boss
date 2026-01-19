@@ -23,7 +23,7 @@
  * - 用户配置跨页面保持
  *
  * @module store/modules/table
- * @author HongSheng_Chen Team
+ * @author 陈鸿昇
  */
 import { defineStore } from 'pinia'
 import { ref } from 'vue'

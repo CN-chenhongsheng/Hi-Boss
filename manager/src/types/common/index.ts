@@ -24,7 +24,7 @@
  * - 减少重复类型定义
  *
  * @module types/common/index
- * @author HongSheng_Chen Team
+ * @author 陈鸿昇
  */
 
 // 导出响应类型

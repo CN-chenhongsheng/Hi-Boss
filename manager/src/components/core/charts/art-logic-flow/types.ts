@@ -2,7 +2,7 @@
  * LogicFlow 组件类型定义
  *
  * @module components/core/charts/art-logic-flow/types
- * @author HongSheng_Chen Team
+ * @author 陈鸿昇
  */
 
 /**

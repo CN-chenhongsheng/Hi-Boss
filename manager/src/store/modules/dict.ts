@@ -17,7 +17,7 @@
  * - 在字典管理页面更新后刷新缓存
  *
  * @module store/modules/dict
- * @author HongSheng_Chen Team
+ * @author 陈鸿昇
  */
 import { defineStore } from 'pinia'
 import { reactive } from 'vue'

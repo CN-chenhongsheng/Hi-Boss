@@ -18,7 +18,7 @@
  * - en: English
  *
  * @module locales
- * @author HongSheng_Chen Team
+ * @author 陈鸿昇
  */
 
 import { createI18n } from 'vue-i18n'

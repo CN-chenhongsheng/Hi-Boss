@@ -26,7 +26,7 @@
  * - 提供便捷的显示/隐藏方法
  *
  * @module utils/ui/loading
- * @author HongSheng_Chen Team
+ * @author 陈鸿昇
  */
 import { fourDotsSpinnerSvg } from '@/assets/svg/loading'
 

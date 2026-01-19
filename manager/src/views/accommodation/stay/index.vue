@@ -53,49 +53,27 @@
     </ElCard>
 
     <!-- 申请详情抽屉 -->
-    <ApplyDrawer
-      v-model="drawerVisible"
-      business-type="stay"
-      :business-id="currentRow?.id || null"
+    <StayDrawer
+      :visible="drawerVisible"
+      :stay-id="currentRow?.id || null"
+      :stay-data="currentRow"
+      @update:visible="drawerVisible = $event"
       @approval-success="handleRefresh"
-    >
-      <template #detail>
-        <ElDescriptions :column="2" border v-if="currentRow">
-          <ElDescriptionsItem label="学号">{{ currentRow.studentNo }}</ElDescriptionsItem>
-          <ElDescriptionsItem label="学生姓名">{{ currentRow.studentName }}</ElDescriptionsItem>
-          <ElDescriptionsItem label="校区">{{ currentRow.campusName }}</ElDescriptionsItem>
-          <ElDescriptionsItem label="房间编码">{{ currentRow.roomCode }}</ElDescriptionsItem>
-          <ElDescriptionsItem label="床位编码">{{ currentRow.bedCode }}</ElDescriptionsItem>
-          <ElDescriptionsItem label="申请日期">{{ currentRow.applyDate }}</ElDescriptionsItem>
-          <ElDescriptionsItem label="留宿开始日期">{{
-            currentRow.stayStartDate
-          }}</ElDescriptionsItem>
-          <ElDescriptionsItem label="留宿结束日期">{{ currentRow.stayEndDate }}</ElDescriptionsItem>
-          <ElDescriptionsItem label="状态">
-            <ElTag :type="getStatusTagType(currentRow.status)" size="small">
-              {{ currentRow.statusText }}
-            </ElTag>
-          </ElDescriptionsItem>
-          <ElDescriptionsItem label="留宿理由" :span="2">
-            {{ currentRow.stayReason || '-' }}
-          </ElDescriptionsItem>
-        </ElDescriptions>
-      </template>
-    </ApplyDrawer>
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-  import { computed } from 'vue'
+  import { computed, ref } from 'vue'
   import { useTable } from '@/hooks/core/useTable'
   import {
     fetchGetStayPage,
     fetchDeleteStay,
     fetchBatchDeleteStay
   } from '@/api/accommodation-manage'
-  import { ElMessageBox, ElTag } from 'element-plus'
+  import { ElMessageBox } from 'element-plus'
   import StaySearch from './modules/stay-search.vue'
-  import ApplyDrawer from '../components/apply-drawer.vue'
+  import StayDrawer from './modules/stay-drawer.vue'
 
   defineOptions({ name: 'AccommodationStay' })
 
@@ -108,22 +86,6 @@
   const selectedCount = computed(() => selectedRows.value.length)
   const drawerVisible = ref(false)
   const currentRow = ref<StayListItem | null>(null)
-
-  // 状态标签类型
-  const getStatusTagType = (status: number) => {
-    switch (status) {
-      case 1:
-        return 'warning'
-      case 2:
-        return 'success'
-      case 3:
-        return 'danger'
-      case 4:
-        return 'info'
-      default:
-        return 'info'
-    }
-  }
 
   // 搜索表单
   const searchForm = ref<Api.AccommodationManage.StaySearchParams>({
@@ -184,14 +146,17 @@
           label: '操作',
           width: 150,
           fixed: 'right',
-          actions: [
-            { type: 'view', onClick: (row: StayListItem) => handleView(row) },
-            {
-              type: 'delete',
-              onClick: (row: StayListItem) => handleDelete(row),
-              auth: 'system:stay:delete'
-            }
-          ]
+          formatter: (row: StayListItem) => {
+            return [
+              { type: 'view', onClick: () => handleView(row), label: '查看' },
+              {
+                type: 'delete',
+                onClick: () => handleDelete(row),
+                danger: true,
+                auth: 'system:stay:delete'
+              }
+            ]
+          }
         }
       ]
     }

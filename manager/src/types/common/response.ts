@@ -16,7 +16,7 @@
  * - 响应数据解析
  *
  * @module types/common/response
- * @author HongSheng_Chen Team
+ * @author 陈鸿昇
  */
 
 /** 基础 API 响应结构 */

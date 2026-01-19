@@ -2,7 +2,7 @@
  * LogicFlow 工具函数
  *
  * @module components/core/charts/art-logic-flow/utils
- * @author HongSheng_Chen Team
+ * @author 陈鸿昇
  */
 
 import type { LogicFlowData, LogicFlowNode, LogicFlowEdge, TreeNode, LayoutConfig } from './types'

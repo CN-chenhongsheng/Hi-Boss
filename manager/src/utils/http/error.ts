@@ -19,7 +19,7 @@
  * - 错误日志收集和上报
  *
  * @module utils/http/error
- * @author HongSheng_Chen Team
+ * @author 陈鸿昇
  */
 import { AxiosError } from 'axios'
 import { ApiStatus } from './status'

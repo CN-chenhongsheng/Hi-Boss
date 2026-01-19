@@ -8,19 +8,25 @@
     destroy-on-close
   >
     <ElTable :data="bindingList" v-loading="loading">
-      <ElTableColumn prop="businessTypeText" label="业务类型" width="120" />
+      <ElTableColumn prop="businessTypeText" label="业务类型" />
       <ElTableColumn prop="flowName" label="绑定流程">
         <template #default="{ row }">
           <span v-if="row.flowName">{{ row.flowName }}</span>
           <span v-else class="text-gray-400">未绑定</span>
         </template>
       </ElTableColumn>
-      <ElTableColumn prop="statusText" label="状态" width="80">
+      <ElTableColumn prop="statusText" label="状态">
         <template #default="{ row }">
-          <ElTag v-if="row.flowId" :type="row.status === 1 ? 'success' : 'info'" size="small">
-            {{ row.statusText }}
-          </ElTag>
-          <span v-else>-</span>
+          <ArtSwitch
+            v-if="row.flowId"
+            :modelValue="row.status === 1"
+            :loading="row.statusLoading"
+            inline-prompt
+            @change="
+              (val: boolean | string | number) =>
+                handleStatusChange(row, val === true || val === 1 ? 1 : 0)
+            "
+          />
         </template>
       </ElTableColumn>
       <ElTableColumn label="操作" width="150" fixed="right">
@@ -56,7 +62,7 @@
               v-for="flow in flowOptions"
               :key="flow.id"
               :label="flow.flowName"
-              :value="flow.id"
+              :value="flow.id!"
             >
               <span>{{ flow.flowName }}</span>
               <span class="text-gray-400 ml-2">({{ flow.flowCode }})</span>
@@ -85,10 +91,12 @@
   } from '@/api/approval-manage'
   import { ElMessageBox, ElMessage } from 'element-plus'
   import { useBusinessType } from '@/hooks'
+  import ArtSwitch from '@/components/core/forms/art-switch/index.vue'
 
   interface BindingItem extends Partial<ApprovalFlowBinding> {
     businessType: string
     businessTypeText: string
+    statusLoading?: boolean
   }
 
   const props = defineProps<{
@@ -144,6 +152,7 @@
         return {
           businessType: bt.value,
           businessTypeText: bt.label,
+          statusLoading: false,
           ...binding
         }
       })
@@ -190,6 +199,33 @@
       console.error('绑定失败:', error)
     } finally {
       bindLoading.value = false
+    }
+  }
+
+  const handleStatusChange = async (row: BindingItem, status: number) => {
+    if (!row.flowId) {
+      return
+    }
+
+    const oldStatus = row.status ?? 0
+    row.status = status
+    row.statusLoading = true
+
+    try {
+      await fetchBindFlow({
+        businessType: row.businessType,
+        flowId: row.flowId,
+        status
+      })
+      await loadData()
+      emit('success')
+    } catch (error) {
+      console.error('更新状态失败:', error)
+      // 恢复原状态
+      row.status = oldStatus
+      ElMessage.error('更新状态失败')
+    } finally {
+      row.statusLoading = false
     }
   }
 

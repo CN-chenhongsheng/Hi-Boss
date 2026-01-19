@@ -39,7 +39,7 @@
  * - RGBA: rgba(255, 255, 255, 0.5)
  *
  * @module utils/ui/colors
- * @author HongSheng_Chen Team
+ * @author 陈鸿昇
  */
 import { useSettingStore } from '@/store/modules/setting'
 

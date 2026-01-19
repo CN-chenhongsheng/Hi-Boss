@@ -2,7 +2,7 @@
  * LogicFlow 默认配置
  *
  * @module components/core/charts/art-logic-flow/config
- * @author HongSheng_Chen Team
+ * @author 陈鸿昇
  */
 
 import type { LogicFlowConfig } from './types'

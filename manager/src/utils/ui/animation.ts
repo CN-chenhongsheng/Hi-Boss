@@ -25,7 +25,7 @@
  * - 自动计算最大扩散半径
  *
  * @module utils/theme/animation
- * @author HongSheng_Chen Team
+ * @author 陈鸿昇
  */
 import { useCommon } from '@/hooks/core/useCommon'
 import { useTheme } from '@/hooks/core/useTheme'

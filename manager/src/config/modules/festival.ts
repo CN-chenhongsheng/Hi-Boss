@@ -20,7 +20,7 @@
  * - 每个用户每天只会播放一次烟花效果
  *
  * @module config/modules/festival
- * @author HongSheng_Chen Team
+ * @author 陈鸿昇
  */
 
 import { FestivalConfig } from '@/types/config'

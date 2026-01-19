@@ -2,7 +2,7 @@
  * 层级数据加载工具
  *
  * @module utils/school/scopeDataLoader
- * @author HongSheng_Chen Team
+ * @author 陈鸿昇
  */
 
 import { fetchGetSchoolHierarchy } from '@/api/school-manage'

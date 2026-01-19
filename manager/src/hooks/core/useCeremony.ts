@@ -37,7 +37,7 @@
  * ```
  *
  * @module useCeremony
- * @author HongSheng_Chen Team
+ * @author 陈鸿昇
  */
 
 import { useTimeoutFn, useIntervalFn, useDateFormat } from '@vueuse/core'

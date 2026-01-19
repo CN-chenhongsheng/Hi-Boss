@@ -3,7 +3,7 @@
  * 包含审批流程配置、审批操作等接口
  *
  * @module api/approval-manage
- * @author 系统生成
+ * @author 陈鸿昇
  * @date 2026-01-17
  */
 

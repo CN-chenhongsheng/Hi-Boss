@@ -2,7 +2,7 @@
  * 路由和导航相关工具函数统一导出
  *
  * @module utils/navigation/index
- * @author HongSheng_Chen Team
+ * @author 陈鸿昇
  */
 
 export * from './jump'

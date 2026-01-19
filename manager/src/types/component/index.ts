@@ -18,7 +18,7 @@
  * - 组件事件参数类型
  *
  * @module types/component/index
- * @author HongSheng_Chen Team
+ * @author 陈鸿昇
  */
 
 // 搜索组件类型

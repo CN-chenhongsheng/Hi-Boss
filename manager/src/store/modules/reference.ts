@@ -31,7 +31,7 @@
  * - 提升用户体验（快速响应 + 数据自动更新）
  *
  * @module store/modules/reference
- * @author HongSheng_Chen Team
+ * @author 陈鸿昇
  */
 import { defineStore } from 'pinia'
 import { reactive } from 'vue'

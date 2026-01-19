@@ -35,7 +35,7 @@
  * - 刷新页面保持标签状态
  *
  * @module store/modules/worktab
- * @author HongSheng_Chen Team
+ * @author 陈鸿昇
  */
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'

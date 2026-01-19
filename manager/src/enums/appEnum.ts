@@ -11,7 +11,7 @@
  * - 菜单宽度枚举（收起宽度）
  *
  * @module enums/appEnum
- * @author HongSheng_Chen Team
+ * @author 陈鸿昇
  */
 
 /**

@@ -13,7 +13,7 @@
  * 5. 自动查找模式 - 提供通过 ID 自动查找元素的便捷方式
  *
  * @module useLayoutHeight
- * @author HongSheng_Chen Team
+ * @author 陈鸿昇
  */
 
 import { ref, computed, watch, onMounted } from 'vue'

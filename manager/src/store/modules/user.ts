@@ -29,7 +29,7 @@
  * - 登出时自动清理
  *
  * @module store/modules/user
- * @author HongSheng_Chen Team
+ * @author 陈鸿昇
  */
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'

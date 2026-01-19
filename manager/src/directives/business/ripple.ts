@@ -34,7 +34,7 @@
  * - 自定义：通过 color 参数指定任意颜色
  *
  * @module directives/ripple
- * @author HongSheng_Chen Team
+ * @author 陈鸿昇
  */
 
 import type { App, Directive, DirectiveBinding } from 'vue'

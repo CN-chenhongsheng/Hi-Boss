@@ -2,7 +2,7 @@
  * 路由核心模块导出
  *
  * @module router/core
- * @author HongSheng_Chen Team
+ * @author 陈鸿昇
  */
 
 export { RouteRegistry } from './RouteRegistry'

@@ -9,7 +9,7 @@ import lombok.EqualsAndHashCode;
 /**
  * 审批流程定义表
  * 
- * @author 系统生成
+ * @author 陈鸿昇
  * @since 2026-01-17
  */
 @Data

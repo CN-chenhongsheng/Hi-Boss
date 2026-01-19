@@ -8,7 +8,7 @@ import org.apache.ibatis.annotations.Select;
 /**
  * 审批流程绑定Mapper
  * 
- * @author 系统生成
+ * @author 陈鸿昇
  * @since 2026-01-17
  */
 @Mapper
@@ -20,7 +20,7 @@ public interface SysApprovalFlowBindingMapper extends BaseMapper<SysApprovalFlow
      * @param businessType 业务类型
      * @return 绑定信息
      */
-    @Select("SELECT * FROM sys_approval_flow_binding WHERE business_type = #{businessType} AND status = 1")
+    @Select("SELECT * FROM sys_approval_flow_binding WHERE business_type = #{businessType}")
     SysApprovalFlowBinding selectByBusinessType(String businessType);
 
     /**

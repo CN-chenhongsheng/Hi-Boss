@@ -2,7 +2,7 @@
  * 管理范围格式化工具函数
  *
  * @module utils/school/scopeFormatter
- * @author HongSheng_Chen Team
+ * @author 陈鸿昇
  */
 
 import { parseManageScope } from './scopeSelector'

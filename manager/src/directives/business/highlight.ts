@@ -38,7 +38,7 @@
  * - 智能监听：只在有新代码块时才触发处理
  *
  * @module directives/highlight
- * @author HongSheng_Chen Team
+ * @author 陈鸿昇
  */
 
 import { App, Directive } from 'vue'

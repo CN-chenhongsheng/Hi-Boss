@@ -46,7 +46,7 @@
  * ```
  *
  * @module useChart
- * @author HongSheng_Chen Team
+ * @author 陈鸿昇
  */
 
 import { echarts, type EChartsOption } from '@/plugins/echarts'

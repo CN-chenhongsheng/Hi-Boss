@@ -31,7 +31,7 @@
  * - tab-google: 谷歌浏览器风格标签页
  *
  * @module utils/ui/tabs
- * @author HongSheng_Chen Team
+ * @author 陈鸿昇
  */
 export const TAB_CONFIG = {
   'tab-default': {

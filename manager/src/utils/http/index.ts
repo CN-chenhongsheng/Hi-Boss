@@ -11,7 +11,7 @@
  * - 支持 GET/POST/PUT/DELETE 等常用方法
  *
  * @module utils/http
- * @author HongSheng_Chen Team
+ * @author 陈鸿昇
  */
 
 import axios, {

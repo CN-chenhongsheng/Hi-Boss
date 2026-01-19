@@ -4,7 +4,7 @@
  * 负责菜单数据的获取、过滤和处理
  *
  * @module router/core/MenuProcessor
- * @author HongSheng_Chen Team
+ * @author 陈鸿昇
  */
 
 import type { AppRouteRecord } from '@/types/router'

@@ -12,7 +12,7 @@
  * 4. 响应式状态 - 所有状态自动响应配置和 store 变化
  *
  * @module useHeaderBar
- * @author HongSheng_Chen Team
+ * @author 陈鸿昇
  */
 
 import { computed } from 'vue'

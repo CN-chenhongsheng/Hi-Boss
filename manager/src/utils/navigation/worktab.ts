@@ -19,7 +19,7 @@
  * - 多标签页导航系统
  *
  * @module utils/navigation/worktab
- * @author HongSheng_Chen Team
+ * @author 陈鸿昇
  */
 import { useWorktabStore } from '@/store/modules/worktab'
 import { RouteLocationNormalized } from 'vue-router'

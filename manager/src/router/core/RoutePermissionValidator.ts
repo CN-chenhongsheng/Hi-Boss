@@ -17,7 +17,7 @@
  * - 防止用户访问无权限的页面
  *
  * @module router/core/RoutePermissionValidator
- * @author HongSheng_Chen Team
+ * @author 陈鸿昇
  */
 
 import type { AppRouteRecord } from '@/types/router'

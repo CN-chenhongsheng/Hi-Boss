@@ -8,7 +8,7 @@ import java.io.Serializable;
 /**
  * 审批人展示VO
  * 
- * @author 系统生成
+ * @author 陈鸿昇
  * @since 2026-01-17
  */
 @Data

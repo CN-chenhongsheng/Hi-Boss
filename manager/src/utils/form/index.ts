@@ -2,7 +2,7 @@
  * 表单工具函数统一导出
  *
  * @module utils/form
- * @author HongSheng_Chen Team
+ * @author 陈鸿昇
  */
 
 // 表单验证器

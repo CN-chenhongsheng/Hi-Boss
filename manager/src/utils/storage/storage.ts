@@ -30,7 +30,7 @@
  * 5. 异常时提示用户并执行登出
  *
  * @module utils/storage/storage
- * @author HongSheng_Chen Team
+ * @author 陈鸿昇
  */
 import { router } from '@/router'
 import { useUserStore } from '@/store/modules/user'

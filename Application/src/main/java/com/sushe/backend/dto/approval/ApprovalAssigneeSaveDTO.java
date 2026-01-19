@@ -7,7 +7,7 @@ import lombok.Data;
 /**
  * 审批人保存DTO
  * 
- * @author 系统生成
+ * @author 陈鸿昇
  * @since 2026-01-17
  */
 @Data

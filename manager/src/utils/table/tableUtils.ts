@@ -36,7 +36,7 @@
  * - createErrorHandler: 生成错误处理器
  *
  * @module utils/table/tableUtils
- * @author HongSheng_Chen Team
+ * @author 陈鸿昇
  */
 
 import type { ApiResponse } from './tableCache'

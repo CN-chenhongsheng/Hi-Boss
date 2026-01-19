@@ -4,7 +4,7 @@
  * 负责将菜单数据转换为 Vue Router 路由配置
  *
  * @module router/core/RouteTransformer
- * @author HongSheng_Chen Team
+ * @author 陈鸿昇
  */
 
 import type { RouteRecordRaw } from 'vue-router'

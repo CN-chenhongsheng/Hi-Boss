@@ -32,7 +32,7 @@ import java.util.Map;
 /**
  * 审批管理控制器
  * 
- * @author 系统生成
+ * @author 陈鸿昇
  * @since 2026-01-17
  */
 @Slf4j
@@ -137,12 +137,12 @@ public class SysApprovalController {
     }
 
     @PostMapping("/binding")
-    @Operation(summary = "绑定流程")
+    @Operation(summary = "修改流程状态")
     @Log(title = "绑定审批流程", businessType = 1)
     public R<Void> bindFlow(@Valid @RequestBody ApprovalFlowBindingDTO bindingDTO) {
         log.info("绑定审批流程，参数：{}", bindingDTO);
         boolean success = flowService.bindFlow(bindingDTO);
-        return success ? R.ok("绑定成功", null) : R.fail("绑定失败");
+        return success ? R.ok("状态修改成功", null) : R.fail("状态修改失败");
     }
 
     @DeleteMapping("/binding/{businessType}")

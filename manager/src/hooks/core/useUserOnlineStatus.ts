@@ -20,7 +20,7 @@
  * ```
  *
  * @module useUserOnlineStatus
- * @author HongSheng_Chen Team
+ * @author 陈鸿昇
  */
 
 import { ref, computed, watch } from 'vue'

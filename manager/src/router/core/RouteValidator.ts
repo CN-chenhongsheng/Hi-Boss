@@ -4,7 +4,7 @@
  * 负责验证路由配置的合法性
  *
  * @module router/core/RouteValidator
- * @author HongSheng_Chen Team
+ * @author 陈鸿昇
  */
 
 import type { AppRouteRecord } from '@/types/router'

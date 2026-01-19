@@ -29,7 +29,7 @@
  * ```
  *
  * @module types/api/api
- * @author HongSheng_Chen Team
+ * @author 陈鸿昇
  */
 
 declare namespace Api {

@@ -12,7 +12,7 @@
  * 4. 平滑滚动 - 支持平滑滚动动画效果
  *
  * @module useCommon
- * @author HongSheng_Chen Team
+ * @author 陈鸿昇
  */
 
 import { computed } from 'vue'

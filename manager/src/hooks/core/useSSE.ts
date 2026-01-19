@@ -33,7 +33,7 @@
  * ```
  *
  * @module useSSE
- * @author HongSheng_Chen Team
+ * @author 陈鸿昇
  */
 
 import { ref, onMounted, onUnmounted } from 'vue'

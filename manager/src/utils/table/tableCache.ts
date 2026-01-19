@@ -30,7 +30,7 @@
  * - KEEP_ALL: 不清除缓存（适用于只读操作）
  *
  * @module utils/table/tableCache
- * @author HongSheng_Chen Team
+ * @author 陈鸿昇
  */
 import { hash } from 'ohash'
 

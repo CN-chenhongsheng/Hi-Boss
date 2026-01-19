@@ -3,7 +3,7 @@
  * 集中管理便于维护和更新链接地址
  *
  * @module utils/constants/links
- * @author HongSheng_Chen Team
+ * @author 陈鸿昇
  */
 export const WEB_LINKS = {
   // Github 主页

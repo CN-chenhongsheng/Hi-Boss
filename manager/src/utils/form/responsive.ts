@@ -31,7 +31,7 @@
  * - createResponsiveSpanCalculator: 创建 span 计算器（柯里化）
  *
  * @module utils/form/responsive
- * @author HongSheng_Chen Team
+ * @author 陈鸿昇
  */
 
 /**

@@ -5,7 +5,7 @@
  * 只注册项目中实际使用的图表类型和组件。
  *
  * @module plugins/echarts
- * @author HongSheng_Chen Team
+ * @author 陈鸿昇
  */
 
 // ECharts 按需导入配置

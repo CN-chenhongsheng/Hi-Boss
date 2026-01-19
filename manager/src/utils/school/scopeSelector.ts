@@ -2,7 +2,7 @@
  * 管理范围选择工具函数
  *
  * @module utils/school/scopeSelector
- * @author HongSheng_Chen Team
+ * @author 陈鸿昇
  */
 
 import type { FullHierarchyTree, HierarchyNode } from './scopeDataLoader'

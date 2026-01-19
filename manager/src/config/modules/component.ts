@@ -12,7 +12,7 @@
  * - 配置查询 - 提供工具函数快速查询组件配置
  *
  * @module config/component
- * @author HongSheng_Chen Team
+ * @author 陈鸿昇
  */
 
 import { defineAsyncComponent } from 'vue'

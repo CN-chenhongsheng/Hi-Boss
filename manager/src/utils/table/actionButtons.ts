@@ -4,7 +4,7 @@
  * 提供操作列按钮的自动渲染和数量管理功能
  *
  * @module utils/table/actionButtons
- * @author HongSheng_Chen Team
+ * @author 陈鸿昇
  */
 
 import { h, VNode } from 'vue'

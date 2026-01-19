@@ -7,7 +7,7 @@
  * - 表格尺寸枚举（默认、紧凑、宽松）
  *
  * @module enums/formEnum
- * @author HongSheng_Chen Team
+ * @author 陈鸿昇
  */
 
 // 页面类型

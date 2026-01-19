@@ -28,7 +28,7 @@
  * - 支持跨版本数据迁移
  *
  * @module store/modules/setting
- * @author HongSheng_Chen Team
+ * @author 陈鸿昇
  */
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'

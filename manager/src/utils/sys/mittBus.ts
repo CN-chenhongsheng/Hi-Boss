@@ -39,7 +39,7 @@
  * - openLockScreen: 打开锁屏
  *
  * @module utils/sys/mittBus
- * @author HongSheng_Chen Team
+ * @author 陈鸿昇
  */
 import mitt, { type Emitter } from 'mitt'
 

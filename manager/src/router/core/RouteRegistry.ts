@@ -4,7 +4,7 @@
  * 负责动态路由的注册、验证和管理
  *
  * @module router/core/RouteRegistry
- * @author HongSheng_Chen Team
+ * @author 陈鸿昇
  */
 
 import type { Router, RouteRecordRaw } from 'vue-router'

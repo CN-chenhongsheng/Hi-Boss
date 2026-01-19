@@ -27,7 +27,7 @@
  * 4. 返回当前版本的存储键供使用
  *
  * @module utils/storage/storage-key-manager
- * @author HongSheng_Chen Team
+ * @author 陈鸿昇
  */
 import { StorageConfig } from '@/utils/storage'
 
