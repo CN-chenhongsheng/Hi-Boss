@@ -7,17 +7,17 @@ import com.sushe.backend.common.exception.BusinessException;
 import com.sushe.backend.dto.auth.LoginDTO;
 import com.sushe.backend.dto.auth.StudentLoginDTO;
 import com.sushe.backend.dto.auth.WxLoginDTO;
-import com.sushe.backend.entity.SysStudent;
+import com.sushe.backend.accommodation.entity.Student;
+import com.sushe.backend.accommodation.mapper.StudentMapper;
+import com.sushe.backend.accommodation.vo.StudentVO;
 import com.sushe.backend.entity.SysUser;
 import com.sushe.backend.mapper.SysMenuMapper;
 import com.sushe.backend.mapper.SysRoleMapper;
-import com.sushe.backend.mapper.SysStudentMapper;
 import com.sushe.backend.mapper.SysUserMapper;
 import com.sushe.backend.service.AuthService;
 import com.sushe.backend.service.UserOnlineService;
 import com.sushe.backend.util.RefreshTokenUtil;
 import com.sushe.backend.vo.LoginVO;
-import com.sushe.backend.vo.StudentVO;
 import com.sushe.backend.vo.UserInfoVO;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -47,7 +47,7 @@ public class AuthServiceImpl implements AuthService {
     private final SysMenuMapper menuMapper;
     private final BCryptPasswordEncoder passwordEncoder;
     private final UserOnlineService userOnlineService;
-    private final SysStudentMapper studentMapper;
+    private final StudentMapper studentMapper;
 
     /**
      * Refresh Token Cookie 名称
@@ -366,7 +366,7 @@ public class AuthServiceImpl implements AuthService {
         log.info("学生登录: {}", studentLoginDTO.getStudentNo());
 
         // 1. 查询并验证学生
-        SysStudent student = validateStudentCredentials(studentLoginDTO);
+        Student student = validateStudentCredentials(studentLoginDTO);
 
         // 2. 执行登录并生成令牌
         String accessToken = performLogin(student.getId());
@@ -390,9 +390,9 @@ public class AuthServiceImpl implements AuthService {
         String openid = wxLoginDTO.getCode();
 
         // 根据 openid 查询学生
-        SysStudent student = studentMapper.selectOne(
-                new LambdaQueryWrapper<SysStudent>()
-                        .eq(SysStudent::getOpenid, openid)
+        Student student = studentMapper.selectOne(
+                new LambdaQueryWrapper<Student>()
+                        .eq(Student::getOpenid, openid)
         );
 
         if (student == null) {
@@ -416,10 +416,10 @@ public class AuthServiceImpl implements AuthService {
     /**
      * 验证学生凭据
      */
-    private SysStudent validateStudentCredentials(StudentLoginDTO loginDTO) {
-        SysStudent student = studentMapper.selectOne(
-                new LambdaQueryWrapper<SysStudent>()
-                        .eq(SysStudent::getStudentNo, loginDTO.getStudentNo())
+    private Student validateStudentCredentials(StudentLoginDTO loginDTO) {
+        Student student = studentMapper.selectOne(
+                new LambdaQueryWrapper<Student>()
+                        .eq(Student::getStudentNo, loginDTO.getStudentNo())
         );
 
         if (student == null) {
@@ -445,7 +445,7 @@ public class AuthServiceImpl implements AuthService {
     /**
      * 构建学生登录响应
      */
-    private LoginVO buildStudentLoginResponse(SysStudent student, String accessToken) {
+    private LoginVO buildStudentLoginResponse(Student student, String accessToken) {
         // 转换学生信息为 VO
         StudentVO studentVO = new StudentVO();
         BeanUtil.copyProperties(student, studentVO);

@@ -5,21 +5,21 @@ import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.sushe.backend.common.context.UserContext;
 import com.sushe.backend.common.exception.BusinessException;
-import com.sushe.backend.dto.student.StudentLifestyleDTO;
+import com.sushe.backend.accommodation.dto.student.StudentLifestyleDTO;
+import com.sushe.backend.accommodation.entity.Student;
+import com.sushe.backend.accommodation.mapper.StudentMapper;
+import com.sushe.backend.accommodation.service.StudentService;
+import com.sushe.backend.accommodation.vo.student.DormInfoVO;
+import com.sushe.backend.accommodation.vo.student.RoommateVO;
 import com.sushe.backend.entity.SysBed;
 import com.sushe.backend.entity.SysCampus;
 import com.sushe.backend.entity.SysFloor;
 import com.sushe.backend.entity.SysRoom;
-import com.sushe.backend.entity.SysStudent;
 import com.sushe.backend.mapper.SysBedMapper;
 import com.sushe.backend.mapper.SysCampusMapper;
 import com.sushe.backend.mapper.SysFloorMapper;
 import com.sushe.backend.mapper.SysRoomMapper;
-import com.sushe.backend.mapper.SysStudentMapper;
 import com.sushe.backend.service.StudentService;
-import com.sushe.backend.service.SysStudentService;
-import com.sushe.backend.vo.student.DormInfoVO;
-import com.sushe.backend.vo.student.RoommateVO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -39,12 +39,12 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class StudentServiceImpl implements StudentService {
 
-    private final SysStudentMapper studentMapper;
+    private final StudentMapper studentMapper;
     private final SysCampusMapper campusMapper;
     private final SysFloorMapper floorMapper;
     private final SysRoomMapper roomMapper;
     private final SysBedMapper bedMapper;
-    private final SysStudentService sysStudentService;
+    private final com.sushe.backend.accommodation.service.StudentService accommodationStudentService;
 
     @Override
     public DormInfoVO getCurrentStudentDormInfo() {
@@ -55,9 +55,9 @@ public class StudentServiceImpl implements StudentService {
         }
 
         // 根据学号查询学生信息
-        LambdaQueryWrapper<SysStudent> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(SysStudent::getStudentNo, username);
-        SysStudent student = studentMapper.selectOne(wrapper);
+        LambdaQueryWrapper<Student> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(Student::getStudentNo, username);
+        Student student = studentMapper.selectOne(wrapper);
 
         if (student == null) {
             throw new BusinessException("学生信息不存在");
@@ -110,9 +110,9 @@ public class StudentServiceImpl implements StudentService {
         }
 
         // 根据学号查询学生信息
-        LambdaQueryWrapper<SysStudent> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(SysStudent::getStudentNo, username);
-        SysStudent currentStudent = studentMapper.selectOne(wrapper);
+        LambdaQueryWrapper<Student> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(Student::getStudentNo, username);
+        Student currentStudent = studentMapper.selectOne(wrapper);
 
         if (currentStudent == null) {
             throw new BusinessException("学生信息不存在");
@@ -124,12 +124,12 @@ public class StudentServiceImpl implements StudentService {
         }
 
         // 查询同房间的其他学生
-        LambdaQueryWrapper<SysStudent> roommateWrapper = new LambdaQueryWrapper<>();
-        roommateWrapper.eq(SysStudent::getRoomId, currentStudent.getRoomId())
-                .ne(SysStudent::getId, currentStudent.getId())
-                .eq(SysStudent::getStatus, 1);
+        LambdaQueryWrapper<Student> roommateWrapper = new LambdaQueryWrapper<>();
+        roommateWrapper.eq(Student::getRoomId, currentStudent.getRoomId())
+                .ne(Student::getId, currentStudent.getId())
+                .eq(Student::getStatus, 1);
 
-        List<SysStudent> roommates = studentMapper.selectList(roommateWrapper);
+        List<Student> roommates = studentMapper.selectList(roommateWrapper);
 
         return roommates.stream().map(student -> {
             RoommateVO vo = new RoommateVO();
@@ -153,9 +153,9 @@ public class StudentServiceImpl implements StudentService {
         }
 
         // 根据学号查询学生信息
-        LambdaQueryWrapper<SysStudent> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(SysStudent::getStudentNo, username);
-        SysStudent student = studentMapper.selectOne(wrapper);
+        LambdaQueryWrapper<Student> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(Student::getStudentNo, username);
+        Student student = studentMapper.selectOne(wrapper);
 
         if (student == null) {
             throw new BusinessException("学生信息不存在");
@@ -176,15 +176,15 @@ public class StudentServiceImpl implements StudentService {
         }
 
         // 根据学号查询学生信息
-        LambdaQueryWrapper<SysStudent> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(SysStudent::getStudentNo, username);
-        SysStudent student = studentMapper.selectOne(wrapper);
+        LambdaQueryWrapper<Student> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(Student::getStudentNo, username);
+        Student student = studentMapper.selectOne(wrapper);
 
         if (student == null) {
             throw new BusinessException("学生信息不存在");
         }
 
         // 调用更新方法
-        return sysStudentService.updateLifestyle(student.getId(), dto);
+        return accommodationStudentService.updateLifestyle(student.getId(), dto);
     }
 }

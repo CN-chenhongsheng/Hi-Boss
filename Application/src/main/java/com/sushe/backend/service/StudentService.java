@@ -1,8 +1,8 @@
 package com.sushe.backend.service;
 
-import com.sushe.backend.dto.student.StudentLifestyleDTO;
-import com.sushe.backend.vo.student.DormInfoVO;
-import com.sushe.backend.vo.student.RoommateVO;
+import com.sushe.backend.accommodation.dto.student.StudentLifestyleDTO;
+import com.sushe.backend.accommodation.vo.student.DormInfoVO;
+import com.sushe.backend.accommodation.vo.student.RoommateVO;
 
 import java.util.List;
 

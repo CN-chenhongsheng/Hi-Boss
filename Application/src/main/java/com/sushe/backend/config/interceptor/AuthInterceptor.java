@@ -2,9 +2,9 @@ package com.sushe.backend.config.interceptor;
 
 import cn.dev33.satoken.stp.StpUtil;
 import com.sushe.backend.common.context.UserContext;
-import com.sushe.backend.entity.SysStudent;
+import com.sushe.backend.accommodation.entity.Student;
+import com.sushe.backend.accommodation.mapper.StudentMapper;
 import com.sushe.backend.entity.SysUser;
-import com.sushe.backend.mapper.SysStudentMapper;
 import com.sushe.backend.mapper.SysUserMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -27,7 +27,7 @@ import org.springframework.web.servlet.HandlerInterceptor;
 public class AuthInterceptor implements HandlerInterceptor {
 
     private final SysUserMapper userMapper;
-    private final SysStudentMapper studentMapper;
+    private final StudentMapper studentMapper;
 
     /**
      * 白名单路径（不需要登录验证）
@@ -121,7 +121,7 @@ public class AuthInterceptor implements HandlerInterceptor {
                     log.debug("管理员/宿管员信息已存入 ThreadLocal，用户ID：{}，用户名：{}", userId, user.getUsername());
                 } else {
                     // 学生登录，查询学生信息
-                    SysStudent student = studentMapper.selectById(userId);
+                    Student student = studentMapper.selectById(userId);
                     if (student == null) {
                         log.warn("用户不存在，用户ID：{}（既不是管理员也不是学生）", userId);
                         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);

@@ -11,7 +11,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * @since 2025-12-30
  */
 @SpringBootApplication
-@MapperScan("com.sushe.backend.mapper")
+@MapperScan({"com.sushe.backend.mapper", "com.sushe.backend.accommodation.mapper"})
 public class SusheApplication {
 
     public static void main(String[] args) {
