@@ -137,7 +137,7 @@
   }
 
   /** ArtTable 组件的 Props 接口 */
-  interface ArtTableProps extends TableProps<Record<string, any>> {
+  interface ArtTableProps extends Omit<TableProps<Record<string, any>>, 'tableLayout'> {
     /** 加载状态 */
     loading?: boolean
     /** 列渲染配置 */
@@ -152,7 +152,7 @@
     emptyText?: string
     /** 是否开启 ArtTableHeader，解决表格高度自适应问题 */
     showTableHeader?: boolean
-    /** 表格的布局方式，覆盖父接口中的必需属性 */
+    /** 表格的布局方式，覆盖父接口中的必需属性为可选 */
     tableLayout?: 'fixed' | 'auto'
   }
 
