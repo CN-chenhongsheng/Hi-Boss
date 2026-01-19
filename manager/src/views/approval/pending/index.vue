@@ -73,9 +73,9 @@
       />
     </ElCard>
 
-    <!-- 审批弹窗 -->
-    <ApprovalDialog
-      v-model="approvalDialogVisible"
+    <!-- 审批抽屉 -->
+    <ApprovalDrawer
+      v-model:visible="approvalDialogVisible"
       :instance-data="currentInstance"
       @success="handleApprovalSuccess"
     />
@@ -86,7 +86,7 @@
   import { onMounted } from 'vue'
   import { useTable } from '@/hooks/core/useTable'
   import { fetchGetPendingList, type ApprovalInstance } from '@/api/approval-manage'
-  import ApprovalDialog from './modules/approval-dialog.vue'
+  import ApprovalDrawer from './modules/approval-drawer.vue'
   import { ElTag } from 'element-plus'
   import { useBusinessType } from '@/hooks'
 
