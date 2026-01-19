@@ -4,7 +4,7 @@ import com.sushe.backend.common.result.ResultCode;
 import lombok.Getter;
 
 /**
- * 业务异常类
+ * 业务异常
  * 
  * @author 陈鸿昇
  * @since 2025-12-30
@@ -47,4 +47,3 @@ public class BusinessException extends RuntimeException {
         return message;
     }
 }
-

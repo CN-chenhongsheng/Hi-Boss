@@ -31,4 +31,3 @@ public class Knife4jConfig {
                                 .url("https://www.apache.org/licenses/LICENSE-2.0.html")));
     }
 }
-

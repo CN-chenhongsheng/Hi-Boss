@@ -69,3 +69,5 @@ public class StayController extends BaseCrudController<StayVO, StayQueryDTO, Sta
         return success ? R.ok() : R.fail("撤回失败");
     }
 }
+
+

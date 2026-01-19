@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDateTime;
 
 /**
- * MyBatis-Plus 字段自动填充处理器
+ * MyBatis-Plus 字段自动填充处理
  * 
  * @author 陈鸿昇
  * @since 2025-12-30
@@ -23,20 +23,20 @@ public class MyBatisMetaObjectHandler implements MetaObjectHandler {
      */
     @Override
     public void insertFill(MetaObject metaObject) {
-        log.debug("开始插入填充...");
-        
+        log.debug("开始插入填充..");
+
         // 自动填充创建时间
         this.strictInsertFill(metaObject, "createTime", LocalDateTime.class, LocalDateTime.now());
-        
+
         // 自动填充更新时间
         this.strictInsertFill(metaObject, "updateTime", LocalDateTime.class, LocalDateTime.now());
-        
+
         // 自动填充创建人ID
         Long userId = UserContext.getUserId();
         if (userId != null) {
             this.strictInsertFill(metaObject, "createBy", Long.class, userId);
         }
-        
+
         // 自动填充更新人ID
         if (userId != null) {
             this.strictInsertFill(metaObject, "updateBy", Long.class, userId);
@@ -49,10 +49,10 @@ public class MyBatisMetaObjectHandler implements MetaObjectHandler {
     @Override
     public void updateFill(MetaObject metaObject) {
         log.debug("开始更新填充...");
-        
+
         // 自动填充更新时间
         this.strictUpdateFill(metaObject, "updateTime", LocalDateTime.class, LocalDateTime.now());
-        
+
         // 自动填充更新人ID
         Long userId = UserContext.getUserId();
         if (userId != null) {

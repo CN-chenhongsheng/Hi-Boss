@@ -11,7 +11,15 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * @since 2025-12-30
  */
 @SpringBootApplication
-@MapperScan({"com.sushe.backend.mapper", "com.sushe.backend.accommodation.mapper"})
+@MapperScan({
+    "com.sushe.backend.mapper",
+    "com.sushe.backend.accommodation.mapper",
+    "com.sushe.backend.approval.mapper",
+    "com.sushe.backend.room.mapper",
+    "com.sushe.backend.organization.mapper",
+    "com.sushe.backend.school.mapper",
+    "com.sushe.backend.system.mapper"
+})
 public class SusheApplication {
 
     public static void main(String[] args) {
@@ -23,4 +31,3 @@ public class SusheApplication {
         System.out.println("=================================\n");
     }
 }
-

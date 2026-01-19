@@ -11,7 +11,7 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
- * 基础实体类
+ * 基础实体
  * 包含所有实体类的公共字段
  * 
  * @author 陈鸿昇
@@ -42,4 +42,3 @@ public abstract class BaseEntity implements Serializable {
     @TableField(value = "update_by", fill = FieldFill.INSERT_UPDATE)
     private Long updateBy;
 }
-

@@ -6,7 +6,7 @@ import com.sushe.backend.common.exception.BusinessException;
 import java.util.Objects;
 
 /**
- * 业务规则工具类
+ * 业务规则工具
  * 提供通用的业务规则验证方法
  *
  * @author 陈鸿昇
@@ -25,7 +25,7 @@ public class BusinessRuleUtils {
     public static final String SUPER_ADMIN_ROLE_CODE = "SUPER_ADMIN";
 
     /**
-     * 停用状态值
+     * 停用状态
      */
     private static final int STATUS_DISABLED = 0;
 
@@ -91,7 +91,7 @@ public class BusinessRuleUtils {
     /**
      * 验证超级管理员用户是否允许停用
      *
-     * @param username 用户名
+     * @param username 用户�?
      * @param status 状态：1正常 0停用
      * @throws BusinessException 如果是超级管理员且要停用
      */
@@ -120,11 +120,10 @@ public class BusinessRuleUtils {
     /**
      * 判断状态是否为停用
      *
-     * @param status 状态值
+     * @param status 状态
      * @return 是否为停用状态
      */
     private static boolean isDisabledStatus(Integer status) {
         return status != null && status == STATUS_DISABLED;
     }
 }
-

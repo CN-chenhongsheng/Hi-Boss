@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 /**
  * 学生展示VO
  * 
- * @author 陈鸿昇
+ * @author 陈鸿�?
  * @since 2026-01-06
  */
 @Data
@@ -29,7 +29,7 @@ public class StudentVO implements Serializable {
     @Schema(description = "姓名")
     private String studentName;
 
-    @Schema(description = "性别（字典sys_user_sex）：0未知 1男 2女")
+    @Schema(description = "性别（字典sys_user_sex）：0未知 1�?2�?)
     private Integer gender;
 
     @Schema(description = "性别文本")
@@ -38,7 +38,7 @@ public class StudentVO implements Serializable {
     @Schema(description = "身份证号")
     private String idCard;
 
-    @Schema(description = "手机号")
+    @Schema(description = "手机�?)
     private String phone;
 
     @Schema(description = "邮箱")
@@ -57,16 +57,16 @@ public class StudentVO implements Serializable {
     @Schema(description = "入学年份")
     private Integer enrollmentYear;
 
-    @Schema(description = "学制（年）")
+    @Schema(description = "学制（年�?)
     private Integer schoolingLength;
 
     @Schema(description = "当前年级")
     private String currentGrade;
 
-    @Schema(description = "学籍状态（字典academic_status）：1在读 2休学 3毕业 4退学")
+    @Schema(description = "学籍状态（字典academic_status）：1在读 2休学 3毕业 4退�?)
     private Integer academicStatus;
 
-    @Schema(description = "学籍状态文本")
+    @Schema(description = "学籍状态文�?)
     private String academicStatusText;
 
     @Schema(description = "家庭地址")
@@ -132,7 +132,7 @@ public class StudentVO implements Serializable {
     @Schema(description = "状态：1启用 0停用")
     private Integer status;
 
-    @Schema(description = "状态文本")
+    @Schema(description = "状态文�?)
     private String statusText;
 
     @Schema(description = "备注")
@@ -147,73 +147,73 @@ public class StudentVO implements Serializable {
     private LocalDateTime updateTime;
 
     // ========== 生活习惯字段 ==========
-    @Schema(description = "吸烟状态：0不吸烟 1吸烟")
+    @Schema(description = "吸烟状态：0不吸�?1吸烟")
     private Integer smokingStatus;
 
-    @Schema(description = "吸烟状态文本")
+    @Schema(description = "吸烟状态文�?)
     private String smokingStatusText;
 
-    @Schema(description = "是否接受室友吸烟：0不接受 1接受")
+    @Schema(description = "是否接受室友吸烟�?不接�?1接受")
     private Integer smokingTolerance;
 
     @Schema(description = "是否接受室友吸烟文本")
     private String smokingToleranceText;
 
-    @Schema(description = "作息时间：0早睡早起 1正常 2晚睡晚起 3夜猫子")
+    @Schema(description = "作息时间�?早睡早起 1正常 2晚睡晚起 3夜猫�?)
     private Integer sleepSchedule;
 
     @Schema(description = "作息时间文本")
     private String sleepScheduleText;
 
-    @Schema(description = "睡眠质量：0浅睡易醒 1正常 2深睡")
+    @Schema(description = "睡眠质量�?浅睡易醒 1正常 2深睡")
     private Integer sleepQuality;
 
     @Schema(description = "睡眠质量文本")
     private String sleepQualityText;
 
-    @Schema(description = "是否打呼噜：0不打 1打")
+    @Schema(description = "是否打呼噜：0不打 1�?)
     private Integer snores;
 
-    @Schema(description = "是否打呼噜文本")
+    @Schema(description = "是否打呼噜文�?)
     private String snoresText;
 
-    @Schema(description = "是否对光线敏感：0不敏感 1敏感")
+    @Schema(description = "是否对光线敏感：0不敏�?1敏感")
     private Integer sensitiveToLight;
 
-    @Schema(description = "是否对光线敏感文本")
+    @Schema(description = "是否对光线敏感文�?)
     private String sensitiveToLightText;
 
-    @Schema(description = "是否对声音敏感：0不敏感 1敏感")
+    @Schema(description = "是否对声音敏感：0不敏�?1敏感")
     private Integer sensitiveToSound;
 
-    @Schema(description = "是否对声音敏感文本")
+    @Schema(description = "是否对声音敏感文�?)
     private String sensitiveToSoundText;
 
-    @Schema(description = "整洁程度：1非常整洁 2整洁 3一般 4随意 5不整洁")
+    @Schema(description = "整洁程度�?非常整洁 2整洁 3一�?4随意 5不整�?)
     private Integer cleanlinessLevel;
 
     @Schema(description = "整洁程度文本")
     private String cleanlinessLevelText;
 
-    @Schema(description = "睡前是否整理：0不整理 1偶尔整理 2经常整理 3总是整理")
+    @Schema(description = "睡前是否整理�?不整�?1偶尔整理 2经常整理 3总是整理")
     private Integer bedtimeCleanup;
 
     @Schema(description = "睡前是否整理文本")
     private String bedtimeCleanupText;
 
-    @Schema(description = "社交偏好：1喜欢安静 2中等 3喜欢热闹")
+    @Schema(description = "社交偏好�?喜欢安静 2中等 3喜欢热闹")
     private Integer socialPreference;
 
     @Schema(description = "社交偏好文本")
     private String socialPreferenceText;
 
-    @Schema(description = "是否允许室友带访客：0不允许 1偶尔可以 2可以")
+    @Schema(description = "是否允许室友带访客：0不允�?1偶尔可以 2可以")
     private Integer allowVisitors;
 
-    @Schema(description = "是否允许室友带访客文本")
+    @Schema(description = "是否允许室友带访客文�?)
     private String allowVisitorsText;
 
-    @Schema(description = "电话时间偏好：0喜欢在宿舍打电话 1偶尔在宿舍 2不在宿舍打电话")
+    @Schema(description = "电话时间偏好�?喜欢在宿舍打电话 1偶尔在宿�?2不在宿舍打电�?)
     private Integer phoneCallTime;
 
     @Schema(description = "电话时间偏好文本")
@@ -222,42 +222,44 @@ public class StudentVO implements Serializable {
     @Schema(description = "是否在宿舍学习：0不在 1偶尔 2经常 3总是")
     private Integer studyInRoom;
 
-    @Schema(description = "是否在宿舍学习文本")
+    @Schema(description = "是否在宿舍学习文�?)
     private String studyInRoomText;
 
-    @Schema(description = "学习环境偏好：1需要安静 2需要轻音乐 3可以接受声音")
+    @Schema(description = "学习环境偏好�?需要安�?2需要轻音乐 3可以接受声音")
     private Integer studyEnvironment;
 
     @Schema(description = "学习环境偏好文本")
     private String studyEnvironmentText;
 
-    @Schema(description = "电脑使用时间：0不用 1很少 2正常 3很多")
+    @Schema(description = "电脑使用时间�?不用 1很少 2正常 3很多")
     private Integer computerUsageTime;
 
     @Schema(description = "电脑使用时间文本")
     private String computerUsageTimeText;
 
-    @Schema(description = "游戏偏好：0不玩游戏 1偶尔玩 2经常玩")
+    @Schema(description = "游戏偏好�?不玩游戏 1偶尔�?2经常�?)
     private Integer gamingPreference;
 
     @Schema(description = "游戏偏好文本")
     private String gamingPreferenceText;
 
-    @Schema(description = "听音乐偏好：0不听 1偶尔听 2经常听")
+    @Schema(description = "听音乐偏好：0不听 1偶尔�?2经常�?)
     private Integer musicPreference;
 
-    @Schema(description = "听音乐偏好文本")
+    @Schema(description = "听音乐偏好文�?)
     private String musicPreferenceText;
 
-    @Schema(description = "音乐音量偏好：1喜欢小声 2中等 3喜欢大声")
+    @Schema(description = "音乐音量偏好�?喜欢小声 2中等 3喜欢大声")
     private Integer musicVolume;
 
     @Schema(description = "音乐音量偏好文本")
     private String musicVolumeText;
 
-    @Schema(description = "是否在宿舍吃东西：0不吃 1偶尔 2经常")
+    @Schema(description = "是否在宿舍吃东西�?不吃 1偶尔 2经常")
     private Integer eatInRoom;
 
     @Schema(description = "是否在宿舍吃东西文本")
     private String eatInRoomText;
 }
+
+

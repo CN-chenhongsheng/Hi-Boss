@@ -1,7 +1,7 @@
 package com.sushe.backend.constant;
 
 /**
- * 通用常量类
+ * 通用常量
  *
  * @author 陈鸿昇
  * @since 2025-01-05

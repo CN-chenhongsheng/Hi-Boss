@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.util.stream.Collectors;
 
 /**
- * 全局异常处理器
+ * 全局异常处理
  * 
  * @author 陈鸿昇
  * @since 2025-12-30
@@ -77,7 +77,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(NotPermissionException.class)
     public R<Void> handleNotPermissionException(NotPermissionException e) {
         log.error("无权限异常: {}", e.getMessage());
-        return R.fail(ResultCode.FORBIDDEN.getCode(), "无权限访问: " + e.getPermission());
+        return R.fail(ResultCode.FORBIDDEN.getCode(), "无权限访�? " + e.getPermission());
     }
 
     /**
@@ -107,4 +107,3 @@ public class GlobalExceptionHandler {
         return R.fail(ResultCode.ERROR);
     }
 }
-

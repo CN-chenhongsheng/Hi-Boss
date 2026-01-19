@@ -64,4 +64,3 @@ public enum ResultCode {
         this.message = message;
     }
 }
-

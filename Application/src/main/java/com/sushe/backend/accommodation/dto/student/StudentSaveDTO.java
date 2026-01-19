@@ -7,7 +7,7 @@ import lombok.Data;
 import java.time.LocalDate;
 
 /**
- * 学生保存DTO（新增/编辑）
+ * 学生保存DTO（新增或编辑）
  * 
  * @author 陈鸿昇
  * @since 2026-01-06
@@ -136,39 +136,39 @@ public class StudentSaveDTO {
     @Schema(description = "是否对声音敏感：0不敏感 1敏感")
     private Integer sensitiveToSound;
 
-    @Schema(description = "整洁程度：1非常整洁 2整洁 3一般 4随意 5不整洁")
+    @Schema(description = "整洁程度：0非常整洁 1整洁 2一般 3不整洁 4非常不整洁")
     private Integer cleanlinessLevel;
 
     @Schema(description = "睡前是否整理：0不整理 1偶尔整理 2经常整理 3总是整理")
     private Integer bedtimeCleanup;
 
-    @Schema(description = "社交偏好：1喜欢安静 2中等 3喜欢热闹")
+    @Schema(description = "社交偏好：0喜欢安静 1中等 2喜欢热闹")
     private Integer socialPreference;
 
     @Schema(description = "是否允许室友带访客：0不允许 1偶尔可以 2可以")
     private Integer allowVisitors;
 
-    @Schema(description = "电话时间偏好：0喜欢在宿舍打电话 1偶尔在宿舍 2不在宿舍打电话")
+    @Schema(description = "电话时间偏好：0不喜欢在宿舍打电话 1偶尔在宿舍打电话 2不在宿舍打电话")
     private Integer phoneCallTime;
 
     @Schema(description = "是否在宿舍学习：0不在 1偶尔 2经常 3总是")
     private Integer studyInRoom;
 
-    @Schema(description = "学习环境偏好：1需要安静 2需要轻音乐 3可以接受声音")
+    @Schema(description = "学习环境偏好：0不需要安静 1需要安静 2需要轻音乐 3可以接受声音")
     private Integer studyEnvironment;
 
     @Schema(description = "电脑使用时间：0不用 1很少 2正常 3很多")
     private Integer computerUsageTime;
 
-    @Schema(description = "游戏偏好：0不玩游戏 1偶尔玩 2经常玩")
+    @Schema(description = "游戏偏好：0不喜欢玩游戏 1偶尔玩游戏 2经常玩游戏")
     private Integer gamingPreference;
 
-    @Schema(description = "听音乐偏好：0不听 1偶尔听 2经常听")
+    @Schema(description = "听音乐偏好：0不喜欢听音乐 1偶尔听音乐 2经常听音乐")
     private Integer musicPreference;
 
-    @Schema(description = "音乐音量偏好：1喜欢小声 2中等 3喜欢大声")
+    @Schema(description = "音乐音量偏好：0不喜欢小声 1喜欢小声 2中等 3喜欢大声")
     private Integer musicVolume;
 
-    @Schema(description = "是否在宿舍吃东西：0不吃 1偶尔 2经常")
+    @Schema(description = "是否在宿舍吃东西：0不喜欢在宿舍吃东西 1偶尔在宿舍吃东西 2经常在宿舍吃东西")
     private Integer eatInRoom;
 }

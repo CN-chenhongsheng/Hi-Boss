@@ -8,7 +8,7 @@ import lombok.extern.slf4j.Slf4j;
  * 使用独立的 StpLogic 管理 Refresh Token
  * 
  * @author 陈鸿昇
- * @date 2025-01-01
+ * @since 2025-01-01
  */
 @Slf4j
 public class RefreshTokenUtil {

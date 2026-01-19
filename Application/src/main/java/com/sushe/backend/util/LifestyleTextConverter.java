@@ -1,7 +1,7 @@
 package com.sushe.backend.util;
 
 /**
- * 生活习惯文本转换工具类
+ * 生活习惯文本转换工具
  * 将生活习惯的数值转换为可读的文本描述（使用字典系统）
  * 
  * @author 陈鸿昇
@@ -131,7 +131,7 @@ public class LifestyleTextConverter {
 
     /**
      * 获取游戏偏好文本
-     * @param preference 0不玩游戏 1偶尔玩 2经常玩
+     * @param preference 0不玩游戏 1偶尔玩游戏 2经常玩游戏
      */
     public static String getGamingPreferenceText(Integer preference) {
         return DictUtils.getLabel("student_gaming_preference", preference, "未填写");
@@ -161,4 +161,3 @@ public class LifestyleTextConverter {
         return DictUtils.getLabel("student_eat_in_room", eat, "未填写");
     }
 }
-

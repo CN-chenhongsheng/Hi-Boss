@@ -19,7 +19,7 @@ public interface StatusUpdateController {
     /**
      * 获取实体名称（用于日志输出）
      * 
-     * @return 实体名称，如"校区"、"院系"等
+     * @return 实体名称，如"校区"或"院系"
      */
     String getEntityName();
 
@@ -27,7 +27,7 @@ public interface StatusUpdateController {
      * 调用Service的状态更新方法
      * 
      * @param id 主键ID
-     * @param status 状态值（通常是1启用 0停用）
+     * @param status 状态值（通常1启用 0停用）
      * @return 是否成功
      */
     boolean callUpdateStatus(Long id, Integer status);
@@ -35,8 +35,8 @@ public interface StatusUpdateController {
     /**
      * 获取状态更新成功的消息
      * 
-     * @param status 状态值
-     * @return 成功消息，如"校区已启用"、"校区已停用"
+     * @param status 状态
+     * @return 成功消息，如"校区已启用"或"校区已停用"
      */
     default String getStatusUpdateMessage(Integer status) {
         String entityName = getEntityName();
@@ -61,4 +61,3 @@ public interface StatusUpdateController {
         return R.ok(message, null);
     }
 }
-

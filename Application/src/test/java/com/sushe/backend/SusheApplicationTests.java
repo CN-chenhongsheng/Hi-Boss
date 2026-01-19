@@ -17,4 +17,3 @@ class SusheApplicationTests {
         System.out.println("Spring Boot 应用上下文加载成功！");
     }
 }
-

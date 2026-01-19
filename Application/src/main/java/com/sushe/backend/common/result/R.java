@@ -6,7 +6,7 @@ import lombok.Data;
 import java.io.Serializable;
 
 /**
- * 统一响应结果类
+ * 统一响应结果
  * 
  * @author 陈鸿昇
  * @since 2025-12-30
@@ -96,4 +96,3 @@ public class R<T> implements Serializable {
         return flag ? ok() : fail();
     }
 }
-

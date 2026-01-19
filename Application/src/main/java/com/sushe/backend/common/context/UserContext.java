@@ -36,7 +36,7 @@ public class UserContext {
     }
 
     /**
-     * 获取当前登录用户名
+     * 获取当前登录用户
      */
     public static String getUsername() {
         LoginUser user = getUser();
@@ -77,4 +77,3 @@ public class UserContext {
         private String avatar;
     }
 }
-

@@ -38,16 +38,16 @@ public class CacheConfig {
         Jackson2JsonRedisSerializer<Object> jackson2JsonRedisSerializer = new Jackson2JsonRedisSerializer<>(Object.class);
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);
-        // 注册Java 8时间模块，支持LocalDateTime等类型
+        // 注册Java 8时间模块，支持LocalDateTime等类
         objectMapper.registerModule(new JavaTimeModule());
         // 禁用将日期写为时间戳
         objectMapper.disable(com.fasterxml.jackson.databind.SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
         objectMapper.activateDefaultTyping(LaissezFaireSubTypeValidator.instance, ObjectMapper.DefaultTyping.NON_FINAL);
         jackson2JsonRedisSerializer.setObjectMapper(objectMapper);
 
-        // 配置序列化
+        // 配置序列化器
         RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig()
-                // 设置默认过期时间：30分钟
+                // 设置默认过期时间30分钟
                 .entryTtl(Duration.ofMinutes(30))
                 // 不缓存空值
                 .disableCachingNullValues()
@@ -58,10 +58,9 @@ public class CacheConfig {
 
         return RedisCacheManager.builder(redisConnectionFactory)
                 .cacheDefaults(config)
-                // 为字典缓存设置单独的过期时间（1小时）
+                // 为字典缓存设置单独的过期时间1小时
                 .withCacheConfiguration("dict:data", config.entryTtl(Duration.ofHours(1)))
                 .transactionAware()
                 .build();
     }
 }
-

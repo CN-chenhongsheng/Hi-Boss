@@ -12,7 +12,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface RateLimit {
-    
+
     /**
      * 限流key，支持SpEL表达式
      * 默认为方法名
@@ -34,4 +34,3 @@ public @interface RateLimit {
      */
     String message() default "请求过于频繁，请稍后再试";
 }
-

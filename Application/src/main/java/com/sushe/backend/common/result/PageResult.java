@@ -9,7 +9,7 @@ import java.io.Serializable;
 import java.util.List;
 
 /**
- * 分页响应结果类
+ * 分页响应结果
  * 
  * @author 陈鸿昇
  * @since 2025-12-30
@@ -50,4 +50,3 @@ public class PageResult<T> implements Serializable {
         return result;
     }
 }
-

@@ -12,7 +12,7 @@ import java.time.LocalDate;
 /**
  * 学生实体
  * 
- * @author 陈鸿昇
+ * @author 陈鸿�?
  * @since 2026-01-06
  */
 @Data
@@ -29,7 +29,7 @@ public class Student extends BaseEntity {
     @TableField("student_name")
     private String studentName;
 
-    @Schema(description = "性别（字典sys_user_sex）：0未知 1男 2女")
+    @Schema(description = "性别（字典sys_user_sex）：0未知 1�?2�?)
     @TableField("gender")
     private Integer gender;
 
@@ -37,7 +37,7 @@ public class Student extends BaseEntity {
     @TableField("id_card")
     private String idCard;
 
-    @Schema(description = "手机号")
+    @Schema(description = "手机�?)
     @TableField("phone")
     private String phone;
 
@@ -61,7 +61,7 @@ public class Student extends BaseEntity {
     @TableField("enrollment_year")
     private Integer enrollmentYear;
 
-    @Schema(description = "学制（年）")
+    @Schema(description = "学制（年�?)
     @TableField("schooling_length")
     private Integer schoolingLength;
 
@@ -69,7 +69,7 @@ public class Student extends BaseEntity {
     @TableField("current_grade")
     private String currentGrade;
 
-    @Schema(description = "学籍状态（字典academic_status）：1在读 2休学 3毕业 4退学")
+    @Schema(description = "学籍状态（字典academic_status）：1在读 2休学 3毕业 4退�?)
     @TableField("academic_status")
     private Integer academicStatus;
 
@@ -146,51 +146,51 @@ public class Student extends BaseEntity {
     private String remark;
 
     // ========== 生活习惯字段 ==========
-    @Schema(description = "吸烟状态：0不吸烟 1吸烟")
+    @Schema(description = "吸烟状态：0不吸�?1吸烟")
     @TableField("smoking_status")
     private Integer smokingStatus;
 
-    @Schema(description = "是否接受室友吸烟：0不接受 1接受")
+    @Schema(description = "是否接受室友吸烟�?不接�?1接受")
     @TableField("smoking_tolerance")
     private Integer smokingTolerance;
 
-    @Schema(description = "作息时间：0早睡早起 1正常 2晚睡晚起 3夜猫子")
+    @Schema(description = "作息时间�?早睡早起 1正常 2晚睡晚起 3夜猫�?)
     @TableField("sleep_schedule")
     private Integer sleepSchedule;
 
-    @Schema(description = "睡眠质量：0浅睡易醒 1正常 2深睡")
+    @Schema(description = "睡眠质量�?浅睡易醒 1正常 2深睡")
     @TableField("sleep_quality")
     private Integer sleepQuality;
 
-    @Schema(description = "是否打呼噜：0不打 1打")
+    @Schema(description = "是否打呼噜：0不打 1�?)
     @TableField("snores")
     private Integer snores;
 
-    @Schema(description = "是否对光线敏感：0不敏感 1敏感")
+    @Schema(description = "是否对光线敏感：0不敏�?1敏感")
     @TableField("sensitive_to_light")
     private Integer sensitiveToLight;
 
-    @Schema(description = "是否对声音敏感：0不敏感 1敏感")
+    @Schema(description = "是否对声音敏感：0不敏�?1敏感")
     @TableField("sensitive_to_sound")
     private Integer sensitiveToSound;
 
-    @Schema(description = "整洁程度：1非常整洁 2整洁 3一般 4随意 5不整洁")
+    @Schema(description = "整洁程度�?非常整洁 2整洁 3一�?4随意 5不整�?)
     @TableField("cleanliness_level")
     private Integer cleanlinessLevel;
 
-    @Schema(description = "睡前是否整理：0不整理 1偶尔整理 2经常整理 3总是整理")
+    @Schema(description = "睡前是否整理�?不整�?1偶尔整理 2经常整理 3总是整理")
     @TableField("bedtime_cleanup")
     private Integer bedtimeCleanup;
 
-    @Schema(description = "社交偏好：1喜欢安静 2中等 3喜欢热闹")
+    @Schema(description = "社交偏好�?喜欢安静 2中等 3喜欢热闹")
     @TableField("social_preference")
     private Integer socialPreference;
 
-    @Schema(description = "是否允许室友带访客：0不允许 1偶尔可以 2可以")
+    @Schema(description = "是否允许室友带访客：0不允�?1偶尔可以 2可以")
     @TableField("allow_visitors")
     private Integer allowVisitors;
 
-    @Schema(description = "电话时间偏好：0喜欢在宿舍打电话 1偶尔在宿舍 2不在宿舍打电话")
+    @Schema(description = "电话时间偏好�?喜欢在宿舍打电话 1偶尔在宿�?2不在宿舍打电�?)
     @TableField("phone_call_time")
     private Integer phoneCallTime;
 
@@ -198,27 +198,27 @@ public class Student extends BaseEntity {
     @TableField("study_in_room")
     private Integer studyInRoom;
 
-    @Schema(description = "学习环境偏好：1需要安静 2需要轻音乐 3可以接受声音")
+    @Schema(description = "学习环境偏好�?需要安�?2需要轻音乐 3可以接受声音")
     @TableField("study_environment")
     private Integer studyEnvironment;
 
-    @Schema(description = "电脑使用时间：0不用 1很少 2正常 3很多")
+    @Schema(description = "电脑使用时间�?不用 1很少 2正常 3很多")
     @TableField("computer_usage_time")
     private Integer computerUsageTime;
 
-    @Schema(description = "游戏偏好：0不玩游戏 1偶尔玩 2经常玩")
+    @Schema(description = "游戏偏好�?不玩游戏 1偶尔�?2经常�?)
     @TableField("gaming_preference")
     private Integer gamingPreference;
 
-    @Schema(description = "听音乐偏好：0不听 1偶尔听 2经常听")
+    @Schema(description = "听音乐偏好：0不听 1偶尔�?2经常�?)
     @TableField("music_preference")
     private Integer musicPreference;
 
-    @Schema(description = "音乐音量偏好：1喜欢小声 2中等 3喜欢大声")
+    @Schema(description = "音乐音量偏好�?喜欢小声 2中等 3喜欢大声")
     @TableField("music_volume")
     private Integer musicVolume;
 
-    @Schema(description = "是否在宿舍吃东西：0不吃 1偶尔 2经常")
+    @Schema(description = "是否在宿舍吃东西�?不吃 1偶尔 2经常")
     @TableField("eat_in_room")
     private Integer eatInRoom;
 
@@ -230,3 +230,5 @@ public class Student extends BaseEntity {
     @TableField("openid")
     private String openid;
 }
+
+

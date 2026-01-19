@@ -15,9 +15,9 @@ import com.sushe.backend.common.exception.BusinessException;
 import com.sushe.backend.common.result.PageResult;
 import com.sushe.backend.accommodation.entity.Student;
 import com.sushe.backend.accommodation.mapper.StudentMapper;
-import com.sushe.backend.entity.SysCampus;
-import com.sushe.backend.mapper.SysCampusMapper;
-import com.sushe.backend.service.SysApprovalService;
+import com.sushe.backend.organization.entity.Campus;
+import com.sushe.backend.organization.mapper.CampusMapper;
+import com.sushe.backend.approval.service.ApprovalService;
 import com.sushe.backend.util.DictUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -40,8 +40,8 @@ import java.util.stream.Collectors;
 public class TransferServiceImpl extends ServiceImpl<TransferMapper, Transfer> implements TransferService {
 
     private final StudentMapper studentMapper;
-    private final SysCampusMapper campusMapper;
-    private final SysApprovalService approvalService;
+    private final CampusMapper campusMapper;
+    private final ApprovalService approvalService;
 
     @Override
     public PageResult<TransferVO> pageList(TransferQueryDTO queryDTO) {
@@ -92,14 +92,14 @@ public class TransferServiceImpl extends ServiceImpl<TransferMapper, Transfer> i
         transfer.setStudentNo(student.getStudentNo());
 
         boolean isNew = saveDTO.getId() == null;
-        
+
         if (isNew) {
             // 新增时先保存记录（需要获取ID）
             if (transfer.getStatus() == null) {
                 transfer.setStatus(1); // 临时状态，后续会根据审批结果更新
             }
             save(transfer);
-            
+
             // 发起审批流程
             Long instanceId = approvalService.startApproval(
                 "transfer",
@@ -107,7 +107,7 @@ public class TransferServiceImpl extends ServiceImpl<TransferMapper, Transfer> i
                 saveDTO.getStudentId(),
                 student.getStudentName()
             );
-            
+
             if (instanceId != null) {
                 // 有审批流程，状态设为"待审批"（状态1）
                 transfer.setApprovalInstanceId(instanceId);
@@ -118,7 +118,7 @@ public class TransferServiceImpl extends ServiceImpl<TransferMapper, Transfer> i
                 transfer.setStatus(2);
                 log.info("调宿申请无需审批，直接通过，申请ID：{}", transfer.getId());
             }
-            
+
             return updateById(transfer);
         } else {
             return updateById(transfer);
@@ -178,9 +178,9 @@ public class TransferServiceImpl extends ServiceImpl<TransferMapper, Transfer> i
 
         // 查询原校区名称
         if (StrUtil.isNotBlank(transfer.getOriginalCampusCode())) {
-            LambdaQueryWrapper<SysCampus> wrapper = new LambdaQueryWrapper<>();
-            wrapper.eq(SysCampus::getCampusCode, transfer.getOriginalCampusCode());
-            SysCampus campus = campusMapper.selectOne(wrapper);
+            LambdaQueryWrapper<Campus> wrapper = new LambdaQueryWrapper<>();
+            wrapper.eq(Campus::getCampusCode, transfer.getOriginalCampusCode());
+            Campus campus = campusMapper.selectOne(wrapper);
             if (campus != null) {
                 vo.setOriginalCampusName(campus.getCampusName());
             }
@@ -188,9 +188,9 @@ public class TransferServiceImpl extends ServiceImpl<TransferMapper, Transfer> i
 
         // 查询目标校区名称
         if (StrUtil.isNotBlank(transfer.getTargetCampusCode())) {
-            LambdaQueryWrapper<SysCampus> wrapper = new LambdaQueryWrapper<>();
-            wrapper.eq(SysCampus::getCampusCode, transfer.getTargetCampusCode());
-            SysCampus campus = campusMapper.selectOne(wrapper);
+            LambdaQueryWrapper<Campus> wrapper = new LambdaQueryWrapper<>();
+            wrapper.eq(Campus::getCampusCode, transfer.getTargetCampusCode());
+            Campus campus = campusMapper.selectOne(wrapper);
             if (campus != null) {
                 vo.setTargetCampusName(campus.getCampusName());
             }

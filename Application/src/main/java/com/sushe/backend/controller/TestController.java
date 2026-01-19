@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
  * 用于生成BCrypt密码hash等测试功能
  *
  * @author 陈鸿昇
- * @date 2025-12-30
+ * @since 2025-12-30
  */
 @Slf4j
 @Tag(name = "测试工具", description = "开发测试用接口")

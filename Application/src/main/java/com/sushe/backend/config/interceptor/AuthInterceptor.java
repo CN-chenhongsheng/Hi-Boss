@@ -4,8 +4,8 @@ import cn.dev33.satoken.stp.StpUtil;
 import com.sushe.backend.common.context.UserContext;
 import com.sushe.backend.accommodation.entity.Student;
 import com.sushe.backend.accommodation.mapper.StudentMapper;
-import com.sushe.backend.entity.SysUser;
-import com.sushe.backend.mapper.SysUserMapper;
+import com.sushe.backend.system.entity.User;
+import com.sushe.backend.system.mapper.UserMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +16,7 @@ import org.springframework.web.servlet.HandlerInterceptor;
 /**
  * 认证拦截器
  * 验证 Token 并将用户信息存入 ThreadLocal
- * 支持管理员/宿管员（sys_user）和学生（sys_student）两种类型的认证
+ * 支持管理员（sys_user）和学生（sys_student）两种类型的认证
  * 
  * @author 陈鸿昇
  * @since 2025-12-31
@@ -26,23 +26,21 @@ import org.springframework.web.servlet.HandlerInterceptor;
 @RequiredArgsConstructor
 public class AuthInterceptor implements HandlerInterceptor {
 
-    private final SysUserMapper userMapper;
+    private final UserMapper userMapper;
     private final StudentMapper studentMapper;
 
     /**
      * 白名单路径（不需要登录验证）
      */
     private static final String[] WHITELIST = {
-            "/v1/auth/login",           // 管理员/宿管员登录
-            "/v1/auth/student/login",  // 学生登录
-            "/v1/auth/wx-login",       // 微信登录
-            "/v1/auth/refresh",        // Token刷新
-            "/v1/auth/logout",         // 登出
-            "/doc.html",               // Swagger 文档
-            "/webjars",                // Swagger 静态资源
-            "/swagger-resources",       // Swagger 资源
-            "/v3/api-docs",            // Swagger API 文档
-            "/favicon.ico"             // 网站图标
+            "/v1/auth/login",           // 管理员登录
+            "/v1/auth/wx-login",        // 微信登录
+            "/v1/auth/refresh",         // Token刷新
+            "/v1/auth/logout",          // 登出
+            "/doc.html",                // Swagger 文档
+            "/webjars",                 // Swagger 静态资源
+            "/v3/api-docs",             // Swagger API 文档
+            "/favicon.ico"              // 网站图标
     };
 
     @Override
@@ -176,4 +174,3 @@ public class AuthInterceptor implements HandlerInterceptor {
         return false;
     }
 }
-

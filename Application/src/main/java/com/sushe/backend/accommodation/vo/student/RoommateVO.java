@@ -28,6 +28,6 @@ public class RoommateVO {
     @Schema(description = "手机号")
     private String phone;
 
-    @Schema(description = "床位号")
+    @Schema(description = "床位编码")
     private String bedCode;
 }

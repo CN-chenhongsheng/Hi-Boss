@@ -8,7 +8,7 @@ import lombok.Data;
 import java.time.LocalDate;
 
 /**
- * 退宿管理保存DTO（新增/编辑）
+ * 退宿管理保存DTO（新增或编辑）
  * 
  * @author 陈鸿昇
  * @since 2026-01-06

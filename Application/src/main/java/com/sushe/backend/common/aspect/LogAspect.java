@@ -3,8 +3,8 @@ package com.sushe.backend.common.aspect;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sushe.backend.common.annotation.Log;
 import com.sushe.backend.common.context.UserContext;
-import com.sushe.backend.entity.SysOperLog;
-import com.sushe.backend.service.SysOperLogService;
+import com.sushe.backend.system.entity.OperLog;
+import com.sushe.backend.system.service.OperLogService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -35,12 +35,12 @@ import java.time.LocalDateTime;
 public class LogAspect {
 
     @Autowired
-    private SysOperLogService operLogService;
+    private OperLogService operLogService;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     /**
-     * 最大参数/响应长度
+     * 最大参数响应长度
      */
     private static final int MAX_CONTENT_LENGTH = 2000;
 
@@ -68,7 +68,7 @@ public class LogAspect {
     };
 
     /**
-     * 配置织入点
+     * 配置织入切面
      */
     @Pointcut("@annotation(com.sushe.backend.common.annotation.Log)")
     public void logPointCut() {
@@ -80,7 +80,7 @@ public class LogAspect {
     @Around("logPointCut()")
     public Object around(ProceedingJoinPoint point) throws Throwable {
         long beginTime = System.currentTimeMillis();
-        SysOperLog operLog = new SysOperLog();
+        OperLog operLog = new OperLog();
         Object result = null;
         Exception exception = null;
 
@@ -105,7 +105,7 @@ public class LogAspect {
      * 记录日志
      */
     private void recordLog(ProceedingJoinPoint point, Object result, Exception exception,
-                          SysOperLog operLog, long beginTime) {
+                          OperLog operLog, long beginTime) {
         try {
             // 获取注解信息
             MethodSignature signature = (MethodSignature) point.getSignature();
@@ -226,7 +226,7 @@ public class LogAspect {
     }
 
     /**
-     * 判断是否为 Servlet 对象
+     * 判断是否为Servlet对象
      */
     private boolean isServletObject(Object obj) {
         return obj instanceof jakarta.servlet.http.HttpServletRequest ||
@@ -342,7 +342,7 @@ public class LogAspect {
      */
     private String buildDetailedTitle(ProceedingJoinPoint point, String originalTitle, int businessType) {
         try {
-            // 如果title已包含"-"或长度>10，认为已经是详细标题，不自动修改
+            // 如果title已包含"-"或长度大于10，认为已经是详细标题，不自动修改
             if (originalTitle != null && (originalTitle.contains("-") || originalTitle.length() > 10)) {
                 return originalTitle;
             }
@@ -477,7 +477,7 @@ public class LogAspect {
      * 
      * @param point 切点
      * @param includeId 是否包含ID（编辑时从路径参数获取ID）
-     * @return 关键信息，如"张三"、"东校区"或"ID:1"
+     * @return 关键信息，如"张三"东校区"ID:1"
      */
     private String extractEntityKeyInfo(ProceedingJoinPoint point, boolean includeId) {
         try {
@@ -499,11 +499,11 @@ public class LogAspect {
 
                 // 查找@RequestBody注解的参数（DTO）
                 if (param.isAnnotationPresent(RequestBody.class) && arg != null) {
-                    // 排除基本类型和常见类型
+                    // 排除基本类型和常见类
                     Class<?> paramType = param.getType();
-                    if (!paramType.isPrimitive() && 
-                        !paramType.equals(String.class) && 
-                        !paramType.equals(Long.class) && 
+                    if (!paramType.isPrimitive() &&
+                        !paramType.equals(String.class) &&
+                        !paramType.equals(Long.class) &&
                         !paramType.equals(Integer.class)) {
                         dto = arg;
                         break;
@@ -523,13 +523,13 @@ public class LogAspect {
             }
 
             // 常见的名称字段优先级列表
-            String[] nameFields = {"name", "username", "nickname", "campusName", "roleName", 
+            String[] nameFields = {"name", "username", "nickname", "campusName", "roleName",
                                    "majorName", "className", "deptName", "title", "code"};
 
-            // 尝试按优先级获取字段值
+            // 尝试按优先级获取字段
             for (String fieldName : nameFields) {
                 try {
-                    // 构造getter方法名
+                    // 构造getter方法
                     String getterName = "get" + capitalize(fieldName);
                     Method getter = dto.getClass().getMethod(getterName);
                     Object value = getter.invoke(dto);
@@ -571,7 +571,7 @@ public class LogAspect {
      * 提取路径变量ID
      * 
      * @param point 切点
-     * @return ID值
+     * @return ID
      */
     private Long extractPathVariableId(ProceedingJoinPoint point) {
         try {
@@ -584,7 +584,7 @@ public class LogAspect {
                 Parameter param = parameters[i];
                 Object arg = args[i];
 
-                // 查找@PathVariable注解的Long类型参数，参数名为"id"
+                // 查找@PathVariable注解的Long类型参数，参数名"id"
                 if (param.isAnnotationPresent(PathVariable.class)) {
                     PathVariable pathVar = param.getAnnotation(PathVariable.class);
                     String paramName = pathVar.value();
@@ -615,4 +615,3 @@ public class LogAspect {
         return str.substring(0, 1).toUpperCase() + str.substring(1);
     }
 }
-

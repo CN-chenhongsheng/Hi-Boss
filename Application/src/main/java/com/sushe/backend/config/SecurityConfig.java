@@ -5,11 +5,11 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 /**
- * 安全配置类
- * 仅用于密码加密，不包含认证框架
+ * 安全配置
+ * 仅用于密码加密，不包含认证部分
  *
  * @author 陈鸿昇
- * @date 2025-12-30
+ * @since 2025-12-30
  */
 @Configuration
 public class SecurityConfig {
@@ -22,4 +22,3 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 }
-

@@ -15,9 +15,9 @@ import com.sushe.backend.common.exception.BusinessException;
 import com.sushe.backend.common.result.PageResult;
 import com.sushe.backend.accommodation.entity.Student;
 import com.sushe.backend.accommodation.mapper.StudentMapper;
-import com.sushe.backend.entity.SysCampus;
-import com.sushe.backend.mapper.SysCampusMapper;
-import com.sushe.backend.service.SysApprovalService;
+import com.sushe.backend.organization.entity.Campus;
+import com.sushe.backend.organization.mapper.CampusMapper;
+import com.sushe.backend.approval.service.ApprovalService;
 import com.sushe.backend.util.DictUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -40,8 +40,8 @@ import java.util.stream.Collectors;
 public class CheckInServiceImpl extends ServiceImpl<CheckInMapper, CheckIn> implements CheckInService {
 
     private final StudentMapper studentMapper;
-    private final SysCampusMapper campusMapper;
-    private final SysApprovalService approvalService;
+    private final CampusMapper campusMapper;
+    private final ApprovalService approvalService;
 
     @Override
     public PageResult<CheckInVO> pageList(CheckInQueryDTO queryDTO) {
@@ -79,7 +79,7 @@ public class CheckInServiceImpl extends ServiceImpl<CheckInMapper, CheckIn> impl
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean saveCheckIn(CheckInSaveDTO saveDTO) {
-        // 检查学生是否存在
+        // 检查学生是否存�?
         Student student = studentMapper.selectById(saveDTO.getStudentId());
         if (student == null) {
             throw new BusinessException("学生不存在");
@@ -93,14 +93,14 @@ public class CheckInServiceImpl extends ServiceImpl<CheckInMapper, CheckIn> impl
         checkIn.setStudentNo(student.getStudentNo());
 
         boolean isNew = saveDTO.getId() == null;
-        
+
         if (isNew) {
             // 新增时先保存记录（需要获取ID）
             if (checkIn.getStatus() == null) {
                 checkIn.setStatus(1); // 临时状态，后续会根据审批结果更新
             }
             save(checkIn);
-            
+
             // 发起审批流程
             Long instanceId = approvalService.startApproval(
                 "check_in",
@@ -108,7 +108,7 @@ public class CheckInServiceImpl extends ServiceImpl<CheckInMapper, CheckIn> impl
                 saveDTO.getStudentId(),
                 student.getStudentName()
             );
-            
+
             if (instanceId != null) {
                 // 有审批流程，状态设为"待审批"（状态1）
                 checkIn.setApprovalInstanceId(instanceId);
@@ -119,7 +119,7 @@ public class CheckInServiceImpl extends ServiceImpl<CheckInMapper, CheckIn> impl
                 checkIn.setStatus(2);
                 log.info("入住申请无需审批，直接通过，申请ID：{}", checkIn.getId());
             }
-            
+
             return updateById(checkIn);
         } else {
             return updateById(checkIn);
@@ -180,9 +180,9 @@ public class CheckInServiceImpl extends ServiceImpl<CheckInMapper, CheckIn> impl
 
         // 查询校区名称
         if (StrUtil.isNotBlank(checkIn.getCampusCode())) {
-            LambdaQueryWrapper<SysCampus> wrapper = new LambdaQueryWrapper<>();
-            wrapper.eq(SysCampus::getCampusCode, checkIn.getCampusCode());
-            SysCampus campus = campusMapper.selectOne(wrapper);
+            LambdaQueryWrapper<Campus> wrapper = new LambdaQueryWrapper<>();
+            wrapper.eq(Campus::getCampusCode, checkIn.getCampusCode());
+            Campus campus = campusMapper.selectOne(wrapper);
             if (campus != null) {
                 vo.setCampusName(campus.getCampusName());
             }

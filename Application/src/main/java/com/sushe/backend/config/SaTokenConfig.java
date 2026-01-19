@@ -8,11 +8,11 @@ import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 /**
- * Sa-Token 配置类
- * 配置 Sa-Token 的拦截器，但实际认证逻辑由自定义的 AuthInterceptor 处理
+ * Sa-Token 配置
+ * 配置 Sa-Token 的拦截器，但实际认证逻辑由自定义 AuthInterceptor 处理
  * 
  * @author 陈鸿昇
- * @date 2025-01-01
+ * @since 2025-01-01
  */
 @Configuration
 public class SaTokenConfig implements WebMvcConfigurer {
@@ -24,7 +24,7 @@ public class SaTokenConfig implements WebMvcConfigurer {
      */
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        // 不注册 Sa-Token 的拦截器，使用自定义的 AuthInterceptor
+        // 不启用 Sa-Token 的拦截器，使用自定义 AuthInterceptor
         // 这样可以完全控制 Bearer Token 的解析和验证逻辑
     }
 }

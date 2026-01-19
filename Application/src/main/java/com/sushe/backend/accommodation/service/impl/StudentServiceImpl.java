@@ -14,14 +14,14 @@ import com.sushe.backend.accommodation.service.StudentService;
 import com.sushe.backend.accommodation.vo.StudentVO;
 import com.sushe.backend.common.exception.BusinessException;
 import com.sushe.backend.common.result.PageResult;
-import com.sushe.backend.entity.SysCampus;
-import com.sushe.backend.entity.SysClass;
-import com.sushe.backend.entity.SysDepartment;
-import com.sushe.backend.entity.SysMajor;
-import com.sushe.backend.mapper.SysCampusMapper;
-import com.sushe.backend.mapper.SysClassMapper;
-import com.sushe.backend.mapper.SysDepartmentMapper;
-import com.sushe.backend.mapper.SysMajorMapper;
+import com.sushe.backend.organization.entity.Campus;
+import com.sushe.backend.organization.entity.Class_;
+import com.sushe.backend.organization.entity.Department;
+import com.sushe.backend.organization.entity.Major;
+import com.sushe.backend.organization.mapper.CampusMapper;
+import com.sushe.backend.organization.mapper.ClassMapper;
+import com.sushe.backend.organization.mapper.DepartmentMapper;
+import com.sushe.backend.organization.mapper.MajorMapper;
 import com.sushe.backend.util.DictUtils;
 import com.sushe.backend.util.LifestyleTextConverter;
 import lombok.RequiredArgsConstructor;
@@ -44,10 +44,10 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class StudentServiceImpl extends ServiceImpl<StudentMapper, Student> implements StudentService {
 
-    private final SysCampusMapper campusMapper;
-    private final SysDepartmentMapper departmentMapper;
-    private final SysMajorMapper majorMapper;
-    private final SysClassMapper classMapper;
+    private final CampusMapper campusMapper;
+    private final DepartmentMapper departmentMapper;
+    private final MajorMapper majorMapper;
+    private final ClassMapper classMapper;
 
     @Override
     public PageResult<StudentVO> pageList(StudentQueryDTO queryDTO) {
@@ -227,9 +227,9 @@ public class StudentServiceImpl extends ServiceImpl<StudentMapper, Student> impl
 
         // 查询校区名称
         if (StrUtil.isNotBlank(student.getCampusCode())) {
-            LambdaQueryWrapper<SysCampus> wrapper = new LambdaQueryWrapper<>();
-            wrapper.eq(SysCampus::getCampusCode, student.getCampusCode());
-            SysCampus campus = campusMapper.selectOne(wrapper);
+            LambdaQueryWrapper<Campus> wrapper = new LambdaQueryWrapper<>();
+            wrapper.eq(Campus::getCampusCode, student.getCampusCode());
+            Campus campus = campusMapper.selectOne(wrapper);
             if (campus != null) {
                 vo.setCampusName(campus.getCampusName());
             }
@@ -237,9 +237,9 @@ public class StudentServiceImpl extends ServiceImpl<StudentMapper, Student> impl
 
         // 查询院系名称
         if (StrUtil.isNotBlank(student.getDeptCode())) {
-            LambdaQueryWrapper<SysDepartment> wrapper = new LambdaQueryWrapper<>();
-            wrapper.eq(SysDepartment::getDeptCode, student.getDeptCode());
-            SysDepartment department = departmentMapper.selectOne(wrapper);
+            LambdaQueryWrapper<Department> wrapper = new LambdaQueryWrapper<>();
+            wrapper.eq(Department::getDeptCode, student.getDeptCode());
+            Department department = departmentMapper.selectOne(wrapper);
             if (department != null) {
                 vo.setDeptName(department.getDeptName());
             }
@@ -247,9 +247,9 @@ public class StudentServiceImpl extends ServiceImpl<StudentMapper, Student> impl
 
         // 查询专业名称
         if (StrUtil.isNotBlank(student.getMajorCode())) {
-            LambdaQueryWrapper<SysMajor> wrapper = new LambdaQueryWrapper<>();
-            wrapper.eq(SysMajor::getMajorCode, student.getMajorCode());
-            SysMajor major = majorMapper.selectOne(wrapper);
+            LambdaQueryWrapper<Major> wrapper = new LambdaQueryWrapper<>();
+            wrapper.eq(Major::getMajorCode, student.getMajorCode());
+            Major major = majorMapper.selectOne(wrapper);
             if (major != null) {
                 vo.setMajorName(major.getMajorName());
             }
@@ -257,7 +257,7 @@ public class StudentServiceImpl extends ServiceImpl<StudentMapper, Student> impl
 
         // 查询班级名称
         if (student.getClassId() != null) {
-            SysClass classEntity = classMapper.selectById(student.getClassId());
+            Class_ classEntity = classMapper.selectById(student.getClassId());
             if (classEntity != null) {
                 vo.setClassName(classEntity.getClassName());
             }

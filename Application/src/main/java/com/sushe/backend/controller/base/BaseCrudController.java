@@ -25,7 +25,7 @@ public abstract class BaseCrudController<VO, QueryDTO, SaveDTO> {
     /**
      * 获取实体名称（用于日志输出）
      * 
-     * @return 实体名称，如"校区"、"院系"等
+     * @return 实体名称，如"校区"或"院系"
      */
     public abstract String getEntityName();
 
@@ -154,4 +154,3 @@ public abstract class BaseCrudController<VO, QueryDTO, SaveDTO> {
         }
     }
 }
-

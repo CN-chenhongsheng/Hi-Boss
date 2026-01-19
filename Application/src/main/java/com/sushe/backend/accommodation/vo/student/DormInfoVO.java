@@ -24,10 +24,10 @@ public class DormInfoVO {
     @Schema(description = "楼层名称")
     private String floorName;
 
-    @Schema(description = "房间号")
+    @Schema(description = "房间编码")
     private String roomCode;
 
-    @Schema(description = "床位号")
+    @Schema(description = "床位编码")
     private String bedCode;
 
     @Schema(description = "入住日期")

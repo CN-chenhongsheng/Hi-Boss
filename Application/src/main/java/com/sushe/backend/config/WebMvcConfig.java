@@ -9,7 +9,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 /**
  * Web MVC 配置
  * 注册拦截器
- * 
+ *
  * @author 陈鸿昇
  * @since 2025-12-31
  */
@@ -38,4 +38,3 @@ public class WebMvcConfig implements WebMvcConfigurer {
                 );
     }
 }
-

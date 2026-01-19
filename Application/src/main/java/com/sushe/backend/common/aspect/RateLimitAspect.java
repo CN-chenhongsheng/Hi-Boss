@@ -39,7 +39,7 @@ public class RateLimitAspect {
     /**
      * Lua脚本：限流算法（令牌桶算法）
      */
-    private static final String LIMIT_LUA_SCRIPT = 
+    private static final String LIMIT_LUA_SCRIPT =
             "local key = KEYS[1]\n" +
             "local count = tonumber(ARGV[1])\n" +
             "local time = tonumber(ARGV[2])\n" +
@@ -73,9 +73,9 @@ public class RateLimitAspect {
             script.setScriptText(LIMIT_LUA_SCRIPT);
             script.setResultType(Long.class);
 
-            Long result = redisTemplate.execute(script, 
-                    Collections.singletonList(key), 
-                    String.valueOf(count), 
+            Long result = redisTemplate.execute(script,
+                    Collections.singletonList(key),
+                    String.valueOf(count),
                     String.valueOf(time));
 
             if (result == null || result == 0) {
@@ -92,9 +92,9 @@ public class RateLimitAspect {
      */
     private String getRateLimitKey(RateLimit rateLimit, ProceedingJoinPoint point) {
         String key = rateLimit.key();
-        
+
         if (key.isEmpty()) {
-            // 如果没有指定key，使用 类名:方法名:IP 作为key
+            // 如果没有指定key，使用类名:方法:IP 作为key
             String className = point.getTarget().getClass().getName();
             String methodName = point.getSignature().getName();
             String ip = getIpAddr();
@@ -103,7 +103,7 @@ public class RateLimitAspect {
             // 如果指定了key，添加前缀
             key = "rate:limit:" + key;
         }
-        
+
         return key;
     }
 
@@ -115,7 +115,7 @@ public class RateLimitAspect {
         if (attributes == null) {
             return "unknown";
         }
-        
+
         HttpServletRequest request = attributes.getRequest();
         String ip = request.getHeader("X-Forwarded-For");
         if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
@@ -124,11 +124,10 @@ public class RateLimitAspect {
         if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
             ip = request.getRemoteAddr();
         }
-        // 处理多个IP的情况（取第一个）
+        // 处理多个IP的情况（取第一个IP）
         if (ip != null && ip.contains(",")) {
             ip = ip.split(",")[0].trim();
         }
         return ip != null ? ip : "unknown";
     }
 }
-

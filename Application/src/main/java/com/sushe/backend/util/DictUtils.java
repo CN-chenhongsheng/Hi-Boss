@@ -1,8 +1,8 @@
 package com.sushe.backend.util;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.sushe.backend.entity.SysDictData;
-import com.sushe.backend.mapper.SysDictDataMapper;
+import com.sushe.backend.system.entity.DictData;
+import com.sushe.backend.system.mapper.DictDataMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
@@ -16,7 +16,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 /**
- * 字典工具类
+ * 字典工具
  * 提供字典值到标签的转换功能，支持本地缓存
  * 
  * @author 陈鸿昇
@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 public class DictUtils implements ApplicationContextAware {
 
     private static ApplicationContext applicationContext;
-    private static SysDictDataMapper dictDataMapper;
+    private static DictDataMapper dictDataMapper;
 
     /**
      * 字典缓存
@@ -56,7 +56,7 @@ public class DictUtils implements ApplicationContextAware {
      */
     @PostConstruct
     public void init() {
-        dictDataMapper = applicationContext.getBean(SysDictDataMapper.class);
+        dictDataMapper = applicationContext.getBean(DictDataMapper.class);
         // 预热常用字典
         for (String dictCode : COMMON_DICT_CODES) {
             try {
@@ -129,22 +129,22 @@ public class DictUtils implements ApplicationContextAware {
         }
 
         try {
-            List<SysDictData> dataList = dictDataMapper.selectList(
-                    new LambdaQueryWrapper<SysDictData>()
-                            .eq(SysDictData::getDictCode, dictCode)
-                            .eq(SysDictData::getStatus, 1)
-                            .orderByAsc(SysDictData::getSort)
-                            .orderByAsc(SysDictData::getId)
+            List<DictData> dataList = dictDataMapper.selectList(
+                    new LambdaQueryWrapper<DictData>()
+                            .eq(DictData::getDictCode, dictCode)
+                            .eq(DictData::getStatus, 1)
+                            .orderByAsc(DictData::getSort)
+                            .orderByAsc(DictData::getId)
             );
 
             Map<String, String> dictMap = dataList.stream()
                     .collect(Collectors.toMap(
-                            SysDictData::getValue,
-                            SysDictData::getLabel,
+                            DictData::getValue,
+                            DictData::getLabel,
                             (v1, v2) -> v1
                     ));
 
-            log.debug("加载字典到缓存: {}, 数据量: {}", dictCode, dictMap.size());
+            log.debug("加载字典到缓存: {}, 数据: {}", dictCode, dictMap.size());
             return dictMap;
         } catch (Exception e) {
             log.error("加载字典失败: {}", dictCode, e);
@@ -184,4 +184,3 @@ public class DictUtils implements ApplicationContextAware {
         return DICT_CACHE.keySet().stream().sorted().collect(Collectors.toList());
     }
 }
-

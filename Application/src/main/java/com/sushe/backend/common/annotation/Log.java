@@ -19,7 +19,7 @@ public @interface Log {
     String title() default "";
 
     /**
-     * 业务类型（0其它 1新增 2修改 3删除）
+     * 业务类型：0其它 1新增 2修改 3删除
      */
     int businessType() default 0;
 
@@ -33,4 +33,3 @@ public @interface Log {
      */
     boolean saveResponseData() default true;
 }
-

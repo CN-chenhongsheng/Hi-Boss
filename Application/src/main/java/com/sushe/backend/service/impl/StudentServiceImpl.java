@@ -11,14 +11,14 @@ import com.sushe.backend.accommodation.mapper.StudentMapper;
 import com.sushe.backend.accommodation.service.StudentService;
 import com.sushe.backend.accommodation.vo.student.DormInfoVO;
 import com.sushe.backend.accommodation.vo.student.RoommateVO;
-import com.sushe.backend.entity.SysBed;
-import com.sushe.backend.entity.SysCampus;
-import com.sushe.backend.entity.SysFloor;
-import com.sushe.backend.entity.SysRoom;
-import com.sushe.backend.mapper.SysBedMapper;
-import com.sushe.backend.mapper.SysCampusMapper;
-import com.sushe.backend.mapper.SysFloorMapper;
-import com.sushe.backend.mapper.SysRoomMapper;
+import com.sushe.backend.organization.entity.Campus;
+import com.sushe.backend.organization.mapper.CampusMapper;
+import com.sushe.backend.room.entity.Bed;
+import com.sushe.backend.room.entity.Floor;
+import com.sushe.backend.room.entity.Room;
+import com.sushe.backend.room.mapper.BedMapper;
+import com.sushe.backend.room.mapper.FloorMapper;
+import com.sushe.backend.room.mapper.RoomMapper;
 import com.sushe.backend.service.StudentService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -40,10 +40,10 @@ import java.util.stream.Collectors;
 public class StudentServiceImpl implements StudentService {
 
     private final StudentMapper studentMapper;
-    private final SysCampusMapper campusMapper;
-    private final SysFloorMapper floorMapper;
-    private final SysRoomMapper roomMapper;
-    private final SysBedMapper bedMapper;
+    private final CampusMapper campusMapper;
+    private final FloorMapper floorMapper;
+    private final RoomMapper roomMapper;
+    private final BedMapper bedMapper;
     private final com.sushe.backend.accommodation.service.StudentService accommodationStudentService;
 
     @Override
@@ -67,9 +67,9 @@ public class StudentServiceImpl implements StudentService {
 
         // 查询校区名称
         if (StrUtil.isNotBlank(student.getCampusCode())) {
-            LambdaQueryWrapper<SysCampus> campusWrapper = new LambdaQueryWrapper<>();
-            campusWrapper.eq(SysCampus::getCampusCode, student.getCampusCode());
-            SysCampus campus = campusMapper.selectOne(campusWrapper);
+            LambdaQueryWrapper<Campus> campusWrapper = new LambdaQueryWrapper<>();
+            campusWrapper.eq(Campus::getCampusCode, student.getCampusCode());
+            Campus campus = campusMapper.selectOne(campusWrapper);
             if (campus != null) {
                 dormInfo.setCampusName(campus.getCampusName());
             }
@@ -77,22 +77,22 @@ public class StudentServiceImpl implements StudentService {
 
         // 查询楼栋/楼层名称
         if (StrUtil.isNotBlank(student.getFloorCode())) {
-            LambdaQueryWrapper<SysFloor> floorWrapper = new LambdaQueryWrapper<>();
-            floorWrapper.eq(SysFloor::getFloorCode, student.getFloorCode());
-            SysFloor floor = floorMapper.selectOne(floorWrapper);
+            LambdaQueryWrapper<Floor> floorWrapper = new LambdaQueryWrapper<>();
+            floorWrapper.eq(Floor::getFloorCode, student.getFloorCode());
+            Floor floor = floorMapper.selectOne(floorWrapper);
             if (floor != null) {
                 dormInfo.setBuildingName(floor.getFloorName());
-                dormInfo.setFloorName(floor.getFloorNumber() + "层");
+                dormInfo.setFloorName(floor.getFloorNumber() + "楼");
             }
         }
 
-        // 设置房间号和床位号
+        // 设置房间号和床位
         dormInfo.setRoomCode(student.getRoomCode());
         dormInfo.setBedCode(student.getBedCode());
 
         // 查询入住日期
         if (student.getBedId() != null) {
-            SysBed bed = bedMapper.selectById(student.getBedId());
+            Bed bed = bedMapper.selectById(student.getBedId());
             if (bed != null) {
                 dormInfo.setCheckInDate(bed.getCheckInDate());
             }
