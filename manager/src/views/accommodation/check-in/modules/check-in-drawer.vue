@@ -134,13 +134,13 @@
 
   const activeTab = ref('student')
   const loading = ref(false)
-  const checkInDetail = ref<Partial<CheckInListItem>>({})
+  const checkInDetail = ref<CheckInListItem | null>(null)
   const studentData = ref<Partial<StudentDetail>>({})
 
   // 加载入住申请详情和学生信息
   const loadData = async () => {
     if (!props.checkInId) {
-      checkInDetail.value = {}
+      checkInDetail.value = null
       studentData.value = {}
       return
     }
@@ -150,26 +150,26 @@
 
       // 如果有传入的 checkInData，直接使用，否则请求详情
       if (props.checkInData) {
-        checkInDetail.value = { ...props.checkInData }
+        checkInDetail.value = props.checkInData
       } else {
         const checkInRes = await fetchGetCheckInDetail(props.checkInId)
-        if (checkInRes) {
-          checkInDetail.value = checkInRes
-        }
+        checkInDetail.value = checkInRes || null
       }
 
       // 根据入住申请中的 studentId 获取学生详情
-      const studentId = checkInDetail.value.studentId
-      if (studentId) {
-        const studentRes = await fetchGetStudentDetail(studentId)
-        if (studentRes) {
-          studentData.value = studentRes
-        }
-      } else {
-        // 如果没有 studentId，使用入住申请中的学生基本信息
-        studentData.value = {
-          studentNo: checkInDetail.value.studentNo,
-          studentName: checkInDetail.value.studentName
+      if (checkInDetail.value) {
+        const studentId = checkInDetail.value.studentId
+        if (studentId) {
+          const studentRes = await fetchGetStudentDetail(studentId)
+          if (studentRes) {
+            studentData.value = studentRes
+          }
+        } else {
+          // 如果没有 studentId，使用入住申请中的学生基本信息
+          studentData.value = {
+            studentNo: checkInDetail.value.studentNo,
+            studentName: checkInDetail.value.studentName
+          }
         }
       }
     } catch (error) {
