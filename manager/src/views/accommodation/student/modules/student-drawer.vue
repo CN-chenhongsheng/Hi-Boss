@@ -3,7 +3,7 @@
   <ArtDrawer
     v-model="drawerVisible"
     title="查看学生"
-    :size="500"
+    :size="450"
     :loading="loading"
     :with-header="true"
     @close="handleClose"
