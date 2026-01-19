@@ -152,6 +152,8 @@
     emptyText?: string
     /** 是否开启 ArtTableHeader，解决表格高度自适应问题 */
     showTableHeader?: boolean
+    /** 表格的布局方式，覆盖父接口中的必需属性 */
+    tableLayout?: 'fixed' | 'auto'
   }
 
   const props = withDefaults(defineProps<ArtTableProps>(), {
