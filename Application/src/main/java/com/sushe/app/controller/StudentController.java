@@ -1,8 +1,8 @@
-package com.sushe.backend.controller.mobile;
+package com.sushe.app.controller;
 
 import com.sushe.backend.common.result.R;
 import com.sushe.backend.accommodation.dto.student.StudentLifestyleDTO;
-import com.sushe.backend.service.StudentService;
+import com.sushe.app.service.StudentService;
 import com.sushe.backend.accommodation.vo.student.DormInfoVO;
 import com.sushe.backend.accommodation.vo.student.RoommateVO;
 import io.swagger.v3.oas.annotations.Operation;
@@ -25,8 +25,8 @@ import java.util.List;
  */
 @Slf4j
 @Tag(name = "学生端", description = "学生端相关接口")
-@RestController("mobileStudentController")
-@RequestMapping("/v1/student")
+@RestController("appStudentController")
+@RequestMapping("/v1/app/student")
 @RequiredArgsConstructor
 public class StudentController {
 

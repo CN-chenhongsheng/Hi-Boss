@@ -1,4 +1,4 @@
-package com.sushe.backend.service.impl;
+package com.sushe.app.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;
@@ -8,17 +8,15 @@ import com.sushe.backend.common.exception.BusinessException;
 import com.sushe.backend.accommodation.dto.student.StudentLifestyleDTO;
 import com.sushe.backend.accommodation.entity.Student;
 import com.sushe.backend.accommodation.mapper.StudentMapper;
-import com.sushe.backend.service.StudentService;
+import com.sushe.app.service.StudentService;
 import com.sushe.backend.accommodation.vo.student.DormInfoVO;
 import com.sushe.backend.accommodation.vo.student.RoommateVO;
 import com.sushe.backend.organization.entity.Campus;
 import com.sushe.backend.organization.mapper.CampusMapper;
 import com.sushe.backend.room.entity.Bed;
 import com.sushe.backend.room.entity.Floor;
-import com.sushe.backend.room.entity.Room;
 import com.sushe.backend.room.mapper.BedMapper;
 import com.sushe.backend.room.mapper.FloorMapper;
-import com.sushe.backend.room.mapper.RoomMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -34,14 +32,13 @@ import java.util.stream.Collectors;
  * @since 2026-01-16
  */
 @Slf4j
-@Service("mobileStudentServiceImpl")
+@Service("appStudentServiceImpl")
 @RequiredArgsConstructor
 public class StudentServiceImpl implements StudentService {
 
     private final StudentMapper studentMapper;
     private final CampusMapper campusMapper;
     private final FloorMapper floorMapper;
-    private final RoomMapper roomMapper;
     private final BedMapper bedMapper;
     private final com.sushe.backend.accommodation.service.StudentService accommodationStudentService;
 

@@ -18,6 +18,11 @@ import com.sushe.backend.accommodation.mapper.StudentMapper;
 import com.sushe.backend.organization.entity.Campus;
 import com.sushe.backend.organization.mapper.CampusMapper;
 import com.sushe.backend.approval.service.ApprovalService;
+import com.sushe.backend.approval.mapper.ApprovalInstanceMapper;
+import com.sushe.backend.approval.mapper.ApprovalRecordMapper;
+import com.sushe.backend.approval.entity.ApprovalInstance;
+import com.sushe.backend.approval.entity.ApprovalRecord;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.sushe.backend.util.DictUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -42,6 +47,8 @@ public class CheckInServiceImpl extends ServiceImpl<CheckInMapper, CheckIn> impl
     private final StudentMapper studentMapper;
     private final CampusMapper campusMapper;
     private final ApprovalService approvalService;
+    private final ApprovalInstanceMapper approvalInstanceMapper;
+    private final ApprovalRecordMapper approvalRecordMapper;
 
     @Override
     public PageResult<CheckInVO> pageList(CheckInQueryDTO queryDTO) {
@@ -79,7 +86,7 @@ public class CheckInServiceImpl extends ServiceImpl<CheckInMapper, CheckIn> impl
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean saveCheckIn(CheckInSaveDTO saveDTO) {
-        // 检查学生是否存�?
+        // 检查学生是否存在
         Student student = studentMapper.selectById(saveDTO.getStudentId());
         if (student == null) {
             throw new BusinessException("学生不存在");
@@ -132,6 +139,29 @@ public class CheckInServiceImpl extends ServiceImpl<CheckInMapper, CheckIn> impl
         if (id == null) {
             throw new BusinessException("入住记录ID不能为空");
         }
+
+        // 查询入住记录
+        CheckIn checkIn = getById(id);
+        if (checkIn == null) {
+            throw new BusinessException("入住记录不存在");
+        }
+
+        // 如果存在审批实例，删除关联的审批记录和审批实例
+        if (checkIn.getApprovalInstanceId() != null) {
+            Long instanceId = checkIn.getApprovalInstanceId();
+
+            // 删除审批记录
+            LambdaQueryWrapper<ApprovalRecord> recordWrapper = new LambdaQueryWrapper<>();
+            recordWrapper.eq(ApprovalRecord::getInstanceId, instanceId);
+            approvalRecordMapper.delete(recordWrapper);
+
+            // 删除审批实例
+            approvalInstanceMapper.deleteById(instanceId);
+
+            log.info("删除入住记录时同步删除审批实例，入住记录ID：{}，审批实例ID：{}", id, instanceId);
+        }
+
+        // 删除入住记录
         return removeById(id);
     }
 
@@ -141,6 +171,37 @@ public class CheckInServiceImpl extends ServiceImpl<CheckInMapper, CheckIn> impl
         if (ids == null || ids.length == 0) {
             throw new BusinessException("入住记录ID不能为空");
         }
+
+        // 查询所有入住记录
+        List<CheckIn> checkInList = listByIds(Arrays.asList(ids));
+        if (checkInList.isEmpty()) {
+            throw new BusinessException("入住记录不存在");
+        }
+
+        // 收集所有需要删除的审批实例ID
+        List<Long> instanceIds = checkInList.stream()
+                .map(CheckIn::getApprovalInstanceId)
+                .filter(instanceId -> instanceId != null)
+                .distinct()
+                .collect(Collectors.toList());
+
+        // 批量删除审批记录和审批实例
+        if (!instanceIds.isEmpty()) {
+            // 删除审批记录
+            LambdaQueryWrapper<ApprovalRecord> recordWrapper = new LambdaQueryWrapper<>();
+            recordWrapper.in(ApprovalRecord::getInstanceId, instanceIds);
+            approvalRecordMapper.delete(recordWrapper);
+
+            // 删除审批实例（循环删除，因为 BaseMapper 没有批量删除方法）
+            for (Long instanceId : instanceIds) {
+                approvalInstanceMapper.deleteById(instanceId);
+            }
+
+            log.info("批量删除入住记录时同步删除审批实例，入住记录数量：{}，审批实例数量：{}",
+                    checkInList.size(), instanceIds.size());
+        }
+
+        // 批量删除入住记录
         return removeByIds(Arrays.asList(ids));
     }
 

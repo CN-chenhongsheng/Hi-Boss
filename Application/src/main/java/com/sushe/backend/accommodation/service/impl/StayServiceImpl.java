@@ -18,6 +18,9 @@ import com.sushe.backend.accommodation.mapper.StudentMapper;
 import com.sushe.backend.organization.entity.Campus;
 import com.sushe.backend.organization.mapper.CampusMapper;
 import com.sushe.backend.approval.service.ApprovalService;
+import com.sushe.backend.approval.mapper.ApprovalInstanceMapper;
+import com.sushe.backend.approval.mapper.ApprovalRecordMapper;
+import com.sushe.backend.approval.entity.ApprovalRecord;
 import com.sushe.backend.util.DictUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -42,6 +45,8 @@ public class StayServiceImpl extends ServiceImpl<StayMapper, Stay> implements St
     private final StudentMapper studentMapper;
     private final CampusMapper campusMapper;
     private final ApprovalService approvalService;
+    private final ApprovalInstanceMapper approvalInstanceMapper;
+    private final ApprovalRecordMapper approvalRecordMapper;
 
     @Override
     public PageResult<StayVO> pageList(StayQueryDTO queryDTO) {
@@ -133,6 +138,29 @@ public class StayServiceImpl extends ServiceImpl<StayMapper, Stay> implements St
         if (id == null) {
             throw new BusinessException("留宿记录ID不能为空");
         }
+
+        // 查询留宿记录
+        Stay stay = getById(id);
+        if (stay == null) {
+            throw new BusinessException("留宿记录不存在");
+        }
+
+        // 如果存在审批实例，删除关联的审批记录和审批实例
+        if (stay.getApprovalInstanceId() != null) {
+            Long instanceId = stay.getApprovalInstanceId();
+
+            // 删除审批记录
+            LambdaQueryWrapper<ApprovalRecord> recordWrapper = new LambdaQueryWrapper<>();
+            recordWrapper.eq(ApprovalRecord::getInstanceId, instanceId);
+            approvalRecordMapper.delete(recordWrapper);
+
+            // 删除审批实例
+            approvalInstanceMapper.deleteById(instanceId);
+
+            log.info("删除留宿记录时同步删除审批实例，留宿记录ID：{}，审批实例ID：{}", id, instanceId);
+        }
+
+        // 删除留宿记录
         return removeById(id);
     }
 
@@ -142,6 +170,37 @@ public class StayServiceImpl extends ServiceImpl<StayMapper, Stay> implements St
         if (ids == null || ids.length == 0) {
             throw new BusinessException("留宿记录ID不能为空");
         }
+
+        // 查询所有留宿记录
+        List<Stay> stayList = listByIds(Arrays.asList(ids));
+        if (stayList.isEmpty()) {
+            throw new BusinessException("留宿记录不存在");
+        }
+
+        // 收集所有需要删除的审批实例ID
+        List<Long> instanceIds = stayList.stream()
+                .map(Stay::getApprovalInstanceId)
+                .filter(instanceId -> instanceId != null)
+                .distinct()
+                .collect(Collectors.toList());
+
+        // 批量删除审批记录和审批实例
+        if (!instanceIds.isEmpty()) {
+            // 删除审批记录
+            LambdaQueryWrapper<ApprovalRecord> recordWrapper = new LambdaQueryWrapper<>();
+            recordWrapper.in(ApprovalRecord::getInstanceId, instanceIds);
+            approvalRecordMapper.delete(recordWrapper);
+
+            // 删除审批实例（循环删除，因为 BaseMapper 没有批量删除方法）
+            for (Long instanceId : instanceIds) {
+                approvalInstanceMapper.deleteById(instanceId);
+            }
+
+            log.info("批量删除留宿记录时同步删除审批实例，留宿记录数量：{}，审批实例数量：{}",
+                    stayList.size(), instanceIds.size());
+        }
+
+        // 批量删除留宿记录
         return removeByIds(Arrays.asList(ids));
     }
 

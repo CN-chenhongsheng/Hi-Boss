@@ -166,7 +166,8 @@
         {
           prop: 'startTime',
           label: '提交时间',
-          width: 180
+          width: 180,
+          sortable: true
         },
         {
           prop: 'action',

@@ -18,6 +18,9 @@ import com.sushe.backend.accommodation.mapper.StudentMapper;
 import com.sushe.backend.organization.entity.Campus;
 import com.sushe.backend.organization.mapper.CampusMapper;
 import com.sushe.backend.approval.service.ApprovalService;
+import com.sushe.backend.approval.mapper.ApprovalInstanceMapper;
+import com.sushe.backend.approval.mapper.ApprovalRecordMapper;
+import com.sushe.backend.approval.entity.ApprovalRecord;
 import com.sushe.backend.util.DictUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -42,6 +45,8 @@ public class CheckOutServiceImpl extends ServiceImpl<CheckOutMapper, CheckOut> i
     private final StudentMapper studentMapper;
     private final CampusMapper campusMapper;
     private final ApprovalService approvalService;
+    private final ApprovalInstanceMapper approvalInstanceMapper;
+    private final ApprovalRecordMapper approvalRecordMapper;
 
     @Override
     public PageResult<CheckOutVO> pageList(CheckOutQueryDTO queryDTO) {
@@ -131,6 +136,29 @@ public class CheckOutServiceImpl extends ServiceImpl<CheckOutMapper, CheckOut> i
         if (id == null) {
             throw new BusinessException("退宿记录ID不能为空");
         }
+
+        // 查询退宿记录
+        CheckOut checkOut = getById(id);
+        if (checkOut == null) {
+            throw new BusinessException("退宿记录不存在");
+        }
+
+        // 如果存在审批实例，删除关联的审批记录和审批实例
+        if (checkOut.getApprovalInstanceId() != null) {
+            Long instanceId = checkOut.getApprovalInstanceId();
+
+            // 删除审批记录
+            LambdaQueryWrapper<ApprovalRecord> recordWrapper = new LambdaQueryWrapper<>();
+            recordWrapper.eq(ApprovalRecord::getInstanceId, instanceId);
+            approvalRecordMapper.delete(recordWrapper);
+
+            // 删除审批实例
+            approvalInstanceMapper.deleteById(instanceId);
+
+            log.info("删除退宿记录时同步删除审批实例，退宿记录ID：{}，审批实例ID：{}", id, instanceId);
+        }
+
+        // 删除退宿记录
         return removeById(id);
     }
 
@@ -140,6 +168,37 @@ public class CheckOutServiceImpl extends ServiceImpl<CheckOutMapper, CheckOut> i
         if (ids == null || ids.length == 0) {
             throw new BusinessException("退宿记录ID不能为空");
         }
+
+        // 查询所有退宿记录
+        List<CheckOut> checkOutList = listByIds(Arrays.asList(ids));
+        if (checkOutList.isEmpty()) {
+            throw new BusinessException("退宿记录不存在");
+        }
+
+        // 收集所有需要删除的审批实例ID
+        List<Long> instanceIds = checkOutList.stream()
+                .map(CheckOut::getApprovalInstanceId)
+                .filter(instanceId -> instanceId != null)
+                .distinct()
+                .collect(Collectors.toList());
+
+        // 批量删除审批记录和审批实例
+        if (!instanceIds.isEmpty()) {
+            // 删除审批记录
+            LambdaQueryWrapper<ApprovalRecord> recordWrapper = new LambdaQueryWrapper<>();
+            recordWrapper.in(ApprovalRecord::getInstanceId, instanceIds);
+            approvalRecordMapper.delete(recordWrapper);
+
+            // 删除审批实例（循环删除，因为 BaseMapper 没有批量删除方法）
+            for (Long instanceId : instanceIds) {
+                approvalInstanceMapper.deleteById(instanceId);
+            }
+
+            log.info("批量删除退宿记录时同步删除审批实例，退宿记录数量：{}，审批实例数量：{}",
+                    checkOutList.size(), instanceIds.size());
+        }
+
+        // 批量删除退宿记录
         return removeByIds(Arrays.asList(ids));
     }
 

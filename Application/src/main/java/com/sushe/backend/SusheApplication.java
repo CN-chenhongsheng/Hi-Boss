@@ -3,6 +3,7 @@ package com.sushe.backend;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.ComponentScan;
 
 /**
  * 宿舍管理系统后端启动类
@@ -11,6 +12,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * @since 2025-12-30
  */
 @SpringBootApplication
+@ComponentScan(basePackages = {"com.sushe.backend", "com.sushe.mobile"})
 @MapperScan({
     "com.sushe.backend.mapper",
     "com.sushe.backend.accommodation.mapper",

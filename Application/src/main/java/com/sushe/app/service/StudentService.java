@@ -1,4 +1,4 @@
-package com.sushe.backend.service;
+package com.sushe.app.service;
 
 import com.sushe.backend.accommodation.dto.student.StudentLifestyleDTO;
 import com.sushe.backend.accommodation.vo.student.DormInfoVO;
