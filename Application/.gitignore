@@ -26,6 +26,7 @@ hs_err_pid*
 
 ### IntelliJ IDEA ###
 .idea/
+./sql/
 *.iws
 *.iml
 *.ipr
@@ -63,4 +64,3 @@ Desktop.ini
 logs/
 temp/
 upload/
-
