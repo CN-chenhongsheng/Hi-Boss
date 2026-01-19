@@ -196,13 +196,13 @@ public class SysApprovalController {
         Long userId = StpUtil.getLoginIdAsLong();
         String nickname = userMapper.selectById(userId).getNickname();
         log.info("执行审批，用户：{}，参数：{}", nickname, actionDTO);
-        
+
         List<Long> roleIds = roleMapper.selectRoleIdsByUserId(userId);
         // 验证权限
         if (!approvalService.canApprove(actionDTO.getInstanceId(), userId, roleIds)) {
             return R.fail("您没有权限审批此申请");
         }
-        
+
         boolean success = approvalService.doApprove(actionDTO, userId, nickname);
         return success ? R.ok("审批成功", null) : R.fail("审批失败");
     }

@@ -5,7 +5,7 @@ import lombok.Getter;
 /**
  * 床位状态枚举
  *
- * @author sushe
+ * @author 陈鸿昇
  * @since 2025-01-05
  */
 @Getter

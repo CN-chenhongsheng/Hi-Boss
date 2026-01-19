@@ -5,7 +5,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * 缓存常量类
  *
- * @author sushe
+ * @author 陈鸿昇
  * @since 2025-01-05
  */
 public class CacheConstant {
