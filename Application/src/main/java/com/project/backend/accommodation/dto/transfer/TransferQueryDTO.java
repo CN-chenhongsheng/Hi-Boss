@@ -1,4 +1,4 @@
-﻿package com.project.backend.accommodation.dto.transfer;
+package com.project.backend.accommodation.dto.transfer;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;

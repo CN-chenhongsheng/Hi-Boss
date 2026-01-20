@@ -1,4 +1,4 @@
-﻿package com.project.backend.common.aspect;
+package com.project.backend.common.aspect;
 
 import com.project.core.annotation.RateLimit;
 import com.project.core.exception.BusinessException;

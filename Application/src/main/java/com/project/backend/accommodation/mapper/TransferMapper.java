@@ -1,4 +1,4 @@
-﻿package com.project.backend.accommodation.mapper;
+package com.project.backend.accommodation.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.project.backend.accommodation.entity.Transfer;

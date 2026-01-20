@@ -103,7 +103,7 @@
 ## 🏗️ 项目结构
 
 ```
-sushe_web_2025/
+project_web_2025/
 ├── manager/                          # 管理端应用
 │   ├── .husky/                       # Git Hooks 配置
 │   ├── .vscode/                      # VSCode 编辑器配置
@@ -414,7 +414,7 @@ sushe_web_2025/
 
 ```bash
 git clone <repository-url>
-cd sushe_web_2025/manager
+cd project_web_2025/manager
 ```
 
 ### 2. 安装依赖

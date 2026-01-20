@@ -1,4 +1,4 @@
-﻿package com.project.backend.organization.service;
+package com.project.backend.organization.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.project.core.result.PageResult;

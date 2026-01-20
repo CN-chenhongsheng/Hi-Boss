@@ -1,4 +1,4 @@
-﻿package com.project.backend.organization.service;
+package com.project.backend.organization.service;
 
 import com.project.backend.organization.vo.SchoolHierarchyVO;
 

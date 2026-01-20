@@ -1,4 +1,4 @@
-﻿package com.project.backend.accommodation.dto.checkin;
+package com.project.backend.accommodation.dto.checkin;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;

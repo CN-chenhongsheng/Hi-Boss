@@ -1,4 +1,4 @@
-﻿package com.project.backend.system.controller;
+package com.project.backend.system.controller;
 
 import com.project.core.result.R;
 import com.project.backend.system.dto.ChangePasswordDTO;

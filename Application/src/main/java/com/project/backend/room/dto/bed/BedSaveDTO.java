@@ -1,4 +1,4 @@
-﻿package com.project.backend.room.dto.bed;
+package com.project.backend.room.dto.bed;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;

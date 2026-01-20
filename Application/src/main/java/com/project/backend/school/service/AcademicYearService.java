@@ -1,4 +1,4 @@
-﻿package com.project.backend.school.service;
+package com.project.backend.school.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.project.core.result.PageResult;

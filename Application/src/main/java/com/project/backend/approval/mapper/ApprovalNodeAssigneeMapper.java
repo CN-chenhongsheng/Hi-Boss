@@ -1,4 +1,4 @@
-﻿package com.project.backend.approval.mapper;
+package com.project.backend.approval.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.project.backend.approval.entity.ApprovalNodeAssignee;

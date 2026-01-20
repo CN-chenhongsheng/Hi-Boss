@@ -1,4 +1,4 @@
-﻿package com.project.backend.approval.vo;
+package com.project.backend.approval.vo;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;

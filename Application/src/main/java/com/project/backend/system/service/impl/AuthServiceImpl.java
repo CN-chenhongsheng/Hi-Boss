@@ -1,4 +1,4 @@
-﻿package com.project.backend.system.service.impl;
+package com.project.backend.system.service.impl;
 
 import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.bean.BeanUtil;

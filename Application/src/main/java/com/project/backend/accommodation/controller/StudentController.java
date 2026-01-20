@@ -1,4 +1,4 @@
-﻿package com.project.backend.accommodation.controller;
+package com.project.backend.accommodation.controller;
 
 import com.project.backend.accommodation.dto.student.StudentQueryDTO;
 import com.project.backend.accommodation.dto.student.StudentSaveDTO;

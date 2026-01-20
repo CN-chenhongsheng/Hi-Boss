@@ -1,4 +1,4 @@
-﻿package com.project.backend;
+package com.project.backend;
 
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
@@ -12,7 +12,7 @@ import org.springframework.context.annotation.ComponentScan;
  * @since 2025-12-30
  */
 @SpringBootApplication
-@ComponentScan(basePackages = {"com.project.backend", "com.project.mobile"})
+@ComponentScan(basePackages = {"com.project.backend", "com.project.app", "com.project.core"})
 @MapperScan({
         "com.project.backend.mapper",
         "com.project.backend.accommodation.mapper",

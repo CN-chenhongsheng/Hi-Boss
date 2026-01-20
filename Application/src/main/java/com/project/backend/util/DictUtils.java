@@ -1,4 +1,4 @@
-﻿package com.project.backend.util;
+package com.project.backend.util;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.project.backend.system.entity.DictData;

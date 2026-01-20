@@ -1,4 +1,4 @@
-﻿package com.project.backend.system.service;
+package com.project.backend.system.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.project.backend.system.dto.MenuQueryDTO;

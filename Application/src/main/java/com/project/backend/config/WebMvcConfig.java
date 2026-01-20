@@ -1,4 +1,4 @@
-﻿package com.project.backend.config;
+package com.project.backend.config;
 
 import com.project.backend.config.interceptor.AuthInterceptor;
 import lombok.RequiredArgsConstructor;

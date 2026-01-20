@@ -1,4 +1,4 @@
-﻿package com.project.backend.organization.dto.major;
+package com.project.backend.organization.dto.major;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;

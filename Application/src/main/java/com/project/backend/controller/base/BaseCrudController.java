@@ -1,4 +1,4 @@
-﻿package com.project.backend.controller.base;
+package com.project.backend.controller.base;
 
 import com.project.core.annotation.Log;
 import com.project.core.result.PageResult;

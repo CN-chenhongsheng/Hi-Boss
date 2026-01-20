@@ -12,10 +12,10 @@
         <relativePath/>
     </parent>
     
-    <groupId>com.sushe</groupId>
-    <artifactId>sushe-backend</artifactId>
+    <groupId>com.project</groupId>
+    <artifactId>project-backend</artifactId>
     <version>1.0.0</version>
-    <name>sushe-backend</name>
+    <name>project-backend</name>
     <description>宿舍管理系统后端 - Spring Boot 3.2.x</description>
     
     <properties>

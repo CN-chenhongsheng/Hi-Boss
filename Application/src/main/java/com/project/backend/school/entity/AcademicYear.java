@@ -1,4 +1,4 @@
-﻿package com.project.backend.school.entity;
+package com.project.backend.school.entity;
 
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;

@@ -1,4 +1,4 @@
-﻿package com.project.backend.organization.mapper;
+package com.project.backend.organization.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.project.backend.organization.entity.Campus;

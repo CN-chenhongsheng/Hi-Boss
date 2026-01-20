@@ -1,4 +1,4 @@
-﻿package com.project.backend.accommodation.dto.checkout;
+package com.project.backend.accommodation.dto.checkout;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;

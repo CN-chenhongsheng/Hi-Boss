@@ -12,7 +12,7 @@
   <java>
     <!-- 导入排序 -->
     <importOrder>
-      <order>java,javax,org,,com.sushe</order>
+      <order>java,javax,org,,com.projectct</order>
     </importOrder>
 
     <!-- 移除未使用的导入 -->

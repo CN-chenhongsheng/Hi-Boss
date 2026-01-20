@@ -1,4 +1,4 @@
-﻿package com.project.backend.controller;
+package com.project.backend.controller;
 
 import com.project.core.result.R;
 import io.swagger.v3.oas.annotations.Operation;

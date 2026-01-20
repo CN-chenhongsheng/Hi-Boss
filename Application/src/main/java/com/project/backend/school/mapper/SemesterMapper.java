@@ -1,4 +1,4 @@
-﻿package com.project.backend.school.mapper;
+package com.project.backend.school.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.project.backend.school.entity.Semester;

@@ -241,7 +241,6 @@
     })
       .then(async () => {
         await fetchBatchDeleteOperLog([row.id])
-        ElMessage.success('删除成功')
         refreshRemove()
       })
       .catch(() => {})
@@ -264,7 +263,6 @@
       .then(async () => {
         const ids = selectedRows.value.map((row) => row.id)
         await fetchBatchDeleteOperLog(ids)
-        ElMessage.success('删除成功')
         selectedRows.value = []
         refreshRemove()
       })
@@ -283,7 +281,6 @@
     })
       .then(async () => {
         await fetchCleanOperLog()
-        ElMessage.success('清空成功')
         refreshData()
       })
       .catch(() => {})

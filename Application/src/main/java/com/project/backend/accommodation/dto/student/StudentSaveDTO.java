@@ -1,4 +1,4 @@
-﻿package com.project.backend.accommodation.dto.student;
+package com.project.backend.accommodation.dto.student;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;

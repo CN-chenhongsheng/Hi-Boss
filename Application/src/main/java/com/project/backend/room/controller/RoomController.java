@@ -1,4 +1,4 @@
-﻿package com.project.backend.room.controller;
+package com.project.backend.room.controller;
 
 import com.project.core.result.PageResult;
 import com.project.backend.controller.base.BaseCrudController;

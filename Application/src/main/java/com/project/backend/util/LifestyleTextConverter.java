@@ -1,4 +1,4 @@
-﻿package com.project.backend.util;
+package com.project.backend.util;
 
 /**
  * 生活习惯文本转换工具

@@ -1,4 +1,4 @@
-﻿package com.project.backend.organization.dto.classes;
+package com.project.backend.organization.dto.classes;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;

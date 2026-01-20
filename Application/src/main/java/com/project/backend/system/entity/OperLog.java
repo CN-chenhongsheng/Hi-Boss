@@ -1,4 +1,4 @@
-﻿package com.project.backend.system.entity;
+package com.project.backend.system.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;

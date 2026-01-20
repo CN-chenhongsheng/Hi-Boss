@@ -1,4 +1,4 @@
-﻿package com.project.backend.approval.entity;
+package com.project.backend.approval.entity;
 
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;

@@ -1,4 +1,4 @@
-﻿package com.project.backend.organization.controller;
+package com.project.backend.organization.controller;
 
 import com.project.core.result.R;
 import com.project.backend.organization.service.SchoolHierarchyService;

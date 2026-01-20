@@ -1,4 +1,4 @@
-﻿package com.project.backend.accommodation.controller;
+package com.project.backend.accommodation.controller;
 
 import com.project.backend.accommodation.dto.stay.StayQueryDTO;
 import com.project.backend.accommodation.dto.stay.StaySaveDTO;
@@ -69,5 +69,3 @@ public class StayController extends BaseCrudController<StayVO, StayQueryDTO, Sta
         return success ? R.ok() : R.fail("撤回失败");
     }
 }
-
-

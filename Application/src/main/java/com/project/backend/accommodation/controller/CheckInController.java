@@ -1,4 +1,4 @@
-﻿package com.project.backend.accommodation.controller;
+package com.project.backend.accommodation.controller;
 
 import com.project.backend.accommodation.dto.checkin.CheckInQueryDTO;
 import com.project.backend.accommodation.dto.checkin.CheckInSaveDTO;
@@ -69,5 +69,3 @@ public class CheckInController extends BaseCrudController<CheckInVO, CheckInQuer
         return success ? R.ok() : R.fail("撤回失败");
     }
 }
-
-

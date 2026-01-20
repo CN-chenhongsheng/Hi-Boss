@@ -2,11 +2,11 @@
     "configurations": [
         {
             "type": "java",
-            "name": "Spring Boot-SusheApplication<sushe-backend>",
+            "name": "Spring Boot-projectApplication<project-backend>",
             "request": "launch",
             "cwd": "${workspaceFolder}",
-            "mainClass": "com.sushe.backend.SusheApplication",
-            "projectName": "sushe-backend",
+            "mainClass": "com.project.backend.projectApplication",
+            "projectName": "project-backend",
             "args": "",
             "envFile": "${workspaceFolder}/.env"
         }

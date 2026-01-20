@@ -1,4 +1,4 @@
-﻿package com.project.app.controller;
+package com.project.app.controller;
 
 import com.project.core.result.R;
 import com.project.backend.accommodation.dto.student.StudentLifestyleDTO;

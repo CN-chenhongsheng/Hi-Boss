@@ -1,6 +1,6 @@
 package com.project.backend.system.service;
 
-import com.project.backend.common.context.UserContext;
+import com.project.core.context.UserContext;
 import com.project.backend.system.dto.ChangePasswordDTO;
 import com.project.backend.system.dto.UserSaveDTO;
 import com.project.backend.system.entity.User;

@@ -1,4 +1,4 @@
-﻿package com.project.backend.organization.service.impl;
+package com.project.backend.organization.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.project.backend.organization.entity.Campus;

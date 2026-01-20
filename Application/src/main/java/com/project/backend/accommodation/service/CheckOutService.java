@@ -1,4 +1,4 @@
-﻿package com.project.backend.accommodation.service;
+package com.project.backend.accommodation.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.project.backend.accommodation.dto.checkout.CheckOutQueryDTO;
