@@ -8,7 +8,7 @@
           <ElCol :xs="24" :sm="12" :md="8" :lg="6">
             <ElFormItem label="业务类型">
               <ElSelect
-                v-model="formFilters.value.businessType"
+                v-model="formFilters.businessType"
                 placeholder="请选择业务类型"
                 clearable
                 style="width: 100%"
@@ -25,7 +25,7 @@
           <ElCol :xs="24" :sm="12" :md="8" :lg="6">
             <ElFormItem label="申请人">
               <ElInput
-                v-model="formFilters.value.applicantName"
+                v-model="formFilters.applicantName"
                 placeholder="请输入申请人姓名"
                 clearable
                 @keyup.enter="handleSearch"
@@ -35,7 +35,7 @@
           <ElCol :xs="24" :sm="12" :md="8" :lg="6">
             <ElFormItem label="审批人">
               <ElInput
-                v-model="formFilters.value.approverName"
+                v-model="formFilters.approverName"
                 placeholder="请输入审批人姓名"
                 clearable
                 @keyup.enter="handleSearch"
@@ -45,7 +45,7 @@
           <ElCol :xs="24" :sm="12" :md="8" :lg="6">
             <ElFormItem label="审批结果">
               <ElSelect
-                v-model="formFilters.value.action"
+                v-model="formFilters.action"
                 placeholder="请选择审批结果"
                 clearable
                 style="width: 100%"

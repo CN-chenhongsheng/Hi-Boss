@@ -100,12 +100,11 @@
   })
 
   // 搜索相关
-  const initialSearchState = {
+  const formFilters = ref({
     pageNum: 1,
     businessType: undefined,
     applicantName: undefined
-  }
-  const formFilters = ref({ ...initialSearchState })
+  })
 
   const showSearchBar = ref(false)
   const approvalDialogVisible = ref(false)
@@ -189,7 +188,11 @@
   }
 
   const handleReset = async (): Promise<void> => {
-    Object.assign(formFilters.value, { ...initialSearchState })
+    formFilters.value = {
+      pageNum: 1,
+      businessType: undefined,
+      applicantName: undefined
+    }
     await resetSearchParams()
   }
 
