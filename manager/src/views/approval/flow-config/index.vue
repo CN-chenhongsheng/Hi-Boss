@@ -222,7 +222,8 @@
             ]
           }
         }
-      ]
+      ],
+      immediate: true
     },
     adaptive: {
       enabled: true

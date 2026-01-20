@@ -226,7 +226,8 @@
           width: 180,
           sortable: true
         }
-      ]
+      ],
+      immediate: true
     },
     adaptive: {
       enabled: true

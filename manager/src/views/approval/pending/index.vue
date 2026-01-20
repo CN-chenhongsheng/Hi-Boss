@@ -175,7 +175,8 @@
             return [{ type: 'view', onClick: () => openApprovalDialog(row), label: '审批' }]
           }
         }
-      ]
+      ],
+      immediate: true
     },
     adaptive: {
       enabled: true
