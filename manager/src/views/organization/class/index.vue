@@ -87,19 +87,15 @@
   const showSearchBar = ref(false)
 
   // 搜索相关
-  const initialSearchState = {
+  const formFilters = ref({
     pageNum: 1,
-    pageSize: 20,
     classCode: undefined,
     className: undefined,
     majorCode: undefined,
     grade: undefined,
     enrollmentYear: undefined,
     status: undefined
-  }
-
-  // 搜索栏表单数据（使用 reactive 以确保双向绑定正常工作）
-  const formFilters = reactive<Api.SystemManage.ClassSearchParams>({ ...initialSearchState })
+  })
 
   const {
     columns,
@@ -120,12 +116,12 @@
       apiFn: fetchGetClassPage,
       apiParams: computed(() => {
         return {
-          classCode: formFilters.classCode || undefined,
-          className: formFilters.className || undefined,
-          majorCode: formFilters.majorCode || undefined,
-          grade: formFilters.grade || undefined,
-          enrollmentYear: formFilters.enrollmentYear,
-          status: formFilters.status
+          classCode: formFilters.value.classCode || undefined,
+          className: formFilters.value.className || undefined,
+          majorCode: formFilters.value.majorCode || undefined,
+          grade: formFilters.value.grade || undefined,
+          enrollmentYear: formFilters.value.enrollmentYear,
+          status: formFilters.value.status
         } as Partial<Api.SystemManage.ClassSearchParams>
       }),
       paginationKey: {
@@ -209,8 +205,11 @@
           ]
         }
       ]
-    } as any
-  })
+    },
+    adaptive: {
+      enabled: true
+    }
+  } as any)
 
   /**
    * 搜索
@@ -223,11 +222,15 @@
    * 重置搜索
    */
   const handleReset = async (): Promise<void> => {
-    Object.assign(formFilters, {
-      ...initialSearchState,
+    formFilters.value = {
       pageNum: 1,
-      pageSize: 20
-    })
+      classCode: undefined,
+      className: undefined,
+      majorCode: undefined,
+      grade: undefined,
+      enrollmentYear: undefined,
+      status: undefined
+    }
     await resetSearchParams()
   }
 

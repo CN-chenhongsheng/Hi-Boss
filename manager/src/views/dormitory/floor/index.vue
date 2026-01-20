@@ -142,17 +142,14 @@
   const selectedCount = computed(() => selectedRows.value.length)
 
   // 搜索相关
-  const initialSearchState = {
+  const formFilters = ref({
     floorCode: '',
     floorName: '',
     campusCode: '',
     genderType: undefined,
     status: undefined,
-    pageNum: 1,
-    pageSize: 20
-  }
-
-  const formFilters = reactive({ ...initialSearchState })
+    pageNum: 1
+  })
 
   // 使用 useTable 管理表格数据
   const {
@@ -174,13 +171,12 @@
       apiFn: fetchGetFloorPage,
       apiParams: computed(() => {
         return {
-          floorCode: formFilters.floorCode || undefined,
-          floorName: formFilters.floorName || undefined,
-          campusCode: formFilters.campusCode || undefined,
-          genderType: formFilters.genderType,
-          status: formFilters.status,
-          pageNum: formFilters.pageNum,
-          pageSize: formFilters.pageSize
+          floorCode: formFilters.value.floorCode || undefined,
+          floorName: formFilters.value.floorName || undefined,
+          campusCode: formFilters.value.campusCode || undefined,
+          genderType: formFilters.value.genderType,
+          status: formFilters.value.status,
+          pageNum: formFilters.value.pageNum
         } as Partial<Api.SystemManage.FloorSearchParams>
       }),
       paginationKey: {
@@ -296,6 +292,9 @@
         // 关联检查将在列表加载后通过 watch 或 computed 进行
         return records
       }
+    },
+    adaptive: {
+      enabled: true
     }
   })
 
@@ -303,7 +302,7 @@
    * 搜索
    */
   const handleSearch = async (): Promise<void> => {
-    formFilters.pageNum = 1
+    formFilters.value.pageNum = 1
     await getData()
   }
 
@@ -311,7 +310,14 @@
    * 重置搜索
    */
   const handleReset = async (): Promise<void> => {
-    Object.assign(formFilters, { ...initialSearchState, pageNum: 1, pageSize: 20 })
+    formFilters.value = {
+      floorCode: '',
+      floorName: '',
+      campusCode: '',
+      genderType: undefined,
+      status: undefined,
+      pageNum: 1
+    }
     await resetSearchParams()
   }
 
@@ -458,7 +464,7 @@
   const handleViewRooms = (row: FloorListItem): void => {
     drillDownType.value = 'room'
     drillDownParentName.value = row.floorName || row.floorCode
-    drillDownFilterParams.value = { floorCode: row.floorCode, pageNum: 1, pageSize: 20 }
+    drillDownFilterParams.value = { floorCode: row.floorCode, pageNum: 1 }
     drillDownVisible.value = true
   }
 
@@ -475,8 +481,7 @@
       roomNestedDrillDownParentName.value = row.roomNumber || row.roomCode
       roomNestedDrillDownFilterParams.value = {
         roomCode: row.roomCode,
-        pageNum: 1,
-        pageSize: 20
+        pageNum: 1
       }
       roomNestedDrillDownVisible.value = true
     }

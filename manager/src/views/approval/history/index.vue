@@ -8,7 +8,7 @@
           <ElCol :xs="24" :sm="12" :md="8" :lg="6">
             <ElFormItem label="业务类型">
               <ElSelect
-                v-model="formFilters.businessType"
+                v-model="formFilters.value.businessType"
                 placeholder="请选择业务类型"
                 clearable
                 style="width: 100%"
@@ -25,7 +25,7 @@
           <ElCol :xs="24" :sm="12" :md="8" :lg="6">
             <ElFormItem label="申请人">
               <ElInput
-                v-model="formFilters.applicantName"
+                v-model="formFilters.value.applicantName"
                 placeholder="请输入申请人姓名"
                 clearable
                 @keyup.enter="handleSearch"
@@ -35,7 +35,7 @@
           <ElCol :xs="24" :sm="12" :md="8" :lg="6">
             <ElFormItem label="审批人">
               <ElInput
-                v-model="formFilters.approverName"
+                v-model="formFilters.value.approverName"
                 placeholder="请输入审批人姓名"
                 clearable
                 @keyup.enter="handleSearch"
@@ -45,7 +45,7 @@
           <ElCol :xs="24" :sm="12" :md="8" :lg="6">
             <ElFormItem label="审批结果">
               <ElSelect
-                v-model="formFilters.action"
+                v-model="formFilters.value.action"
                 placeholder="请选择审批结果"
                 clearable
                 style="width: 100%"
@@ -127,16 +127,13 @@
   })
 
   // 搜索相关
-  const initialSearchState = {
+  const formFilters = ref({
     pageNum: 1,
-    pageSize: 20,
     businessType: undefined,
     applicantName: undefined,
     approverName: undefined,
     action: undefined
-  }
-
-  const formFilters = reactive({ ...initialSearchState })
+  })
   const showSearchBar = ref(false)
   const viewMode = ref<'all' | 'my'>('all')
 
@@ -162,12 +159,11 @@
       apiParams: computed(
         () =>
           ({
-            pageNum: formFilters.pageNum,
-            pageSize: formFilters.pageSize,
-            businessType: formFilters.businessType || undefined,
-            applicantName: formFilters.applicantName || undefined,
-            approverName: formFilters.approverName || undefined,
-            action: formFilters.action
+            pageNum: formFilters.value.pageNum,
+            businessType: formFilters.value.businessType || undefined,
+            applicantName: formFilters.value.applicantName || undefined,
+            approverName: formFilters.value.approverName || undefined,
+            action: formFilters.value.action
           }) as ApprovalRecordQueryParams
       ),
       paginationKey: {
@@ -231,21 +227,30 @@
           sortable: true
         }
       ]
+    },
+    adaptive: {
+      enabled: true
     }
   })
 
   const handleSearch = async (): Promise<void> => {
-    formFilters.pageNum = 1
+    formFilters.value.pageNum = 1
     await getData()
   }
 
   const handleReset = async (): Promise<void> => {
-    Object.assign(formFilters, { ...initialSearchState })
+    formFilters.value = {
+      pageNum: 1,
+      businessType: undefined,
+      applicantName: undefined,
+      approverName: undefined,
+      action: undefined
+    }
     await resetSearchParams()
   }
 
   const handleViewModeChange = async () => {
-    formFilters.pageNum = 1
+    formFilters.value.pageNum = 1
     // 重新获取数据需要更新API函数
     await getData()
   }

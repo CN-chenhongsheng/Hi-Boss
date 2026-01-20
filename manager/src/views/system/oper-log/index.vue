@@ -83,7 +83,6 @@
   // 搜索表单
   const searchForm = ref<Api.SystemManage.OperLogSearchParams>({
     pageNum: 1,
-    pageSize: 20,
     title: undefined,
     operName: undefined,
     businessType: undefined,
@@ -110,7 +109,6 @@
       apiParams: computed(() => {
         return {
           pageNum: 1,
-          pageSize: 20,
           ...searchForm.value
         } as Api.SystemManage.OperLogSearchParams
       }),
@@ -190,6 +188,9 @@
           ]
         }
       ]
+    },
+    adaptive: {
+      enabled: true
     }
   })
 

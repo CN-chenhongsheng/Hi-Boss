@@ -126,7 +126,7 @@
   const selectedCount = computed(() => selectedRows.value.length)
 
   // 搜索相关
-  const initialSearchState = {
+  const formFilters = ref({
     roomCode: '',
     roomNumber: '',
     floorCode: '',
@@ -134,11 +134,8 @@
     roomType: '',
     roomStatus: undefined,
     status: undefined,
-    pageNum: 1,
-    pageSize: 20
-  }
-
-  const formFilters = reactive({ ...initialSearchState })
+    pageNum: 1
+  })
 
   // 使用 useTable 管理表格数据
   const {
@@ -160,15 +157,14 @@
       apiFn: fetchGetRoomPage,
       apiParams: computed(() => {
         return {
-          roomCode: formFilters.roomCode || undefined,
-          roomNumber: formFilters.roomNumber || undefined,
-          floorCode: formFilters.floorCode || undefined,
-          campusCode: formFilters.campusCode || undefined,
-          roomType: formFilters.roomType || undefined,
-          roomStatus: formFilters.roomStatus,
-          status: formFilters.status,
-          pageNum: formFilters.pageNum,
-          pageSize: formFilters.pageSize
+          roomCode: formFilters.value.roomCode || undefined,
+          roomNumber: formFilters.value.roomNumber || undefined,
+          floorCode: formFilters.value.floorCode || undefined,
+          campusCode: formFilters.value.campusCode || undefined,
+          roomType: formFilters.value.roomType || undefined,
+          roomStatus: formFilters.value.roomStatus,
+          status: formFilters.value.status,
+          pageNum: formFilters.value.pageNum
         } as Partial<Api.SystemManage.RoomSearchParams>
       }),
       paginationKey: {
@@ -296,6 +292,9 @@
         }
       ],
       immediate: true
+    },
+    adaptive: {
+      enabled: true
     }
   })
 
@@ -303,7 +302,7 @@
    * 搜索
    */
   const handleSearch = async (): Promise<void> => {
-    formFilters.pageNum = 1
+    formFilters.value.pageNum = 1
     await getData()
   }
 
@@ -311,7 +310,16 @@
    * 重置搜索
    */
   const handleReset = async (): Promise<void> => {
-    Object.assign(formFilters, { ...initialSearchState, pageNum: 1, pageSize: 20 })
+    formFilters.value = {
+      roomCode: '',
+      roomNumber: '',
+      floorCode: '',
+      campusCode: '',
+      roomType: '',
+      roomStatus: undefined,
+      status: undefined,
+      pageNum: 1
+    }
     await resetSearchParams()
   }
 
@@ -458,7 +466,7 @@
   const handleViewBeds = (row: RoomListItem): void => {
     drillDownType.value = 'bed'
     drillDownParentName.value = row.roomNumber || row.roomCode
-    drillDownFilterParams.value = { roomCode: row.roomCode, pageNum: 1, pageSize: 20 }
+    drillDownFilterParams.value = { roomCode: row.roomCode, pageNum: 1 }
     drillDownVisible.value = true
   }
 

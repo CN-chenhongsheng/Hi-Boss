@@ -159,7 +159,6 @@
   const selectedDictCode = ref<string>('')
   const typeSearchForm = ref<Api.SystemManage.DictTypeSearchParams>({
     pageNum: 1,
-    pageSize: 10,
     dictName: undefined,
     dictCode: undefined,
     status: undefined
@@ -180,8 +179,11 @@
         current: 'pageNum',
         size: 'pageSize'
       }
-    } as any
-  })
+    },
+    adaptive: {
+      enabled: true
+    }
+  } as any)
 
   // 字典数据相关
   const dataSearchForm = ref({
@@ -206,8 +208,11 @@
         current: 'pageNum',
         size: 'pageSize'
       }
-    } as any
-  })
+    },
+    adaptive: {
+      enabled: true
+    }
+  } as any)
 
   // 弹窗相关
   const typeDialogVisible = ref(false)
@@ -513,9 +518,11 @@
   }
 
   // 初始化
-  onMounted(() => {
-    getTypeData()
-  })
+  // 注意：因为启用了自适应分页（adaptive: { enabled: true }），
+  // 首次数据加载由 useTable 的 watch 自动处理，无需手动调用 getTypeData()
+  // onMounted(() => {
+  //   getTypeData()
+  // })
 </script>
 
 <style scoped lang="scss">

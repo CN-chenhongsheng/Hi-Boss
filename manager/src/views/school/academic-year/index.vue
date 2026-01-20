@@ -98,13 +98,11 @@
   const selectedCount = computed(() => selectedRows.value.length)
 
   // 搜索相关
-  const initialSearchState = {
+  const formFilters = ref({
     yearCode: '',
     yearName: '',
     status: undefined
-  }
-
-  const formFilters = reactive({ ...initialSearchState })
+  })
 
   // 使用 useTable 管理表格数据
   const {
@@ -123,9 +121,9 @@
       apiFn: fetchGetAcademicYearPage,
       apiParams: computed(() => {
         return {
-          yearCode: formFilters.yearCode || undefined,
-          yearName: formFilters.yearName || undefined,
-          status: formFilters.status
+          yearCode: formFilters.value.yearCode || undefined,
+          yearName: formFilters.value.yearName || undefined,
+          status: formFilters.value.status
         }
       }),
       columnsFactory: () => [
@@ -192,6 +190,9 @@
         }
       ],
       immediate: true
+    },
+    adaptive: {
+      enabled: true
     }
   })
 
@@ -206,7 +207,11 @@
    * 重置搜索
    */
   const handleReset = async (): Promise<void> => {
-    Object.assign(formFilters, initialSearchState)
+    formFilters.value = {
+      yearCode: '',
+      yearName: '',
+      status: undefined
+    }
     await resetSearchParams()
   }
 

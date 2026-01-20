@@ -103,7 +103,6 @@
   // 搜索表单
   const searchForm = ref<Api.AccommodationManage.StudentSearchParams>({
     pageNum: 1,
-    pageSize: 20,
     studentNo: undefined,
     studentName: undefined,
     phone: undefined,
@@ -134,9 +133,17 @@
     core: {
       apiFn: fetchGetStudentPage,
       apiParams: computed(() => ({
-        pageNum: searchForm.value.pageNum || 1,
-        pageSize: searchForm.value.pageSize || 20,
-        ...searchForm.value
+        pageNum: searchForm.value.pageNum,
+        studentNo: searchForm.value.studentNo || undefined,
+        studentName: searchForm.value.studentName || undefined,
+        phone: searchForm.value.phone || undefined,
+        campusCode: searchForm.value.campusCode || undefined,
+        deptCode: searchForm.value.deptCode || undefined,
+        majorCode: searchForm.value.majorCode || undefined,
+        classId: searchForm.value.classId || undefined,
+        bedId: searchForm.value.bedId || undefined,
+        academicStatus: searchForm.value.academicStatus,
+        status: searchForm.value.status
       })),
       paginationKey: {
         current: 'pageNum',
@@ -196,6 +203,9 @@
           ]
         }
       ]
+    },
+    adaptive: {
+      enabled: true
     }
   })
 

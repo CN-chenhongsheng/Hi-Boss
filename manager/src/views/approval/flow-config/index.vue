@@ -81,16 +81,13 @@
   })
 
   // 搜索相关
-  const initialSearchState = {
+  const formFilters = ref({
     pageNum: 1,
-    pageSize: 20,
     flowName: undefined,
     flowCode: undefined,
     businessType: undefined,
     status: undefined
-  }
-
-  const formFilters = reactive({ ...initialSearchState })
+  })
 
   const showSearchBar = ref(false)
   const dialogVisible = ref(false)
@@ -116,12 +113,11 @@
       apiFn: fetchGetFlowList,
       apiParams: computed(() => {
         return {
-          pageNum: formFilters.pageNum,
-          pageSize: formFilters.pageSize,
-          flowName: formFilters.flowName || undefined,
-          flowCode: formFilters.flowCode || undefined,
-          businessType: formFilters.businessType || undefined,
-          status: formFilters.status
+          pageNum: formFilters.value.pageNum,
+          flowName: formFilters.value.flowName || undefined,
+          flowCode: formFilters.value.flowCode || undefined,
+          businessType: formFilters.value.businessType || undefined,
+          status: formFilters.value.status
         }
       }),
       paginationKey: {
@@ -227,6 +223,9 @@
           }
         }
       ]
+    },
+    adaptive: {
+      enabled: true
     }
   })
 
@@ -239,12 +238,18 @@
   }
 
   const handleSearch = async (): Promise<void> => {
-    formFilters.pageNum = 1
+    formFilters.value.pageNum = 1
     await getData()
   }
 
   const handleReset = async (): Promise<void> => {
-    Object.assign(formFilters, { ...initialSearchState })
+    formFilters.value = {
+      pageNum: 1,
+      flowName: undefined,
+      flowCode: undefined,
+      businessType: undefined,
+      status: undefined
+    }
     await resetSearchParams()
   }
 

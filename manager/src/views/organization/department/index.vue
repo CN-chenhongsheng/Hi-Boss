@@ -126,16 +126,13 @@
   const nestedDrillDownFilterParams = ref<Record<string, any>>({})
 
   // 搜索相关
-  const initialSearchState = {
+  const formFilters = ref({
     pageNum: 1,
-    pageSize: 20,
     deptCode: '',
     deptName: '',
     campusCode: '',
     status: undefined
-  }
-
-  const formFilters = reactive<Api.SystemManage.DepartmentSearchParams>({ ...initialSearchState })
+  })
 
   // 使用 useTable 管理表格数据
   const {
@@ -157,12 +154,11 @@
       apiFn: fetchGetDepartmentPage,
       apiParams: computed(() => {
         return {
-          pageNum: formFilters.pageNum,
-          pageSize: formFilters.pageSize,
-          deptCode: formFilters.deptCode || undefined,
-          deptName: formFilters.deptName || undefined,
-          campusCode: formFilters.campusCode || undefined,
-          status: formFilters.status
+          pageNum: formFilters.value.pageNum,
+          deptCode: formFilters.value.deptCode || undefined,
+          deptName: formFilters.value.deptName || undefined,
+          campusCode: formFilters.value.campusCode || undefined,
+          status: formFilters.value.status
         } as Partial<Api.SystemManage.DepartmentSearchParams>
       }),
       paginationKey: {
@@ -245,6 +241,9 @@
         }
       ],
       immediate: true
+    },
+    adaptive: {
+      enabled: true
     }
   })
 
@@ -259,11 +258,13 @@
    * 重置搜索
    */
   const handleReset = async (): Promise<void> => {
-    Object.assign(formFilters, {
-      ...initialSearchState,
+    formFilters.value = {
       pageNum: 1,
-      pageSize: 20
-    })
+      deptCode: '',
+      deptName: '',
+      campusCode: '',
+      status: undefined
+    }
     await resetSearchParams()
   }
 

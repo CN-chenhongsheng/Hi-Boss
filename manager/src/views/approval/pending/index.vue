@@ -102,12 +102,11 @@
   // 搜索相关
   const initialSearchState = {
     pageNum: 1,
-    pageSize: 20,
     businessType: undefined,
     applicantName: undefined
   }
+  const formFilters = ref({ ...initialSearchState })
 
-  const formFilters = reactive({ ...initialSearchState })
   const showSearchBar = ref(false)
   const approvalDialogVisible = ref(false)
   const currentInstance = ref<ApprovalInstance | null>(null)
@@ -127,10 +126,9 @@
     core: {
       apiFn: fetchGetPendingList,
       apiParams: computed(() => ({
-        pageNum: formFilters.pageNum,
-        pageSize: formFilters.pageSize,
-        businessType: formFilters.businessType || undefined,
-        applicantName: formFilters.applicantName || undefined
+        pageNum: formFilters.value.pageNum,
+        businessType: formFilters.value.businessType || undefined,
+        applicantName: formFilters.value.applicantName || undefined
       })),
       paginationKey: {
         current: 'pageNum',
@@ -179,16 +177,19 @@
           }
         }
       ]
+    },
+    adaptive: {
+      enabled: true
     }
   })
 
   const handleSearch = async (): Promise<void> => {
-    formFilters.pageNum = 1
+    formFilters.value.pageNum = 1
     await getData()
   }
 
   const handleReset = async (): Promise<void> => {
-    Object.assign(formFilters, { ...initialSearchState })
+    Object.assign(formFilters.value, { ...initialSearchState })
     await resetSearchParams()
   }
 

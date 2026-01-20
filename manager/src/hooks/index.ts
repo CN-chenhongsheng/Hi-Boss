@@ -13,6 +13,9 @@ export { useTable } from './core/useTable'
 // 表格列配置管理
 export { useTableColumns } from './core/useTableColumns'
 
+// 自适应分页尺寸
+export { useAdaptivePageSize } from './core/useAdaptivePageSize'
+
 // 主题相关
 export { useTheme } from './core/useTheme'
 

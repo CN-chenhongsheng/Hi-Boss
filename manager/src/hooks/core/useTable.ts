@@ -31,6 +31,7 @@ import {
 } from 'vue'
 import { useWindowSize } from '@vueuse/core'
 import { useTableColumns } from './useTableColumns'
+import { useAdaptivePageSize } from './useAdaptivePageSize'
 import type { ColumnOption } from '@/types/component'
 import {
   TableCache,
@@ -114,6 +115,20 @@ export interface UseTableConfig<
     resetFormCallback?: () => void
   }
 
+  // 自适应分页配置
+  adaptive?: {
+    /** 是否启用自适应 pageSize */
+    enabled?: boolean
+    /** 容器元素引用或 CSS 选择器 */
+    container?: import('vue').Ref<HTMLElement | undefined> | string
+    /** 自定义行高（可选，不提供则根据 tableSize 自动计算） */
+    customRowHeight?: number
+    /** 最小 pageSize（默认 10） */
+    minPageSize?: number
+    /** 最大 pageSize（默认 100） */
+    maxPageSize?: number
+  }
+
   // 调试配置
   debug?: {
     /** 是否启用日志输出 */
@@ -160,6 +175,13 @@ function useTableImpl<TApiFn extends (params: any) => Promise<any>>(
       cacheTime = 5 * 60 * 1000,
       debounceTime = 300,
       maxCacheSize = 50
+    } = {},
+    adaptive: {
+      enabled: adaptiveEnabled = false,
+      container: adaptiveContainer,
+      customRowHeight,
+      minPageSize,
+      maxPageSize
     } = {},
     hooks: { onSuccess, onError, onCacheHit, resetFormCallback } = {},
     debug: { enableLog = false } = {}
@@ -211,16 +233,52 @@ function useTableImpl<TApiFn extends (params: any) => Promise<any>>(
   // 缓存清理定时器
   let cacheCleanupTimer: NodeJS.Timeout | null = null
 
+  // 自适应分页尺寸
+  const adaptivePageSizeResult = adaptiveEnabled
+    ? useAdaptivePageSize({
+        container: adaptiveContainer,
+        customRowHeight,
+        minPageSize,
+        maxPageSize,
+        debug: enableLog
+      })
+    : null
+
+  // 获取初始 pageSize（优先使用自适应值）
+  // 确保 initialPageSize 永远是一个有效的数字
+  let initialPageSize = 10
+  if (adaptiveEnabled && adaptivePageSizeResult) {
+    const adaptiveValue = adaptivePageSizeResult.pageSize.value
+    if (typeof adaptiveValue === 'number' && !isNaN(adaptiveValue) && adaptiveValue > 0) {
+      initialPageSize = adaptiveValue
+      if (enableLog) {
+        console.log(`[useTable] 使用自适应 pageSize: ${initialPageSize}`)
+      }
+    } else if (enableLog) {
+      console.warn(`[useTable] 自适应 pageSize 无效: ${adaptiveValue}，使用默认值 10`)
+    }
+  }
+
   // 搜索参数
   // 如果 apiParams 是 ref/computed，需要解包
   const resolvedApiParams = isRef(apiParams) ? unref(apiParams) : apiParams || {}
+
+  // 过滤掉 undefined 值，避免覆盖默认的分页参数
+  const filteredApiParams = Object.keys(resolvedApiParams).reduce((acc, key) => {
+    const value = (resolvedApiParams as Record<string, unknown>)[key]
+    if (value !== undefined) {
+      ;(acc as Record<string, unknown>)[key] = value
+    }
+    return acc
+  }, {} as Partial<TParams>)
+
   const searchParams = reactive(
     Object.assign(
       {
         [pageKey]: 1,
-        [sizeKey]: 10
+        [sizeKey]: initialPageSize
       },
-      resolvedApiParams
+      filteredApiParams
     ) as TParams
   )
 
@@ -235,18 +293,79 @@ function useTableImpl<TApiFn extends (params: any) => Promise<any>>(
             delete (searchParams as Record<string, unknown>)[key]
           }
         })
-        Object.assign(searchParams, resolved)
+        // 过滤掉 undefined 值，避免覆盖分页参数
+        // 同时，如果 resolved 中没有 pageSize，也不要删除已有的 pageSize
+        Object.keys(resolved).forEach((key) => {
+          const value = (resolved as Record<string, unknown>)[key]
+          if (value !== undefined && key !== sizeKey) {
+            ;(searchParams as Record<string, unknown>)[key] = value
+          }
+        })
       },
       { deep: true }
     )
   }
 
   // 分页配置
+  const searchParamsSize = (searchParams as Record<string, unknown>)[sizeKey] as number
   const pagination = reactive<Api.Common.PaginationParams>({
     current: ((searchParams as Record<string, unknown>)[pageKey] as number) || 1,
-    size: ((searchParams as Record<string, unknown>)[sizeKey] as number) || 10,
+    size:
+      typeof searchParamsSize === 'number' && !isNaN(searchParamsSize) && searchParamsSize > 0
+        ? searchParamsSize
+        : initialPageSize,
     total: 0
   })
+
+  // 如果启用了自适应分页，监听 pageSize 变化并同步
+  if (adaptiveEnabled && adaptivePageSizeResult) {
+    // 标记是否已完成首次数据加载（避免重复请求）
+    let hasLoadedData = false
+    // 标记是否正在进行首次加载（防止加载期间的 pageSize 变化触发重复请求）
+    let isLoadingFirstData = false
+
+    watch(
+      () => adaptivePageSizeResult.pageSize.value,
+      (newSize) => {
+        // 如果正在首次加载中，完全忽略后续的 pageSize 变化（包括不更新 pagination.size）
+        // 这样可以确保 UI 显示的 pageSize 和实际请求的 pageSize 一致
+        if (isLoadingFirstData) {
+          logger.log(`首次加载期间，忽略 pageSize 变化: ${pagination.size} -> ${newSize}`)
+          return
+        }
+
+        // 确保新值是有效的数字
+        if (
+          typeof newSize === 'number' &&
+          !isNaN(newSize) &&
+          newSize > 0 &&
+          newSize !== pagination.size
+        ) {
+          logger.log(`自适应 pageSize 变化: ${pagination.size} -> ${newSize}`)
+          pagination.size = newSize
+          ;(searchParams as Record<string, unknown>)[sizeKey] = newSize
+
+          // 如果启用了 immediate 且还未加载数据，则由 watch 触发首次加载
+          // 这样可以确保使用正确计算的 pageSize，而不是初始的 fallback 值
+          if (immediate && !hasLoadedData && !isLoadingFirstData) {
+            isLoadingFirstData = true
+            nextTick(async () => {
+              await getData()
+              // 数据加载完成后，标记首次加载已完成
+              hasLoadedData = true
+              isLoadingFirstData = false
+            })
+            return
+          }
+
+          // 后续的 pageSize 变化（用户手动调整或容器尺寸变化）则正常触发请求
+          if (hasLoadedData) {
+            getData()
+          }
+        }
+      }
+    )
+  }
 
   // 移动端分页 (响应式)
   const { width } = useWindowSize()
@@ -322,6 +441,13 @@ function useTableImpl<TApiFn extends (params: any) => Promise<any>>(
     // 状态机：进入 loading 状态
     loadingState.value = 'loading'
     error.value = null
+
+    // 验证 pagination.size 是否有效，如果无效则使用默认值
+    if (!pagination.size || isNaN(pagination.size) || pagination.size <= 0) {
+      logger.warn(`检测到无效的 pageSize: ${pagination.size}，使用默认值 10`)
+      pagination.size = 10
+      ;(searchParams as Record<string, unknown>)[sizeKey] = 10
+    }
 
     try {
       let requestParams = Object.assign(
@@ -646,7 +772,8 @@ function useTableImpl<TApiFn extends (params: any) => Promise<any>>(
   }
 
   // 挂载时自动加载数据
-  if (immediate) {
+  // 注意：如果启用了自适应分页，首次加载由 watch 触发（确保使用正确的 pageSize）
+  if (immediate && !adaptiveEnabled) {
     onMounted(async () => {
       await getData()
     })

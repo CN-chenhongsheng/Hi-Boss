@@ -94,7 +94,7 @@
   const selectedCount = computed(() => selectedRows.value.length)
 
   // 搜索相关
-  const initialSearchState = {
+  const formFilters = ref({
     bedCode: '',
     bedNumber: '',
     roomCode: '',
@@ -103,11 +103,8 @@
     bedPosition: '',
     bedStatus: undefined,
     status: undefined,
-    pageNum: 1,
-    pageSize: 20
-  }
-
-  const formFilters = reactive({ ...initialSearchState })
+    pageNum: 1
+  })
 
   // 使用 useTable 管理表格数据
   const {
@@ -129,16 +126,15 @@
       apiFn: fetchGetBedPage,
       apiParams: computed(() => {
         return {
-          bedCode: formFilters.bedCode || undefined,
-          bedNumber: formFilters.bedNumber || undefined,
-          roomCode: formFilters.roomCode || undefined,
-          floorCode: formFilters.floorCode || undefined,
-          campusCode: formFilters.campusCode || undefined,
-          bedPosition: formFilters.bedPosition || undefined,
-          bedStatus: formFilters.bedStatus,
-          status: formFilters.status,
-          pageNum: formFilters.pageNum,
-          pageSize: formFilters.pageSize
+          bedCode: formFilters.value.bedCode || undefined,
+          bedNumber: formFilters.value.bedNumber || undefined,
+          roomCode: formFilters.value.roomCode || undefined,
+          floorCode: formFilters.value.floorCode || undefined,
+          campusCode: formFilters.value.campusCode || undefined,
+          bedPosition: formFilters.value.bedPosition || undefined,
+          bedStatus: formFilters.value.bedStatus,
+          status: formFilters.value.status,
+          pageNum: formFilters.value.pageNum
         } as Partial<Api.SystemManage.BedSearchParams>
       }),
       paginationKey: {
@@ -240,6 +236,9 @@
         }
       ],
       immediate: true
+    },
+    adaptive: {
+      enabled: true
     }
   })
 
@@ -247,7 +246,7 @@
    * 搜索
    */
   const handleSearch = async (): Promise<void> => {
-    formFilters.pageNum = 1
+    formFilters.value.pageNum = 1
     await getData()
   }
 
@@ -255,7 +254,17 @@
    * 重置搜索
    */
   const handleReset = async (): Promise<void> => {
-    Object.assign(formFilters, { ...initialSearchState, pageNum: 1, pageSize: 20 })
+    formFilters.value = {
+      bedCode: '',
+      bedNumber: '',
+      roomCode: '',
+      floorCode: '',
+      campusCode: '',
+      bedPosition: '',
+      bedStatus: undefined,
+      status: undefined,
+      pageNum: 1
+    }
     await resetSearchParams()
   }
 

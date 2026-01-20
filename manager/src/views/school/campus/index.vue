@@ -182,13 +182,12 @@
   const floorThirdLevelDrillDownFilterParams = ref<Record<string, any>>({})
 
   // 搜索相关
-  const initialSearchState = {
+  const formFilters = ref({
+    pageNum: 1,
     campusCode: '',
     campusName: '',
     status: undefined
-  }
-
-  const formFilters = reactive({ ...initialSearchState })
+  })
 
   // 使用 useTable 管理表格数据
   const {
@@ -207,9 +206,9 @@
       apiFn: fetchGetCampusTree,
       apiParams: computed(() => {
         return {
-          campusCode: formFilters.campusCode || undefined,
-          campusName: formFilters.campusName || undefined,
-          status: formFilters.status
+          campusCode: formFilters.value.campusCode || undefined,
+          campusName: formFilters.value.campusName || undefined,
+          status: formFilters.value.status
         } as Partial<Api.SystemManage.CampusSearchParams>
       }),
       columnsFactory: () => [
@@ -284,6 +283,9 @@
         }
       ],
       immediate: true
+    },
+    adaptive: {
+      enabled: true
     }
   })
 
@@ -298,7 +300,12 @@
    * 重置搜索
    */
   const handleReset = async (): Promise<void> => {
-    Object.assign(formFilters, initialSearchState)
+    formFilters.value = {
+      pageNum: 1,
+      campusCode: '',
+      campusName: '',
+      status: undefined
+    }
     await resetSearchParams()
   }
 
@@ -428,7 +435,7 @@
     // 打开楼层下钻弹框 - 先设置所有状态，再打开弹框
     floorDrillDownType.value = 'floor'
     floorDrillDownParentName.value = row.campusName
-    floorDrillDownFilterParams.value = { campusCode: row.campusCode, pageNum: 1, pageSize: 20 }
+    floorDrillDownFilterParams.value = { campusCode: row.campusCode, pageNum: 1 }
 
     // 使用 nextTick 确保状态更新后再打开弹框
     nextTick(() => {
@@ -494,8 +501,7 @@
       floorNestedDrillDownParentName.value = row.floorName || row.floorCode
       floorNestedDrillDownFilterParams.value = {
         floorCode: row.floorCode,
-        pageNum: 1,
-        pageSize: 20
+        pageNum: 1
       }
       floorNestedDrillDownVisible.value = true
     }
@@ -514,8 +520,7 @@
       floorThirdLevelDrillDownParentName.value = row.roomNumber || row.roomCode
       floorThirdLevelDrillDownFilterParams.value = {
         roomCode: row.roomCode,
-        pageNum: 1,
-        pageSize: 20
+        pageNum: 1
       }
       floorThirdLevelDrillDownVisible.value = true
     }

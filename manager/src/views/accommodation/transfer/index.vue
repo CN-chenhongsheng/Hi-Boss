@@ -90,7 +90,6 @@
   // 搜索表单
   const searchForm = ref<Api.AccommodationManage.TransferSearchParams>({
     pageNum: 1,
-    pageSize: 20,
     studentNo: undefined,
     studentName: undefined,
     studentId: undefined,
@@ -119,9 +118,15 @@
     core: {
       apiFn: fetchGetTransferPage,
       apiParams: computed(() => ({
-        pageNum: searchForm.value.pageNum || 1,
-        pageSize: searchForm.value.pageSize || 20,
-        ...searchForm.value
+        pageNum: searchForm.value.pageNum,
+        studentNo: searchForm.value.studentNo || undefined,
+        studentName: searchForm.value.studentName || undefined,
+        studentId: searchForm.value.studentId || undefined,
+        originalCampusCode: searchForm.value.originalCampusCode || undefined,
+        targetCampusCode: searchForm.value.targetCampusCode || undefined,
+        status: searchForm.value.status,
+        applyDateStart: searchForm.value.applyDateStart || undefined,
+        applyDateEnd: searchForm.value.applyDateEnd || undefined
       })),
       paginationKey: {
         current: 'pageNum',
@@ -177,6 +182,9 @@
           }
         }
       ]
+    },
+    adaptive: {
+      enabled: true
     }
   })
 

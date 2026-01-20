@@ -84,12 +84,10 @@
   const editData = ref<MenuListItem | null>(null)
 
   // 搜索相关
-  const initialSearchState = {
+  const formFilters = ref({
     menuName: '',
     status: undefined
-  }
-
-  const formFilters = reactive({ ...initialSearchState })
+  })
 
   /**
    * 获取菜单类型标签颜色
@@ -139,8 +137,8 @@
       apiFn: fetchGetMenuList,
       apiParams: computed(() => {
         return {
-          menuName: formFilters.menuName || undefined,
-          status: formFilters.status
+          menuName: formFilters.value.menuName || undefined,
+          status: formFilters.value.status
         } as Partial<Api.SystemManage.MenuSearchParams>
       }),
       columnsFactory: () => [
@@ -264,6 +262,9 @@
         }
       ],
       immediate: true
+    },
+    adaptive: {
+      enabled: true
     }
   })
 
@@ -271,7 +272,10 @@
    * 重置搜索条件
    */
   const handleReset = async (): Promise<void> => {
-    Object.assign(formFilters, initialSearchState)
+    formFilters.value = {
+      menuName: '',
+      status: undefined
+    }
     await resetSearchParams()
   }
 

@@ -107,17 +107,13 @@
   const drillDownFilterParams = ref<Record<string, any>>({})
 
   // 搜索相关
-  const initialSearchState = {
+  const formFilters = ref({
     pageNum: 1,
-    pageSize: 20,
     majorCode: undefined,
     majorName: undefined,
     deptCode: undefined,
     status: undefined
-  }
-
-  // 搜索栏表单数据（使用 reactive 以确保双向绑定正常工作）
-  const formFilters = reactive<Api.SystemManage.MajorSearchParams>({ ...initialSearchState })
+  })
 
   const {
     columns,
@@ -138,10 +134,10 @@
       apiFn: fetchGetMajorPage,
       apiParams: computed(() => {
         return {
-          majorCode: formFilters.majorCode || undefined,
-          majorName: formFilters.majorName || undefined,
-          deptCode: formFilters.deptCode || undefined,
-          status: formFilters.status
+          majorCode: formFilters.value.majorCode || undefined,
+          majorName: formFilters.value.majorName || undefined,
+          deptCode: formFilters.value.deptCode || undefined,
+          status: formFilters.value.status
         } as Partial<Api.SystemManage.MajorSearchParams>
       }),
       paginationKey: {
@@ -221,8 +217,11 @@
           ]
         }
       ]
-    } as any
-  })
+    },
+    adaptive: {
+      enabled: true
+    }
+  } as any)
 
   /**
    * 搜索
@@ -235,11 +234,13 @@
    * 重置搜索
    */
   const handleReset = async (): Promise<void> => {
-    Object.assign(formFilters, {
-      ...initialSearchState,
+    formFilters.value = {
       pageNum: 1,
-      pageSize: 20
-    })
+      majorCode: undefined,
+      majorName: undefined,
+      deptCode: undefined,
+      status: undefined
+    }
     await resetSearchParams()
   }
 

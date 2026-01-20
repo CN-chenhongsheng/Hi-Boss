@@ -89,16 +89,12 @@
   type RoleListItem = Api.SystemManage.RoleListItem & { _statusLoading?: boolean }
 
   // 搜索相关
-  const initialSearchState = {
+  const formFilters = ref({
     pageNum: 1,
-    pageSize: 20,
     roleName: undefined,
     roleCode: undefined,
     status: undefined
-  }
-
-  // 搜索表单
-  const formFilters = reactive<Api.SystemManage.RoleSearchParams>({ ...initialSearchState })
+  })
 
   const showSearchBar = ref(false)
   const dialogVisible = ref(false)
@@ -127,11 +123,10 @@
       apiFn: fetchGetRoleList,
       apiParams: computed(() => {
         return {
-          pageNum: formFilters.pageNum,
-          pageSize: formFilters.pageSize,
-          roleName: formFilters.roleName || undefined,
-          roleCode: formFilters.roleCode || undefined,
-          status: formFilters.status
+          pageNum: formFilters.value.pageNum,
+          roleName: formFilters.value.roleName || undefined,
+          roleCode: formFilters.value.roleCode || undefined,
+          status: formFilters.value.status
         } as Partial<Api.SystemManage.RoleSearchParams>
       }),
       // 自定义分页字段映射
@@ -222,6 +217,9 @@
           }
         }
       ]
+    },
+    adaptive: {
+      enabled: true
     }
   })
 
@@ -237,7 +235,7 @@
    * 搜索处理
    */
   const handleSearch = async (): Promise<void> => {
-    formFilters.pageNum = 1
+    formFilters.value.pageNum = 1
     await getData()
   }
 
@@ -245,11 +243,12 @@
    * 重置搜索
    */
   const handleReset = async (): Promise<void> => {
-    Object.assign(formFilters, {
-      ...initialSearchState,
+    formFilters.value = {
       pageNum: 1,
-      pageSize: 20
-    })
+      roleName: undefined,
+      roleCode: undefined,
+      status: undefined
+    }
     await resetSearchParams()
   }
 

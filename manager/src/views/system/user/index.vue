@@ -124,18 +124,14 @@
   const selectedCount = computed(() => selectedRows.value.length)
 
   // 搜索相关
-  const initialSearchState = {
+  const formFilters = ref<Api.SystemManage.UserSearchParams>({
     pageNum: 1,
-    pageSize: 20,
     username: undefined,
     nickname: undefined,
     phone: undefined,
     manageScope: undefined,
     status: undefined
-  }
-
-  // 搜索表单
-  const formFilters = reactive<Api.SystemManage.UserSearchParams>({ ...initialSearchState })
+  })
 
   const {
     columns,
@@ -157,13 +153,12 @@
       apiFn: fetchGetUserList,
       apiParams: computed(() => {
         return {
-          pageNum: formFilters.pageNum,
-          pageSize: formFilters.pageSize,
-          username: formFilters.username || undefined,
-          nickname: formFilters.nickname || undefined,
-          phone: formFilters.phone || undefined,
-          manageScope: formFilters.manageScope || undefined,
-          status: formFilters.status
+          pageNum: formFilters.value.pageNum,
+          username: formFilters.value.username || undefined,
+          nickname: formFilters.value.nickname || undefined,
+          phone: formFilters.value.phone || undefined,
+          manageScope: formFilters.value.manageScope || undefined,
+          status: formFilters.value.status
         } as Partial<Api.SystemManage.UserSearchParams>
       }),
       // 自定义分页字段映射
@@ -385,6 +380,9 @@
           }
         })
       }
+    },
+    adaptive: {
+      enabled: true
     }
   })
 
@@ -392,7 +390,7 @@
    * 搜索处理
    */
   const handleSearch = async (): Promise<void> => {
-    formFilters.pageNum = 1
+    formFilters.value.pageNum = 1
     await getData()
   }
 
@@ -400,11 +398,14 @@
    * 重置搜索
    */
   const handleReset = async (): Promise<void> => {
-    Object.assign(formFilters, {
-      ...initialSearchState,
+    formFilters.value = {
       pageNum: 1,
-      pageSize: 20
-    })
+      username: undefined,
+      nickname: undefined,
+      phone: undefined,
+      manageScope: undefined,
+      status: undefined
+    }
     await resetSearchParams()
   }
 
