@@ -101,8 +101,8 @@
               :data="dataData"
               :columns="dataColumns"
               :pagination="dataPagination"
-              @pagination:size-change="onDataSizeChange"
-              @pagination:current-change="onDataCurrentChange"
+              @pagination:size-change="handleDataSizeChange"
+              @pagination:current-change="handleDataCurrentChange"
             />
           </template>
         </ElCard>
@@ -185,6 +185,7 @@
 
   // 字典数据相关
   const dataSearchForm = ref({
+    dictCode: '',
     label: undefined as string | undefined
   })
 
@@ -192,15 +193,14 @@
     data: dataData,
     loading: dataLoading,
     pagination: dataPagination,
-    getData: getDataData
+    getData: getDataData,
+    handleSizeChange: handleDataSizeChange,
+    handleCurrentChange: handleDataCurrentChange,
+    fetchData: fetchDataData
   } = useTable<typeof fetchGetDictDataPage>({
     core: {
       apiFn: fetchGetDictDataPage,
-      apiParams: {
-        dictCode: '',
-        pageNum: 1,
-        pageSize: 10
-      },
+      apiParams: dataSearchForm,
       immediate: false, // 不自动加载，需要先选择字典类型
       paginationKey: {
         current: 'pageNum',
@@ -376,11 +376,11 @@
   const handleTypeRowClick = (row: DictTypeListItem) => {
     selectedTypeId.value = row.id
     selectedDictCode.value = row.dictCode
-    // 直接传递参数调用 getDataData
-    getDataData({
-      dictCode: row.dictCode,
-      pageNum: 1,
-      pageSize: 10
+    dataSearchForm.value.dictCode = row.dictCode
+    dataSearchForm.value.label = undefined
+    // 使用 nextTick 确保 useTable 的内部 watch 已完成参数同步
+    nextTick(() => {
+      getDataData()
     })
   }
 
@@ -408,6 +408,7 @@
       if (selectedTypeId.value === row.id) {
         selectedTypeId.value = null
         selectedDictCode.value = ''
+        dataSearchForm.value.dictCode = ''
         dataData.value = []
       }
     } catch (error) {
@@ -451,13 +452,8 @@
 
   // 数据相关方法
   const handleDataSearch = () => {
-    if (!selectedDictCode.value) return
-    getDataData({
-      dictCode: selectedDictCode.value,
-      label: dataSearchForm.value.label,
-      pageNum: 1,
-      pageSize: 10
-    })
+    if (!dataSearchForm.value.dictCode) return
+    getDataData()
   }
 
   const showDataDialog = (type: 'add' | 'edit', data?: DictDataListItem) => {
@@ -484,13 +480,8 @@
   }
 
   const handleDataRefresh = () => {
-    if (!selectedDictCode.value) return
-    getDataData({
-      dictCode: selectedDictCode.value,
-      label: dataSearchForm.value.label,
-      pageNum: dataPagination.current || 1,
-      pageSize: dataPagination.size || 10
-    })
+    if (!dataSearchForm.value.dictCode) return
+    fetchDataData()
   }
 
   // 更新字典数据状态
@@ -519,27 +510,6 @@
     } finally {
       row._statusLoading = false
     }
-  }
-
-  // 自定义分页事件处理器
-  const onDataSizeChange = (size: number) => {
-    if (!selectedDictCode.value) return
-    getDataData({
-      dictCode: selectedDictCode.value,
-      label: dataSearchForm.value.label,
-      pageNum: 1,
-      pageSize: size
-    })
-  }
-
-  const onDataCurrentChange = (page: number) => {
-    if (!selectedDictCode.value) return
-    getDataData({
-      dictCode: selectedDictCode.value,
-      label: dataSearchForm.value.label,
-      pageNum: page,
-      pageSize: dataPagination.size || 10
-    })
   }
 
   // 初始化
