@@ -7,86 +7,23 @@
     :close-on-click-modal="false"
     @close="handleClose"
   >
-    <ElForm ref="formRef" :model="form" :rules="rules" label-width="100px" label-position="right">
-      <ElFormItem label="班级编码" prop="classCode">
-        <ElInput v-model="form.classCode" placeholder="请输入班级编码" :disabled="isEdit" />
-      </ElFormItem>
-
-      <ElFormItem label="班级名称" prop="className">
-        <ElInput v-model="form.className" placeholder="请输入班级名称" />
-      </ElFormItem>
-
-      <ElFormItem label="所属专业" prop="majorCode">
-        <ElSelect
-          v-model="form.majorCode"
-          placeholder="请选择所属专业"
-          filterable
-          clearable
-          :loading="majorLoading"
-          @focus="handleMajorFocus"
-        >
-          <ElOption
-            v-for="major in majorOptions"
-            :key="major.majorCode"
-            :label="`${major.majorName} (${major.majorCode})`"
-            :value="major.majorCode"
-          />
-        </ElSelect>
-      </ElFormItem>
-
-      <ElRow :gutter="20">
-        <ElCol :span="12">
-          <ElFormItem label="年级" prop="grade">
-            <ElInput v-model="form.grade" placeholder="如：2023" />
-          </ElFormItem>
-        </ElCol>
-        <ElCol :span="12">
-          <ElFormItem label="入学年份" prop="enrollmentYear">
-            <ElInputNumber
-              v-model="form.enrollmentYear"
-              :min="2000"
-              :max="2100"
-              placeholder="如：2023"
-            />
-          </ElFormItem>
-        </ElCol>
-      </ElRow>
-
-      <ElRow :gutter="20">
-        <ElCol :span="12">
-          <ElFormItem label="负责人" prop="teacherId">
-            <ElSelect
-              v-model="form.teacherId"
-              placeholder="请选择负责人"
-              filterable
-              clearable
-              :loading="teacherLoading"
-              @focus="handleTeacherFocus"
-            >
-              <ElOption
-                v-for="user in teacherOptions"
-                :key="user.id"
-                :label="
-                  user.nickname && user.phone
-                    ? `${user.nickname} (${user.phone})`
-                    : user.nickname || user.username
-                "
-                :value="user.id"
-              />
-            </ElSelect>
-          </ElFormItem>
-        </ElCol>
-        <ElCol :span="12">
-          <ElFormItem label="当前人数" prop="currentCount">
-            <ElInputNumber v-model="form.currentCount" :min="0" :max="9999" />
-          </ElFormItem>
-        </ElCol>
-      </ElRow>
-    </ElForm>
+    <ArtForm
+      ref="formRef"
+      v-model="form"
+      :items="formItems"
+      :span="12"
+      :gutter="20"
+      label-width="100px"
+      :rules="rules"
+      :showSubmit="false"
+      :showReset="false"
+    />
 
     <template #footer>
       <ElButton @click="handleClose">取消</ElButton>
-      <ElButton type="primary" :loading="loading" @click="handleSubmit">确定</ElButton>
+      <ElButton type="primary" :loading="submitLoading" @click="handleSubmit">
+        {{ submitLoading ? '提交中...' : '确定' }}
+      </ElButton>
     </template>
   </ElDialog>
 </template>
@@ -94,7 +31,9 @@
 <script setup lang="ts">
   import { fetchGetClassDetail, fetchAddClass, fetchUpdateClass } from '@/api/school-manage'
   import { useReferenceStore } from '@/store/modules/reference'
-  import type { FormInstance, FormRules } from 'element-plus'
+  import type { FormRules } from 'element-plus'
+  import ArtForm from '@/components/core/forms/art-form/index.vue'
+  import type { FormItem } from '@/components/core/forms/art-form/index.vue'
 
   interface Props {
     visible: boolean
@@ -113,14 +52,13 @@
 
   const emit = defineEmits<Emits>()
 
-  const formRef = ref<FormInstance>()
-  const loading = ref(false)
+  const formRef = ref()
+  const submitLoading = ref(false)
   const majorLoading = ref(false)
   const majorOptions = ref<Api.SystemManage.MajorListItem[]>([])
   const teacherLoading = ref(false)
   const teacherOptions = ref<Api.SystemManage.UserSimpleItem[]>([])
 
-  // 使用参考数据 store
   const referenceStore = useReferenceStore()
 
   const dialogVisible = computed({
@@ -129,8 +67,96 @@
   })
 
   const isEdit = computed(() => props.type === 'edit')
-
   const dialogTitle = computed(() => (isEdit.value ? '编辑班级' : '新增班级'))
+
+  const formItems = computed<FormItem[]>(() => [
+    {
+      key: 'classCode',
+      label: '班级编码',
+      type: 'input',
+      span: 24,
+      props: {
+        placeholder: '请输入班级编码',
+        disabled: isEdit.value
+      }
+    },
+    {
+      key: 'className',
+      label: '班级名称',
+      type: 'input',
+      span: 24,
+      props: {
+        placeholder: '请输入班级名称'
+      }
+    },
+    {
+      key: 'majorCode',
+      label: '所属专业',
+      type: 'select',
+      span: 24,
+      props: {
+        placeholder: '请选择所属专业',
+        filterable: true,
+        clearable: true,
+        loading: majorLoading.value,
+        onFocus: handleMajorFocus,
+        options: majorOptions.value.map((major) => ({
+          label: `${major.majorName} (${major.majorCode})`,
+          value: major.majorCode
+        }))
+      }
+    },
+    {
+      key: 'grade',
+      label: '年级',
+      type: 'input',
+      span: 12,
+      props: {
+        placeholder: '如：2023'
+      }
+    },
+    {
+      key: 'enrollmentYear',
+      label: '入学年份',
+      type: 'number',
+      span: 12,
+      props: {
+        min: 2000,
+        max: 2100,
+        placeholder: '如：2023'
+      }
+    },
+    {
+      key: 'teacherId',
+      label: '负责人',
+      type: 'select',
+      span: 12,
+      props: {
+        placeholder: '请选择负责人',
+        filterable: true,
+        clearable: true,
+        loading: teacherLoading.value,
+        onFocus: handleTeacherFocus,
+        options: teacherOptions.value.map((user) => ({
+          label:
+            user.nickname && user.phone
+              ? `${user.nickname} (${user.phone})`
+              : user.nickname || user.username,
+          value: user.id
+        }))
+      }
+    },
+    {
+      key: 'currentCount',
+      label: '当前人数',
+      type: 'number',
+      span: 12,
+      props: {
+        min: 0,
+        max: 9999
+      }
+    }
+  ])
 
   const form = reactive<Api.SystemManage.ClassSaveParams>({
     classCode: '',
@@ -150,9 +176,6 @@
     enrollmentYear: [{ required: true, message: '请输入入学年份', trigger: 'blur' }]
   })
 
-  /**
-   * 加载专业列表（使用 store 缓存）
-   */
   const loadMajorOptions = async (): Promise<void> => {
     majorLoading.value = true
     try {
@@ -164,18 +187,12 @@
     }
   }
 
-  /**
-   * 专业下拉框获取焦点时加载数据
-   */
   const handleMajorFocus = async (): Promise<void> => {
     if (majorOptions.value.length === 0) {
       await loadMajorOptions()
     }
   }
 
-  /**
-   * 加载负责人列表（辅导员角色）（使用 store 缓存）
-   */
   const loadTeacherOptions = async (): Promise<void> => {
     if (teacherOptions.value.length > 0) return
 
@@ -189,16 +206,10 @@
     }
   }
 
-  /**
-   * 负责人下拉框获取焦点时加载数据
-   */
   const handleTeacherFocus = async (): Promise<void> => {
     await loadTeacherOptions()
   }
 
-  /**
-   * 加载表单数据
-   */
   const loadFormData = async (): Promise<void> => {
     if (isEdit.value && props.editData?.id) {
       try {
@@ -213,7 +224,6 @@
           enrollmentYear: detail.enrollmentYear,
           currentCount: detail.currentCount || 0
         })
-        // 加载专业列表到选项列表（使用 store 缓存）
         if (detail.majorCode) {
           majorOptions.value = await referenceStore.loadMajorList()
         }
@@ -225,9 +235,6 @@
     }
   }
 
-  /**
-   * 重置表单
-   */
   const resetForm = (): void => {
     Object.assign(form, {
       classCode: '',
@@ -238,20 +245,16 @@
       enrollmentYear: new Date().getFullYear(),
       currentCount: 0
     })
-    formRef.value?.clearValidate()
+    formRef.value?.ref?.clearValidate()
   }
 
-  /**
-   * 提交表单
-   */
   const handleSubmit = async (): Promise<void> => {
     if (!formRef.value) return
 
-    const valid = await formRef.value.validate().catch(() => false)
-    if (!valid) return
-
-    loading.value = true
     try {
+      await formRef.value.validate()
+
+      submitLoading.value = true
       if (isEdit.value) {
         await fetchUpdateClass(form.id!, form)
       } else {
@@ -262,13 +265,10 @@
     } catch (error) {
       console.error('提交失败:', error)
     } finally {
-      loading.value = false
+      submitLoading.value = false
     }
   }
 
-  /**
-   * 关闭弹窗
-   */
   const handleClose = (): void => {
     resetForm()
     emit('update:visible', false)

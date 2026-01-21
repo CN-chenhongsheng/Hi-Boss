@@ -7,75 +7,23 @@
     :close-on-click-modal="false"
     @close="handleClose"
   >
-    <ElForm ref="formRef" :model="form" :rules="rules" label-width="100px" label-position="right">
-      <ElFormItem label="专业编码" prop="majorCode">
-        <ElInput v-model="form.majorCode" placeholder="请输入专业编码" :disabled="isEdit" />
-      </ElFormItem>
-
-      <ElFormItem label="专业名称" prop="majorName">
-        <ElInput v-model="form.majorName" placeholder="请输入专业名称" />
-      </ElFormItem>
-
-      <ElFormItem label="所属院系" prop="deptCode">
-        <ElSelect
-          v-model="form.deptCode"
-          placeholder="请选择所属院系"
-          filterable
-          clearable
-          :loading="deptLoading"
-          @focus="handleDeptFocus"
-        >
-          <ElOption
-            v-for="dept in deptOptions"
-            :key="dept.deptCode"
-            :label="`${dept.deptName} (${dept.deptCode})`"
-            :value="dept.deptCode"
-          />
-        </ElSelect>
-      </ElFormItem>
-
-      <ElRow :gutter="20">
-        <ElCol :span="12">
-          <ElFormItem label="专业负责人" prop="director">
-            <ElInput v-model="form.director" placeholder="请输入专业负责人" />
-          </ElFormItem>
-        </ElCol>
-        <ElCol :span="12">
-          <ElFormItem label="学位类型" prop="type">
-            <ElSelect v-model="form.type" placeholder="请选择学位类型" clearable filterable>
-              <ElOption
-                v-for="item in degreeTypeOptions"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-              />
-            </ElSelect>
-          </ElFormItem>
-        </ElCol>
-      </ElRow>
-
-      <ElFormItem label="学制" prop="duration">
-        <ElInputNumber
-          v-model="durationNumber"
-          :min="1"
-          :max="10"
-          :precision="0"
-          placeholder="请输入学制年限"
-          controls-position="right"
-          :formatter="(value: string) => `${value}年制`"
-          :parser="(value: string) => value.replace('年制', '')"
-          style="width: 100%"
-        />
-      </ElFormItem>
-
-      <ElFormItem label="培养目标" prop="goal">
-        <ElInput v-model="form.goal" type="textarea" :rows="4" placeholder="请输入培养目标" />
-      </ElFormItem>
-    </ElForm>
+    <ArtForm
+      ref="formRef"
+      v-model="form"
+      :items="formItems"
+      :span="12"
+      :gutter="20"
+      label-width="100px"
+      :rules="rules"
+      :showSubmit="false"
+      :showReset="false"
+    />
 
     <template #footer>
       <ElButton @click="handleClose">取消</ElButton>
-      <ElButton type="primary" :loading="loading" @click="handleSubmit">确定</ElButton>
+      <ElButton type="primary" :loading="submitLoading" @click="handleSubmit">
+        {{ submitLoading ? '提交中...' : '确定' }}
+      </ElButton>
     </template>
   </ElDialog>
 </template>
@@ -88,7 +36,9 @@
     fetchUpdateMajor
   } from '@/api/school-manage'
   import { useDictStore } from '@/store/modules/dict'
-  import type { FormInstance, FormRules } from 'element-plus'
+  import type { FormRules } from 'element-plus'
+  import ArtForm from '@/components/core/forms/art-form/index.vue'
+  import type { FormItem } from '@/components/core/forms/art-form/index.vue'
 
   interface Props {
     visible: boolean
@@ -107,8 +57,8 @@
 
   const emit = defineEmits<Emits>()
 
-  const formRef = ref<FormInstance>()
-  const loading = ref(false)
+  const formRef = ref()
+  const submitLoading = ref(false)
   const deptLoading = ref(false)
   const deptOptions = ref<Api.SystemManage.DepartmentListItem[]>([])
   const degreeTypeOptions = ref<Array<{ label: string; value: string }>>([])
@@ -127,6 +77,102 @@
   const isEdit = computed(() => props.type === 'edit')
 
   const dialogTitle = computed(() => (isEdit.value ? '编辑专业' : '新增专业'))
+
+  /**
+   * 表单配置项
+   */
+  const formItems = computed<FormItem[]>(() => [
+    {
+      key: 'majorCode',
+      label: '专业编码',
+      type: 'input',
+      span: 24,
+      props: {
+        placeholder: '请输入专业编码',
+        disabled: isEdit.value
+      }
+    },
+    {
+      key: 'majorName',
+      label: '专业名称',
+      type: 'input',
+      span: 24,
+      props: {
+        placeholder: '请输入专业名称'
+      }
+    },
+    {
+      key: 'deptCode',
+      label: '所属院系',
+      type: 'select',
+      span: 24,
+      props: {
+        placeholder: '请选择所属院系',
+        filterable: true,
+        clearable: true,
+        loading: deptLoading.value,
+        onFocus: handleDeptFocus,
+        options: deptOptions.value.map((dept) => ({
+          label: `${dept.deptName} (${dept.deptCode})`,
+          value: dept.deptCode
+        }))
+      }
+    },
+    {
+      key: 'director',
+      label: '专业负责人',
+      type: 'input',
+      span: 12,
+      props: {
+        placeholder: '请输入专业负责人'
+      }
+    },
+    {
+      key: 'type',
+      label: '学位类型',
+      type: 'select',
+      span: 12,
+      props: {
+        placeholder: '请选择学位类型',
+        clearable: true,
+        filterable: true,
+        options: degreeTypeOptions.value
+      }
+    },
+    {
+      key: 'duration',
+      label: '学制',
+      type: 'number',
+      span: 24,
+      render: () =>
+        h(ElInputNumber, {
+          modelValue: durationNumber.value,
+          'onUpdate:modelValue': (val: number | null) => {
+            durationNumber.value = val
+            form.duration = formatDuration(val)
+          },
+          min: 1,
+          max: 10,
+          precision: 0,
+          placeholder: '请输入学制年限',
+          controlsPosition: 'right',
+          formatter: (value: string) => `${value}年制`,
+          parser: (value: string) => value.replace('年制', ''),
+          style: 'width: 100%'
+        })
+    },
+    {
+      key: 'goal',
+      label: '培养目标',
+      type: 'input',
+      span: 24,
+      props: {
+        type: 'textarea',
+        rows: 4,
+        placeholder: '请输入培养目标'
+      }
+    }
+  ])
 
   const form = reactive<Api.SystemManage.MajorSaveParams>({
     majorCode: '',
@@ -163,7 +209,6 @@
    */
   const loadDegreeTypeOptions = async (): Promise<void> => {
     try {
-      // 使用 store 加载字典数据（自动缓存）
       const data = await dictStore.loadDictData('degree_type')
       degreeTypeOptions.value = data
         .filter((item) => item.status === 1)
@@ -254,9 +299,7 @@
           duration: detail.duration,
           goal: detail.goal || undefined
         })
-        // 解析学制数字
         durationNumber.value = parseDuration(detail.duration)
-        // 加载该院系到选项列表
         if (detail.deptCode) {
           const list = await fetchGetDepartmentTree({ deptCode: detail.deptCode })
           deptOptions.value = flattenDepartmentTree(list)
@@ -283,7 +326,7 @@
       goal: undefined
     })
     durationNumber.value = null
-    formRef.value?.clearValidate()
+    formRef.value?.ref?.clearValidate()
   }
 
   /**
@@ -292,14 +335,12 @@
   const handleSubmit = async (): Promise<void> => {
     if (!formRef.value) return
 
-    const valid = await formRef.value.validate().catch(() => false)
-    if (!valid) return
-
-    // 将学制数字转换为字符串格式
-    form.duration = formatDuration(durationNumber.value)
-
-    loading.value = true
     try {
+      await formRef.value.validate()
+
+      form.duration = formatDuration(durationNumber.value)
+
+      submitLoading.value = true
       if (isEdit.value) {
         await fetchUpdateMajor(form.id!, form)
       } else {
@@ -310,7 +351,7 @@
     } catch (error) {
       console.error('提交失败:', error)
     } finally {
-      loading.value = false
+      submitLoading.value = false
     }
   }
 

@@ -7,51 +7,23 @@
     :close-on-click-modal="false"
     @close="handleClose"
   >
-    <ElForm ref="formRef" :model="form" :rules="rules" label-width="100px" label-position="right">
-      <ElFormItem label="院系编码" prop="deptCode">
-        <ElInput v-model="form.deptCode" placeholder="请输入院系编码" :disabled="isEdit" />
-      </ElFormItem>
-
-      <ElFormItem label="院系名称" prop="deptName">
-        <ElInput v-model="form.deptName" placeholder="请输入院系名称" />
-      </ElFormItem>
-
-      <ElFormItem label="所属校区" prop="campusCode">
-        <ElSelect v-model="form.campusCode" placeholder="请选择所属校区" filterable>
-          <ElOption
-            v-for="campus in campusOptions"
-            :key="campus.campusCode"
-            :label="campus.campusName"
-            :value="campus.campusCode"
-          />
-        </ElSelect>
-      </ElFormItem>
-
-      <ElRow :gutter="20">
-        <ElCol :span="12">
-          <ElFormItem label="院系领导" prop="leader">
-            <ElInput v-model="form.leader" placeholder="请输入院系领导" />
-          </ElFormItem>
-        </ElCol>
-        <ElCol :span="12">
-          <ElFormItem label="联系电话" prop="phone">
-            <ElInput v-model="form.phone" placeholder="请输入联系电话" />
-          </ElFormItem>
-        </ElCol>
-      </ElRow>
-
-      <ElRow :gutter="20">
-        <ElCol :span="12">
-          <ElFormItem label="排序" prop="sort">
-            <ElInputNumber v-model="form.sort" :min="0" :max="9999" placeholder="请输入排序值" />
-          </ElFormItem>
-        </ElCol>
-      </ElRow>
-    </ElForm>
+    <ArtForm
+      ref="formRef"
+      v-model="form"
+      :items="formItems"
+      :span="12"
+      :gutter="20"
+      label-width="100px"
+      :rules="rules"
+      :showSubmit="false"
+      :showReset="false"
+    />
 
     <template #footer>
       <ElButton @click="handleClose">取消</ElButton>
-      <ElButton type="primary" :loading="loading" @click="handleSubmit">确定</ElButton>
+      <ElButton type="primary" :loading="submitLoading" @click="handleSubmit">
+        {{ submitLoading ? '提交中...' : '确定' }}
+      </ElButton>
     </template>
   </ElDialog>
 </template>
@@ -59,7 +31,9 @@
 <script setup lang="ts">
   import { fetchAddDepartment, fetchUpdateDepartment } from '@/api/school-manage'
   import { useReferenceStore } from '@/store/modules/reference'
-  import type { FormInstance, FormRules } from 'element-plus'
+  import type { FormRules } from 'element-plus'
+  import ArtForm from '@/components/core/forms/art-form/index.vue'
+  import type { FormItem } from '@/components/core/forms/art-form/index.vue'
 
   interface Props {
     visible: boolean
@@ -78,8 +52,8 @@
 
   const emit = defineEmits<Emits>()
 
-  const formRef = ref<FormInstance>()
-  const loading = ref(false)
+  const formRef = ref()
+  const submitLoading = ref(false)
   const campusOptions = ref<Api.SystemManage.CampusListItem[]>([])
 
   // 使用参考数据 store
@@ -96,6 +70,74 @@
     if (isEdit.value) return '编辑院系'
     return '新增院系'
   })
+
+  /**
+   * 表单配置项
+   */
+  const formItems = computed<FormItem[]>(() => [
+    {
+      key: 'deptCode',
+      label: '院系编码',
+      type: 'input',
+      span: 24,
+      props: {
+        placeholder: '请输入院系编码',
+        disabled: isEdit.value
+      }
+    },
+    {
+      key: 'deptName',
+      label: '院系名称',
+      type: 'input',
+      span: 24,
+      props: {
+        placeholder: '请输入院系名称'
+      }
+    },
+    {
+      key: 'campusCode',
+      label: '所属校区',
+      type: 'select',
+      span: 24,
+      props: {
+        placeholder: '请选择所属校区',
+        filterable: true,
+        options: campusOptions.value.map((campus) => ({
+          label: campus.campusName,
+          value: campus.campusCode
+        }))
+      }
+    },
+    {
+      key: 'leader',
+      label: '院系领导',
+      type: 'input',
+      span: 12,
+      props: {
+        placeholder: '请输入院系领导'
+      }
+    },
+    {
+      key: 'phone',
+      label: '联系电话',
+      type: 'input',
+      span: 12,
+      props: {
+        placeholder: '请输入联系电话'
+      }
+    },
+    {
+      key: 'sort',
+      label: '排序',
+      type: 'number',
+      span: 12,
+      props: {
+        min: 0,
+        max: 9999,
+        placeholder: '请输入排序值'
+      }
+    }
+  ])
 
   const form = reactive<Api.SystemManage.DepartmentSaveParams>({
     deptCode: '',
@@ -157,7 +199,7 @@
       sort: 0,
       status: 1
     })
-    formRef.value?.clearValidate()
+    formRef.value?.ref?.clearValidate()
   }
 
   /**
@@ -166,11 +208,10 @@
   const handleSubmit = async (): Promise<void> => {
     if (!formRef.value) return
 
-    const valid = await formRef.value.validate().catch(() => false)
-    if (!valid) return
-
-    loading.value = true
     try {
+      await formRef.value.validate()
+
+      submitLoading.value = true
       if (isEdit.value) {
         await fetchUpdateDepartment(form.id!, form)
       } else {
@@ -181,7 +222,7 @@
     } catch (error) {
       console.error('提交失败:', error)
     } finally {
-      loading.value = false
+      submitLoading.value = false
     }
   }
 

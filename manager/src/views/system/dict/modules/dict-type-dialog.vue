@@ -7,43 +7,23 @@
     class="el-dialog-border"
     @close="handleClose"
   >
-    <ElForm ref="formRef" :model="form" :rules="rules" label-width="100px" label-position="right">
-      <ElFormItem label="字典名称" prop="dictName">
-        <ElInput
-          v-model="form.dictName"
-          placeholder="请输入字典名称"
-          maxlength="100"
-          show-word-limit
-        />
-      </ElFormItem>
-
-      <ElFormItem label="字典编码" prop="dictCode">
-        <ElInput
-          v-model="form.dictCode"
-          placeholder="请输入字典编码（如：sys_user_sex）"
-          maxlength="100"
-          show-word-limit
-          :disabled="props.dialogType === 'edit'"
-        />
-        <div class="form-tip">编码唯一，编辑后不可修改</div>
-      </ElFormItem>
-
-      <ElFormItem label="备注" prop="remark">
-        <ElInput
-          v-model="form.remark"
-          type="textarea"
-          :rows="3"
-          placeholder="请输入备注"
-          maxlength="500"
-          show-word-limit
-        />
-      </ElFormItem>
-    </ElForm>
+    <ArtForm
+      ref="formRef"
+      v-model="form"
+      :items="formItems"
+      :span="24"
+      label-width="100px"
+      :rules="rules"
+      :showSubmit="false"
+      :showReset="false"
+    />
 
     <template #footer>
       <ElSpace>
         <ElButton @click="handleClose">取消</ElButton>
-        <ElButton type="primary" :loading="loading" @click="handleSubmit">确定</ElButton>
+        <ElButton type="primary" :loading="submitLoading" @click="handleSubmit">
+          {{ submitLoading ? '提交中...' : '确定' }}
+        </ElButton>
       </ElSpace>
     </template>
   </ElDialog>
@@ -55,7 +35,9 @@
     fetchUpdateDictType,
     fetchGetDictTypeDetail
   } from '@/api/system-manage'
-  import { ElMessage, type FormInstance, type FormRules } from 'element-plus'
+  import { ElMessage, type FormRules } from 'element-plus'
+  import ArtForm from '@/components/core/forms/art-form/index.vue'
+  import type { FormItem } from '@/components/core/forms/art-form/index.vue'
 
   type DictTypeListItem = Api.SystemManage.DictTypeListItem
 
@@ -78,8 +60,8 @@
 
   const emit = defineEmits<Emits>()
 
-  const formRef = ref<FormInstance>()
-  const loading = ref(false)
+  const formRef = ref()
+  const submitLoading = ref(false)
 
   const visible = computed({
     get: () => props.modelValue,
@@ -89,6 +71,51 @@
   const dialogTitle = computed(() => {
     return props.dialogType === 'add' ? '新增字典类型' : '编辑字典类型'
   })
+
+  /**
+   * 表单配置项
+   */
+  const formItems = computed<FormItem[]>(() => [
+    {
+      key: 'dictName',
+      label: '字典名称',
+      type: 'input',
+      span: 24,
+      props: {
+        placeholder: '请输入字典名称',
+        maxlength: 100,
+        showWordLimit: true
+      }
+    },
+    {
+      key: 'dictCode',
+      label: '字典编码',
+      type: 'input',
+      span: 24,
+      props: {
+        placeholder: '请输入字典编码（如：sys_user_sex）',
+        maxlength: 100,
+        showWordLimit: true,
+        disabled: props.dialogType === 'edit'
+      },
+      slots: {
+        default: () => h('div', { class: 'form-tip' }, '编码唯一，编辑后不可修改')
+      }
+    },
+    {
+      key: 'remark',
+      label: '备注',
+      type: 'input',
+      span: 24,
+      props: {
+        type: 'textarea',
+        rows: 3,
+        placeholder: '请输入备注',
+        maxlength: 500,
+        showWordLimit: true
+      }
+    }
+  ])
 
   const form = reactive<Api.SystemManage.DictTypeSaveParams>({
     dictName: '',
@@ -138,7 +165,7 @@
           })
         }
         nextTick(() => {
-          formRef.value?.clearValidate()
+          formRef.value?.ref?.clearValidate()
         })
       }
     },
@@ -147,17 +174,16 @@
 
   const handleClose = () => {
     visible.value = false
-    formRef.value?.resetFields()
+    formRef.value?.reset()
   }
 
   const handleSubmit = async () => {
     if (!formRef.value) return
 
     try {
-      const valid = await formRef.value.validate()
-      if (!valid) return
+      await formRef.value.validate()
 
-      loading.value = true
+      submitLoading.value = true
 
       if (props.dialogType === 'add') {
         await fetchAddDictType(form)
@@ -174,7 +200,7 @@
     } catch (error) {
       console.error('提交失败:', error)
     } finally {
-      loading.value = false
+      submitLoading.value = false
     }
   }
 </script>

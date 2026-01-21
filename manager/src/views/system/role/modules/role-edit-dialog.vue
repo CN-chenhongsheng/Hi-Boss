@@ -6,34 +6,16 @@
     align-center
     @close="handleClose"
   >
-    <ElForm ref="formRef" :model="form" :rules="rules" label-width="100px">
-      <ElFormItem label="角色编码" prop="roleCode">
-        <ElInput
-          v-model="form.roleCode"
-          placeholder="请输入角色编码"
-          :disabled="dialogType === 'edit'"
-        />
-      </ElFormItem>
-
-      <ElFormItem label="角色名称" prop="roleName">
-        <ElInput v-model="form.roleName" placeholder="请输入角色名称" />
-      </ElFormItem>
-
-      <ElFormItem label="排序" prop="sort">
-        <ElInputNumber v-model="form.sort" :min="0" :max="999" controls-position="right" />
-      </ElFormItem>
-
-      <ElFormItem label="备注" prop="remark">
-        <ElInput
-          v-model="form.remark"
-          type="textarea"
-          :rows="3"
-          placeholder="请输入角色备注"
-          maxlength="200"
-          show-word-limit
-        />
-      </ElFormItem>
-    </ElForm>
+    <ArtForm
+      ref="formRef"
+      v-model="form"
+      :items="formItems"
+      :span="24"
+      label-width="100px"
+      :rules="rules"
+      :showSubmit="false"
+      :showReset="false"
+    />
     <template #footer>
       <ElButton @click="handleClose">取消</ElButton>
       <ElButton type="primary" :loading="submitLoading" @click="handleSubmit">
@@ -46,7 +28,9 @@
 <script setup lang="ts">
   import { fetchAddRole, fetchUpdateRole } from '@/api/system-manage'
   import { ElMessage } from 'element-plus'
-  import type { FormInstance, FormRules } from 'element-plus'
+  import type { FormRules } from 'element-plus'
+  import ArtForm from '@/components/core/forms/art-form/index.vue'
+  import type { FormItem } from '@/components/core/forms/art-form/index.vue'
 
   type RoleListItem = Api.SystemManage.RoleListItem
 
@@ -69,7 +53,7 @@
 
   const emit = defineEmits<Emits>()
 
-  const formRef = ref<FormInstance>()
+  const formRef = ref()
   const submitLoading = ref(false)
 
   /**
@@ -79,6 +63,57 @@
     get: () => props.modelValue,
     set: (value) => emit('update:modelValue', value)
   })
+
+  const dialogType = computed(() => props.dialogType)
+
+  /**
+   * 表单配置项
+   */
+  const formItems = computed<FormItem[]>(() => [
+    {
+      key: 'roleCode',
+      label: '角色编码',
+      type: 'input',
+      span: 24,
+      props: {
+        placeholder: '请输入角色编码',
+        disabled: dialogType.value === 'edit'
+      }
+    },
+    {
+      key: 'roleName',
+      label: '角色名称',
+      type: 'input',
+      span: 24,
+      props: {
+        placeholder: '请输入角色名称'
+      }
+    },
+    {
+      key: 'sort',
+      label: '排序',
+      type: 'number',
+      span: 24,
+      props: {
+        min: 0,
+        max: 999,
+        controlsPosition: 'right'
+      }
+    },
+    {
+      key: 'remark',
+      label: '备注',
+      type: 'input',
+      span: 24,
+      props: {
+        type: 'textarea',
+        rows: 3,
+        placeholder: '请输入角色备注',
+        maxlength: 200,
+        showWordLimit: true
+      }
+    }
+  ])
 
   /**
    * 表单验证规则
@@ -164,7 +199,7 @@
    */
   const handleClose = () => {
     visible.value = false
-    formRef.value?.resetFields()
+    formRef.value?.reset()
   }
 
   /**

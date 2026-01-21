@@ -7,195 +7,17 @@
     align-center
     @close="handleClose"
   >
-    <ElForm ref="formRef" :model="formData" :rules="rules" label-width="100px">
-      <ElRow :gutter="20">
-        <ElCol :span="12">
-          <ElFormItem label="学号" prop="studentNo">
-            <ElInput
-              v-model="formData.studentNo"
-              placeholder="请输入学号"
-              :disabled="dialogType === 'edit'"
-            />
-          </ElFormItem>
-        </ElCol>
-        <ElCol :span="12">
-          <ElFormItem label="姓名" prop="studentName">
-            <ElInput v-model="formData.studentName" placeholder="请输入姓名" />
-          </ElFormItem>
-        </ElCol>
-      </ElRow>
-
-      <ElRow :gutter="20">
-        <ElCol :span="12">
-          <ElFormItem label="性别" prop="gender">
-            <ElSelect v-model="formData.gender" placeholder="请选择性别" style="width: 100%">
-              <ElOption label="男" :value="1" />
-              <ElOption label="女" :value="2" />
-            </ElSelect>
-          </ElFormItem>
-        </ElCol>
-        <ElCol :span="12">
-          <ElFormItem label="手机号" prop="phone">
-            <ElInput v-model="formData.phone" placeholder="请输入手机号" maxlength="11" />
-          </ElFormItem>
-        </ElCol>
-      </ElRow>
-
-      <ElRow :gutter="20">
-        <ElCol :span="12">
-          <ElFormItem label="邮箱" prop="email">
-            <ElInput v-model="formData.email" placeholder="请输入邮箱" />
-          </ElFormItem>
-        </ElCol>
-        <ElCol :span="12">
-          <ElFormItem label="身份证号" prop="idCard">
-            <ElInput v-model="formData.idCard" placeholder="请输入身份证号" maxlength="18" />
-          </ElFormItem>
-        </ElCol>
-      </ElRow>
-
-      <ElRow :gutter="20">
-        <ElCol :span="12">
-          <ElFormItem label="出生日期" prop="birthDate">
-            <ElDatePicker
-              v-model="formData.birthDate"
-              type="date"
-              placeholder="请选择出生日期"
-              style="width: 100%"
-              value-format="YYYY-MM-DD"
-            />
-          </ElFormItem>
-        </ElCol>
-        <ElCol :span="12">
-          <ElFormItem label="民族" prop="nation">
-            <ElSelect
-              v-model="formData.nation"
-              placeholder="请选择或搜索民族"
-              filterable
-              style="width: 100%"
-            >
-              <ElOption
-                v-for="item in nationOptions"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-              />
-            </ElSelect>
-          </ElFormItem>
-        </ElCol>
-      </ElRow>
-
-      <ElRow :gutter="20">
-        <ElCol :span="12">
-          <ElFormItem label="政治面貌" prop="politicalStatus">
-            <ElSelect
-              v-model="formData.politicalStatus"
-              placeholder="请选择政治面貌"
-              style="width: 100%"
-            >
-              <ElOption
-                v-for="item in politicalStatusOptions"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-              />
-            </ElSelect>
-          </ElFormItem>
-        </ElCol>
-        <ElCol :span="12">
-          <ElFormItem label="入学年份" prop="enrollmentYear">
-            <ElDatePicker
-              v-model="formData.enrollmentYear"
-              type="year"
-              placeholder="请选择入学年份"
-              style="width: 100%"
-              value-format="YYYY"
-            />
-          </ElFormItem>
-        </ElCol>
-      </ElRow>
-
-      <ElRow :gutter="20">
-        <ElCol :span="12">
-          <ElFormItem label="学制" prop="schoolingLength">
-            <ElInputNumber
-              v-model="formData.schoolingLength"
-              placeholder="请输入学制（年）"
-              :min="1"
-              :max="10"
-              style="width: 100%"
-            />
-          </ElFormItem>
-        </ElCol>
-        <ElCol :span="12">
-          <ElFormItem label="学籍状态" prop="academicStatus">
-            <ElSelect
-              v-model="formData.academicStatus"
-              placeholder="请选择学籍状态"
-              style="width: 100%"
-            >
-              <ElOption
-                v-for="item in academicStatusOptions"
-                :key="item.value"
-                :label="item.label"
-                :value="Number(item.value)"
-              />
-            </ElSelect>
-          </ElFormItem>
-        </ElCol>
-      </ElRow>
-
-      <ElRow :gutter="20">
-        <ElCol :span="12">
-          <ElFormItem label="家长姓名" prop="parentName">
-            <ElInput v-model="formData.parentName" placeholder="请输入家长姓名" />
-          </ElFormItem>
-        </ElCol>
-        <ElCol :span="12">
-          <ElFormItem label="家长电话" prop="parentPhone">
-            <ElInput v-model="formData.parentPhone" placeholder="请输入家长电话" maxlength="11" />
-          </ElFormItem>
-        </ElCol>
-      </ElRow>
-
-      <ElRow :gutter="20">
-        <ElCol :span="12">
-          <ElFormItem label="紧急联系人" prop="emergencyContact">
-            <ElInput v-model="formData.emergencyContact" placeholder="请输入紧急联系人" />
-          </ElFormItem>
-        </ElCol>
-        <ElCol :span="12">
-          <ElFormItem label="紧急联系电话" prop="emergencyPhone">
-            <ElInput
-              v-model="formData.emergencyPhone"
-              placeholder="请输入紧急联系电话"
-              maxlength="11"
-            />
-          </ElFormItem>
-        </ElCol>
-      </ElRow>
-
-      <ElRow :gutter="20">
-        <ElCol :span="24">
-          <ElFormItem label="家庭地址" prop="homeAddress">
-            <ElInput
-              v-model="formData.homeAddress"
-              type="textarea"
-              :rows="2"
-              placeholder="请输入家庭地址"
-            />
-          </ElFormItem>
-        </ElCol>
-      </ElRow>
-
-      <ElRow :gutter="20">
-        <ElCol :span="24">
-          <ElFormItem label="备注" prop="remark">
-            <ElInput v-model="formData.remark" type="textarea" :rows="3" placeholder="请输入备注" />
-          </ElFormItem>
-        </ElCol>
-      </ElRow>
-    </ElForm>
+    <ArtForm
+      ref="formRef"
+      v-model="formData"
+      :items="formItems"
+      :span="12"
+      :gutter="20"
+      label-width="100px"
+      :rules="rules"
+      :showSubmit="false"
+      :showReset="false"
+    />
 
     <template #footer>
       <div class="dialog-footer">
@@ -210,27 +32,16 @@
 
 <script setup lang="ts">
   import { ref, watch, computed, reactive, nextTick } from 'vue'
-  import {
-    ElDialog,
-    ElForm,
-    ElFormItem,
-    ElInput,
-    ElInputNumber,
-    ElSelect,
-    ElOption,
-    ElDatePicker,
-    ElButton,
-    ElRow,
-    ElCol,
-    ElMessage
-  } from 'element-plus'
-  import type { FormInstance, FormRules } from 'element-plus'
+  import { ElDialog, ElButton, ElMessage } from 'element-plus'
+  import type { FormRules } from 'element-plus'
   import {
     fetchAddStudent,
     fetchUpdateStudent,
     fetchGetStudentDetail
   } from '@/api/accommodation-manage'
   import { useDictStore } from '@/store/modules/dict'
+  import ArtForm from '@/components/core/forms/art-form/index.vue'
+  import type { FormItem } from '@/components/core/forms/art-form/index.vue'
 
   defineOptions({ name: 'StudentDialog' })
 
@@ -255,6 +66,7 @@
   const emit = defineEmits<Emits>()
 
   const submitLoading = ref(false)
+  const formRef = ref()
 
   // 字典 store
   const dictStore = useDictStore()
@@ -270,8 +82,205 @@
     set: (value) => emit('update:visible', value)
   })
 
-  // 表单实例
-  const formRef = ref<FormInstance>()
+  /**
+   * 表单配置项
+   */
+  const formItems = computed<FormItem[]>(() => [
+    {
+      key: 'studentNo',
+      label: '学号',
+      type: 'input',
+      span: 12,
+      props: {
+        placeholder: '请输入学号',
+        disabled: props.dialogType === 'edit'
+      }
+    },
+    {
+      key: 'studentName',
+      label: '姓名',
+      type: 'input',
+      span: 12,
+      props: {
+        placeholder: '请输入姓名'
+      }
+    },
+    {
+      key: 'gender',
+      label: '性别',
+      type: 'select',
+      span: 12,
+      props: {
+        placeholder: '请选择性别',
+        style: 'width: 100%',
+        options: [
+          { label: '男', value: 1 },
+          { label: '女', value: 2 }
+        ]
+      }
+    },
+    {
+      key: 'phone',
+      label: '手机号',
+      type: 'input',
+      span: 12,
+      props: {
+        placeholder: '请输入手机号',
+        maxlength: 11
+      }
+    },
+    {
+      key: 'email',
+      label: '邮箱',
+      type: 'input',
+      span: 12,
+      props: {
+        placeholder: '请输入邮箱'
+      }
+    },
+    {
+      key: 'idCard',
+      label: '身份证号',
+      type: 'input',
+      span: 12,
+      props: {
+        placeholder: '请输入身份证号',
+        maxlength: 18
+      }
+    },
+    {
+      key: 'birthDate',
+      label: '出生日期',
+      type: 'date',
+      span: 12,
+      props: {
+        placeholder: '请选择出生日期',
+        style: 'width: 100%',
+        valueFormat: 'YYYY-MM-DD'
+      }
+    },
+    {
+      key: 'nation',
+      label: '民族',
+      type: 'select',
+      span: 12,
+      props: {
+        placeholder: '请选择或搜索民族',
+        filterable: true,
+        style: 'width: 100%',
+        options: nationOptions.value
+      }
+    },
+    {
+      key: 'politicalStatus',
+      label: '政治面貌',
+      type: 'select',
+      span: 12,
+      props: {
+        placeholder: '请选择政治面貌',
+        style: 'width: 100%',
+        options: politicalStatusOptions.value
+      }
+    },
+    {
+      key: 'enrollmentYear',
+      label: '入学年份',
+      type: 'date',
+      span: 12,
+      props: {
+        type: 'year',
+        placeholder: '请选择入学年份',
+        style: 'width: 100%',
+        valueFormat: 'YYYY'
+      }
+    },
+    {
+      key: 'schoolingLength',
+      label: '学制',
+      type: 'number',
+      span: 12,
+      props: {
+        placeholder: '请输入学制（年）',
+        min: 1,
+        max: 10,
+        style: 'width: 100%'
+      }
+    },
+    {
+      key: 'academicStatus',
+      label: '学籍状态',
+      type: 'select',
+      span: 12,
+      props: {
+        placeholder: '请选择学籍状态',
+        style: 'width: 100%',
+        options: academicStatusOptions.value.map((item) => ({
+          label: item.label,
+          value: Number(item.value)
+        }))
+      }
+    },
+    {
+      key: 'parentName',
+      label: '家长姓名',
+      type: 'input',
+      span: 12,
+      props: {
+        placeholder: '请输入家长姓名'
+      }
+    },
+    {
+      key: 'parentPhone',
+      label: '家长电话',
+      type: 'input',
+      span: 12,
+      props: {
+        placeholder: '请输入家长电话',
+        maxlength: 11
+      }
+    },
+    {
+      key: 'emergencyContact',
+      label: '紧急联系人',
+      type: 'input',
+      span: 12,
+      props: {
+        placeholder: '请输入紧急联系人'
+      }
+    },
+    {
+      key: 'emergencyPhone',
+      label: '紧急联系电话',
+      type: 'input',
+      span: 12,
+      props: {
+        placeholder: '请输入紧急联系电话',
+        maxlength: 11
+      }
+    },
+    {
+      key: 'homeAddress',
+      label: '家庭地址',
+      type: 'input',
+      span: 24,
+      props: {
+        type: 'textarea',
+        rows: 2,
+        placeholder: '请输入家庭地址'
+      }
+    },
+    {
+      key: 'remark',
+      label: '备注',
+      type: 'input',
+      span: 24,
+      props: {
+        type: 'textarea',
+        rows: 3,
+        placeholder: '请输入备注'
+      }
+    }
+  ])
 
   // 表单数据
   const formData = reactive<Api.AccommodationManage.StudentSaveParams>({
@@ -319,14 +328,12 @@
    */
   const loadDictData = async (): Promise<void> => {
     try {
-      // 使用 store 批量加载字典数据（一个接口请求）
       const dictRes = await dictStore.loadDictDataBatch([
         'student_nation',
         'student_political_status',
         'academic_status'
       ])
 
-      // 解析民族字典
       nationOptions.value = (dictRes.student_nation || []).map(
         (item: Api.SystemManage.DictDataListItem) => ({
           label: item.label,
@@ -334,7 +341,6 @@
         })
       )
 
-      // 解析政治面貌字典
       politicalStatusOptions.value = (dictRes.student_political_status || []).map(
         (item: Api.SystemManage.DictDataListItem) => ({
           label: item.label,
@@ -342,7 +348,6 @@
         })
       )
 
-      // 解析学籍状态字典
       academicStatusOptions.value = (dictRes.academic_status || []).map(
         (item: Api.SystemManage.DictDataListItem) => ({
           label: item.label,
@@ -359,7 +364,6 @@
    */
   const initFormData = async () => {
     if (props.dialogType === 'edit') {
-      // 编辑模式：优先使用传入的数据，否则通过ID获取
       if (props.studentData) {
         const row = props.studentData
         Object.assign(formData, {
@@ -384,7 +388,6 @@
           remark: row.remark || ''
         })
       } else if (props.studentId) {
-        // 通过ID获取详情
         try {
           const res = await fetchGetStudentDetail(props.studentId)
           if (res) {
@@ -416,7 +419,6 @@
         }
       }
     } else {
-      // 新增模式：重置表单
       Object.assign(formData, {
         id: undefined,
         studentNo: '',
@@ -451,7 +453,7 @@
         loadDictData()
         initFormData()
         nextTick(() => {
-          formRef.value?.clearValidate()
+          formRef.value?.ref?.clearValidate()
         })
       }
     },
@@ -464,44 +466,39 @@
   const handleSubmit = async () => {
     if (!formRef.value) return
 
-    await formRef.value.validate(async (valid) => {
-      if (valid) {
-        try {
-          submitLoading.value = true
+    try {
+      await formRef.value.validate()
 
-          // 准备提交数据
-          const submitData: Api.AccommodationManage.StudentSaveParams = {
-            ...formData
-          }
+      submitLoading.value = true
 
-          // 处理入学年份：如果是字符串，转换为数字
-          if (submitData.enrollmentYear && typeof submitData.enrollmentYear === 'string') {
-            submitData.enrollmentYear = parseInt(submitData.enrollmentYear)
-          }
-
-          // 调用API
-          if (props.dialogType === 'add') {
-            await fetchAddStudent(submitData)
-          } else {
-            await fetchUpdateStudent(submitData)
-          }
-
-          dialogVisible.value = false
-          emit('saved')
-        } catch (error) {
-          console.error('提交失败:', error)
-        } finally {
-          submitLoading.value = false
-        }
+      const submitData: Api.AccommodationManage.StudentSaveParams = {
+        ...formData
       }
-    })
+
+      if (submitData.enrollmentYear && typeof submitData.enrollmentYear === 'string') {
+        submitData.enrollmentYear = parseInt(submitData.enrollmentYear)
+      }
+
+      if (props.dialogType === 'add') {
+        await fetchAddStudent(submitData)
+      } else {
+        await fetchUpdateStudent(submitData)
+      }
+
+      dialogVisible.value = false
+      emit('saved')
+    } catch (error) {
+      console.error('提交失败:', error)
+    } finally {
+      submitLoading.value = false
+    }
   }
 
   /**
    * 关闭对话框
    */
   const handleClose = () => {
-    formRef.value?.resetFields()
+    formRef.value?.reset()
   }
 </script>
 

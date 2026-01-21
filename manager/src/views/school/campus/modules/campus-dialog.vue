@@ -7,38 +7,31 @@
     :close-on-click-modal="false"
     @close="handleClose"
   >
-    <ElForm ref="formRef" :model="form" :rules="rules" label-width="100px" label-position="right">
-      <ElFormItem label="校区编码" prop="campusCode">
-        <ElInput v-model="form.campusCode" placeholder="请输入校区编码" :disabled="isEdit" />
-      </ElFormItem>
-
-      <ElFormItem label="校区名称" prop="campusName">
-        <ElInput v-model="form.campusName" placeholder="请输入校区名称" />
-      </ElFormItem>
-
-      <ElFormItem label="校区地址" prop="address">
-        <ElInput v-model="form.address" type="textarea" :rows="3" placeholder="请输入校区地址" />
-      </ElFormItem>
-
-      <ElFormItem label="负责人" prop="manager">
-        <ElInput v-model="form.manager" placeholder="请输入负责人姓名" />
-      </ElFormItem>
-
-      <ElFormItem label="排序序号" prop="sort">
-        <ElInputNumber v-model="form.sort" :min="0" :max="9999" />
-      </ElFormItem>
-    </ElForm>
+    <ArtForm
+      ref="formRef"
+      v-model="form"
+      :items="formItems"
+      :span="24"
+      label-width="100px"
+      :rules="rules"
+      :showSubmit="false"
+      :showReset="false"
+    />
 
     <template #footer>
       <ElButton @click="handleClose">取消</ElButton>
-      <ElButton type="primary" :loading="loading" @click="handleSubmit">确定</ElButton>
+      <ElButton type="primary" :loading="submitLoading" @click="handleSubmit">
+        {{ submitLoading ? '提交中...' : '确定' }}
+      </ElButton>
     </template>
   </ElDialog>
 </template>
 
 <script setup lang="ts">
   import { fetchAddCampus, fetchUpdateCampus } from '@/api/school-manage'
-  import type { FormInstance, FormRules } from 'element-plus'
+  import type { FormRules } from 'element-plus'
+  import ArtForm from '@/components/core/forms/art-form/index.vue'
+  import type { FormItem } from '@/components/core/forms/art-form/index.vue'
 
   interface Props {
     visible: boolean
@@ -57,8 +50,8 @@
 
   const emit = defineEmits<Emits>()
 
-  const formRef = ref<FormInstance>()
-  const loading = ref(false)
+  const formRef = ref()
+  const submitLoading = ref(false)
 
   const dialogVisible = computed({
     get: () => props.visible,
@@ -71,6 +64,61 @@
     if (isEdit.value) return '编辑校区'
     return '新增校区'
   })
+
+  /**
+   * 表单配置项
+   */
+  const formItems = computed<FormItem[]>(() => [
+    {
+      key: 'campusCode',
+      label: '校区编码',
+      type: 'input',
+      span: 24,
+      props: {
+        placeholder: '请输入校区编码',
+        disabled: isEdit.value
+      }
+    },
+    {
+      key: 'campusName',
+      label: '校区名称',
+      type: 'input',
+      span: 24,
+      props: {
+        placeholder: '请输入校区名称'
+      }
+    },
+    {
+      key: 'address',
+      label: '校区地址',
+      type: 'input',
+      span: 24,
+      props: {
+        type: 'textarea',
+        rows: 3,
+        placeholder: '请输入校区地址'
+      }
+    },
+    {
+      key: 'manager',
+      label: '负责人',
+      type: 'input',
+      span: 24,
+      props: {
+        placeholder: '请输入负责人姓名'
+      }
+    },
+    {
+      key: 'sort',
+      label: '排序序号',
+      type: 'number',
+      span: 24,
+      props: {
+        min: 0,
+        max: 9999
+      }
+    }
+  ])
 
   const form = reactive<Api.SystemManage.CampusSaveParams>({
     campusCode: '',
@@ -118,7 +166,7 @@
       status: 1,
       sort: 0
     })
-    formRef.value?.clearValidate()
+    formRef.value?.ref?.clearValidate()
   }
 
   /**
@@ -127,11 +175,10 @@
   const handleSubmit = async (): Promise<void> => {
     if (!formRef.value) return
 
-    const valid = await formRef.value.validate().catch(() => false)
-    if (!valid) return
-
-    loading.value = true
     try {
+      await formRef.value.validate()
+
+      submitLoading.value = true
       if (isEdit.value) {
         await fetchUpdateCampus(form.id!, form)
       } else {
@@ -142,7 +189,7 @@
     } catch (error) {
       console.error('提交失败:', error)
     } finally {
-      loading.value = false
+      submitLoading.value = false
     }
   }
 
