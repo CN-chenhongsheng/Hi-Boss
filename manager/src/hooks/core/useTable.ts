@@ -24,6 +24,8 @@ import {
   watch,
   onMounted,
   onUnmounted,
+  onDeactivated,
+  onActivated,
   nextTick,
   readonly,
   unref,
@@ -323,10 +325,17 @@ function useTableImpl<TApiFn extends (params: any) => Promise<any>>(
     let hasLoadedData = false
     // 标记是否正在进行首次加载（防止加载期间的 pageSize 变化触发重复请求）
     let isLoadingFirstData = false
+    // 标记组件是否已卸载或停用（防止卸载/停用后继续执行异步操作）
+    let isInactive = false
 
     watch(
       () => adaptivePageSizeResult.pageSize.value,
       (newSize) => {
+        // 如果组件已卸载或停用，不执行任何操作
+        if (isInactive) {
+          return
+        }
+
         // 如果正在首次加载中，完全忽略后续的 pageSize 变化（包括不更新 pagination.size）
         // 这样可以确保 UI 显示的 pageSize 和实际请求的 pageSize 一致
         if (isLoadingFirstData) {
@@ -348,6 +357,10 @@ function useTableImpl<TApiFn extends (params: any) => Promise<any>>(
           if (immediate && !hasLoadedData && !isLoadingFirstData) {
             isLoadingFirstData = true
             nextTick(async () => {
+              // 再次检查是否已停用
+              if (isInactive) {
+                return
+              }
               await getData()
               // 数据加载完成后，标记首次加载已完成
               hasLoadedData = true
@@ -364,6 +377,21 @@ function useTableImpl<TApiFn extends (params: any) => Promise<any>>(
       },
       { immediate: true }
     )
+
+    // 组件卸载时标记为非活跃
+    onUnmounted(() => {
+      isInactive = true
+    })
+
+    // KeepAlive 缓存时标记为非活跃（防止缓存的组件继续触发数据请求）
+    onDeactivated(() => {
+      isInactive = true
+    })
+
+    // KeepAlive 重新激活时恢复
+    onActivated(() => {
+      isInactive = false
+    })
   }
 
   // 移动端分页 (响应式)
