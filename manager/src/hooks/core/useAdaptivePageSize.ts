@@ -191,7 +191,11 @@ export function useAdaptivePageSize(options: AdaptivePageSizeOptions = {}) {
     debug: false
   }
 
-  const mergedOptions = { ...defaultOptions, ...options }
+  // 过滤掉 undefined 值，避免覆盖默认值
+  const filteredOptions = Object.fromEntries(
+    Object.entries(options).filter(([, v]) => v !== undefined)
+  )
+  const mergedOptions = { ...defaultOptions, ...filteredOptions }
 
   // 容器高度
   const containerHeight = ref(0)
@@ -209,8 +213,7 @@ export function useAdaptivePageSize(options: AdaptivePageSizeOptions = {}) {
   // 计算 pageSize
   const pageSize = computed(() => {
     const calculator = new AdaptivePageSizeCalculator(containerHeight, rowHeight, mergedOptions)
-    const result = calculator.calculate()
-    return result
+    return calculator.calculate()
   })
 
   // 动态生成 pageSizes 数组（基于计算出的 pageSize）
