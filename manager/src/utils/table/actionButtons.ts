@@ -27,7 +27,8 @@ const BUTTON_LABELS: Record<string, string> = {
   upload: '上传',
   assign: '分配',
   reset: '重置',
-  share: '分配'
+  share: '分配',
+  link: '绑定'
 }
 
 /**
@@ -43,7 +44,8 @@ export const BUTTON_ICONS: Record<string, string> = {
   upload: 'ri:upload-line',
   assign: 'ri:user-settings-line',
   reset: 'ri:refresh-line',
-  share: 'ri:share-line'
+  share: 'ri:share-line',
+  link: 'ri:link'
 }
 
 /**

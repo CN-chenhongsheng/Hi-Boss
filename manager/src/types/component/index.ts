@@ -153,7 +153,17 @@ export interface DialogConfig {
 // 操作按钮配置
 export interface ActionButtonConfig {
   // 按钮类型
-  type: 'view' | 'add' | 'edit' | 'delete' | 'detail' | 'download' | 'upload' | 'reset' | 'share'
+  type:
+    | 'view'
+    | 'add'
+    | 'edit'
+    | 'delete'
+    | 'detail'
+    | 'download'
+    | 'upload'
+    | 'reset'
+    | 'share'
+    | 'link'
   // 点击事件
   onClick: () => void
   // 权限标识
