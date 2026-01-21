@@ -6,47 +6,17 @@
     align-center
     @close="handleClose"
   >
-    <ElForm ref="formRef" :model="formData" :rules="rules" label-width="90px">
-      <ElRow :gutter="20">
-        <ElCol :span="12">
-          <ElFormItem label="用户名" prop="username">
-            <ElInput
-              v-model="formData.username"
-              placeholder="请输入用户名"
-              :disabled="dialogType === 'edit'"
-            />
-          </ElFormItem>
-        </ElCol>
-        <ElCol :span="12">
-          <ElFormItem label="昵称" prop="nickname">
-            <ElInput v-model="formData.nickname" placeholder="请输入昵称" />
-          </ElFormItem>
-        </ElCol>
-      </ElRow>
-
-      <ElRow :gutter="20">
-        <ElCol :span="12">
-          <ElFormItem label="手机号" prop="phone">
-            <ElInput v-model="formData.phone" placeholder="请输入手机号" maxlength="11" />
-          </ElFormItem>
-        </ElCol>
-        <ElCol :span="12">
-          <ElFormItem label="邮箱" prop="email">
-            <ElInput v-model="formData.email" placeholder="请输入邮箱" />
-          </ElFormItem>
-        </ElCol>
-      </ElRow>
-      <ElFormItem label="角色" prop="roleIds">
-        <ElSelect v-model="formData.roleIds" multiple placeholder="请选择角色" style="width: 100%">
-          <ElOption
-            v-for="role in roleList"
-            :key="role.id"
-            :value="role.id"
-            :label="role.roleName"
-          />
-        </ElSelect>
-      </ElFormItem>
-    </ElForm>
+    <ArtForm
+      ref="formRef"
+      v-model="formData"
+      :items="formItems"
+      :span="12"
+      :gutter="20"
+      label-width="90px"
+      :rules="rules"
+      :showSubmit="false"
+      :showReset="false"
+    />
 
     <template #footer>
       <div class="dialog-footer">
@@ -63,7 +33,9 @@
   import { fetchAddUser, fetchUpdateUser } from '@/api/system-manage'
   import { useReferenceStore } from '@/store/modules/reference'
   import { ElMessage } from 'element-plus'
-  import type { FormInstance, FormRules } from 'element-plus'
+  import type { FormRules } from 'element-plus'
+  import ArtForm from '@/components/core/forms/art-form/index.vue'
+  import type { FormItem } from '@/components/core/forms/art-form/index.vue'
 
   interface Props {
     visible: boolean
@@ -102,7 +74,66 @@
   })
 
   // 表单实例
-  const formRef = ref<FormInstance>()
+  const formRef = ref()
+
+  /**
+   * 表单配置项
+   */
+  const formItems = computed<FormItem[]>(() => [
+    {
+      key: 'username',
+      label: '用户名',
+      type: 'input',
+      span: 12,
+      props: {
+        placeholder: '请输入用户名',
+        disabled: dialogType.value === 'edit'
+      }
+    },
+    {
+      key: 'nickname',
+      label: '昵称',
+      type: 'input',
+      span: 12,
+      props: {
+        placeholder: '请输入昵称'
+      }
+    },
+    {
+      key: 'phone',
+      label: '手机号',
+      type: 'input',
+      span: 12,
+      props: {
+        placeholder: '请输入手机号',
+        maxlength: 11
+      }
+    },
+    {
+      key: 'email',
+      label: '邮箱',
+      type: 'input',
+      span: 12,
+      props: {
+        placeholder: '请输入邮箱'
+      }
+    },
+    {
+      key: 'roleIds',
+      label: '角色',
+      type: 'select',
+      span: 24,
+      props: {
+        multiple: true,
+        placeholder: '请选择角色',
+        style: 'width: 100%',
+        options: roleList.value.map((role) => ({
+          value: role.id,
+          label: role.roleName
+        }))
+      }
+    }
+  ])
 
   // 表单数据
   const formData = reactive<Api.SystemManage.UserSaveParams>({
@@ -179,7 +210,7 @@
         initFormData()
         loadRoles()
         nextTick(() => {
-          formRef.value?.clearValidate()
+          formRef.value?.ref?.clearValidate()
         })
       }
     },
@@ -192,45 +223,44 @@
   const handleSubmit = async () => {
     if (!formRef.value) return
 
-    await formRef.value.validate(async (valid) => {
-      if (valid) {
-        // 超级管理员不允许设置为停用
-        if (isSuperAdmin.value && formData.status === 0) {
-          ElMessage.warning('超级管理员不允许停用')
-          return
-        }
+    try {
+      // 使用 ArtForm 暴露的 validate 方法
+      await formRef.value.validate()
 
-        try {
-          submitLoading.value = true
-
-          // 准备提交数据
-          const submitData: Api.SystemManage.UserSaveParams = {
-            ...formData
-          }
-
-          // 调用API
-          if (props.type === 'add') {
-            await fetchAddUser(submitData)
-          } else {
-            await fetchUpdateUser(formData.id!, submitData)
-          }
-
-          dialogVisible.value = false
-          emit('submit')
-        } catch (error) {
-          console.error('提交失败:', error)
-        } finally {
-          submitLoading.value = false
-        }
+      // 超级管理员不允许设置为停用
+      if (isSuperAdmin.value && formData.status === 0) {
+        ElMessage.warning('超级管理员不允许停用')
+        return
       }
-    })
+
+      submitLoading.value = true
+
+      // 准备提交数据
+      const submitData: Api.SystemManage.UserSaveParams = {
+        ...formData
+      }
+
+      // 调用API
+      if (props.type === 'add') {
+        await fetchAddUser(submitData)
+      } else {
+        await fetchUpdateUser(formData.id!, submitData)
+      }
+
+      dialogVisible.value = false
+      emit('submit')
+    } catch (error) {
+      console.error('提交失败:', error)
+    } finally {
+      submitLoading.value = false
+    }
   }
 
   /**
    * 关闭对话框
    */
   const handleClose = () => {
-    formRef.value?.resetFields()
+    formRef.value?.reset()
   }
 </script>
 

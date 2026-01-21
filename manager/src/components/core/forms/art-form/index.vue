@@ -2,7 +2,7 @@
 <!-- 支持常用表单组件、自定义组件、插槽、校验、隐藏表单项 -->
 <!-- 写法同 ElementPlus 官方文档组件，把属性写在 props 里面就可以了 -->
 <template>
-  <section class="px-4 pb-0 pt-4 md:px-4 md:pt-4">
+  <section class="p-0">
     <ElForm
       ref="formRef"
       :model="modelValue"
@@ -24,7 +24,7 @@
             :label-width="item.label ? item.labelWidth || labelWidth : undefined"
           >
             <template #label v-if="item.label">
-              <component v-if="typeof item.label !== 'string'" :is="item.label" />
+              <component v-if="typeof item.label !== 'string'" v-bind:is="item.label" />
               <span v-else>{{ item.label }}</span>
             </template>
             <slot :name="item.key" :item="item" :modelValue="modelValue">
