@@ -45,7 +45,7 @@
         :pagination="pagination"
         :contextMenuItems="contextMenuItems"
         :contextMenuWidth="contextMenuWidth"
-        :onRowContextmenu="handleRowContextmenu"
+        :onRowContextmenu="handleRowContextmenu as any"
         :onContextMenuSelect="handleContextMenuSelect"
         @selection-change="handleSelectionChange"
         @pagination:size-change="handleSizeChange"
