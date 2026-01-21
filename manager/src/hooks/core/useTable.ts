@@ -335,13 +335,11 @@ function useTableImpl<TApiFn extends (params: any) => Promise<any>>(
         }
 
         // 确保新值是有效的数字
-        if (
-          typeof newSize === 'number' &&
-          !isNaN(newSize) &&
-          newSize > 0 &&
-          newSize !== pagination.size
-        ) {
-          logger.log(`自适应 pageSize 变化: ${pagination.size} -> ${newSize}`)
+        if (typeof newSize === 'number' && !isNaN(newSize) && newSize > 0) {
+          // 更新 pagination 和 searchParams（即使值相同，确保状态一致）
+          if (newSize !== pagination.size) {
+            logger.log(`自适应 pageSize 变化: ${pagination.size} -> ${newSize}`)
+          }
           pagination.size = newSize
           ;(searchParams as Record<string, unknown>)[sizeKey] = newSize
 
@@ -363,7 +361,8 @@ function useTableImpl<TApiFn extends (params: any) => Promise<any>>(
             getData()
           }
         }
-      }
+      },
+      { immediate: true }
     )
   }
 
