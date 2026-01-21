@@ -659,7 +659,10 @@
 
   const { data, loading, pagination, getData, handleSizeChange, handleCurrentChange } =
     useTable<any>({
-      core: getApiConfig() as any,
+      core: {
+        ...getApiConfig(),
+        immediate: false // 禁用自动加载，由 watch 控制何时加载数据
+      } as any,
       transform: {
         responseAdapter: (response: any) => {
           // 处理可能的嵌套 data 字段
