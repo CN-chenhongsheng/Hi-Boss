@@ -45,6 +45,10 @@
         :data="data"
         :stripe="false"
         :pagination="pagination"
+        :contextMenuItems="contextMenuItems"
+        :contextMenuWidth="contextMenuWidth"
+        :onRowContextmenu="handleRowContextmenu"
+        :onContextMenuSelect="handleContextMenuSelect"
         row-key="id"
         @selection-change="handleSelectionChange"
         @pagination:size-change="handleSizeChange"
@@ -151,7 +155,11 @@
     refreshUpdate,
     refreshRemove,
     handleSizeChange,
-    handleCurrentChange
+    handleCurrentChange,
+    contextMenuItems,
+    contextMenuWidth,
+    handleRowContextmenu,
+    handleContextMenuSelect
   } = useTable<typeof fetchGetRoomPage>({
     core: {
       apiFn: fetchGetRoomPage,
@@ -270,20 +278,22 @@
           width: 180,
           fixed: 'right' as const,
           formatter: (row: RoomListItem) => [
-            { type: 'view', onClick: () => handleViewBeds(row), label: '查看床位' },
+            { type: 'view', label: '查看床位', onClick: () => handleViewBeds(row) },
             {
               type: 'edit',
+              label: '编辑',
               onClick: () => handleEdit(row),
               auth: 'system:room:edit'
             },
             {
               type: 'add',
-              onClick: () => handleBatchAddBeds(row),
               label: '批量增加',
+              onClick: () => handleBatchAddBeds(row),
               auth: 'system:room:batchAdd'
             },
             {
               type: 'delete',
+              label: '删除',
               onClick: () => handleDelete(row),
               auth: 'system:room:delete',
               danger: true
@@ -294,6 +304,9 @@
       immediate: true
     },
     adaptive: {
+      enabled: true
+    },
+    contextMenu: {
       enabled: true
     }
   })

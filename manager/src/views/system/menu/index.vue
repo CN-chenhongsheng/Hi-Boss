@@ -35,6 +35,10 @@
       </ArtTableHeader>
 
       <ArtTable
+        :contextMenuItems="contextMenuItems"
+        :contextMenuWidth="contextMenuWidth"
+        :onRowContextmenu="handleRowContextmenu as any"
+        :onContextMenuSelect="handleContextMenuSelect"
         ref="tableRef"
         row-key="id"
         :loading="loading"
@@ -131,7 +135,11 @@
     refreshData,
     refreshCreate,
     refreshUpdate,
-    refreshRemove
+    refreshRemove,
+    contextMenuItems,
+    contextMenuWidth,
+    handleRowContextmenu,
+    handleContextMenuSelect
   } = useTable<typeof fetchGetMenuList>({
     core: {
       apiFn: fetchGetMenuList,
@@ -242,17 +250,20 @@
             if (row.menuType === 'M' || row.menuType === 'C') {
               buttons.push({
                 type: 'add',
+                label: '新增',
                 onClick: () => handleAddSubMenu(row),
                 auth: 'system:menu:add'
               })
             }
             buttons.push({
               type: 'edit',
+              label: '编辑',
               onClick: () => handleEditMenu(row),
               auth: 'system:menu:edit'
             })
             buttons.push({
               type: 'delete',
+              label: '删除',
               onClick: () => handleDeleteMenu(row),
               auth: 'system:menu:delete',
               danger: true
@@ -264,6 +275,9 @@
       immediate: true
     },
     adaptive: {
+      enabled: true
+    },
+    contextMenu: {
       enabled: true
     }
   })

@@ -9,33 +9,87 @@ import { HtmlNode, HtmlNodeModel } from '@logicflow/core'
 // ==================== 工具函数 ====================
 
 /**
+ * 获取 CSS 变量值
+ */
+const getCSSVar = (varName: string, fallback: string = ''): string => {
+  return getComputedStyle(document.documentElement).getPropertyValue(varName).trim() || fallback
+}
+
+/**
  * 获取系统主题色
  */
 const getThemeColor = (): string => {
-  return (
-    getComputedStyle(document.documentElement).getPropertyValue('--el-color-primary').trim() ||
-    '#5D87FF'
-  )
+  return getCSSVar('--el-color-primary', '#5D87FF')
 }
 
 /**
  * 获取成功色（用于开始节点）
  */
 const getSuccessColor = (): string => {
-  return (
-    getComputedStyle(document.documentElement).getPropertyValue('--el-color-success').trim() ||
-    '#22c55e'
-  )
+  return getCSSVar('--el-color-success', '#22c55e')
 }
 
 /**
  * 获取信息色（用于结束节点）
  */
 const getInfoColor = (): string => {
-  return (
-    getComputedStyle(document.documentElement).getPropertyValue('--el-color-info').trim() ||
-    '#6b7280'
-  )
+  return getCSSVar('--el-color-info', '#6b7280')
+}
+
+/**
+ * 获取背景色
+ */
+const getBgColor = (): string => {
+  return getCSSVar('--el-bg-color', '#ffffff')
+}
+
+/**
+ * 获取边框颜色
+ */
+const getBorderColor = (): string => {
+  return getCSSVar('--el-border-color-light', '#e5e7eb')
+}
+
+/**
+ * 获取填充色
+ */
+const getFillColor = (): string => {
+  return getCSSVar('--el-fill-color', '#f5f7fa')
+}
+
+/**
+ * 获取主要文字颜色
+ */
+const getTextPrimaryColor = (): string => {
+  return getCSSVar('--el-text-color-primary', '#303133')
+}
+
+/**
+ * 获取次要文字颜色
+ */
+const getTextSecondaryColor = (): string => {
+  return getCSSVar('--el-text-color-secondary', '#606266')
+}
+
+/**
+ * 获取占位符文字颜色
+ */
+const getTextPlaceholderColor = (): string => {
+  return getCSSVar('--el-text-color-placeholder', '#a8abb2')
+}
+
+/**
+ * 获取危险色
+ */
+const getDangerColor = (): string => {
+  return getCSSVar('--el-color-danger', '#ef4444')
+}
+
+/**
+ * 获取危险色浅色背景
+ */
+const getDangerLightBg = (): string => {
+  return getCSSVar('--el-color-danger-light-9', '#fef2f2')
 }
 
 // ==================== 审批节点 ====================
@@ -86,16 +140,19 @@ class ApprovalNodeView extends HtmlNode {
 
     const container = document.createElement('div')
     container.className = 'approval-node-container'
+    const bgColor = getBgColor()
+    const borderColor = getBorderColor()
+
     container.style.cssText = `
       width: 100%;
       height: 100%;
       display: flex;
       align-items: center;
       padding: 12px 16px;
-      background: ${isSelected ? `${primaryColor}10` : '#ffffff'};
-      border: 2px solid ${isSelected ? config.color : '#e5e7eb'};
+      background: ${isSelected ? `${primaryColor}50` : bgColor};
+      border: 2px solid ${isSelected ? config.color : borderColor};
       border-radius: 12px;
-      box-shadow: ${isSelected ? `0 4px 12px ${config.color}30` : '0 2px 8px rgba(0,0,0,0.06)'};
+      box-shadow: ${isSelected ? `0 4px 12px ${config.color}70` : '0 2px 8px rgba(0,0,0,0.06)'};
       transition: all 0.2s ease;
       cursor: pointer;
       box-sizing: border-box;
@@ -129,11 +186,13 @@ class ApprovalNodeView extends HtmlNode {
       gap: 4px;
     `
 
+    const textPrimaryColor = getTextPrimaryColor()
+
     const title = document.createElement('div')
     title.style.cssText = `
       font-size: 14px;
       font-weight: 600;
-      color: #1f2937;
+      color: ${textPrimaryColor};
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -164,12 +223,14 @@ class ApprovalNodeView extends HtmlNode {
     container.appendChild(content)
 
     // 右侧审批人数
+    const textSecondaryColor = getTextSecondaryColor()
+
     const countWrapper = document.createElement('div')
     countWrapper.style.cssText = `
       display: flex;
       align-items: center;
       gap: 4px;
-      color: #6b7280;
+      color: ${textSecondaryColor};
       font-size: 13px;
       flex-shrink: 0;
     `
@@ -179,6 +240,8 @@ class ApprovalNodeView extends HtmlNode {
     // 右上角删除按钮
     const deleteBtn = document.createElement('div')
     deleteBtn.className = 'delete-btn'
+    const dangerColor = getDangerColor()
+    const dangerLightBg = getDangerLightBg()
     deleteBtn.style.cssText = `
       position: absolute;
       top: 4px;
@@ -188,7 +251,7 @@ class ApprovalNodeView extends HtmlNode {
       display: flex;
       align-items: center;
       justify-content: center;
-      background: #fef2f2;
+      background: ${dangerLightBg};
       border-radius: 4px;
       cursor: pointer;
       opacity: 0;
@@ -196,7 +259,7 @@ class ApprovalNodeView extends HtmlNode {
       z-index: 10;
     `
     deleteBtn.innerHTML = `
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="${dangerColor}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M3 6h18M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
         <line x1="10" y1="11" x2="10" y2="17"></line>
         <line x1="14" y1="11" x2="14" y2="17"></line>
@@ -213,7 +276,7 @@ class ApprovalNodeView extends HtmlNode {
     }
     container.onmouseleave = () => {
       if (!isSelected) {
-        container.style.borderColor = '#e5e7eb'
+        container.style.borderColor = borderColor
         container.style.boxShadow = '0 2px 8px rgba(0,0,0,0.06)'
       }
       deleteBtn.style.opacity = '0'
@@ -287,6 +350,8 @@ class StartNodeView extends HtmlNode {
     const { flowName = '', isSelected = false } = properties as any
 
     const successColor = getSuccessColor()
+    const bgColor = getBgColor()
+    const borderColor = getBorderColor()
 
     el.innerHTML = ''
 
@@ -298,10 +363,10 @@ class StartNodeView extends HtmlNode {
       display: flex;
       align-items: center;
       padding: 12px 16px;
-      background: ${isSelected ? `${successColor}10` : '#ffffff'};
-      border: 2px solid ${isSelected ? successColor : '#e5e7eb'};
+      background: ${isSelected ? `${successColor}50` : bgColor};
+      border: 2px solid ${isSelected ? successColor : borderColor};
       border-radius: 12px;
-      box-shadow: ${isSelected ? `0 4px 12px ${successColor}30` : '0 2px 8px rgba(0,0,0,0.06)'};
+      box-shadow: ${isSelected ? `0 4px 12px ${successColor}70` : '0 2px 8px rgba(0,0,0,0.06)'};
       transition: all 0.2s ease;
       cursor: pointer;
       box-sizing: border-box;
@@ -317,7 +382,7 @@ class StartNodeView extends HtmlNode {
     }
     container.onmouseleave = () => {
       if (!isSelected) {
-        container.style.borderColor = '#e5e7eb'
+        container.style.borderColor = borderColor
         container.style.boxShadow = '0 2px 8px rgba(0,0,0,0.06)'
       }
     }
@@ -362,10 +427,13 @@ class StartNodeView extends HtmlNode {
     title.innerText = '开始'
     content.appendChild(title)
 
+    const textSecondaryColor = getTextSecondaryColor()
+    const textPlaceholderColor = getTextPlaceholderColor()
+
     const meta = document.createElement('div')
     meta.style.cssText = `
       font-size: 12px;
-      color: #6b7280;
+      color: ${textSecondaryColor};
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -378,7 +446,7 @@ class StartNodeView extends HtmlNode {
     // 右侧箭头指示
     const arrow = document.createElement('div')
     arrow.style.cssText = `
-      color: #9ca3af;
+      color: ${textPlaceholderColor};
       font-size: 16px;
       flex-shrink: 0;
     `
@@ -419,6 +487,8 @@ class EndNodeView extends HtmlNode {
     const { isSelected = false } = properties as any
 
     const infoColor = getInfoColor()
+    const fillColor = getFillColor()
+    const borderColor = getBorderColor()
 
     el.innerHTML = ''
 
@@ -430,10 +500,10 @@ class EndNodeView extends HtmlNode {
       display: flex;
       align-items: center;
       padding: 12px 16px;
-      background: ${isSelected ? `${infoColor}10` : '#f9fafb'};
-      border: 2px solid ${isSelected ? infoColor : '#e5e7eb'};
+      background: ${isSelected ? `${infoColor}50` : fillColor};
+      border: 2px solid ${isSelected ? infoColor : borderColor};
       border-radius: 12px;
-      box-shadow: ${isSelected ? `0 4px 12px ${infoColor}30` : '0 2px 8px rgba(0,0,0,0.06)'};
+      box-shadow: ${isSelected ? `0 4px 12px ${infoColor}70` : '0 2px 8px rgba(0,0,0,0.06)'};
       transition: all 0.2s ease;
       cursor: pointer;
       box-sizing: border-box;
@@ -449,7 +519,7 @@ class EndNodeView extends HtmlNode {
     }
     container.onmouseleave = () => {
       if (!isSelected) {
-        container.style.borderColor = '#e5e7eb'
+        container.style.borderColor = borderColor
         container.style.boxShadow = '0 2px 8px rgba(0,0,0,0.06)'
       }
     }
@@ -494,10 +564,12 @@ class EndNodeView extends HtmlNode {
     title.innerText = '结束'
     content.appendChild(title)
 
+    const textPlaceholderColor = getTextPlaceholderColor()
+
     const meta = document.createElement('div')
     meta.style.cssText = `
       font-size: 12px;
-      color: #9ca3af;
+      color: ${textPlaceholderColor};
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -535,6 +607,9 @@ class AddButtonNodeView extends HtmlNode {
     const { isHovered = false } = properties as any
 
     const primaryColor = getThemeColor()
+    const borderColor = getBorderColor()
+    const textSecondaryColor = getTextSecondaryColor()
+    const textPlaceholderColor = getTextPlaceholderColor()
 
     el.innerHTML = ''
 
@@ -543,14 +618,14 @@ class AddButtonNodeView extends HtmlNode {
       width: 28px;
       height: 28px;
       border-radius: 50%;
-      background: ${isHovered ? primaryColor : '#e5e7eb'};
-      border: 2px dashed ${isHovered ? primaryColor : '#9ca3af'};
+      background: ${isHovered ? primaryColor : borderColor};
+      border: 2px dashed ${isHovered ? primaryColor : textPlaceholderColor};
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
       transition: all 0.2s ease;
-      color: ${isHovered ? '#ffffff' : '#6b7280'};
+      color: ${isHovered ? getCSSVar('--el-bg-color', '#ffffff') : textSecondaryColor};
       font-size: 18px;
       font-weight: bold;
     `
@@ -560,12 +635,12 @@ class AddButtonNodeView extends HtmlNode {
       const color = getThemeColor()
       button.style.background = color
       button.style.borderColor = color
-      button.style.color = '#ffffff'
+      button.style.color = getCSSVar('--el-bg-color', '#ffffff')
     }
     button.onmouseleave = () => {
-      button.style.background = '#e5e7eb'
-      button.style.borderColor = '#9ca3af'
-      button.style.color = '#6b7280'
+      button.style.background = getBorderColor()
+      button.style.borderColor = getTextPlaceholderColor()
+      button.style.color = getTextSecondaryColor()
     }
 
     rootEl.appendChild(button)

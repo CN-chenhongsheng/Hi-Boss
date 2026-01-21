@@ -45,6 +45,10 @@
             :data="typeData"
             :columns="typeColumns"
             :pagination="typePagination"
+            :contextMenuItems="typeContextMenuItems"
+            :contextMenuWidth="typeContextMenuWidth"
+            :onRowContextmenu="handleTypeRowContextmenu as any"
+            :onContextMenuSelect="handleTypeContextMenuSelect"
             @row-click="handleTypeRowClick"
             @pagination:size-change="handleTypeSizeChange"
             @pagination:current-change="handleTypeCurrentChange"
@@ -101,6 +105,10 @@
               :data="dataData"
               :columns="dataColumns"
               :pagination="dataPagination"
+              :contextMenuItems="dataContextMenuItems"
+              :contextMenuWidth="dataContextMenuWidth"
+              :onRowContextmenu="handleDataRowContextmenu as any"
+              :onContextMenuSelect="handleDataContextMenuSelect"
               @pagination:size-change="handleDataSizeChange"
               @pagination:current-change="handleDataCurrentChange"
             />
@@ -140,12 +148,10 @@
     fetchUpdateDictData,
     fetchDeleteDictData
   } from '@/api/system-manage'
-  import ArtButtonTable from '@/components/core/forms/art-button-table/index.vue'
   import DictTypeDialog from './modules/dict-type-dialog.vue'
   import DictDataDialog from './modules/dict-data-dialog.vue'
   import { ElTag, ElMessageBox } from 'element-plus'
   import { h } from 'vue'
-  import { hasPermission } from '@/directives/core/permission'
   import ArtSwitch from '@/components/core/forms/art-switch/index.vue'
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
 
@@ -165,25 +171,98 @@
   })
 
   const {
+    columns: typeColumns,
     data: typeData,
     loading: typeLoading,
     pagination: typePagination,
     getData: getTypeData,
     handleSizeChange: handleTypeSizeChange,
-    handleCurrentChange: handleTypeCurrentChange
+    handleCurrentChange: handleTypeCurrentChange,
+    contextMenuItems: typeContextMenuItems,
+    contextMenuWidth: typeContextMenuWidth,
+    handleRowContextmenu: handleTypeRowContextmenu,
+    handleContextMenuSelect: handleTypeContextMenuSelect
   } = useTable<typeof fetchGetDictTypePage>({
     core: {
       apiFn: fetchGetDictTypePage,
-      apiParams: typeSearchForm,
+      apiParams: computed(() => ({
+        pageNum: typeSearchForm.value.pageNum,
+        dictName: typeSearchForm.value.dictName,
+        dictCode: typeSearchForm.value.dictCode,
+        status: typeSearchForm.value.status
+      })),
       paginationKey: {
         current: 'pageNum',
         size: 'pageSize'
-      }
+      },
+      columnsFactory: () => [
+        {
+          prop: 'dictName',
+          label: '字典名称',
+          minWidth: 120
+        },
+        {
+          prop: 'dictCode',
+          label: '字典编码',
+          minWidth: 150,
+          showOverflowTooltip: true,
+          formatter: (row: DictTypeListItem) => {
+            return h('code', { class: 'dict-code' }, row.dictCode)
+          }
+        },
+        {
+          prop: 'status',
+          label: '状态',
+          width: 100,
+          formatter: (row: DictTypeListItem) => {
+            return h(ArtSwitch, {
+              modelValue: row.status === 1,
+              loading: row._statusLoading || false,
+              inlinePrompt: true,
+              onChange: (value: string | number | boolean) => {
+                handleTypeStatusChange(row, value === true || value === 1)
+              }
+            })
+          }
+        },
+        {
+          prop: 'remark',
+          label: '备注',
+          minWidth: 150,
+          showOverflowTooltip: true
+        },
+        {
+          prop: 'action',
+          label: '操作',
+          width: 120,
+          fixed: 'right' as const,
+          formatter: (row: DictTypeListItem) => {
+            const buttons = []
+            buttons.push({
+              type: 'edit',
+              label: '编辑',
+              onClick: () => showTypeDialog('edit', row),
+              auth: 'system:dict:type:edit'
+            })
+            buttons.push({
+              type: 'delete',
+              label: '删除',
+              onClick: () => deleteType(row),
+              auth: 'system:dict:type:delete',
+              danger: true
+            })
+            return buttons
+          }
+        }
+      ]
     },
     adaptive: {
       enabled: true
+    },
+    contextMenu: {
+      enabled: true
     }
-  } as any)
+  })
 
   // 字典数据相关
   const dataSearchForm = ref({
@@ -192,27 +271,117 @@
   })
 
   const {
+    columns: dataColumns,
     data: dataData,
     loading: dataLoading,
     pagination: dataPagination,
     getData: getDataData,
     handleSizeChange: handleDataSizeChange,
     handleCurrentChange: handleDataCurrentChange,
-    fetchData: fetchDataData
+    fetchData: fetchDataData,
+    contextMenuItems: dataContextMenuItems,
+    contextMenuWidth: dataContextMenuWidth,
+    handleRowContextmenu: handleDataRowContextmenu,
+    handleContextMenuSelect: handleDataContextMenuSelect
   } = useTable<typeof fetchGetDictDataPage>({
     core: {
       apiFn: fetchGetDictDataPage,
-      apiParams: dataSearchForm,
+      apiParams: computed(() => ({
+        dictCode: dataSearchForm.value.dictCode,
+        label: dataSearchForm.value.label
+      })),
       immediate: false, // 不自动加载，需要先选择字典类型
       paginationKey: {
         current: 'pageNum',
         size: 'pageSize'
-      }
+      },
+      columnsFactory: () => [
+        {
+          prop: 'label',
+          label: '字典标签',
+          minWidth: 120
+        },
+        {
+          prop: 'value',
+          label: '字典值',
+          minWidth: 120,
+          formatter: (row: DictDataListItem) => {
+            return h('code', { class: 'dict-value' }, row.value)
+          }
+        },
+        {
+          prop: 'listClass',
+          label: '样式',
+          width: 100,
+          formatter: (row: DictDataListItem) => {
+            if (!row.listClass) return '-'
+            const tagType = (row.listClass || 'info') as
+              | 'primary'
+              | 'success'
+              | 'info'
+              | 'warning'
+              | 'danger'
+            return h(ElTag, { type: tagType, size: 'small' }, () => row.listClass || '-')
+          }
+        },
+        {
+          prop: 'sort',
+          label: '排序',
+          width: 80
+        },
+        {
+          prop: 'status',
+          label: '状态',
+          width: 100,
+          formatter: (row: DictDataListItem) => {
+            return h(ArtSwitch, {
+              modelValue: row.status === 1,
+              loading: row._statusLoading || false,
+              inlinePrompt: true,
+              onChange: (value: string | number | boolean) => {
+                handleDataStatusChange(row, value === true || value === 1)
+              }
+            })
+          }
+        },
+        {
+          prop: 'remark',
+          label: '备注',
+          minWidth: 150,
+          showOverflowTooltip: true
+        },
+        {
+          prop: 'action',
+          label: '操作',
+          width: 120,
+          fixed: 'right' as const,
+          formatter: (row: DictDataListItem) => {
+            const buttons = []
+            buttons.push({
+              type: 'edit',
+              label: '编辑',
+              onClick: () => showDataDialog('edit', row),
+              auth: 'system:dict:data:edit'
+            })
+            buttons.push({
+              type: 'delete',
+              label: '删除',
+              onClick: () => deleteData(row),
+              auth: 'system:dict:data:delete',
+              danger: true
+            })
+            return buttons
+          }
+        }
+      ]
     },
     adaptive: {
       enabled: true
+    },
+    contextMenu: {
+      enabled: true
     }
-  } as any)
+  })
 
   // 弹窗相关
   const typeDialogVisible = ref(false)
@@ -222,155 +391,6 @@
   const dataDialogVisible = ref(false)
   const dataDialogType = ref<'add' | 'edit'>('add')
   const currentDataData = ref<DictDataListItem | undefined>(undefined)
-
-  // 类型表格列
-  const typeColumns = computed(() => [
-    {
-      prop: 'dictName',
-      label: '字典名称',
-      minWidth: 120
-    },
-    {
-      prop: 'dictCode',
-      label: '字典编码',
-      minWidth: 150,
-      showOverflowTooltip: true,
-      formatter: (row: DictTypeListItem) => {
-        return h('code', { class: 'dict-code' }, row.dictCode)
-      }
-    },
-    {
-      prop: 'status',
-      label: '状态',
-      width: 100,
-      formatter: (row: DictTypeListItem) => {
-        return h(ArtSwitch, {
-          modelValue: row.status === 1,
-          loading: row._statusLoading || false,
-          inlinePrompt: true,
-          onChange: (value: string | number | boolean) => {
-            handleTypeStatusChange(row, value === true || value === 1)
-          }
-        })
-      }
-    },
-    {
-      prop: 'remark',
-      label: '备注',
-      minWidth: 150,
-      showOverflowTooltip: true
-    },
-    {
-      prop: 'action',
-      label: '操作',
-      width: 120,
-      fixed: 'right' as const,
-      formatter: (row: DictTypeListItem) => {
-        const buttons = []
-        if (hasPermission('system:dict:type:edit')) {
-          buttons.push(
-            h(ArtButtonTable, {
-              type: 'edit',
-              onClick: () => showTypeDialog('edit', row)
-            })
-          )
-        }
-        if (hasPermission('system:dict:type:delete')) {
-          buttons.push(
-            h(ArtButtonTable, {
-              type: 'delete',
-              onClick: () => deleteType(row)
-            })
-          )
-        }
-        return h('div', { class: 'flex gap-1' }, buttons)
-      }
-    }
-  ])
-
-  // 数据表格列
-  const dataColumns = computed(() => [
-    {
-      prop: 'label',
-      label: '字典标签',
-      minWidth: 120
-    },
-    {
-      prop: 'value',
-      label: '字典值',
-      minWidth: 120,
-      formatter: (row: DictDataListItem) => {
-        return h('code', { class: 'dict-value' }, row.value)
-      }
-    },
-    {
-      prop: 'listClass',
-      label: '样式',
-      width: 100,
-      formatter: (row: DictDataListItem) => {
-        if (!row.listClass) return '-'
-        const tagType = (row.listClass || 'info') as
-          | 'primary'
-          | 'success'
-          | 'info'
-          | 'warning'
-          | 'danger'
-        return h(ElTag, { type: tagType, size: 'small' }, () => row.listClass || '-')
-      }
-    },
-    {
-      prop: 'sort',
-      label: '排序',
-      width: 80
-    },
-    {
-      prop: 'status',
-      label: '状态',
-      width: 100,
-      formatter: (row: DictDataListItem) => {
-        return h(ArtSwitch, {
-          modelValue: row.status === 1,
-          loading: row._statusLoading || false,
-          inlinePrompt: true,
-          onChange: (value: string | number | boolean) => {
-            handleDataStatusChange(row, value === true || value === 1)
-          }
-        })
-      }
-    },
-    {
-      prop: 'remark',
-      label: '备注',
-      minWidth: 150,
-      showOverflowTooltip: true
-    },
-    {
-      prop: 'action',
-      label: '操作',
-      width: 120,
-      fixed: 'right' as const,
-      formatter: (row: DictDataListItem) => {
-        const buttons = []
-        if (hasPermission('system:dict:data:edit')) {
-          buttons.push(
-            h(ArtButtonTable, {
-              type: 'edit',
-              onClick: () => showDataDialog('edit', row)
-            })
-          )
-        }
-        if (hasPermission('system:dict:data:delete')) {
-          buttons.push(
-            h(ArtButtonTable, {
-              type: 'delete',
-              onClick: () => deleteData(row)
-            })
-          )
-        }
-        return h('div', { class: 'flex gap-1' }, buttons)
-      }
-    }
-  ])
 
   // 类型相关方法
   const handleTypeSearch = () => {

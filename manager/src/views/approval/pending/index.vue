@@ -64,6 +64,10 @@
 
       <!-- 表格 -->
       <ArtTable
+        :contextMenuItems="contextMenuItems"
+        :contextMenuWidth="contextMenuWidth"
+        :onRowContextmenu="handleRowContextmenu as any"
+        :onContextMenuSelect="handleContextMenuSelect"
         :loading="loading"
         :data="data"
         :columns="columns"
@@ -121,7 +125,7 @@
     handleSizeChange,
     handleCurrentChange,
     refreshData
-  } = useTable({
+  } = useTable<typeof fetchGetPendingList>({
     core: {
       apiFn: fetchGetPendingList,
       apiParams: computed(() => ({

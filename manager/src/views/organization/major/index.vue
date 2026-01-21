@@ -43,6 +43,10 @@
         :data="data"
         :columns="columns"
         :pagination="pagination"
+        :contextMenuItems="contextMenuItems"
+        :contextMenuWidth="contextMenuWidth"
+        :onRowContextmenu="handleRowContextmenu"
+        :onContextMenuSelect="handleContextMenuSelect"
         @selection-change="handleSelectionChange"
         @pagination:size-change="handleSizeChange"
         @pagination:current-change="handleCurrentChange"
@@ -128,7 +132,11 @@
     refreshData,
     refreshCreate,
     refreshUpdate,
-    refreshRemove
+    refreshRemove,
+    contextMenuItems,
+    contextMenuWidth,
+    handleRowContextmenu,
+    handleContextMenuSelect
   } = useTable<typeof fetchGetMajorPage>({
     core: {
       apiFn: fetchGetMajorPage,
@@ -206,10 +214,16 @@
           width: 180,
           fixed: 'right' as const,
           formatter: (row: MajorListItem) => [
-            { type: 'view', onClick: () => handleViewClasses(row) },
-            { type: 'edit', onClick: () => handleEdit(row), auth: 'system:major:edit' },
+            { type: 'view', label: '查看', onClick: () => handleViewClasses(row) },
+            {
+              type: 'edit',
+              label: '编辑',
+              onClick: () => handleEdit(row),
+              auth: 'system:major:edit'
+            },
             {
               type: 'delete',
+              label: '删除',
               onClick: () => handleDelete(row),
               auth: 'system:major:delete',
               danger: true
@@ -219,6 +233,9 @@
       ]
     },
     adaptive: {
+      enabled: true
+    },
+    contextMenu: {
       enabled: true
     }
   } as any)

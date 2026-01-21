@@ -44,6 +44,10 @@
         :columns="columns"
         :data="data"
         :pagination="pagination"
+        :contextMenuItems="contextMenuItems"
+        :contextMenuWidth="contextMenuWidth"
+        :onRowContextmenu="handleRowContextmenu"
+        :onContextMenuSelect="handleContextMenuSelect"
         :stripe="false"
         row-key="id"
         @selection-change="handleSelectionChange"
@@ -148,7 +152,11 @@
     refreshData,
     refreshCreate,
     refreshUpdate,
-    refreshRemove
+    refreshRemove,
+    contextMenuItems,
+    contextMenuWidth,
+    handleRowContextmenu,
+    handleContextMenuSelect
   } = useTable<typeof fetchGetDepartmentPage>({
     core: {
       apiFn: fetchGetDepartmentPage,
@@ -229,10 +237,16 @@
           width: 180,
           fixed: 'right' as const,
           formatter: (row: DepartmentListItem) => [
-            { type: 'view', onClick: () => handleViewMajors(row) },
-            { type: 'edit', onClick: () => handleEdit(row), auth: 'system:department:edit' },
+            { type: 'view', label: '查看', onClick: () => handleViewMajors(row) },
+            {
+              type: 'edit',
+              label: '编辑',
+              onClick: () => handleEdit(row),
+              auth: 'system:department:edit'
+            },
             {
               type: 'delete',
+              label: '删除',
               onClick: () => handleDelete(row),
               auth: 'system:department:delete',
               danger: true
@@ -243,6 +257,9 @@
       immediate: true
     },
     adaptive: {
+      enabled: true
+    },
+    contextMenu: {
       enabled: true
     }
   })

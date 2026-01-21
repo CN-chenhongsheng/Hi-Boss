@@ -40,6 +40,10 @@
       </ArtTableHeader>
 
       <ArtTable
+        :contextMenuItems="contextMenuItems"
+        :contextMenuWidth="contextMenuWidth"
+        :onRowContextmenu="handleRowContextmenu as any"
+        :onContextMenuSelect="handleContextMenuSelect"
         :loading="loading"
         :columns="columns"
         :data="data"
@@ -200,7 +204,11 @@
     refreshData,
     refreshCreate,
     refreshUpdate,
-    refreshRemove
+    refreshRemove,
+    contextMenuItems,
+    contextMenuWidth,
+    handleRowContextmenu,
+    handleContextMenuSelect
   } = useTable<typeof fetchGetCampusTree>({
     core: {
       apiFn: fetchGetCampusTree,
@@ -270,21 +278,30 @@
           width: 180,
           fixed: 'right' as const,
           formatter: (row: CampusListItem) => [
-            { type: 'edit', onClick: () => handleEdit(row), auth: 'system:campus:edit' },
+            {
+              type: 'edit',
+              label: '编辑',
+              onClick: () => handleEdit(row),
+              auth: 'system:campus:edit'
+            },
             {
               type: 'delete',
+              label: '删除',
               onClick: () => handleDelete(row),
               auth: 'system:campus:delete',
               danger: true
             },
-            { type: 'view', onClick: () => handleViewDepartments(row), label: '查看院系' },
-            { type: 'view', onClick: () => handleViewFloors(row), label: '查看楼层' }
+            { type: 'view', label: '查看院系', onClick: () => handleViewDepartments(row) },
+            { type: 'view', label: '查看楼层', onClick: () => handleViewFloors(row) }
           ]
         }
       ],
       immediate: true
     },
     adaptive: {
+      enabled: true
+    },
+    contextMenu: {
       enabled: true
     }
   })

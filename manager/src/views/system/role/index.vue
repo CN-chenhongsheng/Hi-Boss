@@ -42,6 +42,10 @@
         :data="data"
         :columns="columns"
         :pagination="pagination"
+        :contextMenuItems="contextMenuItems"
+        :contextMenuWidth="contextMenuWidth"
+        :onRowContextmenu="handleRowContextmenu as any"
+        :onContextMenuSelect="handleContextMenuSelect"
         @selection-change="handleSelectionChange"
         @pagination:size-change="handleSizeChange"
         @pagination:current-change="handleCurrentChange"
@@ -99,7 +103,7 @@
   const showSearchBar = ref(false)
   const dialogVisible = ref(false)
   const permissionDialog = ref(false)
-  const editData = ref<RoleListItem | null>(null)
+  const editData = ref<RoleListItem | undefined>(undefined)
   const selectedRows = ref<RoleListItem[]>([])
   const selectedCount = computed(() => selectedRows.value.length)
 
@@ -116,8 +120,12 @@
     refreshData,
     refreshCreate,
     refreshUpdate,
-    refreshRemove
-  } = useTable({
+    refreshRemove,
+    contextMenuItems,
+    contextMenuWidth,
+    handleRowContextmenu,
+    handleContextMenuSelect
+  } = useTable<typeof fetchGetRoleList>({
     // 核心配置
     core: {
       apiFn: fetchGetRoleList,
@@ -202,7 +210,12 @@
                 auth: 'system:role:assign',
                 label: '分配权限'
               },
-              { type: 'edit', onClick: () => showDialog('edit', row), auth: 'system:role:edit' }
+              {
+                type: 'edit',
+                onClick: () => showDialog('edit', row),
+                auth: 'system:role:edit',
+                label: '编辑'
+              }
             ]
             // 超级管理员角色不允许删除
             if (row.roleCode !== 'SUPER_ADMIN') {
@@ -210,7 +223,8 @@
                 type: 'delete',
                 onClick: () => deleteRole(row),
                 auth: 'system:role:delete',
-                danger: true
+                danger: true,
+                label: '删除'
               })
             }
             return buttons
@@ -220,6 +234,9 @@
     },
     adaptive: {
       enabled: true
+    },
+    contextMenu: {
+      enabled: true
     }
   })
 
@@ -228,7 +245,7 @@
   const showDialog = (type: 'add' | 'edit', row?: RoleListItem) => {
     dialogVisible.value = true
     dialogType.value = type
-    editData.value = row ? { ...row } : null
+    editData.value = row ? { ...row } : undefined
   }
 
   /**
@@ -257,7 +274,7 @@
    */
   const showPermissionDialog = (row?: RoleListItem) => {
     permissionDialog.value = true
-    editData.value = row ? { ...row } : null
+    editData.value = row ? { ...row } : undefined
   }
 
   /**

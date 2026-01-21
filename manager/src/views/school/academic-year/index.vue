@@ -40,6 +40,10 @@
       </ArtTableHeader>
 
       <ArtTable
+        :contextMenuItems="contextMenuItems"
+        :contextMenuWidth="contextMenuWidth"
+        :onRowContextmenu="handleRowContextmenu as any"
+        :onContextMenuSelect="handleContextMenuSelect"
         :loading="loading"
         :columns="columns"
         :data="data"
@@ -115,7 +119,11 @@
     refreshData,
     refreshCreate,
     refreshUpdate,
-    refreshRemove
+    refreshRemove,
+    contextMenuItems,
+    contextMenuWidth,
+    handleRowContextmenu,
+    handleContextMenuSelect
   } = useTable<typeof fetchGetAcademicYearPage>({
     core: {
       apiFn: fetchGetAcademicYearPage,
@@ -179,9 +187,15 @@
           width: 180,
           fixed: 'right' as const,
           formatter: (row: AcademicYearListItem) => [
-            { type: 'edit', onClick: () => handleEdit(row), auth: 'system:academic-year:edit' },
+            {
+              type: 'edit',
+              label: '编辑',
+              onClick: () => handleEdit(row),
+              auth: 'system:academic-year:edit'
+            },
             {
               type: 'delete',
+              label: '删除',
               onClick: () => handleDelete(row),
               auth: 'system:academic-year:delete',
               danger: true
@@ -192,6 +206,9 @@
       immediate: true
     },
     adaptive: {
+      enabled: true
+    },
+    contextMenu: {
       enabled: true
     }
   })

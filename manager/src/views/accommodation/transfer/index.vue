@@ -44,6 +44,10 @@
         :columns="columns"
         :data="data"
         :pagination="pagination"
+        :contextMenuItems="contextMenuItems"
+        :contextMenuWidth="contextMenuWidth"
+        :onRowContextmenu="handleRowContextmenu"
+        :onContextMenuSelect="handleContextMenuSelect"
         :stripe="false"
         row-key="id"
         @selection-change="handleSelectionChange"
@@ -113,7 +117,11 @@
     handleSizeChange,
     handleCurrentChange,
     refreshData,
-    refreshRemove
+    refreshRemove,
+    contextMenuItems,
+    contextMenuWidth,
+    handleRowContextmenu,
+    handleContextMenuSelect
   } = useTable<typeof fetchGetTransferPage>({
     core: {
       apiFn: fetchGetTransferPage,
@@ -171,9 +179,10 @@
           fixed: 'right',
           formatter: (row: TransferListItem) => {
             return [
-              { type: 'view', onClick: () => handleView(row), label: '查看' },
+              { type: 'view', label: '查看', onClick: () => handleView(row) },
               {
                 type: 'delete',
+                label: '删除',
                 onClick: () => handleDelete(row),
                 danger: true,
                 auth: 'system:transfer:delete'
@@ -184,6 +193,9 @@
       ]
     },
     adaptive: {
+      enabled: true
+    },
+    contextMenu: {
       enabled: true
     }
   })

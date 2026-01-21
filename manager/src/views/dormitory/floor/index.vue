@@ -45,6 +45,10 @@
         :data="data"
         :stripe="false"
         :pagination="pagination"
+        :contextMenuItems="contextMenuItems"
+        :contextMenuWidth="contextMenuWidth"
+        :onRowContextmenu="handleRowContextmenu"
+        :onContextMenuSelect="handleContextMenuSelect"
         row-key="id"
         @selection-change="handleSelectionChange"
         @pagination:size-change="handleSizeChange"
@@ -165,7 +169,11 @@
     refreshUpdate,
     refreshRemove,
     handleSizeChange,
-    handleCurrentChange
+    handleCurrentChange,
+    contextMenuItems,
+    contextMenuWidth,
+    handleRowContextmenu,
+    handleContextMenuSelect
   } = useTable<typeof fetchGetFloorPage>({
     core: {
       apiFn: fetchGetFloorPage,
@@ -262,20 +270,22 @@
           width: 180,
           fixed: 'right' as const,
           formatter: (row: FloorListItem) => [
-            { type: 'view', onClick: () => handleViewRooms(row), label: '查看房间' },
+            { type: 'view', label: '查看房间', onClick: () => handleViewRooms(row) },
             {
               type: 'edit',
+              label: '编辑',
               onClick: () => handleEdit(row),
               auth: 'system:floor:edit'
             },
             {
               type: 'add',
-              onClick: () => handleBatchAddRooms(row),
               label: '批量增加',
+              onClick: () => handleBatchAddRooms(row),
               auth: 'system:floor:batchAdd'
             },
             {
               type: 'delete',
+              label: '删除',
               onClick: () => handleDelete(row),
               auth: 'system:floor:delete',
               danger: true
@@ -294,6 +304,9 @@
       }
     },
     adaptive: {
+      enabled: true
+    },
+    contextMenu: {
       enabled: true
     }
   })

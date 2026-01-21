@@ -45,6 +45,10 @@
         :data="data"
         :stripe="false"
         :pagination="pagination"
+        :contextMenuItems="contextMenuItems"
+        :contextMenuWidth="contextMenuWidth"
+        :onRowContextmenu="handleRowContextmenu"
+        :onContextMenuSelect="handleContextMenuSelect"
         row-key="id"
         @selection-change="handleSelectionChange"
         @pagination:size-change="handleSizeChange"
@@ -120,7 +124,11 @@
     refreshUpdate,
     refreshRemove,
     handleSizeChange,
-    handleCurrentChange
+    handleCurrentChange,
+    contextMenuItems,
+    contextMenuWidth,
+    handleRowContextmenu,
+    handleContextMenuSelect
   } = useTable<typeof fetchGetBedPage>({
     core: {
       apiFn: fetchGetBedPage,
@@ -225,9 +233,15 @@
           width: 150,
           fixed: 'right' as const,
           formatter: (row: BedListItem) => [
-            { type: 'edit', onClick: () => handleEdit(row), auth: 'system:bed:edit' },
+            {
+              type: 'edit',
+              label: '编辑',
+              onClick: () => handleEdit(row),
+              auth: 'system:bed:edit'
+            },
             {
               type: 'delete',
+              label: '删除',
               onClick: () => handleDelete(row),
               auth: 'system:bed:delete',
               danger: true
@@ -238,6 +252,9 @@
       immediate: true
     },
     adaptive: {
+      enabled: true
+    },
+    contextMenu: {
       enabled: true
     }
   })

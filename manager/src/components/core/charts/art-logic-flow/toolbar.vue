@@ -175,9 +175,9 @@
     flex-direction: column;
     gap: 4px;
     padding: 6px;
-    background: rgb(255 255 255 / 85%);
+    background: color-mix(in srgb, var(--el-bg-color) 85%, transparent);
     backdrop-filter: blur(12px);
-    border: 1px solid rgb(255 255 255 / 60%);
+    border: 1px solid var(--el-border-color-light);
     border-radius: 8px;
     box-shadow:
       0 2px 12px rgb(0 0 0 / 8%),
@@ -227,28 +227,5 @@
     }
   }
 
-  // 暗色主题适配
-  :global(.dark) {
-    .toolbar-group {
-      background: rgb(30 30 30 / 85%);
-      border-color: rgb(255 255 255 / 10%);
-      box-shadow: 0 2px 12px rgb(0 0 0 / 30%);
-    }
-
-    .toolbar-btn {
-      color: var(--el-text-color-regular);
-
-      &:hover:not(:disabled) {
-        background: rgb(255 255 255 / 10%);
-      }
-
-      &:active:not(:disabled) {
-        background: rgb(255 255 255 / 15%);
-      }
-
-      &.active {
-        background: var(--el-color-primary-light-9);
-      }
-    }
-  }
+  // 暗色主题已通过 CSS 变量自动适配，无需额外样式
 </style>

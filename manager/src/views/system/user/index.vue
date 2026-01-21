@@ -44,6 +44,10 @@
         :data="data"
         :columns="columns"
         :pagination="pagination"
+        :contextMenuItems="contextMenuItems"
+        :contextMenuWidth="contextMenuWidth"
+        :onRowContextmenu="handleRowContextmenu"
+        :onContextMenuSelect="handleContextMenuSelect"
         @selection-change="handleSelectionChange"
         @pagination:size-change="handleSizeChange"
         @pagination:current-change="handleCurrentChange"
@@ -93,6 +97,7 @@
   import { ElTag, ElMessageBox, ElImage, ElMessage, ElTooltip } from 'element-plus'
   import ArtSwitch from '@/components/core/forms/art-switch/index.vue'
   import { DialogType } from '@/types'
+  import type { ActionButtonConfig } from '@/types/component'
   import { useUserOnlineStatus } from '@/hooks/core/useUserOnlineStatus'
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
   import { formatManageScopeSync } from '@/utils/school/scopeFormatter'
@@ -133,6 +138,50 @@
     status: undefined
   })
 
+  // 前置声明函数（后面会实际定义）
+  let showDialog: (type: DialogType, row?: UserListItem) => void
+  let deleteUser: (row: UserListItem) => Promise<void>
+  let handleResetPassword: (row: UserListItem) => Promise<void>
+  let showScopeDialog: (row: UserListItem) => void
+  let showPermissionDialog: (row: UserListItem) => void
+
+  /**
+   * 获取用户操作配置（复用于操作列和右键菜单）
+   */
+  const getUserActions = (row: UserListItem): ActionButtonConfig[] => [
+    {
+      type: 'edit',
+      label: '编辑',
+      onClick: () => showDialog('edit', row),
+      auth: 'system:user:edit'
+    },
+    {
+      type: 'reset',
+      label: '重置密码',
+      onClick: () => handleResetPassword(row),
+      auth: 'system:user:reset-pwd'
+    },
+    {
+      type: 'share',
+      label: '分配范围',
+      onClick: () => showScopeDialog(row),
+      auth: 'system:user:assign-scope'
+    },
+    {
+      type: 'share',
+      label: '分配权限',
+      onClick: () => showPermissionDialog(row),
+      auth: 'system:user:assign-permission'
+    },
+    {
+      type: 'delete',
+      label: '删除',
+      onClick: () => deleteUser(row),
+      auth: 'system:user:delete',
+      danger: true
+    }
+  ]
+
   const {
     columns,
     columnChecks,
@@ -146,7 +195,11 @@
     refreshData,
     refreshCreate,
     refreshUpdate,
-    refreshRemove
+    refreshRemove,
+    contextMenuItems,
+    contextMenuWidth,
+    handleRowContextmenu,
+    handleContextMenuSelect
   } = useTable<typeof fetchGetUserList>({
     // 核心配置
     core: {
@@ -333,33 +386,7 @@
           label: '操作',
           width: 180,
           fixed: 'right',
-          formatter: (row) => [
-            { type: 'edit', onClick: () => showDialog('edit', row), auth: 'system:user:edit' },
-            {
-              type: 'reset',
-              onClick: () => handleResetPassword(row),
-              auth: 'system:user:reset-pwd',
-              label: '重置密码'
-            },
-            {
-              type: 'share',
-              label: '分配范围',
-              onClick: () => showScopeDialog(row),
-              auth: 'system:user:assign-scope'
-            },
-            {
-              type: 'share',
-              label: '分配权限',
-              onClick: () => showPermissionDialog(row),
-              auth: 'system:user:assign-permission'
-            },
-            {
-              type: 'delete',
-              onClick: () => deleteUser(row),
-              auth: 'system:user:delete',
-              danger: true
-            }
-          ]
+          formatter: (row) => getUserActions(row)
         }
       ]
     },
@@ -382,6 +409,9 @@
       }
     },
     adaptive: {
+      enabled: true
+    },
+    contextMenu: {
       enabled: true
     }
   })
@@ -412,7 +442,7 @@
   /**
    * 显示用户弹窗
    */
-  const showDialog = (type: DialogType, row?: UserListItem): void => {
+  showDialog = (type: DialogType, row?: UserListItem): void => {
     console.log('打开弹窗:', { type, row })
     dialogType.value = type
     editData.value = row ? { ...row } : {}
@@ -424,7 +454,7 @@
   /**
    * 删除用户
    */
-  const deleteUser = async (row: UserListItem): Promise<void> => {
+  deleteUser = async (row: UserListItem): Promise<void> => {
     try {
       await ElMessageBox.confirm(
         `确定要删除用户 "${row.username}" 吗？此操作不可恢复！`,
@@ -501,7 +531,7 @@
   /**
    * 重置密码
    */
-  const handleResetPassword = async (row: UserListItem): Promise<void> => {
+  handleResetPassword = async (row: UserListItem): Promise<void> => {
     try {
       const { value: newPassword } = await ElMessageBox.prompt(
         '请输入新密码（至少6位）',
@@ -540,7 +570,7 @@
   /**
    * 显示管理范围分配对话框
    */
-  const showScopeDialog = (row: UserListItem): void => {
+  showScopeDialog = (row: UserListItem): void => {
     currentScopeUser.value = { ...row }
     nextTick(() => {
       scopeDialogVisible.value = true
@@ -550,7 +580,7 @@
   /**
    * 显示权限分配弹窗
    */
-  const showPermissionDialog = (row: UserListItem): void => {
+  showPermissionDialog = (row: UserListItem): void => {
     currentPermissionUser.value = row
     nextTick(() => {
       permissionDialogVisible.value = true

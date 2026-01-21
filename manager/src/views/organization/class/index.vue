@@ -43,6 +43,10 @@
         :data="data"
         :columns="columns"
         :pagination="pagination"
+        :contextMenuItems="contextMenuItems"
+        :contextMenuWidth="contextMenuWidth"
+        :onRowContextmenu="handleRowContextmenu"
+        :onContextMenuSelect="handleContextMenuSelect"
         @selection-change="handleSelectionChange"
         @pagination:size-change="handleSizeChange"
         @pagination:current-change="handleCurrentChange"
@@ -110,7 +114,11 @@
     refreshData,
     refreshCreate,
     refreshUpdate,
-    refreshRemove
+    refreshRemove,
+    contextMenuItems,
+    contextMenuWidth,
+    handleRowContextmenu,
+    handleContextMenuSelect
   } = useTable<typeof fetchGetClassPage>({
     core: {
       apiFn: fetchGetClassPage,
@@ -195,9 +203,15 @@
           width: 150,
           fixed: 'right' as const,
           formatter: (row: ClassListItem) => [
-            { type: 'edit', onClick: () => handleEdit(row), auth: 'system:class:edit' },
+            {
+              type: 'edit',
+              label: '编辑',
+              onClick: () => handleEdit(row),
+              auth: 'system:class:edit'
+            },
             {
               type: 'delete',
+              label: '删除',
               onClick: () => handleDelete(row),
               auth: 'system:class:delete',
               danger: true
@@ -207,6 +221,9 @@
       ]
     },
     adaptive: {
+      enabled: true
+    },
+    contextMenu: {
       enabled: true
     }
   } as any)

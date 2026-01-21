@@ -421,7 +421,7 @@
     z-index: 100;
     width: 280px;
     overflow: hidden;
-    background: #fff;
+    background: var(--el-bg-color);
     border-radius: 12px;
     box-shadow:
       0 8px 24px rgb(0 0 0 / 12%),
@@ -434,10 +434,10 @@
       padding: 12px 16px;
       background: linear-gradient(
         135deg,
-        #f8fafc 0%,
-        color-mix(in srgb, var(--el-color-primary) 6%, #fff) 100%
+        var(--el-fill-color-lighter) 0%,
+        color-mix(in srgb, var(--el-color-primary) 6%, var(--el-bg-color)) 100%
       );
-      border-bottom: 1px solid #e2e8f0;
+      border-bottom: 1px solid var(--el-border-color-lighter);
 
       &.draggable-header {
         cursor: move;
@@ -445,13 +445,17 @@
       }
 
       &.start-header {
-        background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+        background: linear-gradient(
+          135deg,
+          var(--el-color-success-light-9) 0%,
+          var(--el-color-success-light-8) 100%
+        );
       }
 
       .card-title {
         font-size: 14px;
         font-weight: 600;
-        color: #334155;
+        color: var(--el-text-color-primary);
       }
 
       .card-actions {
@@ -481,11 +485,11 @@
           margin-bottom: 6px;
           font-size: 12px;
           font-weight: 500;
-          color: #64748b;
+          color: var(--el-text-color-secondary);
 
           &.required::before {
             margin-right: 4px;
-            color: #ef4444;
+            color: var(--el-color-danger);
             content: '*';
           }
         }
@@ -498,7 +502,7 @@
         min-height: 28px;
         padding: 8px;
         margin-bottom: 8px;
-        background: #f8fafc;
+        background: var(--el-fill-color-lighter);
         border-radius: 8px;
 
         .empty-assignee {
@@ -552,34 +556,5 @@
     transform: translateX(-10px);
   }
 
-  // 暗色主题适配
-  :global(.dark) {
-    .node-editor-card {
-      background: #1e293b;
-      box-shadow: 0 8px 24px rgb(0 0 0 / 30%);
-
-      .card-header {
-        background: linear-gradient(135deg, #334155 0%, #1e293b 100%);
-        border-bottom-color: #475569;
-
-        .card-title {
-          color: #e2e8f0;
-        }
-      }
-
-      .card-body {
-        .form-label {
-          color: #94a3b8;
-        }
-
-        .assignee-list {
-          background: #334155;
-        }
-      }
-
-      .card-arrow {
-        border-right-color: #1e293b;
-      }
-    }
-  }
+  // 暗色主题已通过 CSS 变量自动适配，无需额外样式
 </style>

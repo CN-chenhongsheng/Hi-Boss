@@ -26,13 +26,14 @@ const BUTTON_LABELS: Record<string, string> = {
   download: '下载',
   upload: '上传',
   assign: '分配',
-  reset: '重置'
+  reset: '重置',
+  share: '分配'
 }
 
 /**
  * 按钮类型对应的图标
  */
-const BUTTON_ICONS: Record<string, string> = {
+export const BUTTON_ICONS: Record<string, string> = {
   view: 'ri:eye-line',
   add: 'ri:add-line',
   edit: 'ri:edit-line',
@@ -41,7 +42,8 @@ const BUTTON_ICONS: Record<string, string> = {
   download: 'ri:download-line',
   upload: 'ri:upload-line',
   assign: 'ri:user-settings-line',
-  reset: 'ri:refresh-line'
+  reset: 'ri:refresh-line',
+  share: 'ri:share-line'
 }
 
 /**

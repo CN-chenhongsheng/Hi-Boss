@@ -35,6 +35,10 @@
         :data="data"
         :columns="columns"
         :pagination="pagination"
+        :contextMenuItems="contextMenuItems"
+        :contextMenuWidth="contextMenuWidth"
+        :onRowContextmenu="handleRowContextmenu as any"
+        :onContextMenuSelect="handleContextMenuSelect"
         @pagination:size-change="handleSizeChange"
         @pagination:current-change="handleCurrentChange"
       />
@@ -107,8 +111,12 @@
     refreshData,
     refreshCreate,
     refreshUpdate,
-    refreshRemove
-  } = useTable({
+    refreshRemove,
+    contextMenuItems,
+    contextMenuWidth,
+    handleRowContextmenu,
+    handleContextMenuSelect
+  } = useTable<typeof fetchGetFlowList>({
     core: {
       apiFn: fetchGetFlowList,
       apiParams: computed(() => {
@@ -206,18 +214,18 @@
             return [
               { type: 'edit', onClick: () => showDialog('edit', row), label: '编辑' },
               {
-                type: 'share',
+                type: 'link',
                 onClick: () => {
                   bindingDialogVisible.value = true
                 },
-                label: '绑定',
-                icon: 'ri:link'
+                label: '绑定'
               },
               {
                 type: 'delete',
                 onClick: () => deleteFlow(row),
                 danger: true,
-                disabled: row.bound
+                disabled: row.bound,
+                label: '删除'
               }
             ]
           }
@@ -226,6 +234,9 @@
       immediate: true
     },
     adaptive: {
+      enabled: true
+    },
+    contextMenu: {
       enabled: true
     }
   })

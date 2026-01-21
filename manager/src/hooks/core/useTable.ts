@@ -34,7 +34,11 @@ import {
 import { useWindowSize } from '@vueuse/core'
 import { useTableColumns } from './useTableColumns'
 import { useAdaptivePageSize } from './useAdaptivePageSize'
-import type { ColumnOption } from '@/types/component'
+import type { ColumnOption, ActionButtonConfig } from '@/types/component'
+import type { MenuItemType } from '@/components/core/others/art-menu-right/index.vue'
+import { hasPermission } from '@/directives/core/permission'
+import { BUTTON_ICONS } from '@/utils/table/actionButtons'
+import { isActionButtonConfig } from '@/utils/table/actionButtons'
 import {
   TableCache,
   CacheInvalidationStrategy,
@@ -131,6 +135,14 @@ export interface UseTableConfig<
     maxPageSize?: number
   }
 
+  // 右键菜单配置
+  contextMenu?: {
+    /** 是否启用右键菜单 */
+    enabled?: boolean
+    /** 菜单宽度（像素） */
+    menuWidth?: number
+  }
+
   // 调试配置
   debug?: {
     /** 是否启用日志输出 */
@@ -185,6 +197,7 @@ function useTableImpl<TApiFn extends (params: any) => Promise<any>>(
       minPageSize,
       maxPageSize
     } = {},
+    contextMenu: { enabled: contextMenuEnabled = false, menuWidth = 120 } = {},
     hooks: { onSuccess, onError, onCacheHit, resetFormCallback } = {},
     debug: { enableLog = false } = {}
   } = config
@@ -405,6 +418,69 @@ function useTableImpl<TApiFn extends (params: any) => Promise<any>>(
   const columnConfig = columnsFactory ? useTableColumns<TRecord>(columnsFactory) : null
   const columns = columnConfig?.columns
   const columnChecks = columnConfig?.columnChecks
+
+  // 右键菜单相关状态
+  const currentContextRow = ref<TRecord | null>(null)
+
+  // 保存原始的 columns 配置（未被 useTableColumns 处理的）
+  const originalColumnsFactory = columnsFactory
+
+  // 从原始列配置中提取操作列的 formatter（避免被 useTableColumns 包装后的 VNode）
+  const getActionColumn = () => {
+    if (!originalColumnsFactory) return null
+    const originalColumns = originalColumnsFactory()
+    return originalColumns.find((col: ColumnOption<TRecord>) => col.prop === 'action')
+  }
+
+  // 将操作按钮配置转换为右键菜单项
+  const contextMenuItems = computed<MenuItemType[]>(() => {
+    if (!contextMenuEnabled || !currentContextRow.value) {
+      return []
+    }
+
+    const actionColumn = getActionColumn()
+    if (!actionColumn?.formatter) {
+      return []
+    }
+
+    const formatterResult = actionColumn.formatter(currentContextRow.value)
+
+    // 检查是否为 ActionButtonConfig 数组
+    if (!isActionButtonConfig(formatterResult)) {
+      return []
+    }
+
+    const actions = formatterResult as ActionButtonConfig[]
+
+    // 过滤权限并转换为菜单项格式
+    return actions
+      .filter((action) => !action.auth || hasPermission(action.auth))
+      .map((action, index) => ({
+        key: `action-${index}`,
+        label: action.label || action.type,
+        icon: action.icon || BUTTON_ICONS[action.type] || 'ri:more-line',
+        onClick: action.onClick
+      }))
+  })
+
+  // 处理表格行右键事件
+  const handleRowContextmenu = (row: TRecord, column: any, event: MouseEvent): void => {
+    // 使用 void 避免 unused-vars 警告
+    void column
+    void event
+
+    if (!contextMenuEnabled) {
+      return
+    }
+    currentContextRow.value = row
+  }
+
+  // 处理右键菜单选择
+  const handleContextMenuSelect = (item: MenuItemType): void => {
+    if (item.onClick && typeof item.onClick === 'function') {
+      item.onClick()
+    }
+  }
 
   // 是否有数据
   const hasData = computed(() => data.value.length > 0)
@@ -910,6 +986,18 @@ function useTableImpl<TApiFn extends (params: any) => Promise<any>>(
       getAllColumns: columnConfig.getAllColumns,
       /** 重置所有列配置到默认状态 */
       resetColumns: columnConfig.resetColumns
+    }),
+
+    // 右键菜单 (如果启用了 contextMenu)
+    ...(contextMenuEnabled && {
+      /** 右键菜单项配置 */
+      contextMenuItems: readonly(contextMenuItems),
+      /** 右键菜单宽度 */
+      contextMenuWidth: menuWidth,
+      /** 处理表格行右键事件 */
+      handleRowContextmenu,
+      /** 处理右键菜单选择 */
+      handleContextMenuSelect
     })
   }
 }

@@ -44,6 +44,10 @@
         :data="data"
         :columns="columns"
         :pagination="pagination"
+        :contextMenuItems="contextMenuItems"
+        :contextMenuWidth="contextMenuWidth"
+        :onRowContextmenu="handleRowContextmenu"
+        :onContextMenuSelect="handleContextMenuSelect"
         @selection-change="handleSelectionChange"
         @pagination:size-change="handleSizeChange"
         @pagination:current-change="handleCurrentChange"
@@ -101,7 +105,11 @@
     handleSizeChange,
     handleCurrentChange,
     refreshData,
-    refreshRemove
+    refreshRemove,
+    contextMenuItems,
+    contextMenuWidth,
+    handleRowContextmenu,
+    handleContextMenuSelect
   } = useTable<typeof fetchGetOperLogList>({
     // 核心配置
     core: {
@@ -178,9 +186,15 @@
           width: 150,
           fixed: 'right',
           formatter: (row: OperLogListItem) => [
-            { type: 'view', onClick: () => handleViewDetail(row), auth: 'system:operlog:detail' },
+            {
+              type: 'view',
+              label: '查看',
+              onClick: () => handleViewDetail(row),
+              auth: 'system:operlog:detail'
+            },
             {
               type: 'delete',
+              label: '删除',
               onClick: () => handleDelete(row),
               auth: 'system:operlog:delete',
               danger: true
@@ -190,6 +204,9 @@
       ]
     },
     adaptive: {
+      enabled: true
+    },
+    contextMenu: {
       enabled: true
     }
   })

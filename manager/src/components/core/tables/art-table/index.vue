@@ -8,6 +8,7 @@
       ref="elTableRef"
       v-loading="!!loading"
       v-bind="{ ...$attrs, ...props, height, stripe, border, size, headerCellStyle }"
+      @row-contextmenu="handleRowContextmenu"
     >
       <template v-for="col in columns" :key="col.prop || col.type">
         <!-- 渲染全局序号列 -->
@@ -86,6 +87,15 @@
         @current-change="handleCurrentChange"
       />
     </div>
+
+    <!-- 右键菜单 -->
+    <ArtMenuRight
+      v-if="onRowContextmenu"
+      ref="contextMenuRef"
+      :menuItems="contextMenuItems ? [...contextMenuItems] : []"
+      :menuWidth="contextMenuWidth"
+      @select="handleContextMenuSelect"
+    />
   </div>
 </template>
 
@@ -98,6 +108,7 @@
   import { useCommon } from '@/hooks/core/useCommon'
   import { useTableHeight } from '@/hooks/core/useTableHeight'
   import { useResizeObserver, useWindowSize } from '@vueuse/core'
+  import ArtMenuRight from '@/components/core/others/art-menu-right/index.vue'
 
   defineOptions({ name: 'ArtTable' })
 
@@ -105,6 +116,7 @@
   const elTableRef = ref<InstanceType<typeof ElTable> | null>(null)
   const paginationRef = ref<HTMLElement>()
   const tableHeaderRef = ref<HTMLElement>()
+  const contextMenuRef = ref<InstanceType<typeof ArtMenuRight>>()
   const tableStore = useTableStore()
   const { isBorder, isZebra, tableSize, isFullScreen, isHeaderBackground } = storeToRefs(tableStore)
 
@@ -154,6 +166,14 @@
     showTableHeader?: boolean
     /** 表格的布局方式，覆盖父接口中的必需属性为可选 */
     tableLayout?: 'fixed' | 'auto'
+    /** 右键菜单项配置 */
+    contextMenuItems?: readonly any[]
+    /** 右键菜单宽度 */
+    contextMenuWidth?: number
+    /** 处理表格行右键事件的回调 */
+    onRowContextmenu?: (row: any, column: any, event: MouseEvent) => void
+    /** 处理右键菜单选择的回调 */
+    onContextMenuSelect?: (item: any) => void
   }
 
   const props = withDefaults(defineProps<ArtTableProps>(), {
@@ -313,7 +333,33 @@
   const emit = defineEmits<{
     (e: 'pagination:size-change', val: number): void
     (e: 'pagination:current-change', val: number): void
+    (e: 'row-contextmenu', row: any, column: any, event: MouseEvent): void
   }>()
+
+  // 处理表格行右键事件
+  const handleRowContextmenu = (row: any, column: any, event: MouseEvent) => {
+    // 如果提供了右键菜单回调，说明启用了右键菜单功能，阻止默认行为
+    if (props.onRowContextmenu) {
+      event.preventDefault()
+
+      // 先调用回调设置 currentContextRow
+      props.onRowContextmenu(row, column, event)
+
+      // 然后显示菜单
+      nextTick(() => {
+        contextMenuRef.value?.show(event)
+      })
+    }
+
+    emit('row-contextmenu', row, column, event)
+  }
+
+  // 处理右键菜单选择
+  const handleContextMenuSelect = (item: any) => {
+    if (props.onContextMenuSelect) {
+      props.onContextMenuSelect(item)
+    }
+  }
 
   // 查找并绑定表格头部元素 - 使用 VueUse 优化
   const findTableHeader = () => {

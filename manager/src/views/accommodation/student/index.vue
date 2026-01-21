@@ -41,6 +41,10 @@
         :data="data"
         :columns="columns"
         :pagination="pagination"
+        :contextMenuItems="contextMenuItems"
+        :contextMenuWidth="contextMenuWidth"
+        :onRowContextmenu="handleRowContextmenu"
+        :onContextMenuSelect="handleContextMenuSelect"
         row-key="id"
         @selection-change="handleSelectionChange"
         @pagination:size-change="handleSizeChange"
@@ -128,7 +132,11 @@
     handleSizeChange,
     handleCurrentChange,
     refreshData,
-    refreshRemove
+    refreshRemove,
+    contextMenuItems,
+    contextMenuWidth,
+    handleRowContextmenu,
+    handleContextMenuSelect
   } = useTable<typeof fetchGetStudentPage>({
     core: {
       apiFn: fetchGetStudentPage,
@@ -188,14 +196,16 @@
           width: 180,
           fixed: 'right',
           formatter: (row: StudentListItem) => [
-            { type: 'view', onClick: () => handleView(row) },
+            { type: 'view', label: '查看', onClick: () => handleView(row) },
             {
               type: 'edit',
+              label: '编辑',
               onClick: () => handleEdit(row),
               auth: 'system:student:edit'
             },
             {
               type: 'delete',
+              label: '删除',
               onClick: () => handleDelete(row),
               auth: 'system:student:delete',
               danger: true
@@ -205,6 +215,9 @@
       ]
     },
     adaptive: {
+      enabled: true
+    },
+    contextMenu: {
       enabled: true
     }
   })
