@@ -261,7 +261,7 @@ function useTableImpl<TApiFn extends (params: any) => Promise<any>>(
 
   // 获取初始 pageSize（优先使用自适应值）
   // 确保 initialPageSize 永远是一个有效的数字
-  let initialPageSize = 10
+  let initialPageSize = 20
   if (adaptiveEnabled && adaptivePageSizeResult) {
     const adaptiveValue = adaptivePageSizeResult.pageSize.value
     if (typeof adaptiveValue === 'number' && !isNaN(adaptiveValue) && adaptiveValue > 0) {
@@ -270,7 +270,7 @@ function useTableImpl<TApiFn extends (params: any) => Promise<any>>(
         console.log(`[useTable] 使用自适应 pageSize: ${initialPageSize}`)
       }
     } else if (enableLog) {
-      console.warn(`[useTable] 自适应 pageSize 无效: ${adaptiveValue}，使用默认值 10`)
+      console.warn(`[useTable] 自适应 pageSize 无效: ${adaptiveValue}，使用默认值 20`)
     }
   }
 
@@ -547,9 +547,9 @@ function useTableImpl<TApiFn extends (params: any) => Promise<any>>(
 
     // 验证 pagination.size 是否有效，如果无效则使用默认值
     if (!pagination.size || isNaN(pagination.size) || pagination.size <= 0) {
-      logger.warn(`检测到无效的 pageSize: ${pagination.size}，使用默认值 10`)
-      pagination.size = 10
-      ;(searchParams as Record<string, unknown>)[sizeKey] = 10
+      logger.warn(`检测到无效的 pageSize: ${pagination.size}，使用默认值 20`)
+      pagination.size = 20
+      ;(searchParams as Record<string, unknown>)[sizeKey] = 20
     }
 
     try {
@@ -653,7 +653,7 @@ function useTableImpl<TApiFn extends (params: any) => Promise<any>>(
       if (err instanceof Error && err.message === '请求已取消') {
         // 请求被取消，回到 idle 状态
         loadingState.value = 'idle'
-        return { records: [], total: 0, current: 1, size: 10 }
+        return { records: [], total: 0, current: 1, size: 20 }
       }
 
       // 状态机：请求失败，进入 error 状态
@@ -707,7 +707,7 @@ function useTableImpl<TApiFn extends (params: any) => Promise<any>>(
     const paramsRecord = searchParams as Record<string, unknown>
     const defaultPagination = {
       [pageKey]: 1,
-      [sizeKey]: (paramsRecord[sizeKey] as number) || 10
+      [sizeKey]: (paramsRecord[sizeKey] as number) || 20
     }
 
     // 清空所有搜索参数
