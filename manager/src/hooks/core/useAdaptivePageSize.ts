@@ -94,8 +94,8 @@ class AdaptivePageSizeCalculator {
       HEIGHT_CONSTANTS.PAGINATION -
       HEIGHT_CONSTANTS.MARGIN
 
-    if (availableHeight <= 0) {
-      return this.options.minPageSize
+    if (availableHeight <= 0 || this.rowHeight.value <= 0) {
+      return 0 // Return 0 rows (not a pageSize value)
     }
 
     const rows = Math.floor(availableHeight / this.rowHeight.value)
@@ -118,6 +118,11 @@ class AdaptivePageSizeCalculator {
    */
   calculate(): number {
     const availableRows = this.calculateAvailableRows()
+
+    // 如果容器高度无效（返回 0），使用最小 pageSize
+    if (availableRows === 0) {
+      return this.options.minPageSize
+    }
 
     // 新策略：直接查找第一个 ≥ 可见行数的标准 pageSize
     // 这样可以确保表格数据总是铺满或超出屏幕（有滚动条），没有空白

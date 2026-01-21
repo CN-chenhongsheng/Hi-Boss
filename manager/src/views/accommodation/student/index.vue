@@ -154,7 +154,7 @@
         { prop: 'studentNo', label: '学号', width: 120 },
         { prop: 'studentName', label: '姓名', width: 100 },
         { prop: 'genderText', label: '性别', width: 80 },
-        { prop: 'phone', label: '手机号', width: 120 },
+        { prop: 'phone', label: '手机号', width: 125 },
         { prop: 'nation', label: '民族', width: 100 },
         { prop: 'politicalStatus', label: '政治面貌', width: 100 },
         { prop: 'campusName', label: '校区', width: 120 },

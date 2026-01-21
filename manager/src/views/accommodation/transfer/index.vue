@@ -137,7 +137,7 @@
         { prop: 'studentNo', label: '学号', width: 120 },
         { prop: 'studentName', label: '学生姓名', width: 100 },
         { prop: 'genderText', label: '性别', width: 80 },
-        { prop: 'phone', label: '手机号', width: 120 },
+        { prop: 'phone', label: '手机号', width: 125 },
         { prop: 'originalCampusName', label: '原校区', width: 120 },
         { prop: 'originalRoomCode', label: '原房间', width: 120 },
         { prop: 'originalBedCode', label: '原床位', width: 120 },
