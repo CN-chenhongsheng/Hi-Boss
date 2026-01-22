@@ -56,9 +56,12 @@ textarea,
 
 /* 抓取中光标 - cursor-grabbing (拖拽时) */
 .cursor-grabbing,
-.sortable-drag {
+.sortable-drag,
+*:active.cursor-grab,
+*:active[draggable='true'],
+*:active.draggable {
   cursor:
-    url('/src/assets/svg/cursor/4.svg') 14 14,
+    url('/src/assets/svg/cursor/5.svg') 14 12,
     grabbing;
 }
 
