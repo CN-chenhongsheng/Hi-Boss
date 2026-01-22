@@ -1301,6 +1301,8 @@ declare namespace Api {
       studentId: number
       studentName?: string
       studentNo?: string
+      gender?: number
+      genderText?: string
       originalCampusCode?: string
       originalCampusName?: string
       originalFloorCode?: string

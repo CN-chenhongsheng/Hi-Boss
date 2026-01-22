@@ -127,6 +127,9 @@
                 v-model="approvalOpinion"
                 type="textarea"
                 :rows="4"
+                maxlength="200"
+                show-word-limit
+                word-limit-position="outside"
                 placeholder="请输入审批意见（可选）"
               />
             </ElFormItem>

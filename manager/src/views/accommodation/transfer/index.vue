@@ -78,6 +78,7 @@
   import { ElMessageBox, ElTag } from 'element-plus'
   import TransferSearch from './modules/transfer-search.vue'
   import TransferDrawer from './modules/transfer-drawer.vue'
+  import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
 
   defineOptions({ name: 'AccommodationTransfer' })
 
@@ -144,7 +145,24 @@
         { type: 'selection', width: 50 },
         { prop: 'studentNo', label: '学号', width: 120 },
         { prop: 'studentName', label: '学生姓名', minWidth: 100 },
-        { prop: 'genderText', label: '性别', width: 60 },
+        {
+          prop: 'genderText',
+          label: '性别',
+          width: 70,
+          formatter: (row: TransferListItem) => {
+            const genderIcon = {
+              1: 'ri-men-line',
+              2: 'ri-women-line'
+            }
+            return h('div', { class: 'flex items-center gap-1' }, [
+              h('span', { class: 'text-g-700 text-sm' }, row.genderText as string),
+              h(ArtSvgIcon, {
+                icon: genderIcon[row.gender as number as keyof typeof genderIcon] as string,
+                class: `text-g-700 text-md ${row.gender === 1 ? 'text-primary' : 'text-pink-500'}`
+              })
+            ])
+          }
+        },
         { prop: 'phone', label: '手机号', width: 125 },
         { prop: 'originalCampusName', label: '原校区', width: 120 },
         { prop: 'originalRoomCode', label: '原房间', width: 120 },

@@ -243,7 +243,7 @@
         {
           prop: 'genderText',
           label: '性别',
-          width: 60,
+          width: 70,
           formatter: (row) => {
             const genderIcon = {
               1: 'ri-men-line',

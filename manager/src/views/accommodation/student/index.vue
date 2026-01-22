@@ -85,6 +85,7 @@
   } from '@/api/accommodation-manage'
   import { ElMessageBox, ElMessage } from 'element-plus'
   import ArtSwitch from '@/components/core/forms/art-switch/index.vue'
+  import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
   import StudentSearch from './modules/student-search.vue'
   import StudentDrawer from './modules/student-drawer.vue'
   import StudentDialog from './modules/student-dialog.vue'
@@ -161,7 +162,24 @@
         { type: 'selection', width: 50 },
         { prop: 'studentNo', label: '学号', width: 120 },
         { prop: 'studentName', label: '姓名', minWidth: 100 },
-        { prop: 'genderText', label: '性别', width: 60 },
+        {
+          prop: 'genderText',
+          label: '性别',
+          width: 70,
+          formatter: (row: StudentListItem) => {
+            const genderIcon = {
+              1: 'ri-men-line',
+              2: 'ri-women-line'
+            }
+            return h('div', { class: 'flex items-center gap-1' }, [
+              h('span', { class: 'text-g-700 text-sm' }, row.genderText as string),
+              h(ArtSvgIcon, {
+                icon: genderIcon[row.gender as number as keyof typeof genderIcon] as string,
+                class: `text-g-700 text-md ${row.gender === 1 ? 'text-primary' : 'text-pink-500'}`
+              })
+            ])
+          }
+        },
         { prop: 'phone', label: '手机号', width: 125 },
         { prop: 'nation', label: '民族', minWidth: 80 },
         { prop: 'politicalStatus', label: '政治面貌', minWidth: 100 },
