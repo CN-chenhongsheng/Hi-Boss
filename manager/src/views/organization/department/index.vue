@@ -202,7 +202,7 @@
         {
           prop: 'phone',
           label: '联系电话',
-          minWidth: 120
+          width: 125
         },
         {
           prop: 'sort',

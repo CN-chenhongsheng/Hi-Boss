@@ -143,8 +143,8 @@
       columnsFactory: () => [
         { type: 'selection', width: 50 },
         { prop: 'studentNo', label: '学号', width: 120 },
-        { prop: 'studentName', label: '学生姓名', width: 100 },
-        { prop: 'genderText', label: '性别', width: 80 },
+        { prop: 'studentName', label: '学生姓名', minWidth: 100 },
+        { prop: 'genderText', label: '性别', width: 60 },
         { prop: 'phone', label: '手机号', width: 125 },
         { prop: 'originalCampusName', label: '原校区', width: 120 },
         { prop: 'originalRoomCode', label: '原房间', width: 120 },
@@ -152,8 +152,8 @@
         { prop: 'targetCampusName', label: '目标校区', width: 120 },
         { prop: 'targetRoomCode', label: '目标房间', width: 120 },
         { prop: 'targetBedCode', label: '目标床位', width: 120 },
-        { prop: 'applyDate', label: '申请日期', width: 180, sortable: true },
-        { prop: 'transferDate', label: '调宿日期', width: 180, sortable: true },
+        { prop: 'applyDate', label: '申请日期', width: 120, sortable: true },
+        { prop: 'transferDate', label: '调宿日期', width: 120, sortable: true },
         {
           prop: 'status',
           label: '状态',

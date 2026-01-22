@@ -188,7 +188,7 @@
         {
           prop: 'roomCode',
           label: '房间编码',
-          minWidth: 120
+          width: 120
         },
         {
           prop: 'roomNumber',

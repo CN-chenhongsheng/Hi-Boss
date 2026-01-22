@@ -200,7 +200,7 @@
         {
           prop: 'floorCode',
           label: '楼层编码',
-          minWidth: 120
+          width: 120
         },
         {
           prop: 'floorName',

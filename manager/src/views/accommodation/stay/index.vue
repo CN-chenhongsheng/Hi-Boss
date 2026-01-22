@@ -147,13 +147,13 @@
       columnsFactory: () => [
         { type: 'selection', width: 50 },
         { prop: 'studentNo', label: '学号', width: 120 },
-        { prop: 'studentName', label: '学生姓名', width: 100 },
-        { prop: 'campusName', label: '校区', width: 120 },
+        { prop: 'studentName', label: '学生姓名', minWidth: 100 },
+        { prop: 'campusName', label: '校区', minWidth: 100 },
         { prop: 'roomCode', label: '房间编码', width: 120 },
         { prop: 'bedCode', label: '床位编码', width: 120 },
         { prop: 'applyDate', label: '申请日期', width: 120, sortable: true },
-        { prop: 'stayStartDate', label: '留宿开始日期', width: 180, sortable: true },
-        { prop: 'stayEndDate', label: '留宿结束日期', width: 180, sortable: true },
+        { prop: 'stayStartDate', label: '留宿开始日期', width: 120, sortable: true },
+        { prop: 'stayEndDate', label: '留宿结束日期', width: 120, sortable: true },
         { prop: 'stayReason', label: '留宿理由' },
         {
           prop: 'status',
