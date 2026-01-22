@@ -16,15 +16,19 @@
       @scroll="handleScroll"
       @wheel="handleWheel"
     >
-      <div class="box-border flex-c flex-shrink-0 flex-nowrap h-15 whitespace-nowrap">
-        <template v-for="item in processedMenuList" :key="item.meta.title">
+      <div
+        ref="menuContainerRef"
+        class="box-border flex-c flex-shrink-0 flex-nowrap h-15 whitespace-nowrap"
+      >
+        <template v-for="(item, index) in processedMenuList" :key="item.meta.title">
           <div
             v-if="!item.meta.isHide"
+            :ref="(el) => setMenuItemRef(el, index)"
             class="menu-item relative flex-shrink-0 h-10 px-3 text-sm flex-c c-p hover:text-theme"
             :class="{
               'menu-item-active text-theme': item.isActive
             }"
-            @click="handleMenuJump(item, true)"
+            @click="handleMenuClick(item)"
           >
             <ArtSvgIcon
               :icon="item.meta.icon"
@@ -40,6 +44,16 @@
             <div v-if="item.meta.showBadge" class="art-badge art-badge-mixed" />
           </div>
         </template>
+
+        <!-- 筋斗云 -->
+        <div
+          v-show="cloudStyle.visible"
+          class="menu-cloud"
+          :style="{
+            transform: `translateX(${cloudStyle.left}px)`,
+            width: cloudStyle.width + 'px'
+          }"
+        />
       </div>
     </ElScrollbar>
 
@@ -53,7 +67,7 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, computed, onMounted, nextTick } from 'vue'
+  import { ref, computed, onMounted, nextTick, watch } from 'vue'
   import { ArrowLeft, ArrowRight } from '@element-plus/icons-vue'
   import { useThrottleFn } from '@vueuse/core'
   import { formatMenuTitle } from '@/utils/router'
@@ -83,6 +97,24 @@
   const scrollbarRef = ref<any>()
   const showLeftArrow = ref(false)
   const showRightArrow = ref(false)
+  const menuContainerRef = ref<HTMLElement>()
+  const menuItemRefs = ref<(HTMLElement | null)[]>([])
+
+  // 筋斗云样式状态
+  const cloudStyle = ref({
+    left: 0,
+    width: 0,
+    visible: false
+  })
+
+  /**
+   * 设置菜单项引用
+   */
+  const setMenuItemRef = (el: any, index: number) => {
+    if (el) {
+      menuItemRefs.value[index] = el as HTMLElement
+    }
+  }
 
   /** 滚动配置 */
   const SCROLL_CONFIG = {
@@ -213,13 +245,76 @@
   }
 
   /**
+   * 处理菜单点击事件
+   */
+  const handleMenuClick = (item: AppRouteRecord): void => {
+    handleMenuJump(item, true)
+    // 点击后立即更新筋斗云位置
+    setTimeout(() => {
+      updateCloudPosition()
+    }, 50)
+  }
+
+  /**
+   * 更新筋斗云位置
+   */
+  const updateCloudPosition = (): void => {
+    nextTick(() => {
+      // 找到激活的菜单项索引
+      const activeIndex = processedMenuList.value.findIndex((item) => item.isActive)
+
+      if (activeIndex === -1 || !menuItemRefs.value[activeIndex]) {
+        cloudStyle.value.visible = false
+        return
+      }
+
+      const activeElement = menuItemRefs.value[activeIndex] as HTMLElement
+
+      // 筋斗云宽度
+      const cloudWidth = 38
+
+      // 使用 offsetLeft 和 offsetWidth 计算位置（相对于父容器）
+      // 元素左侧位置 + 元素宽度的一半 - 筋斗云宽度的一半
+      const elementLeft = activeElement.offsetLeft
+      const elementWidth = activeElement.offsetWidth
+      const elementCenterX = elementLeft + elementWidth / 2
+      const cloudLeft = elementCenterX - cloudWidth / 2
+
+      cloudStyle.value.left = cloudLeft
+      cloudStyle.value.width = cloudWidth
+      cloudStyle.value.visible = true
+    })
+  }
+
+  /**
    * 初始化滚动状态
    */
   const initScrollState = (): void => {
     nextTick(() => {
       handleScrollCore()
+      updateCloudPosition()
     })
   }
+
+  // 监听路由变化，更新筋斗云位置
+  watch(
+    () => route.path,
+    () => {
+      updateCloudPosition()
+    },
+    { immediate: true }
+  )
+
+  // 监听菜单列表变化，更新筋斗云位置
+  watch(
+    () => props.list,
+    () => {
+      nextTick(() => {
+        updateCloudPosition()
+      })
+    },
+    { deep: true }
+  )
 
   onMounted(initScrollState)
 </script>
@@ -228,20 +323,20 @@
   @reference '@styles/core/tailwind.css';
 
   .button-arrow {
-    @apply absolute 
+    @apply absolute
     top-1/2
-    z-2 
+    z-2
     flex
     items-center
     justify-center
     size-7.5
-    text-g-600 
+    text-g-600
     cursor-pointer
-    rounded 
+    rounded
     transition-all
     duration-300
-    -translate-y-1/2 
-    hover:text-g-900 
+    -translate-y-1/2
+    hover:text-g-900
     hover:bg-g-200;
   }
 </style>
@@ -259,16 +354,26 @@
     margin: 0 50px 0 30px;
   }
 
-  .menu-item-active::after {
+  /* 筋斗云效果 */
+  .menu-cloud {
     position: absolute;
-    right: 0;
-    bottom: 0;
+    bottom: 13px;
     left: 0;
-    width: 40px;
+    z-index: 1;
     height: 2px;
-    margin: auto;
-    content: '';
+    pointer-events: none;
     background-color: var(--theme-color);
+    border-radius: 1px;
+
+    /* 使用 transform 实现 GPU 加速，避免掉帧 */
+
+    /* cubic-bezier(0.34, 1.56, 0.64, 1) 实现过冲+回弹效果 */
+
+    /* 第二个值 1.56 > 1，会产生超过目标位置的效果 */
+    transition:
+      transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1),
+      width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+    will-change: transform;
   }
 
   @media (width <= 1440px) {
