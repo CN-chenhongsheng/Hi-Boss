@@ -34,7 +34,7 @@ export const useTableStore = defineStore(
   'tableStore',
   () => {
     // 表格大小
-    const tableSize = ref(TableSizeEnum.DEFAULT)
+    const tableSize = ref(TableSizeEnum.SMALL)
     // 斑马纹
     const isZebra = ref(false)
     // 边框
