@@ -123,3 +123,25 @@ textarea,
 [title]:not([title='']):hover {
   cursor: var(--cursor-help) !important;
 }
+
+/* 滚动条光标样式 */
+/* WebKit 浏览器 (Chrome, Edge, Safari) */
+::-webkit-scrollbar-thumb {
+  cursor: var(--cursor-pointer) !important;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  cursor: var(--cursor-pointer) !important;
+}
+
+::-webkit-scrollbar-thumb:active {
+  cursor: var(--cursor-grabbing) !important;
+}
+
+/* Firefox 浏览器 */
+* {
+  scrollbar-color: auto;
+  scrollbar-width: thin;
+}
+
+/* Firefox 滚动条拖拽时的光标（通过 JavaScript 处理，CSS 无法直接实现） */
