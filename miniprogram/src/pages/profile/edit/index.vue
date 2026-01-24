@@ -67,11 +67,12 @@
             手机号
           </view>
           <input
-            v-model="formData.phone"
+            :value="formData.phone"
             class="form-input"
-            type="number"
+            type="text"
             placeholder="请输入手机号"
-            maxlength="11"
+            :maxlength="11 as any"
+            @input="handlePhoneInput"
           >
         </view>
 
@@ -112,11 +113,12 @@
             联系人电话
           </view>
           <input
-            v-model="formData.emergencyPhone"
+            :value="formData.emergencyPhone"
             class="form-input"
-            type="number"
+            type="text"
             placeholder="请输入紧急联系人电话"
-            maxlength="11"
+            :maxlength="11 as any"
+            @input="handleEmergencyPhoneInput"
           >
         </view>
       </view>
@@ -153,16 +155,26 @@ const formData = reactive({
 onMounted(() => {
   if (userInfo.value) {
     formData.avatar = userInfo.value.avatar || '';
-    formData.phone = userInfo.value.studentInfo?.phone || userInfo.value.phone || '';
+    formData.phone = String(userInfo.value.studentInfo?.phone || userInfo.value.phone || '');
     formData.email = userInfo.value.studentInfo?.email || userInfo.value.email || '';
     formData.emergencyContact = userInfo.value.studentInfo?.emergencyContact || '';
-    formData.emergencyPhone = userInfo.value.studentInfo?.emergencyPhone || '';
+    formData.emergencyPhone = String(userInfo.value.studentInfo?.emergencyPhone || '');
   }
 });
 
 // 返回上一页
 function handleBack() {
   uni.navigateBack();
+}
+
+// 处理手机号输入
+function handlePhoneInput(e: any) {
+  formData.phone = e.detail?.value || '';
+}
+
+// 处理紧急联系人电话输入
+function handleEmergencyPhoneInput(e: any) {
+  formData.emergencyPhone = e.detail?.value || '';
 }
 
 // 选择头像
@@ -247,10 +259,10 @@ async function handleSave() {
       userStore.userInfo.phone = formData.phone || userStore.userInfo.phone;
       userStore.userInfo.email = formData.email || userStore.userInfo.email;
       if (userStore.userInfo.studentInfo) {
-        userStore.userInfo.studentInfo.phone = formData.phone;
+        userStore.userInfo.studentInfo.phone = formData.phone as any;
         userStore.userInfo.studentInfo.email = formData.email;
         userStore.userInfo.studentInfo.emergencyContact = formData.emergencyContact;
-        userStore.userInfo.studentInfo.emergencyPhone = formData.emergencyPhone;
+        userStore.userInfo.studentInfo.emergencyPhone = formData.emergencyPhone as any;
       }
     }
 

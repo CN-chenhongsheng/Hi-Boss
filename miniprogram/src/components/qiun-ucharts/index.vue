@@ -3,7 +3,7 @@
     <canvas
       :id="canvasId"
       :canvas-id="canvasId"
-      :type="canvasType"
+      :type="canvasType as any"
       class="qiun-charts-canvas"
       :style="{ width: canvasWidth, height: canvasHeight }"
     />
@@ -12,6 +12,7 @@
 
 <script setup lang="ts">
 import { getCurrentInstance, nextTick, onMounted, onUnmounted, ref, watch } from 'vue';
+// @ts-expect-error - @qiun/ucharts 缺少类型声明
 import uCharts from '@qiun/ucharts/u-charts.js';
 
 const props = withDefaults(defineProps<Props>(), {
@@ -25,7 +26,7 @@ interface Props {
   opts?: any;
   chartData?: any;
   canvasId: string;
-  canvasType?: string;
+  canvasType?: '2d' | 'webgl';
 }
 
 let chartInstance: any = null;
@@ -145,7 +146,7 @@ function initChart() {
         // 在 H5 中，先尝试使用 uni.createSelectorQuery 获取 canvas（与 MP-WEIXIN 保持一致）
         const query = uni.createSelectorQuery();
         query.select(`#${props.canvasId}`)
-          .fields({ node: true, size: true })
+          .fields({ node: true, size: true }, () => {})
           .exec((res: any) => {
             if (res && res[0] !== null && res[0] !== undefined && res[0].node) {
               // 使用 query 返回的 canvas node
@@ -266,7 +267,7 @@ function initChart() {
                 const cssHeight = Number.parseFloat(computedStyle.height) || height || 250;
 
                 // 获取设备像素比（保留变量以供注释说明，但当前策略不使用 DPR 缩放）
-                const _dpr = window.devicePixelRatio || 1;
+                // const _dpr = window.devicePixelRatio || 1;
 
                 // 在移动设备上，为了确保图表完整显示，我们需要考虑 DPR
                 // 但是 uCharts 可能不能正确处理 DPR 缩放，所以我们需要调整策略
@@ -331,7 +332,7 @@ function initChart() {
                   const cssHeight = rect.height || 250;
 
                   // 获取设备像素比（保留变量以供注释说明，但当前策略不使用 DPR 缩放）
-                  const _dpr = window.devicePixelRatio || 1;
+                  // const _dpr = window.devicePixelRatio || 1;
 
                   // 在移动设备上，为了确保图表完整显示，我们需要考虑 DPR
                   // 但是 uCharts 可能不能正确处理 DPR 缩放，所以我们需要调整策略

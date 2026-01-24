@@ -44,80 +44,7 @@
       </view>
     </view>
 
-    <!-- 日期范围选择弹窗 - 最外层 -->
-    <view
-      v-if="dateRangePickerState.show"
-      class="picker-overlay"
-      @click="closeDateRangePicker"
-    />
-    <view
-      v-if="dateRangePickerState.show"
-      class="date-range-picker-popup"
-    >
-      <view class="picker-popup-header">
-        <view class="picker-popup-btn cancel-btn" @click="closeDateRangePicker">
-          取消
-        </view>
-        <view class="picker-popup-title">
-          选择日期范围
-        </view>
-        <view class="picker-popup-btn confirm-btn" @click="confirmDateRange">
-          完成
-        </view>
-      </view>
-      <view class="picker-popup-content">
-        <view class="date-range-tabs">
-          <view
-            class="date-tab"
-            :class="{ active: dateRangePickerState.activeTab === 'start' }"
-            @click="dateRangePickerState.activeTab = 'start'"
-          >
-            开始日期
-          </view>
-          <view
-            class="date-tab"
-            :class="{ active: dateRangePickerState.activeTab === 'end' }"
-            @click="dateRangePickerState.activeTab = 'end'"
-          >
-            结束日期
-          </view>
-        </view>
-
-        <picker-view
-          class="date-picker-view"
-          :value="dateRangePickerState.activeTab === 'start' ? dateRangePickerState.startDatePickerValue : dateRangePickerState.endDatePickerValue"
-          @change="handleDatePickerViewChange"
-        >
-          <picker-view-column>
-            <view
-              v-for="(year, index) in dateRangePickerState.years"
-              :key="index"
-              class="picker-view-item"
-            >
-              {{ year }}年
-            </view>
-          </picker-view-column>
-          <picker-view-column>
-            <view
-              v-for="(month, index) in dateRangePickerState.months"
-              :key="index"
-              class="picker-view-item"
-            >
-              {{ month }}月
-            </view>
-          </picker-view-column>
-          <picker-view-column>
-            <view
-              v-for="(day, index) in (dateRangePickerState.activeTab === 'start' ? dateRangePickerState.startDays : dateRangePickerState.endDays)"
-              :key="index"
-              class="picker-view-item"
-            >
-              {{ day }}日
-            </view>
-          </picker-view-column>
-        </picker-view>
-      </view>
-    </view>
+    <DateRangePicker ref="dateRangePickerRef" />
 
     <!-- 报修类型选择弹窗 - 最外层 -->
     <view
@@ -163,60 +90,7 @@
       </view>
     </view>
 
-    <!-- 签名弹窗 - 最外层 -->
-    <view
-      v-if="signaturePickerState.show"
-      class="picker-overlay"
-      @click="closeSignaturePicker"
-    />
-    <view
-      v-if="signaturePickerState.show"
-      class="signature-modal"
-    >
-      <view class="signature-modal-header">
-        <view class="modal-title">
-          手写签名
-        </view>
-        <view class="modal-close" @click="closeSignaturePicker">
-          <u-icon name="close" size="24" color="#6b7280" />
-        </view>
-      </view>
-
-      <view class="signature-canvas-container">
-        <!-- #ifdef MP-WEIXIN -->
-        <canvas
-          id="signatureCanvas"
-          type="2d"
-          class="signature-canvas"
-          :style="{ width: `${signaturePickerState.canvasWidth}rpx`, height: `${signaturePickerState.canvasHeight}rpx` }"
-          @touchstart="handleSignatureTouchStart"
-          @touchmove="handleSignatureTouchMove"
-          @touchend="handleSignatureTouchEnd"
-        />
-        <!-- #endif -->
-
-        <!-- #ifdef H5 -->
-        <canvas
-          id="signatureCanvas"
-          class="signature-canvas"
-          :width="signaturePickerState.canvasWidth"
-          :height="signaturePickerState.canvasHeight"
-          @touchstart="handleSignatureTouchStart"
-          @touchmove="handleSignatureTouchMove"
-          @touchend="handleSignatureTouchEnd"
-        />
-        <!-- #endif -->
-      </view>
-
-      <view class="signature-modal-actions">
-        <view class="action-btn clear-btn" @click="clearSignature">
-          清除
-        </view>
-        <view class="action-btn confirm-btn" @click="confirmSignature">
-          确认
-        </view>
-      </view>
-    </view>
+    <SignaturePicker ref="signaturePickerRef" />
 
     <view class="apply-form-page">
       <!-- 背景装饰 -->
@@ -313,8 +187,9 @@
               </view>
             </view>
 
-            <!-- 申请类型 -->
+            <!-- 申请类型（type 直达时隐藏，无二次选择） -->
             <ApplyTypePicker
+              v-if="!hideTypePicker"
               v-model="formData.applyType"
               :options="filteredApplyTypeOptions"
               :can-modify="canModifyApplyType"
@@ -375,7 +250,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, onMounted, provide, reactive, ref } from 'vue';
+import { computed, provide, reactive, ref } from 'vue';
 import { onLoad } from '@dcloudio/uni-app';
 import NormalCheckIn from './components/normal-check-in.vue';
 import TempCheckIn from './components/temp-check-in.vue';
@@ -385,6 +260,8 @@ import Stay from './components/stay.vue';
 import Repair from './components/repair.vue';
 import ApplyTypePicker from './components/apply-type-picker.vue';
 import RepairTypePicker from './components/repair-type-picker.vue';
+import DateRangePicker from './components/pickers/DateRangePicker.vue';
+import SignaturePicker from './components/pickers/SignaturePicker.vue';
 import type { IApplyFormData } from '@/types';
 import useUserStore from '@/store/modules/user';
 import { useFormValidation } from '@/composables/useFormValidation';
@@ -395,7 +272,6 @@ import { submitStayAPI } from '@/api/accommodation/stay';
 
 // 类型定义
 type ApplyType = 'normalCheckIn' | 'tempCheckIn' | 'transfer' | 'checkOut' | 'stay' | 'repair';
-type DateTab = 'start' | 'end';
 
 interface ApplyTypeOption {
   label: string;
@@ -405,27 +281,6 @@ interface ApplyTypeOption {
 interface DateRange {
   startDate?: string;
   endDate?: string;
-}
-
-interface DateRangePickerState {
-  show: boolean;
-  activeTab: DateTab;
-  startDatePickerValue: number[];
-  endDatePickerValue: number[];
-  years: number[];
-  months: number[];
-  startDays: number[];
-  endDays: number[];
-  currentDateRange: DateRange | null;
-  onConfirm: ((value: DateRange) => void) | null;
-}
-
-interface SignaturePickerState {
-  show: boolean;
-  canvasWidth: number;
-  canvasHeight: number;
-  currentValue: string;
-  onConfirm: ((value: string) => void) | null;
 }
 
 interface RepairTypeOption {
@@ -468,6 +323,8 @@ const formData = reactive<IApplyFormData>({
 const applyTypeIndex = ref(0);
 // 临时选中的索引（用于弹窗中的选择）
 const tempApplyTypeIndex = ref(0);
+// 是否通过 type 参数直达（无二次选择，隐藏类型选择器）
+const hideTypePicker = ref(false);
 
 // 是否允许修改申请类型（只有入住申请可以修改）
 const canModifyApplyType = computed(() => {
@@ -509,33 +366,8 @@ const repairTypeOptions: RepairTypeOption[] = [
 const showRepairTypePicker = ref(false);
 const tempRepairTypeIndex = ref(-1);
 
-// 日期范围选择器状态
-const dateRangePickerState = reactive<DateRangePickerState>({
-  show: false,
-  activeTab: 'start',
-  startDatePickerValue: [0, 0, 0],
-  endDatePickerValue: [0, 0, 0],
-  years: [],
-  months: [],
-  startDays: [],
-  endDays: [],
-  currentDateRange: null,
-  onConfirm: null,
-});
-
-// 签名选择器状态
-const signaturePickerState = reactive<SignaturePickerState>({
-  show: false,
-  canvasWidth: 600,
-  canvasHeight: 400,
-  currentValue: '',
-  onConfirm: null,
-});
-
-let signatureCtx: any = null;
-let isDrawing = false;
-let lastX = 0;
-let lastY = 0;
+const dateRangePickerRef = ref<InstanceType<typeof DateRangePicker> | null>(null);
+const signaturePickerRef = ref<InstanceType<typeof SignaturePicker> | null>(null);
 
 // 用户信息
 const userInfo = computed(() => userStore.userInfo);
@@ -610,414 +442,12 @@ function handleFormUpdate(field: string, value: any): void {
   }
 }
 
-// 初始化日期选项
-function initDateOptions(currentValue?: DateRange): void {
-  const currentYear = new Date().getFullYear();
-  const currentMonth = new Date().getMonth() + 1;
-  const currentDay = new Date().getDate();
-
-  dateRangePickerState.years = [];
-  dateRangePickerState.months = [];
-  for (let i = 0; i < 6; i++) {
-    dateRangePickerState.years.push(currentYear + i);
-  }
-  for (let i = 1; i <= 12; i++) {
-    dateRangePickerState.months.push(i);
-  }
-
-  if (currentValue?.startDate) {
-    const [year, month, day] = currentValue.startDate.split('-').map(Number);
-    const yearIndex = dateRangePickerState.years.indexOf(year);
-    // 如果年份不在范围内，使用当前年份
-    const finalYearIndex = yearIndex >= 0 ? yearIndex : 0;
-    dateRangePickerState.startDatePickerValue = [
-      finalYearIndex,
-      Math.max(0, Math.min(11, month - 1)),
-      Math.max(0, day - 1),
-    ];
-    updateStartDays();
-    // 再次检查日期索引是否超出范围
-    if (dateRangePickerState.startDatePickerValue[2] >= dateRangePickerState.startDays.length) {
-      dateRangePickerState.startDatePickerValue[2] = Math.max(0, dateRangePickerState.startDays.length - 1);
-    }
-  }
-  else {
-    dateRangePickerState.startDatePickerValue = [0, currentMonth - 1, currentDay - 1];
-    updateStartDays();
-    // 确保日期索引在有效范围内
-    if (dateRangePickerState.startDatePickerValue[2] >= dateRangePickerState.startDays.length) {
-      dateRangePickerState.startDatePickerValue[2] = Math.max(0, dateRangePickerState.startDays.length - 1);
-    }
-  }
-
-  if (currentValue?.endDate) {
-    const [year, month, day] = currentValue.endDate.split('-').map(Number);
-    const yearIndex = dateRangePickerState.years.indexOf(year);
-    // 如果年份不在范围内，使用当前年份
-    const finalYearIndex = yearIndex >= 0 ? yearIndex : 0;
-    dateRangePickerState.endDatePickerValue = [
-      finalYearIndex,
-      Math.max(0, Math.min(11, month - 1)),
-      Math.max(0, day - 1),
-    ];
-    updateEndDays();
-    // 再次检查日期索引是否超出范围
-    if (dateRangePickerState.endDatePickerValue[2] >= dateRangePickerState.endDays.length) {
-      dateRangePickerState.endDatePickerValue[2] = Math.max(0, dateRangePickerState.endDays.length - 1);
-    }
-  }
-  else {
-    dateRangePickerState.endDatePickerValue = [0, currentMonth - 1, currentDay - 1];
-    updateEndDays();
-    // 确保日期索引在有效范围内
-    if (dateRangePickerState.endDatePickerValue[2] >= dateRangePickerState.endDays.length) {
-      dateRangePickerState.endDatePickerValue[2] = Math.max(0, dateRangePickerState.endDays.length - 1);
-    }
-  }
-}
-
-function updateStartDays(): void {
-  const year = dateRangePickerState.years[dateRangePickerState.startDatePickerValue[0]];
-  const month = dateRangePickerState.months[dateRangePickerState.startDatePickerValue[1]];
-  const maxDay = new Date(year, month, 0).getDate();
-  dateRangePickerState.startDays = [];
-  for (let i = 1; i <= maxDay; i++) {
-    dateRangePickerState.startDays.push(i);
-  }
-  if (dateRangePickerState.startDatePickerValue[2] >= maxDay) {
-    dateRangePickerState.startDatePickerValue[2] = maxDay - 1;
-  }
-}
-
-function updateEndDays(): void {
-  const year = dateRangePickerState.years[dateRangePickerState.endDatePickerValue[0]];
-  const month = dateRangePickerState.months[dateRangePickerState.endDatePickerValue[1]];
-  const maxDay = new Date(year, month, 0).getDate();
-  dateRangePickerState.endDays = [];
-  for (let i = 1; i <= maxDay; i++) {
-    dateRangePickerState.endDays.push(i);
-  }
-  if (dateRangePickerState.endDatePickerValue[2] >= maxDay) {
-    dateRangePickerState.endDatePickerValue[2] = maxDay - 1;
-  }
-}
-
-function handleDatePickerViewChange(e: { detail: { value: number[] } }): void {
-  const oldValue = dateRangePickerState.activeTab === 'start'
-    ? [...dateRangePickerState.startDatePickerValue]
-    : [...dateRangePickerState.endDatePickerValue];
-
-  if (dateRangePickerState.activeTab === 'start') {
-    dateRangePickerState.startDatePickerValue = e.detail.value;
-    if (oldValue[0] !== e.detail.value[0] || oldValue[1] !== e.detail.value[1]) {
-      updateStartDays();
-    }
-  }
-  else {
-    dateRangePickerState.endDatePickerValue = e.detail.value;
-    if (oldValue[0] !== e.detail.value[0] || oldValue[1] !== e.detail.value[1]) {
-      updateEndDays();
-    }
-  }
-}
-
 function openDateRangePicker(currentValue: DateRange, onConfirm: (value: DateRange) => void): void {
-  dateRangePickerState.currentDateRange = currentValue;
-  dateRangePickerState.onConfirm = onConfirm;
-  dateRangePickerState.activeTab = 'start';
-  initDateOptions(currentValue);
-  dateRangePickerState.show = true;
-}
-
-function closeDateRangePicker(): void {
-  dateRangePickerState.show = false;
-}
-
-// 格式化日期数字（兼容小程序）
-function formatDateNumber(num: number): string {
-  return num < 10 ? `0${num}` : String(num);
-}
-
-function confirmDateRange(): void {
-  // 确保天数数组已更新
-  updateStartDays();
-  updateEndDays();
-
-  // 获取开始日期索引（确保索引在有效范围内）
-  const startYearIndex = Math.max(0, Math.min(dateRangePickerState.years.length - 1, dateRangePickerState.startDatePickerValue[0] || 0));
-  const startMonthIndex = Math.max(0, Math.min(11, dateRangePickerState.startDatePickerValue[1] || 0));
-  const startDayIndex = Math.max(0, Math.min(dateRangePickerState.startDays.length - 1, dateRangePickerState.startDatePickerValue[2] || 0));
-
-  const startYear = dateRangePickerState.years[startYearIndex];
-  const startMonth = dateRangePickerState.months[startMonthIndex];
-  const startDay = dateRangePickerState.startDays[startDayIndex];
-
-  // 获取结束日期索引（确保索引在有效范围内）
-  const endYearIndex = Math.max(0, Math.min(dateRangePickerState.years.length - 1, dateRangePickerState.endDatePickerValue[0] || 0));
-  const endMonthIndex = Math.max(0, Math.min(11, dateRangePickerState.endDatePickerValue[1] || 0));
-  const endDayIndex = Math.max(0, Math.min(dateRangePickerState.endDays.length - 1, dateRangePickerState.endDatePickerValue[2] || 0));
-
-  const endYear = dateRangePickerState.years[endYearIndex];
-  const endMonth = dateRangePickerState.months[endMonthIndex];
-  const endDay = dateRangePickerState.endDays[endDayIndex];
-
-  // 格式化日期（使用自定义格式化函数，兼容小程序）
-  const startDate = `${startYear}-${formatDateNumber(startMonth)}-${formatDateNumber(startDay)}`;
-  const endDate = `${endYear}-${formatDateNumber(endMonth)}-${formatDateNumber(endDay)}`;
-
-  // 验证日期范围
-  if (new Date(endDate) < new Date(startDate)) {
-    uni.showToast({
-      title: '结束日期不能早于开始日期',
-      icon: 'none',
-    });
-    return;
-  }
-
-  // 执行回调函数，更新数据
-  if (dateRangePickerState.onConfirm) {
-    // 确保在小程序中也能正确触发更新
-    try {
-      // 创建一个新对象，确保引用改变（小程序响应式需要）
-      const dateValue = {
-        startDate,
-        endDate,
-      };
-      dateRangePickerState.onConfirm(dateValue);
-    }
-    catch (error) {
-      console.error('日期选择器回调执行失败:', error);
-      uni.showToast({
-        title: '日期选择失败，请重试',
-        icon: 'none',
-      });
-      return;
-    }
-  }
-  else {
-    console.warn('日期选择器 onConfirm 回调未设置');
-    uni.showToast({
-      title: '日期选择器未初始化',
-      icon: 'none',
-    });
-    return;
-  }
-  closeDateRangePicker();
-}
-
-// 签名相关函数
-function initSignatureCanvas(): void {
-  // #ifdef MP-WEIXIN
-  nextTick(() => {
-    // 延迟一点确保 canvas 已经渲染
-    setTimeout(() => {
-      const query = uni.createSelectorQuery();
-      query.select('#signatureCanvas').node((res: any) => {
-        const canvas = res.node;
-        if (canvas) {
-          signatureCtx = canvas.getContext('2d');
-          if (signatureCtx) {
-            // 设置画布实际尺寸（像素）
-            // signaturePickerState.canvasWidth 存储的是 rpx，需要转换为 px
-            const canvasWidthPx = signaturePickerState.canvasWidth / 2;
-            const canvasHeightPx = signaturePickerState.canvasHeight / 2;
-            const dpr = uni.getSystemInfoSync().pixelRatio || 2;
-            canvas.width = canvasWidthPx * dpr;
-            canvas.height = canvasHeightPx * dpr;
-            // 缩放上下文以匹配设备像素比
-            signatureCtx.scale(dpr, dpr);
-            signatureCtx.strokeStyle = '#111817';
-            signatureCtx.lineWidth = 3;
-            signatureCtx.lineCap = 'round';
-            signatureCtx.lineJoin = 'round';
-          }
-        }
-      }).exec();
-    }, 100);
-  });
-  // #endif
-
-  // #ifdef H5
-  nextTick(() => {
-    // 延迟一点确保 canvas 已经渲染
-    setTimeout(() => {
-      const canvas = document.getElementById('signatureCanvas') as HTMLCanvasElement;
-      if (canvas && canvas instanceof HTMLCanvasElement) {
-        signatureCtx = canvas.getContext('2d');
-        if (signatureCtx) {
-          // 确保 canvas 尺寸正确
-          canvas.width = signaturePickerState.canvasWidth;
-          canvas.height = signaturePickerState.canvasHeight;
-          signatureCtx.strokeStyle = '#111817';
-          signatureCtx.lineWidth = 3;
-          signatureCtx.lineCap = 'round';
-          signatureCtx.lineJoin = 'round';
-        }
-      }
-    }, 100);
-  });
-  // #endif
-}
-
-function handleSignatureTouchStart(e: any): void {
-  isDrawing = true;
-  const touch = e.touches?.[0] || e.detail?.touches?.[0];
-
-  // #ifdef MP-WEIXIN
-  const query = uni.createSelectorQuery();
-  query.select('#signatureCanvas').boundingClientRect((rect: any) => {
-    if (rect && touch) {
-      // 小程序中使用 clientX 和 clientY，兼容 x 和 y 属性
-      const touchAny = touch as any;
-      lastX = (touch.clientX ?? touchAny.x ?? 0) - rect.left;
-      lastY = (touch.clientY ?? touchAny.y ?? 0) - rect.top;
-      if (signatureCtx) {
-        signatureCtx.beginPath();
-        signatureCtx.moveTo(lastX, lastY);
-      }
-    }
-  }).exec();
-  // #endif
-
-  // #ifdef H5
-  if (touch && e.target) {
-    const rect = (e.target as HTMLElement).getBoundingClientRect();
-    lastX = touch.clientX - rect.left;
-    lastY = touch.clientY - rect.top;
-    if (signatureCtx) {
-      signatureCtx.beginPath();
-      signatureCtx.moveTo(lastX, lastY);
-    }
-  }
-  // #endif
-}
-
-function handleSignatureTouchMove(e: any): void {
-  if (!isDrawing || !signatureCtx) return;
-  e.preventDefault?.();
-  const touch = e.touches?.[0] || e.detail?.touches?.[0];
-  let currentX = 0;
-  let currentY = 0;
-
-  // #ifdef MP-WEIXIN
-  const query = uni.createSelectorQuery();
-  query.select('#signatureCanvas').boundingClientRect((data: any) => {
-    if (data && touch) {
-      // 小程序中使用 clientX 和 clientY，兼容 x 和 y 属性
-      const touchAny = touch as any;
-      currentX = (touch.clientX ?? touchAny.x ?? 0) - data.left;
-      currentY = (touch.clientY ?? touchAny.y ?? 0) - data.top;
-      signatureCtx.lineTo(currentX, currentY);
-      signatureCtx.stroke();
-      lastX = currentX;
-      lastY = currentY;
-    }
-  }).exec();
-  // #endif
-
-  // #ifdef H5
-  if (touch && e.target) {
-    const rect = (e.target as HTMLElement).getBoundingClientRect();
-    currentX = touch.clientX - rect.left;
-    currentY = touch.clientY - rect.top;
-    signatureCtx.lineTo(currentX, currentY);
-    signatureCtx.stroke();
-    lastX = currentX;
-    lastY = currentY;
-  }
-  // #endif
-}
-
-function handleSignatureTouchEnd(): void {
-  isDrawing = false;
-}
-
-function clearSignature(): void {
-  if (!signatureCtx) return;
-  // signaturePickerState.canvasWidth 存储的是 rpx，需要转换为 px
-  const canvasWidthPx = signaturePickerState.canvasWidth / 2;
-  const canvasHeightPx = signaturePickerState.canvasHeight / 2;
-  signatureCtx.clearRect(0, 0, canvasWidthPx, canvasHeightPx);
+  dateRangePickerRef.value?.open(currentValue, onConfirm);
 }
 
 function openSignaturePicker(currentValue: string, onConfirm: (value: string) => void): void {
-  signaturePickerState.currentValue = currentValue;
-  signaturePickerState.onConfirm = onConfirm;
-  signaturePickerState.show = true;
-  nextTick(() => {
-    initSignatureCanvas();
-  });
-}
-
-function closeSignaturePicker(): void {
-  signaturePickerState.show = false;
-}
-
-function confirmSignature() {
-  // #ifdef MP-WEIXIN
-  nextTick(() => {
-    const query = uni.createSelectorQuery();
-    query.select('#signatureCanvas').node((res: any) => {
-      const canvas = res.node;
-      if (canvas) {
-        // 对于 2d canvas，使用 canvas 参数
-        // signaturePickerState.canvasWidth 存储的是 rpx，需要转换为 px
-        const canvasWidthPx = signaturePickerState.canvasWidth / 2;
-        const canvasHeightPx = signaturePickerState.canvasHeight / 2;
-        uni.canvasToTempFilePath({
-          canvas: canvas as any,
-          width: canvasWidthPx,
-          height: canvasHeightPx,
-          destWidth: canvasWidthPx,
-          destHeight: canvasHeightPx,
-          success: (res: any) => {
-            if (signaturePickerState.onConfirm) {
-              signaturePickerState.onConfirm(res.tempFilePath);
-            }
-            closeSignaturePicker();
-          },
-          fail: (err: any) => {
-            console.error('导出签名失败:', err);
-            uni.showToast({
-              title: '导出签名失败',
-              icon: 'none',
-            });
-          },
-        } as any);
-      }
-    }).exec();
-  });
-  // #endif
-
-  // #ifdef H5
-  // 延迟执行确保 canvas 已经初始化
-  setTimeout(() => {
-    const canvas = document.getElementById('signatureCanvas') as HTMLCanvasElement;
-    if (canvas && canvas instanceof HTMLCanvasElement) {
-      try {
-        const dataUrl = canvas.toDataURL('image/png');
-        if (signaturePickerState.onConfirm) {
-          signaturePickerState.onConfirm(dataUrl);
-        }
-        closeSignaturePicker();
-      }
-      catch (error) {
-        console.error('导出签名失败:', error);
-        uni.showToast({
-          title: '导出签名失败',
-          icon: 'none',
-        });
-      }
-    }
-    else {
-      console.error('Canvas 元素未找到或不是有效的 canvas 元素');
-      uni.showToast({
-        title: '导出签名失败',
-        icon: 'none',
-      });
-    }
-  }, 100);
-  // #endif
+  signaturePickerRef.value?.open(currentValue, onConfirm);
 }
 
 // 打开报修类型选择器
@@ -1060,7 +490,7 @@ provide('openRepairTypePicker', openRepairTypePicker);
 
 // 页面加载时接收参数
 onLoad((options: any) => {
-  // 根据传入的type参数设置默认申请类型
+  // 根据传入的 type 参数设置默认申请类型，支持 form?type=checkIn|checkOut|stay|transfer 直达
   if (options.type) {
     const typeMap: Record<string, string> = {
       checkIn: 'normalCheckIn', // 入住申请默认正常入住
@@ -1075,22 +505,10 @@ onLoad((options: any) => {
       if (typeIndex >= 0) {
         applyTypeIndex.value = typeIndex;
         formData.applyType = defaultType;
+        hideTypePicker.value = true;
       }
     }
   }
-});
-
-// 初始化签名画布尺寸
-onMounted(() => {
-  const systemInfo = uni.getSystemInfoSync();
-  const screenWidth = systemInfo.windowWidth;
-  // 画布尺寸：横向布局，宽度约为屏幕宽度的 85%（考虑 padding），高度为宽度的 50%（横向）
-  // screenWidth 是 px，转换为 rpx（乘以 2，基于 750rpx = 375px 的标准）
-  const displayWidthRpx = Math.floor((screenWidth - 80) * 2); // 显示宽度（rpx）
-  const displayHeightRpx = Math.floor(displayWidthRpx * 0.5); // 显示高度（rpx），横向比例为 2:1
-  // 实际像素尺寸（用于 canvas 绘制，考虑高分辨率）
-  signaturePickerState.canvasWidth = displayWidthRpx; // 实际像素宽度
-  signaturePickerState.canvasHeight = displayHeightRpx; // 实际像素高度
 });
 
 // 取消
@@ -1121,18 +539,7 @@ async function handleSubmit() {
 
     if (applyType === 'normalCheckIn' || applyType === 'tempCheckIn') {
       // 入住申请
-      const studentId = userInfo.value?.studentInfo?.id || userInfo.value?.id;
-      if (!studentId) {
-        uni.hideLoading();
-        uni.showToast({
-          title: '无法获取学生信息',
-          icon: 'none',
-        });
-        return;
-      }
-
       await submitCheckInAPI({
-        studentId,
         checkInType: applyType === 'normalCheckIn' ? 1 : 2,
         checkInDate: formData.stayStartDate || new Date().toISOString().slice(0, 10),
         expectedCheckOutDate: applyType === 'tempCheckIn' ? formData.stayEndDate : undefined,
@@ -1141,58 +548,24 @@ async function handleSubmit() {
     }
     else if (applyType === 'transfer') {
       // 调宿申请
-      const studentId = userInfo.value?.studentInfo?.id || userInfo.value?.id;
-      if (!studentId) {
-        uni.hideLoading();
-        uni.showToast({
-          title: '无法获取学生信息',
-          icon: 'none',
-        });
-        return;
-      }
-
       await submitTransferAPI({
-        studentId,
+        transferDate: new Date().toISOString().slice(0, 10),
         transferReason: formData.reason,
       });
     }
     else if (applyType === 'checkOut') {
       // 退宿申请
-      const studentId = userInfo.value?.studentInfo?.id || userInfo.value?.id;
-      if (!studentId) {
-        uni.hideLoading();
-        uni.showToast({
-          title: '无法获取学生信息',
-          icon: 'none',
-        });
-        return;
-      }
-
       await submitCheckOutAPI({
-        studentId,
         checkOutReason: formData.reason,
         checkOutDate: formData.stayStartDate || new Date().toISOString().slice(0, 10),
       });
     }
     else if (applyType === 'stay') {
       // 留宿申请
-      const studentId = userInfo.value?.studentInfo?.id || userInfo.value?.id;
-      if (!studentId) {
-        uni.hideLoading();
-        uni.showToast({
-          title: '无法获取学生信息',
-          icon: 'none',
-        });
-        return;
-      }
-
       await submitStayAPI({
-        studentId,
         stayStartDate: formData.stayStartDate || '',
         stayEndDate: formData.stayEndDate || '',
         stayReason: formData.reason,
-        parentName: formData.parentName,
-        parentPhone: formData.parentPhone,
       });
     }
     else if (applyType === 'repair') {
@@ -1939,279 +1312,6 @@ $glass-border: rgb(255 255 255 / 80%);
 }
 
 // 日期选择器样式
-.date-picker-view {
-  width: 100%;
-  height: 400rpx;
-  background: #fff;
-}
-
-// 日期范围选择弹窗样式
-.date-range-picker-popup {
-  position: fixed !important;
-  right: 0 !important;
-  bottom: 0 !important;
-  left: 0 !important;
-  z-index: 99999 !important;
-  overflow: hidden;
-  padding-bottom: env(safe-area-inset-bottom);
-  width: 100vw !important;
-  max-height: 80vh;
-  background: #fff;
-  border-radius: 32rpx 32rpx 0 0;
-  animation: slideUp 0.3s;
-
-  .picker-popup-header {
-    display: flex !important;
-    justify-content: space-between !important;
-    align-items: center !important;
-    padding: 32rpx 48rpx !important;
-    width: 100% !important;
-    background: #fff !important;
-    border-bottom: 1rpx solid rgb(229 231 235 / 50%) !important;
-    box-sizing: border-box !important;
-
-    .picker-popup-btn {
-      display: flex !important;
-      justify-content: center !important;
-      align-items: center !important;
-      padding: 8rpx 16rpx !important;
-      font-size: 32rpx !important;
-      transition: all 0.2s;
-      font-weight: 500 !important;
-
-      &.cancel-btn {
-        color: #6b7280 !important;
-
-        &:active {
-          color: #111817 !important;
-        }
-      }
-
-      &.confirm-btn {
-        color: #0adbc3 !important;
-        font-weight: 600 !important;
-
-        &:active {
-          color: #08bda8 !important;
-        }
-      }
-    }
-
-    .picker-popup-title {
-      display: block !important;
-      font-size: 36rpx !important;
-      text-align: center !important;
-      color: #111817 !important;
-      flex: 1 !important;
-      font-weight: 700 !important;
-    }
-  }
-
-  .picker-popup-content {
-    overflow-y: auto;
-    padding: 0;
-    max-height: calc(80vh - 200rpx);
-  }
-
-  .date-range-tabs {
-    display: flex;
-    padding: 0 48rpx;
-    border-bottom: 1rpx solid rgb(229 231 235 / 50%);
-    margin-bottom: 24rpx;
-
-    .date-tab {
-      padding: 24rpx 0;
-      font-size: 28rpx;
-      text-align: center;
-      color: #6b7280;
-      transition: all 0.2s;
-      flex: 1;
-      border-bottom: 2rpx solid transparent;
-
-      &.active {
-        color: #0adbc3;
-        font-weight: 700;
-        border-bottom-color: #0adbc3;
-      }
-    }
-  }
-
-  .date-picker-view {
-    width: 100%;
-    height: 400rpx;
-    background: #fff;
-  }
-
-  picker-view {
-    width: 100%;
-    height: 100%;
-    background: #fff;
-  }
-
-  picker-view-column {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-  }
-
-  // 未选中项 - 浅灰色
-  :deep(.picker-view-item) {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
-    font-size: 32rpx;
-    color: #9ca3af;
-    transition: all 0.3s;
-    line-height: 1.5;
-    font-weight: 400;
-  }
-
-  // 选中项 - 深色字体，突出显示
-  :deep(.picker-view-item-selected) {
-    font-size: 32rpx;
-    color: #111817 !important;
-    font-weight: 600 !important;
-  }
-}
-
-// 全局 Picker View 样式（微信小程序）
-picker-view {
-  width: 100%;
-  height: 100%;
-  background: #fff;
-}
-
-picker-view-column {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
-}
-
-picker-view .picker-view-item {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-  font-size: 32rpx;
-  color: #111817;
-  transition: all 0.3s;
-}
-
-// 选中项样式
-picker-view .picker-view-item-selected {
-  font-size: 36rpx;
-  color: #0adbc3;
-  font-weight: 700;
-}
-
-// 签名弹窗样式
-.signature-modal {
-  position: fixed !important;
-  top: 50% !important;
-  left: 50% !important;
-  z-index: 99999 !important;
-  display: flex;
-  overflow: hidden;
-  width: 680rpx;
-  max-height: 90vh;
-  background: #fff;
-  border-radius: 32rpx;
-  transform: translate(-50%, -50%) !important;
-  flex-direction: column;
-  animation: scaleIn 0.3s;
-}
-
-@keyframes scaleIn {
-  from {
-    opacity: 0;
-    transform: translate(-50%, -50%) scale(0.9);
-  }
-
-  to {
-    opacity: 1;
-    transform: translate(-50%, -50%) scale(1);
-  }
-}
-
-.signature-modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 32rpx 40rpx;
-  border-bottom: 1rpx solid rgb(229 231 235 / 50%);
-
-  .modal-title {
-    font-size: 36rpx;
-    font-weight: 700;
-    color: #111817;
-  }
-
-  .modal-close {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 64rpx;
-    height: 64rpx;
-    border-radius: 50%;
-
-    &:active {
-      background: rgb(0 0 0 / 5%);
-    }
-  }
-}
-
-.signature-canvas-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 40rpx;
-  background: #f9fafb;
-}
-
-.signature-canvas {
-  background: #fff;
-  border: 1rpx solid #e5e7eb;
-  border-radius: 16rpx;
-  touch-action: none;
-}
-
-.signature-modal-actions {
-  display: flex;
-  gap: 24rpx;
-  padding: 32rpx 40rpx;
-  border-top: 1rpx solid rgb(229 231 235 / 50%);
-
-  .action-btn {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 88rpx;
-    font-size: 32rpx;
-    border-radius: 24rpx;
-    transition: all 0.2s;
-    flex: 1;
-    font-weight: 700;
-
-    &:active {
-      transform: scale(0.95);
-    }
-
-    &.clear-btn {
-      color: #6b7280;
-      background: rgb(229 231 235);
-    }
-
-    &.confirm-btn {
-      color: #fff;
-      background: linear-gradient(to right, #0adbc3, #08bda8);
-      box-shadow: 0 8rpx 24rpx rgb(10 219 195 / 30%);
-    }
-  }
-}
-
 // 遮罩层
 .picker-overlay {
   position: fixed;

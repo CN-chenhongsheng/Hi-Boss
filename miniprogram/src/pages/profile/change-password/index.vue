@@ -28,7 +28,7 @@
           <input
             v-model="formData.oldPassword"
             class="form-input"
-            :type="showOldPwd ? 'text' : 'password'"
+            :type="(showOldPwd ? 'text' : 'password') as any"
             placeholder="请输入原密码"
           >
           <view class="pwd-toggle" @click="showOldPwd = !showOldPwd">
@@ -44,7 +44,7 @@
           <input
             v-model="formData.newPassword"
             class="form-input"
-            :type="showNewPwd ? 'text' : 'password'"
+            :type="(showNewPwd ? 'text' : 'password') as any"
             placeholder="请输入新密码（6-20位）"
           >
           <view class="pwd-toggle" @click="showNewPwd = !showNewPwd">
@@ -60,7 +60,7 @@
           <input
             v-model="formData.confirmPassword"
             class="form-input"
-            :type="showConfirmPwd ? 'text' : 'password'"
+            :type="(showConfirmPwd ? 'text' : 'password') as any"
             placeholder="请再次输入新密码"
           >
           <view class="pwd-toggle" @click="showConfirmPwd = !showConfirmPwd">

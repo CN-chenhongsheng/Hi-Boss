@@ -1,4 +1,4 @@
-import type { IUser, UserRole } from '@/types';
+import type { IUser } from '@/types';
 
 export type RoleType = '' | '*' | 'user';
 

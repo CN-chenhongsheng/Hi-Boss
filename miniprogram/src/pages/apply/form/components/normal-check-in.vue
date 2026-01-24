@@ -29,7 +29,7 @@ interface Props {
   };
 }
 
-const _props = defineProps<Props>();
+defineProps<Props>();
 
 const emit = defineEmits<{
   update: [field: string, value: any];

@@ -25,6 +25,17 @@ export function createApp() {
   // 网络请求
   setupRequest();
 
+  // 全局错误处理
+  app.config.errorHandler = (err, instance, info) => {
+    console.error('[Global Error]', err, info);
+    uni.showToast({ title: '系统错误，请稍后重试', icon: 'none' });
+  };
+
+  // Promise 未捕获异常
+  uni.onUnhandledRejection((res) => {
+    console.error('[Unhandled Rejection]', res.reason);
+  });
+
   return {
     app,
   };

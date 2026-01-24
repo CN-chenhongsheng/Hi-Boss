@@ -1,0 +1,22 @@
+@use './variables' as *;
+
+// 毛玻璃卡片
+@mixin glass-card($bg: $glass-bg, $blur: 32rpx) {
+  background: $bg;
+  border: 2rpx solid $glass-border;
+  border-radius: $radius-xl;
+  box-shadow: $shadow-md;
+  backdrop-filter: blur($blur);
+}
+
+// 背景装饰球
+@mixin ambient-blob($color, $size: 500rpx) {
+  position: absolute;
+  width: $size;
+  height: $size;
+  background-color: $color;
+  border-radius: 50%;
+  opacity: 0.6;
+  filter: blur(120rpx);
+  pointer-events: none;
+}

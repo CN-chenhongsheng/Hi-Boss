@@ -30,7 +30,7 @@
         </view>
 
         <!-- 申请信息卡片 -->
-        <view class="info-card glass-card">
+        <view class="glass-card info-card">
           <!-- 卡片头部 -->
           <view class="card-header">
             <view class="card-header-left">
@@ -243,7 +243,8 @@ import { cancelCheckInAPI, getCheckInDetailAPI } from '@/api/accommodation/check
 import { cancelCheckOutAPI, getCheckOutDetailAPI } from '@/api/accommodation/check-out';
 import { cancelTransferAPI, getTransferDetailAPI } from '@/api/accommodation/transfer';
 import { cancelStayAPI, getStayDetailAPI } from '@/api/accommodation/stay';
-import { type IApprovalInstance, type IApprovalRecord, getApprovalInstanceByBusinessAPI } from '@/api/approval';
+import { getApprovalInstanceByBusinessAPI } from '@/api/approval';
+import type { IApprovalInstance } from '@/types/api';
 
 const defaultAvatar = 'https://via.placeholder.com/150';
 

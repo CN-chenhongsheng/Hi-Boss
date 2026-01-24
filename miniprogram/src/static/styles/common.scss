@@ -1,6 +1,9 @@
+@use '../../styles/variables' as *;
+@use '../../styles/components' as *;
+
 page {
 	font-size: 28rpx;
-	background-color: #f9f9f8;
+	background-color: $bg-light;
 }
 
 // 全局 Picker 样式统一改造

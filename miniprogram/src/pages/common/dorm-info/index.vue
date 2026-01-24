@@ -96,7 +96,7 @@
 <script setup lang="ts">
 import { onMounted, reactive, ref } from 'vue';
 import { getDormInfoAPI, getRoommatesAPI } from '@/api/dormitory';
-import type { IDormInfo, IRoommate } from '@/api/dormitory';
+import type { IDormInfo, IRoommate } from '@/types/api';
 
 const defaultAvatar = 'https://via.placeholder.com/100';
 

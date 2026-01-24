@@ -6,7 +6,8 @@
 import { defineStore } from 'pinia';
 import type { UserState, providerType } from './types';
 import type { ILoginParams, IUser, UserRole } from '@/types';
-import { type IBackendLoginResponse, getUserInfoAPI, loginAPI, logoutAPI, studentLoginAPI, wxLoginAPI } from '@/api';
+import type { IBackendLoginResponse } from '@/types/api';
+import { getUserInfoAPI, loginAPI, logoutAPI, studentLoginAPI, wxLoginAPI } from '@/api';
 import { clearToken, getToken, setToken } from '@/utils/auth';
 import { USE_MOCK, getMockUserByRole, mockLoginResponse } from '@/mock';
 import { UserRole as UserRoleEnum } from '@/types';

@@ -83,30 +83,6 @@
       "root": "pages/apply",
       "pages": [
         {
-          "path": "check-in/index",
-          "style": {
-            "navigationBarTitleText": "入住申请"
-          }
-        },
-        {
-          "path": "transfer/index",
-          "style": {
-            "navigationBarTitleText": "调宿申请"
-          }
-        },
-        {
-          "path": "check-out/index",
-          "style": {
-            "navigationBarTitleText": "退宿申请"
-          }
-        },
-        {
-          "path": "stay/index",
-          "style": {
-            "navigationBarTitleText": "留宿申请"
-          }
-        },
-        {
           "path": "detail/index",
           "style": {
             "navigationBarTitleText": "申请详情",
