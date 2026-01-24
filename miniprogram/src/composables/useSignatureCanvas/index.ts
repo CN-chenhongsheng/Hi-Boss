@@ -2,6 +2,7 @@
  * 签名 Canvas 管理组合式函数
  */
 
+import type { ComponentInternalInstance, Ref } from 'vue';
 import { nextTick, ref } from 'vue';
 
 interface SignatureCanvasConfig {
@@ -9,11 +10,18 @@ interface SignatureCanvasConfig {
   canvasHeight: number;
 }
 
-export function useSignatureCanvas(config: SignatureCanvasConfig) {
+export function useSignatureCanvas(
+  config: SignatureCanvasConfig,
+  instance?: ComponentInternalInstance | null,
+  h5CanvasRef?: Ref<HTMLCanvasElement | null>,
+) {
   let signatureCtx: any = null;
   const isDrawing = ref(false);
-  let lastX = 0;
-  let lastY = 0;
+  /** 绘图坐标系宽高（与 canvas 绘制空间一致），用于触摸/鼠标坐标换算 */
+  let logicalWidth = 0;
+  let logicalHeight = 0;
+  /** H5 环境下缓存的 canvas 元素引用 */
+  let h5Canvas: HTMLCanvasElement | null = null;
 
   /**
    * 初始化签名画布
@@ -22,25 +30,60 @@ export function useSignatureCanvas(config: SignatureCanvasConfig) {
     // #ifdef MP-WEIXIN
     nextTick(() => {
       setTimeout(() => {
-        const query = uni.createSelectorQuery();
+        const query = instance ? uni.createSelectorQuery().in(instance as any) : uni.createSelectorQuery();
         query.select('#signatureCanvas').node((res: any) => {
-          const canvas = res.node;
-          if (canvas) {
-            signatureCtx = canvas.getContext('2d');
-            if (signatureCtx) {
-              const canvasWidthPx = config.canvasWidth / 2;
-              const canvasHeightPx = config.canvasHeight / 2;
-              const dpr = uni.getSystemInfoSync().pixelRatio || 2;
+          if (res && res.node) {
+            const canvas = res.node;
+            if (canvas) {
+              signatureCtx = canvas.getContext('2d');
+              if (signatureCtx) {
+                const canvasWidthPx = config.canvasWidth / 2;
+                const canvasHeightPx = config.canvasHeight / 2;
+                logicalWidth = canvasWidthPx;
+                logicalHeight = canvasHeightPx;
+                const dpr = uni.getSystemInfoSync().pixelRatio || 2;
 
-              canvas.width = canvasWidthPx * dpr;
-              canvas.height = canvasHeightPx * dpr;
+                canvas.width = canvasWidthPx * dpr;
+                canvas.height = canvasHeightPx * dpr;
 
-              signatureCtx.scale(dpr, dpr);
-              signatureCtx.strokeStyle = '#111817';
-              signatureCtx.lineWidth = 3;
-              signatureCtx.lineCap = 'round';
-              signatureCtx.lineJoin = 'round';
+                signatureCtx.scale(dpr, dpr);
+                signatureCtx.strokeStyle = '#111817';
+                signatureCtx.lineWidth = 3;
+                signatureCtx.lineCap = 'round';
+                signatureCtx.lineJoin = 'round';
+              }
             }
+          }
+          else {
+            console.warn('Canvas node not found, retrying...');
+            // 重试一次
+            setTimeout(() => {
+              const retryQuery = instance ? uni.createSelectorQuery().in(instance as any) : uni.createSelectorQuery();
+              retryQuery.select('#signatureCanvas').node((retryRes: any) => {
+                if (retryRes && retryRes.node) {
+                  const canvas = retryRes.node;
+                  if (canvas) {
+                    signatureCtx = canvas.getContext('2d');
+                    if (signatureCtx) {
+                      const canvasWidthPx = config.canvasWidth / 2;
+                      const canvasHeightPx = config.canvasHeight / 2;
+                      logicalWidth = canvasWidthPx;
+                      logicalHeight = canvasHeightPx;
+                      const dpr = uni.getSystemInfoSync().pixelRatio || 2;
+
+                      canvas.width = canvasWidthPx * dpr;
+                      canvas.height = canvasHeightPx * dpr;
+
+                      signatureCtx.scale(dpr, dpr);
+                      signatureCtx.strokeStyle = '#111817';
+                      signatureCtx.lineWidth = 3;
+                      signatureCtx.lineCap = 'round';
+                      signatureCtx.lineJoin = 'round';
+                    }
+                  }
+                }
+              }).exec();
+            }, 200);
           }
         }).exec();
       }, 100);
@@ -50,12 +93,21 @@ export function useSignatureCanvas(config: SignatureCanvasConfig) {
     // #ifdef H5
     nextTick(() => {
       setTimeout(() => {
-        const canvas = document.getElementById('signatureCanvas') as HTMLCanvasElement;
+        // 优先使用传入的 ref，否则尝试 document.getElementById
+        const canvas = h5CanvasRef?.value || document.getElementById('signatureCanvas') as HTMLCanvasElement;
         if (canvas && canvas instanceof HTMLCanvasElement) {
+          h5Canvas = canvas;
           signatureCtx = canvas.getContext('2d');
           if (signatureCtx) {
-            canvas.width = config.canvasWidth;
-            canvas.height = config.canvasHeight;
+            const systemInfo = uni.getSystemInfoSync();
+            const screenWidth = systemInfo.windowWidth;
+            const canvasWidthPx = Math.floor((config.canvasWidth / 750) * screenWidth);
+            const canvasHeightPx = Math.floor((config.canvasHeight / 750) * screenWidth);
+
+            logicalWidth = canvasWidthPx;
+            logicalHeight = canvasHeightPx;
+            canvas.width = canvasWidthPx;
+            canvas.height = canvasHeightPx;
             signatureCtx.strokeStyle = '#111817';
             signatureCtx.lineWidth = 3;
             signatureCtx.lineCap = 'round';
@@ -67,35 +119,46 @@ export function useSignatureCanvas(config: SignatureCanvasConfig) {
     // #endif
   }
 
+  function scaleToCanvas(
+    clientX: number,
+    clientY: number,
+    rect: { left: number; top: number; width?: number; height?: number; right?: number; bottom?: number },
+  ): { x: number; y: number } {
+    const w = (rect.width ?? (rect.right != null && rect.left != null ? rect.right - rect.left : 0)) || 1;
+    const h = (rect.height ?? (rect.bottom != null && rect.top != null ? rect.bottom - rect.top : 0)) || 1;
+    const x = ((clientX - rect.left) / w) * logicalWidth;
+    const y = ((clientY - rect.top) / h) * logicalHeight;
+    return { x, y };
+  }
+
   /**
    * 处理触摸开始
    */
   function handleTouchStart(e: TouchEvent) {
+    if (!e.touches?.length) return;
     isDrawing.value = true;
     const touch = e.touches[0];
+    const clientX = (touch as any).clientX ?? (touch as any).x;
+    const clientY = (touch as any).clientY ?? (touch as any).y;
 
     // #ifdef MP-WEIXIN
-    const query = uni.createSelectorQuery();
+    const query = instance ? uni.createSelectorQuery().in(instance as any) : uni.createSelectorQuery();
     query.select('#signatureCanvas').boundingClientRect((rect: any) => {
-      if (rect) {
-        const touchWithXY = touch as any;
-        lastX = (touch.clientX || touchWithXY.x) - rect.left;
-        lastY = (touch.clientY || touchWithXY.y) - rect.top;
-        if (signatureCtx) {
-          signatureCtx.beginPath();
-          signatureCtx.moveTo(lastX, lastY);
-        }
+      if (rect && signatureCtx && logicalWidth && logicalHeight) {
+        const { x, y } = scaleToCanvas(clientX, clientY, rect);
+        signatureCtx.beginPath();
+        signatureCtx.moveTo(x, y);
       }
     }).exec();
     // #endif
 
     // #ifdef H5
-    const rect = (e.target as HTMLElement).getBoundingClientRect();
-    lastX = e.touches[0].clientX - rect.left;
-    lastY = e.touches[0].clientY - rect.top;
-    if (signatureCtx) {
+    const canvas = h5Canvas || h5CanvasRef?.value || document.getElementById('signatureCanvas') as HTMLElement | null;
+    const rect = canvas?.getBoundingClientRect?.();
+    if (rect && signatureCtx && logicalWidth && logicalHeight) {
+      const { x, y } = scaleToCanvas(clientX, clientY, rect);
       signatureCtx.beginPath();
-      signatureCtx.moveTo(lastX, lastY);
+      signatureCtx.moveTo(x, y);
     }
     // #endif
   }
@@ -104,33 +167,30 @@ export function useSignatureCanvas(config: SignatureCanvasConfig) {
    * 处理触摸移动
    */
   function handleTouchMove(e: TouchEvent) {
-    if (!isDrawing.value || !signatureCtx) return;
-    e.preventDefault();
+    if (!isDrawing.value || !signatureCtx || !e.touches?.length) return;
     const touch = e.touches[0];
+    const clientX = (touch as any).clientX ?? (touch as any).x;
+    const clientY = (touch as any).clientY ?? (touch as any).y;
 
     // #ifdef MP-WEIXIN
-    const query = uni.createSelectorQuery();
+    const query = instance ? uni.createSelectorQuery().in(instance as any) : uni.createSelectorQuery();
     query.select('#signatureCanvas').boundingClientRect((data: any) => {
-      if (data) {
-        const touchWithXY = touch as any;
-        const currentX = (touch.clientX || touchWithXY.x) - data.left;
-        const currentY = (touch.clientY || touchWithXY.y) - data.top;
-        signatureCtx.lineTo(currentX, currentY);
+      if (data && signatureCtx && logicalWidth && logicalHeight) {
+        const { x, y } = scaleToCanvas(clientX, clientY, data);
+        signatureCtx.lineTo(x, y);
         signatureCtx.stroke();
-        lastX = currentX;
-        lastY = currentY;
       }
     }).exec();
     // #endif
 
     // #ifdef H5
-    const rect = (e.target as HTMLElement).getBoundingClientRect();
-    const currentX = e.touches[0].clientX - rect.left;
-    const currentY = e.touches[0].clientY - rect.top;
-    signatureCtx.lineTo(currentX, currentY);
-    signatureCtx.stroke();
-    lastX = currentX;
-    lastY = currentY;
+    const canvas = h5Canvas || h5CanvasRef?.value || document.getElementById('signatureCanvas') as HTMLElement | null;
+    const rect = canvas?.getBoundingClientRect?.();
+    if (rect && logicalWidth && logicalHeight) {
+      const { x, y } = scaleToCanvas(clientX, clientY, rect);
+      signatureCtx.lineTo(x, y);
+      signatureCtx.stroke();
+    }
     // #endif
   }
 
@@ -142,13 +202,61 @@ export function useSignatureCanvas(config: SignatureCanvasConfig) {
   }
 
   /**
+   * H5 鼠标按下（桌面端绘制）
+   */
+  function handleMouseDown(e: MouseEvent) {
+    if (!signatureCtx || !logicalWidth || !logicalHeight) return;
+    isDrawing.value = true;
+    const canvas = h5Canvas || h5CanvasRef?.value || document.getElementById('signatureCanvas') as HTMLElement | null;
+    const rect = canvas?.getBoundingClientRect?.();
+    if (!rect) return;
+    const { x, y } = scaleToCanvas(e.clientX, e.clientY, rect);
+    signatureCtx.beginPath();
+    signatureCtx.moveTo(x, y);
+  }
+
+  /**
+   * H5 鼠标移动
+   */
+  function handleMouseMove(e: MouseEvent) {
+    if (!isDrawing.value || !signatureCtx) return;
+    const canvas = h5Canvas || h5CanvasRef?.value || document.getElementById('signatureCanvas') as HTMLElement | null;
+    const rect = canvas?.getBoundingClientRect?.();
+    if (!rect) return;
+    const { x, y } = scaleToCanvas(e.clientX, e.clientY, rect);
+    signatureCtx.lineTo(x, y);
+    signatureCtx.stroke();
+  }
+
+  /**
+   * H5 鼠标释放 / 移出画布
+   */
+  function handleMouseUp() {
+    isDrawing.value = false;
+  }
+
+  /**
    * 清除签名
    */
   function clearSignature() {
     if (!signatureCtx) return;
-    const canvasWidthPx = config.canvasWidth / 2;
-    const canvasHeightPx = config.canvasHeight / 2;
-    signatureCtx.clearRect(0, 0, canvasWidthPx, canvasHeightPx);
+
+    let w: number;
+    let h: number;
+
+    // #ifdef MP-WEIXIN
+    w = config.canvasWidth / 2;
+    h = config.canvasHeight / 2;
+    // #endif
+
+    // #ifdef H5
+    const systemInfo = uni.getSystemInfoSync();
+    const screenWidth = systemInfo.windowWidth;
+    w = Math.floor((config.canvasWidth / 750) * screenWidth);
+    h = Math.floor((config.canvasHeight / 750) * screenWidth);
+    // #endif
+
+    signatureCtx.clearRect(0, 0, w, h);
   }
 
   /**
@@ -158,8 +266,13 @@ export function useSignatureCanvas(config: SignatureCanvasConfig) {
     return new Promise((resolve, reject) => {
       // #ifdef MP-WEIXIN
       nextTick(() => {
-        const query = uni.createSelectorQuery();
+        const query = instance ? uni.createSelectorQuery().in(instance as any) : uni.createSelectorQuery();
         query.select('#signatureCanvas').node((res: any) => {
+          if (!res || !res.node) {
+            console.error('Canvas node not found in exportSignature');
+            reject(new Error('Canvas not found'));
+            return;
+          }
           const canvas = res.node;
           if (canvas) {
             const canvasWidthPx = config.canvasWidth / 2;
@@ -189,7 +302,7 @@ export function useSignatureCanvas(config: SignatureCanvasConfig) {
 
       // #ifdef H5
       setTimeout(() => {
-        const canvas = document.getElementById('signatureCanvas') as HTMLCanvasElement;
+        const canvas = h5Canvas || h5CanvasRef?.value || document.getElementById('signatureCanvas') as HTMLCanvasElement;
         if (canvas && canvas instanceof HTMLCanvasElement) {
           try {
             const dataUrl = canvas.toDataURL('image/png');
@@ -208,13 +321,24 @@ export function useSignatureCanvas(config: SignatureCanvasConfig) {
     });
   }
 
+  /**
+   * 检查 canvas 是否已初始化
+   */
+  function isCanvasReady(): boolean {
+    return signatureCtx !== null;
+  }
+
   return {
     isDrawing,
     initSignatureCanvas,
     handleTouchStart,
     handleTouchMove,
     handleTouchEnd,
+    handleMouseDown,
+    handleMouseMove,
+    handleMouseUp,
     clearSignature,
     exportSignature,
+    isCanvasReady,
   };
 }

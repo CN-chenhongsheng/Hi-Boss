@@ -13,7 +13,7 @@
       </view>
       <view class="input-content">
         <view class="input-value" :class="{ 'placeholder': !displayValue, 'has-value': displayValue }">
-          {{ displayValue || '请选择日期范围' }}
+          {{ displayValue || placeholder }}
         </view>
       </view>
       <view class="input-arrow">
@@ -25,34 +25,49 @@
 
 <script setup lang="ts">
 import { inject, nextTick, ref, watch } from 'vue';
+import type { DateRangePickerMode } from '@/composables/useDateRangePicker';
+
+interface DateRange { startDate?: string; endDate?: string }
 
 interface Props {
-  modelValue?: {
-    startDate?: string;
-    endDate?: string;
-  };
+  /** range: 双日期；start / end: 单日期 */
+  mode?: DateRangePickerMode;
+  modelValue?: DateRange | string;
   label?: string;
+  placeholder?: string;
   required?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
+  mode: 'range',
   modelValue: () => ({}),
   label: '留宿时间',
+  placeholder: '请选择日期范围',
   required: false,
 });
 
 const emit = defineEmits<{
-  'update:modelValue': [value: { startDate?: string; endDate?: string }];
+  'update:modelValue': [value: DateRange | string];
 }>();
 
-const openDateRangePicker = inject<(currentValue: { startDate?: string; endDate?: string }, onConfirm: (value: { startDate?: string; endDate?: string }) => void) => void>('openDateRangePicker');
+type OpenFn = (
+  currentValue: DateRange,
+  onConfirm: (value: DateRange) => void,
+  mode?: DateRangePickerMode,
+) => void;
+const openDateRangePicker = inject<OpenFn>('openDateRangePicker');
 
-// 使用本地状态存储显示值（小程序兼容性更好）
 const displayValue = ref('');
 
-// 更新显示值
 function updateDisplayValue() {
-  const { startDate, endDate } = props.modelValue || {};
+  const m = props.modelValue;
+  const mode = props.mode;
+  if (mode === 'start' || mode === 'end') {
+    displayValue.value = typeof m === 'string' ? m : '';
+    return;
+  }
+  const range = (typeof m === 'object' && m ? m : {}) as DateRange;
+  const { startDate, endDate } = range;
   if (startDate && endDate) {
     displayValue.value = `${startDate} 至 ${endDate}`;
   }
@@ -61,27 +76,46 @@ function updateDisplayValue() {
   }
 }
 
-// 监听 props.modelValue 变化（小程序需要显式监听）
-watch(() => [props.modelValue?.startDate, props.modelValue?.endDate], () => {
-  updateDisplayValue();
-}, { immediate: true });
+watch(
+  () => [props.mode, props.modelValue],
+  () => updateDisplayValue(),
+  { immediate: true, deep: true },
+);
 
-// 打开日期范围选择器
+function getCurrentValue(): DateRange {
+  const m = props.modelValue;
+  const mode = props.mode;
+  if (mode === 'start') {
+    const s = typeof m === 'string' ? m : '';
+    return { startDate: s || undefined, endDate: undefined };
+  }
+  if (mode === 'end') {
+    const s = typeof m === 'string' ? m : '';
+    return { startDate: undefined, endDate: s || undefined };
+  }
+  return (typeof m === 'object' && m ? m : {}) as DateRange;
+}
+
 function openDateRangePickerLocal() {
-  if (openDateRangePicker) {
-    openDateRangePicker(props.modelValue || {}, (value) => {
-      // 先更新本地显示值（确保小程序中立即显示）
+  if (!openDateRangePicker) return;
+  const mode = props.mode;
+  openDateRangePicker(getCurrentValue(), (value) => {
+    if (mode === 'start') {
+      displayValue.value = value.startDate || '';
+      emit('update:modelValue', value.startDate || '');
+    }
+    else if (mode === 'end') {
+      displayValue.value = value.endDate || '';
+      emit('update:modelValue', value.endDate || '');
+    }
+    else {
       if (value.startDate && value.endDate) {
         displayValue.value = `${value.startDate} 至 ${value.endDate}`;
       }
-      // 然后触发 emit 更新父组件
       emit('update:modelValue', value);
-      // 使用 nextTick 确保响应式更新完成
-      nextTick(() => {
-        updateDisplayValue();
-      });
-    });
-  }
+    }
+    nextTick(updateDisplayValue);
+  }, mode);
 }
 </script>
 

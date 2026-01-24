@@ -2,11 +2,13 @@
   <view
     v-if="show"
     class="picker-overlay"
+    :class="{ closing: isClosing }"
     @click="close"
   />
   <view
     v-if="show"
     class="signature-modal"
+    :class="{ closing: isClosing }"
   >
     <view class="signature-modal-header">
       <view class="modal-title">
@@ -33,12 +35,18 @@
       <!-- #ifdef H5 -->
       <canvas
         id="signatureCanvas"
+        ref="h5CanvasRef"
         class="signature-canvas"
-        :width="canvasConfig.canvasWidth"
-        :height="canvasConfig.canvasHeight"
-        @touchstart="onTouchStart"
-        @touchmove="onTouchMove"
+        :style="{ width: `100%`, height: `100%` }"
+        :width="canvasWidthPx"
+        :height="canvasHeightPx"
+        @touchstart.prevent="onTouchStart"
+        @touchmove.prevent="onTouchMove"
         @touchend="handleTouchEnd"
+        @mousedown.prevent="onMouseDown"
+        @mousemove="onMouseMove"
+        @mouseup="onMouseUp"
+        @mouseleave="onMouseUp"
       />
       <!-- #endif -->
     </view>
@@ -55,26 +63,52 @@
 </template>
 
 <script setup lang="ts">
-import { nextTick, onMounted, reactive, ref } from 'vue';
+import { computed, getCurrentInstance, nextTick, onMounted, reactive, ref } from 'vue';
 import { useSignatureCanvas } from '@/composables/useSignatureCanvas';
 
 const show = ref(false);
+const isClosing = ref(false);
 const currentValue = ref('');
 const onConfirm = ref<((value: string) => void) | null>(null);
+
+// H5 canvas ref
+const h5CanvasRef = ref<HTMLCanvasElement | null>(null);
 
 const canvasConfig = reactive({
   canvasWidth: 600,
   canvasHeight: 400,
 });
 
+// H5: 将 rpx 转换为 px（用于 canvas 的 width/height 属性）
+// #ifdef H5
+const canvasWidthPx = computed(() => {
+  const systemInfo = uni.getSystemInfoSync();
+  const screenWidth = systemInfo.windowWidth;
+  // rpx 转 px: 1rpx = screenWidth / 750
+  return Math.floor((canvasConfig.canvasWidth / 750) * screenWidth);
+});
+
+const canvasHeightPx = computed(() => {
+  const systemInfo = uni.getSystemInfoSync();
+  const screenWidth = systemInfo.windowWidth;
+  // rpx 转 px: 1rpx = screenWidth / 750
+  return Math.floor((canvasConfig.canvasHeight / 750) * screenWidth);
+});
+// #endif
+
+const instance = getCurrentInstance();
 const {
   initSignatureCanvas,
   handleTouchStart,
   handleTouchMove,
   handleTouchEnd,
+  handleMouseDown,
+  handleMouseMove,
+  handleMouseUp,
   clearSignature,
   exportSignature,
-} = useSignatureCanvas(canvasConfig);
+  isCanvasReady,
+} = useSignatureCanvas(canvasConfig, instance, h5CanvasRef);
 
 function onTouchStart(event: any) {
   handleTouchStart(event as TouchEvent);
@@ -84,24 +118,62 @@ function onTouchMove(event: any) {
   handleTouchMove(event as TouchEvent);
 }
 
+function onMouseDown(event: MouseEvent) {
+  handleMouseDown(event);
+}
+
+function onMouseMove(event: MouseEvent) {
+  handleMouseMove(event);
+}
+
+function onMouseUp() {
+  handleMouseUp();
+}
+
 onMounted(() => {
   const systemInfo = uni.getSystemInfoSync();
   const screenWidth = systemInfo.windowWidth;
-  const displayWidthRpx = Math.floor((screenWidth - 80) * 2);
-  const displayHeightRpx = Math.floor(displayWidthRpx * 0.5);
-  canvasConfig.canvasWidth = displayWidthRpx;
-  canvasConfig.canvasHeight = displayHeightRpx;
+  const screenHeight = systemInfo.windowHeight;
+
+  // #ifdef H5
+  // H5：画布固定较小尺寸，避免过大（约 300×200 逻辑像素）
+  const w = Math.min(320, Math.floor(screenWidth * 0.85));
+  const h = Math.min(220, Math.floor(screenHeight * 0.32));
+  canvasConfig.canvasWidth = Math.floor((w / screenWidth) * 750);
+  canvasConfig.canvasHeight = Math.floor((h / screenWidth) * 750);
+  // #endif
+
+  // #ifdef MP-WEIXIN
+  const modalWidthPx = screenWidth * 0.95;
+  const modalHeightPx = screenHeight * 0.85;
+  const modalWidthRpx = Math.floor(modalWidthPx * 2);
+  const modalHeightRpx = Math.floor(modalHeightPx * 2);
+  const canvasWidthRpx = Math.floor(modalWidthRpx - 64);
+  const canvasHeightRpx = Math.floor(modalHeightRpx - 120 - 150 - 80);
+  canvasConfig.canvasWidth = canvasWidthRpx;
+  canvasConfig.canvasHeight = canvasHeightRpx;
+  // #endif
 });
 
 function open(value: string, onConfirmCallback: (value: string) => void) {
   currentValue.value = value;
   onConfirm.value = onConfirmCallback;
   show.value = true;
-  nextTick(() => initSignatureCanvas());
+  isClosing.value = false;
+  // 延迟初始化，确保 DOM 已渲染
+  nextTick(() => {
+    setTimeout(() => {
+      initSignatureCanvas();
+    }, 150);
+  });
 }
 
 function close() {
-  show.value = false;
+  isClosing.value = true;
+  setTimeout(() => {
+    show.value = false;
+    isClosing.value = false;
+  }, 300); // 等待动画完成
 }
 
 function handleClear() {
@@ -110,6 +182,15 @@ function handleClear() {
 
 async function handleConfirm() {
   try {
+    // 确保 canvas 已初始化
+    if (!isCanvasReady()) {
+      uni.showToast({ title: '签名画布未初始化，请稍候再试', icon: 'none' });
+      // 尝试重新初始化
+      setTimeout(() => {
+        initSignatureCanvas();
+      }, 100);
+      return;
+    }
     const signatureValue = await exportSignature();
     if (onConfirm.value) {
       onConfirm.value(signatureValue);
@@ -118,7 +199,7 @@ async function handleConfirm() {
   }
   catch (error) {
     console.error('导出签名失败:', error);
-    uni.showToast({ title: '导出签名失败', icon: 'none' });
+    uni.showToast({ title: '导出签名失败，请重试', icon: 'none' });
   }
 }
 
@@ -128,6 +209,39 @@ defineExpose({
 </script>
 
 <style lang="scss" scoped>
+// 遮罩层 - 确保全屏覆盖
+.picker-overlay {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 99998 !important;
+  background: rgb(0 0 0 / 50%);
+  animation: fadeIn 0.3s;
+
+  &.closing {
+    animation: fadeOut 0.3s;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
+}
+
 .signature-modal {
   position: fixed !important;
   top: 50% !important;
@@ -135,13 +249,20 @@ defineExpose({
   z-index: 99999 !important;
   display: flex;
   overflow: hidden;
-  width: 680rpx;
-  max-height: 90vh;
+  width: 95vw;
+  max-width: 1000rpx;
+  height: 85vh;
+  max-height: 85vh;
   background: #fff;
   border-radius: 32rpx;
   transform: translate(-50%, -50%) !important;
   flex-direction: column;
   animation: scaleIn 0.3s;
+  box-sizing: border-box;
+
+  &.closing {
+    animation: scaleOut 0.3s;
+  }
 }
 
 @keyframes scaleIn {
@@ -153,6 +274,18 @@ defineExpose({
   to {
     opacity: 1;
     transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+@keyframes scaleOut {
+  from {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+
+  to {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.9);
   }
 }
 
@@ -189,8 +322,10 @@ defineExpose({
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 40rpx;
+  padding: 40rpx 32rpx;
+  min-height: 0;
   background: #f9fafb;
+  flex: 1;
 }
 
 .signature-canvas {

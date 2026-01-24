@@ -2,25 +2,30 @@
   <view
     v-if="state.show"
     class="picker-overlay"
-    @click="closePicker"
+    :class="{ closing: isClosing }"
+    @click="handleClose"
   />
   <view
     v-if="state.show"
     class="date-range-picker-popup"
+    :class="{ closing: isClosing }"
   >
     <view class="picker-popup-header">
-      <view class="cancel-btn picker-popup-btn" @click="closePicker">
+      <view class="cancel-btn picker-popup-btn" @click="handleClose">
         取消
       </view>
       <view class="picker-popup-title">
-        选择日期范围
+        {{ state.mode === 'start' ? '选择开始日期' : state.mode === 'end' ? '选择结束日期' : '选择日期范围' }}
       </view>
       <view class="picker-popup-btn confirm-btn" @click="confirmDateRange">
         完成
       </view>
     </view>
     <view class="picker-popup-content">
-      <view class="date-range-tabs">
+      <view
+        v-if="state.mode === 'range'"
+        class="date-range-tabs"
+      >
         <view
           class="date-tab"
           :class="{ active: state.activeTab === 'start' }"
@@ -75,6 +80,8 @@
 </template>
 
 <script setup lang="ts">
+import { ref, watch } from 'vue';
+import type { DateRangePickerMode } from '@/composables/useDateRangePicker';
 import { useDateRangePicker } from '@/composables/useDateRangePicker';
 
 interface DateRange {
@@ -90,8 +97,29 @@ const {
   handleDatePickerChange,
 } = useDateRangePicker();
 
-function open(currentValue: DateRange, onConfirm: (value: DateRange) => void) {
-  openPicker(currentValue, onConfirm);
+const isClosing = ref(false);
+
+// 监听 show 状态，重置关闭状态
+watch(() => state.show, (newVal) => {
+  if (newVal) {
+    isClosing.value = false;
+  }
+});
+
+function handleClose() {
+  isClosing.value = true;
+  setTimeout(() => {
+    closePicker();
+    isClosing.value = false;
+  }, 300); // 等待动画完成
+}
+
+function open(
+  currentValue: DateRange,
+  onConfirm: (value: DateRange) => void,
+  mode: DateRangePickerMode = 'range',
+) {
+  openPicker(currentValue, onConfirm, mode);
 }
 
 defineExpose({
@@ -100,6 +128,39 @@ defineExpose({
 </script>
 
 <style lang="scss" scoped>
+// 遮罩层 - 确保全屏覆盖
+.picker-overlay {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 99998 !important;
+  background: rgb(0 0 0 / 50%);
+  animation: fadeIn 0.3s;
+
+  &.closing {
+    animation: fadeOut 0.3s;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
+}
+
 .date-picker-view {
   width: 100%;
   height: 400rpx;
@@ -119,6 +180,10 @@ defineExpose({
   background: #fff;
   border-radius: 32rpx 32rpx 0 0;
   animation: slideUp 0.3s;
+
+  &.closing {
+    animation: slideDown 0.3s;
+  }
 
   .picker-popup-header {
     display: flex !important;
@@ -231,6 +296,26 @@ defineExpose({
     font-size: 32rpx;
     color: #111817 !important;
     font-weight: 600 !important;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+  }
+
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideDown {
+  from {
+    transform: translateY(0);
+  }
+
+  to {
+    transform: translateY(100%);
   }
 }
 </style>

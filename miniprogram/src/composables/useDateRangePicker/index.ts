@@ -9,10 +9,13 @@ interface DateRange {
   endDate?: string;
 }
 
+export type DateRangePickerMode = 'range' | 'start' | 'end';
+
 type DateTab = 'start' | 'end';
 
 interface DateRangePickerState {
   show: boolean;
+  mode: DateRangePickerMode;
   activeTab: DateTab;
   startDatePickerValue: number[];
   endDatePickerValue: number[];
@@ -27,6 +30,7 @@ interface DateRangePickerState {
 export function useDateRangePicker() {
   const state = reactive<DateRangePickerState>({
     show: false,
+    mode: 'range',
     activeTab: 'start',
     startDatePickerValue: [0, 0, 0],
     endDatePickerValue: [0, 0, 0],
@@ -39,7 +43,7 @@ export function useDateRangePicker() {
   });
 
   /**
-   * 初始化日期选项
+   * 初始化日期选项（始终初始化起止，mode 仅影响弹窗展示与确认结果）
    */
   function initDateOptions(currentValue?: DateRange) {
     const currentYear = new Date().getFullYear();
@@ -55,7 +59,6 @@ export function useDateRangePicker() {
       state.months.push(i);
     }
 
-    // 初始化开始日期
     if (currentValue?.startDate) {
       const [year, month, day] = currentValue.startDate.split('-').map(Number);
       const yearIndex = state.years.indexOf(year);
@@ -78,7 +81,6 @@ export function useDateRangePicker() {
       }
     }
 
-    // 初始化结束日期
     if (currentValue?.endDate) {
       const [year, month, day] = currentValue.endDate.split('-').map(Number);
       const yearIndex = state.years.indexOf(year);
@@ -165,11 +167,17 @@ export function useDateRangePicker() {
 
   /**
    * 打开日期范围选择器
+   * @param mode 'range' 双日期 | 'start' 仅开始 | 'end' 仅结束
    */
-  function openPicker(currentValue: DateRange, onConfirm: (value: DateRange) => void) {
+  function openPicker(
+    currentValue: DateRange,
+    onConfirm: (value: DateRange) => void,
+    mode: DateRangePickerMode = 'range',
+  ) {
     state.currentDateRange = currentValue;
     state.onConfirm = onConfirm;
-    state.activeTab = 'start';
+    state.mode = mode;
+    state.activeTab = mode === 'end' ? 'end' : 'start';
     initDateOptions(currentValue);
     state.show = true;
   }
@@ -207,7 +215,8 @@ export function useDateRangePicker() {
     const startDate = `${startYear}-${formatDateNumber(startMonth)}-${formatDateNumber(startDay)}`;
     const endDate = `${endYear}-${formatDateNumber(endMonth)}-${formatDateNumber(endDay)}`;
 
-    if (new Date(endDate) < new Date(startDate)) {
+    const mode = state.mode;
+    if (mode === 'range' && new Date(endDate) < new Date(startDate)) {
       uni.showToast({
         title: '结束日期不能早于开始日期',
         icon: 'none',
@@ -217,7 +226,12 @@ export function useDateRangePicker() {
 
     if (state.onConfirm) {
       try {
-        const dateValue = { startDate, endDate };
+        const dateValue: DateRange
+          = mode === 'start'
+            ? { startDate, endDate: undefined }
+            : mode === 'end'
+              ? { startDate: undefined, endDate }
+              : { startDate, endDate };
         state.onConfirm(dateValue);
       }
       catch (error) {

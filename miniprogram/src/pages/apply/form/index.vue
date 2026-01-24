@@ -1,105 +1,107 @@
 <template>
   <view>
+    <!-- 弹窗组件移到最外层，确保全屏显示 -->
+    <!-- 申请类型选择弹窗 -->
+    <view
+      v-if="showApplyTypePicker"
+      class="picker-overlay"
+      :class="{ closing: isClosingApplyTypePicker }"
+      @click="closeApplyTypePickerWithAnimation"
+    />
+    <view
+      v-if="showApplyTypePicker"
+      class="custom-picker-popup"
+      :class="{ closing: isClosingApplyTypePicker }"
+    >
+      <view class="picker-popup-header">
+        <view class="cancel-btn picker-popup-btn" @click="closeApplyTypePickerWithAnimation">
+          取消
+        </view>
+        <view class="picker-popup-title">
+          申请类型
+        </view>
+        <view class="picker-popup-btn confirm-btn" @click="handleConfirmApplyType">
+          完成
+        </view>
+      </view>
+      <view class="picker-popup-content">
+        <view
+          v-for="(option, index) in filteredApplyTypeOptions"
+          :key="index"
+          class="picker-popup-item"
+          :class="{ active: tempApplyTypeIndex === index }"
+          @click="handleSelectApplyType(index)"
+        >
+          <view class="picker-item-icon">
+            <u-icon
+              v-if="tempApplyTypeIndex === index"
+              name="checkmark"
+              size="20"
+              color="#0adbc3"
+            />
+          </view>
+          <view class="picker-item-text">
+            {{ option.label }}
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <DateRangePicker ref="dateRangePickerRef" />
+
+    <!-- 报修类型选择弹窗 -->
+    <view
+      v-if="showRepairTypePicker"
+      class="picker-overlay"
+      :class="{ closing: isClosingRepairTypePicker }"
+      @click="closeRepairTypePickerWithAnimation"
+    />
+    <view
+      v-if="showRepairTypePicker"
+      class="custom-picker-popup"
+      :class="{ closing: isClosingRepairTypePicker }"
+    >
+      <view class="picker-popup-header">
+        <view class="cancel-btn picker-popup-btn" @click="closeRepairTypePickerWithAnimation">
+          取消
+        </view>
+        <view class="picker-popup-title">
+          报修类型
+        </view>
+        <view class="picker-popup-btn confirm-btn" @click="handleConfirmRepairType">
+          完成
+        </view>
+      </view>
+      <view class="picker-popup-content">
+        <view
+          v-for="(option, index) in repairTypeOptions"
+          :key="index"
+          class="picker-popup-item"
+          :class="{ active: tempRepairTypeIndex === index }"
+          @click="handleSelectRepairType(index)"
+        >
+          <view class="picker-item-icon">
+            <u-icon
+              v-if="tempRepairTypeIndex === index"
+              name="checkmark"
+              size="20"
+              color="#0adbc3"
+            />
+          </view>
+          <view class="picker-item-text">
+            {{ option.label }}
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <SignaturePicker ref="signaturePickerRef" />
+
     <FormLayout
       title="业务填报"
       submit-text="提交申请"
       @submit="handleSubmit"
     >
-      <!-- 弹窗插槽 -->
-      <template #popups>
-        <!-- 申请类型选择弹窗 -->
-        <view
-          v-if="showApplyTypePicker"
-          class="picker-overlay"
-          @click="showApplyTypePicker = false"
-        />
-        <view
-          v-if="showApplyTypePicker"
-          class="custom-picker-popup"
-        >
-          <view class="picker-popup-header">
-            <view class="cancel-btn picker-popup-btn" @click="showApplyTypePicker = false">
-              取消
-            </view>
-            <view class="picker-popup-title">
-              申请类型
-            </view>
-            <view class="picker-popup-btn confirm-btn" @click="confirmApplyType">
-              完成
-            </view>
-          </view>
-          <view class="picker-popup-content">
-            <view
-              v-for="(option, index) in filteredApplyTypeOptions"
-              :key="index"
-              class="picker-popup-item"
-              :class="{ active: tempApplyTypeIndex === index }"
-              @click="handleSelectApplyType(index)"
-            >
-              <view class="picker-item-icon">
-                <u-icon
-                  v-if="tempApplyTypeIndex === index"
-                  name="checkmark"
-                  size="20"
-                  color="#0adbc3"
-                />
-              </view>
-              <view class="picker-item-text">
-                {{ option.label }}
-              </view>
-            </view>
-          </view>
-        </view>
-
-        <DateRangePicker ref="dateRangePickerRef" />
-
-        <!-- 报修类型选择弹窗 -->
-        <view
-          v-if="showRepairTypePicker"
-          class="picker-overlay"
-          @click="closeRepairTypePicker"
-        />
-        <view
-          v-if="showRepairTypePicker"
-          class="custom-picker-popup"
-        >
-          <view class="picker-popup-header">
-            <view class="cancel-btn picker-popup-btn" @click="closeRepairTypePicker">
-              取消
-            </view>
-            <view class="picker-popup-title">
-              报修类型
-            </view>
-            <view class="picker-popup-btn confirm-btn" @click="confirmRepairType">
-              完成
-            </view>
-          </view>
-          <view class="picker-popup-content">
-            <view
-              v-for="(option, index) in repairTypeOptions"
-              :key="index"
-              class="picker-popup-item"
-              :class="{ active: tempRepairTypeIndex === index }"
-              @click="handleSelectRepairType(index)"
-            >
-              <view class="picker-item-icon">
-                <u-icon
-                  v-if="tempRepairTypeIndex === index"
-                  name="checkmark"
-                  size="20"
-                  color="#0adbc3"
-                />
-              </view>
-              <view class="picker-item-text">
-                {{ option.label }}
-              </view>
-            </view>
-          </view>
-        </view>
-
-        <SignaturePicker ref="signaturePickerRef" />
-      </template>
-
       <!-- 主内容插槽 -->
       <template #content>
         <!-- 微信小程序 slot 会创建包装层，需要额外容器来应用 gap -->
@@ -129,7 +131,7 @@
 </template>
 
 <script setup lang="ts">
-import { provide } from 'vue';
+import { provide, ref } from 'vue';
 import { onLoad } from '@dcloudio/uni-app';
 // 小程序不支持 barrel export，必须直接导入 .vue 文件
 import DateRangePicker from './components/pickers/DateRangePicker.vue';
@@ -142,6 +144,10 @@ import TitleSection from './sections/TitleSection.vue';
 import { repairTypeOptions, useApplyFormState } from './composables/useApplyFormState';
 import { useApplyFormPickers } from './composables/useApplyFormPickers';
 import { useApplyFormActions } from './composables/useApplyFormActions';
+
+// 关闭动画状态
+const isClosingApplyTypePicker = ref(false);
+const isClosingRepairTypePicker = ref(false);
 
 // 表单状态
 const {
@@ -170,6 +176,7 @@ const {
   handleSelectRepairType,
   confirmRepairType,
   closeRepairTypePicker,
+  // Picker 组件引用（需要绑定到模板 ref）
   dateRangePickerRef,
   signaturePickerRef,
   openDateRangePicker,
@@ -185,6 +192,32 @@ const {
 
 // 表单提交
 const { handleSubmit } = useApplyFormActions(formData);
+
+// 带动画的关闭函数
+function closeApplyTypePickerWithAnimation() {
+  isClosingApplyTypePicker.value = true;
+  setTimeout(() => {
+    showApplyTypePicker.value = false;
+    isClosingApplyTypePicker.value = false;
+  }, 300);
+}
+
+function closeRepairTypePickerWithAnimation() {
+  isClosingRepairTypePicker.value = true;
+  setTimeout(() => {
+    closeRepairTypePicker();
+    isClosingRepairTypePicker.value = false;
+  }, 300);
+}
+
+// 包装确认函数，添加关闭动画
+function handleConfirmApplyType() {
+  confirmApplyType(closeApplyTypePickerWithAnimation);
+}
+
+function handleConfirmRepairType() {
+  confirmRepairType(closeRepairTypePickerWithAnimation);
+}
 
 // Provide 给子组件使用
 provide('openDateRangePicker', openDateRangePicker);
@@ -213,6 +246,10 @@ onLoad((options: any) => {
   z-index: 99998 !important;
   background: rgb(0 0 0 / 50%);
   animation: fadeIn 0.3s;
+
+  &.closing {
+    animation: fadeOut 0.3s;
+  }
 }
 
 @keyframes fadeIn {
@@ -222,6 +259,16 @@ onLoad((options: any) => {
 
   to {
     opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
   }
 }
 
@@ -239,6 +286,10 @@ onLoad((options: any) => {
   background: #fff;
   border-radius: 32rpx 32rpx 0 0;
   animation: slideUp 0.3s;
+
+  &.closing {
+    animation: slideDown 0.3s;
+  }
 
   .picker-popup-header {
     display: flex;
@@ -325,6 +376,16 @@ onLoad((options: any) => {
 
   to {
     transform: translateY(0);
+  }
+}
+
+@keyframes slideDown {
+  from {
+    transform: translateY(0);
+  }
+
+  to {
+    transform: translateY(100%);
   }
 }
 </style>

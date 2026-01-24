@@ -1,8 +1,5 @@
 <template>
   <view class="page-root-wrapper">
-    <!-- 弹窗插槽 - 放置在页面最外层 -->
-    <slot name="popups" />
-
     <view class="apply-form-page">
       <!-- 背景装饰 -->
       <view class="bg-decorations">
@@ -176,7 +173,6 @@ $glass-bg: rgb(255 255 255 / 65%);
   }
 }
 
-// 主内容
 // 主内容
 // 注：gap 由 slot 内容的包装器自行控制（微信小程序 slot 会创建包装层）
 .main-content {

@@ -4,6 +4,7 @@ import type DateRangePicker from '../components/pickers/DateRangePicker.vue';
 import type SignaturePicker from '../components/pickers/SignaturePicker.vue';
 import { applyTypeOptions, repairTypeOptions } from './useApplyFormState';
 import type { ApplyTypeOption } from './useApplyFormState';
+import type { DateRangePickerMode } from '@/composables/useDateRangePicker';
 import type { IApplyFormData } from '@/types';
 
 interface DateRange {
@@ -61,9 +62,14 @@ export function useApplyFormPickers(options: UseApplyFormPickersOptions) {
   }
 
   // 确认申请类型
-  function confirmApplyType(): void {
+  function confirmApplyType(onClose?: () => void): void {
     if (!canModifyApplyType.value) {
-      showApplyTypePicker.value = false;
+      if (onClose) {
+        onClose();
+      }
+      else {
+        showApplyTypePicker.value = false;
+      }
       return;
     }
     const oldType = formData.applyType;
@@ -81,7 +87,12 @@ export function useApplyFormPickers(options: UseApplyFormPickersOptions) {
       resetFormFields();
     }
 
-    showApplyTypePicker.value = false;
+    if (onClose) {
+      onClose();
+    }
+    else {
+      showApplyTypePicker.value = false;
+    }
   }
 
   // 打开报修类型选择器
@@ -103,12 +114,17 @@ export function useApplyFormPickers(options: UseApplyFormPickersOptions) {
   }
 
   // 确认报修类型
-  function confirmRepairType(): void {
+  function confirmRepairType(onClose?: () => void): void {
     if (tempRepairTypeIndex.value >= 0 && tempRepairTypeIndex.value < repairTypeOptions.length) {
       const selectedOption = repairTypeOptions[tempRepairTypeIndex.value];
       formData.repairType = selectedOption.value;
     }
-    closeRepairTypePicker();
+    if (onClose) {
+      onClose();
+    }
+    else {
+      closeRepairTypePicker();
+    }
   }
 
   // 关闭报修类型选择器
@@ -117,8 +133,12 @@ export function useApplyFormPickers(options: UseApplyFormPickersOptions) {
   }
 
   // 打开日期范围选择器
-  function openDateRangePicker(currentValue: DateRange, onConfirm: (value: DateRange) => void): void {
-    dateRangePickerRef.value?.open(currentValue, onConfirm);
+  function openDateRangePicker(
+    currentValue: DateRange,
+    onConfirm: (value: DateRange) => void,
+    mode: DateRangePickerMode = 'range',
+  ): void {
+    dateRangePickerRef.value?.open(currentValue, onConfirm, mode);
   }
 
   // 打开签名选择器

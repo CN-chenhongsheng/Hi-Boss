@@ -50,8 +50,27 @@
       </view>
     </view>
 
-    <!-- 日期时间 -->
+    <!-- 日期时间：单范围 或 开始/结束分开 -->
+    <template v-if="useSeparateDateFields">
+      <DateRangePicker
+        mode="start"
+        :model-value="formData.stayStartDate"
+        :label="startDateLabel"
+        :placeholder="startDatePlaceholder"
+        :required="true"
+        @update:model-value="(val) => emit('update', 'stayStartDate', val)"
+      />
+      <DateRangePicker
+        mode="end"
+        :model-value="formData.stayEndDate"
+        :label="endDateLabel"
+        :placeholder="endDatePlaceholder"
+        :required="true"
+        @update:model-value="(val) => emit('update', 'stayEndDate', val)"
+      />
+    </template>
     <DateRangePicker
+      v-else
       :model-value="dateRange"
       :label="dateLabel"
       :required="true"
@@ -96,11 +115,22 @@ interface Props {
   };
   dateLabel?: string;
   reasonPlaceholder?: string;
+  /** 是否拆成 开始时间 / 结束时间 两个字段 */
+  useSeparateDateFields?: boolean;
+  startDateLabel?: string;
+  endDateLabel?: string;
+  startDatePlaceholder?: string;
+  endDatePlaceholder?: string;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   dateLabel: '留宿时间',
   reasonPlaceholder: '请详细描述申请原因...',
+  useSeparateDateFields: false,
+  startDateLabel: '开始时间',
+  endDateLabel: '结束时间',
+  startDatePlaceholder: '请选择开始时间',
+  endDatePlaceholder: '请选择结束时间',
 });
 
 const emit = defineEmits<{
@@ -129,21 +159,13 @@ function handleRadioChange(field: string, value: string) {
   emit('update', field, value);
 }
 
-function handleDateRangeChange(value: { startDate?: string; endDate?: string }) {
-  // 先更新本地 dateRange（确保小程序中立即更新）
+function handleDateRangeChange(value: { startDate?: string; endDate?: string } | string) {
+  if (typeof value === 'string') return;
   if (value.startDate && value.endDate) {
-    dateRange.value = {
-      startDate: value.startDate,
-      endDate: value.endDate,
-    };
+    dateRange.value = { startDate: value.startDate, endDate: value.endDate };
   }
-  // 然后通知父组件更新
-  if (value.startDate) {
-    emit('update', 'stayStartDate', value.startDate);
-  }
-  if (value.endDate) {
-    emit('update', 'stayEndDate', value.endDate);
-  }
+  if (value.startDate) emit('update', 'stayStartDate', value.startDate);
+  if (value.endDate) emit('update', 'stayEndDate', value.endDate);
 }
 
 function handleImagesChange(value: string[]) {

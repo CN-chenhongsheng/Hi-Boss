@@ -1,7 +1,11 @@
 <template>
   <StayLikeForm
     :form-data="formData"
-    date-label="留宿时间"
+    :use-separate-date-fields="true"
+    start-date-label="开始时间"
+    end-date-label="结束时间"
+    start-date-placeholder="请选择留宿开始时间"
+    end-date-placeholder="请选择留宿结束时间"
     reason-placeholder="请详细描述留宿原因..."
     @update="handleUpdate"
   />
