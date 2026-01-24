@@ -146,7 +146,7 @@ function previewImage(index: number) {
   display: flex;
   width: 100%;
   flex-wrap: nowrap;
-  gap: 12rpx;
+  gap: 8.5rpx;
 }
 
 .upload-item {

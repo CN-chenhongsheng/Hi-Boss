@@ -60,7 +60,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, toRefs } from 'vue';
 // 小程序不支持 barrel export，必须直接导入 .vue 文件
 import CheckOut from '../components/form-types/check-out.vue';
 import NormalCheckIn from '../components/form-types/normal-check-in.vue';
@@ -94,7 +94,14 @@ const emit = defineEmits<{
   'formUpdate': [field: string, value: any];
 }>();
 
-const { modelValue, hideTypePicker, filteredApplyTypeOptions, canModifyApplyType, repairTypeOptions } = props;
+// 使用 toRefs 保持响应性
+const {
+  modelValue,
+  hideTypePicker,
+  filteredApplyTypeOptions,
+  canModifyApplyType,
+  repairTypeOptions,
+} = toRefs(props);
 
 const formDataCopy = computed(() => ({ ...props.formData }));
 

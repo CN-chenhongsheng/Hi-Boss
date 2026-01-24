@@ -12,7 +12,8 @@
 </template>
 
 <script setup lang="ts">
-import { OptionPicker } from '../fields';
+// 小程序不支持 barrel export，必须直接导入 .vue 文件
+import OptionPicker from '../fields/OptionPicker.vue';
 
 interface ApplyTypeOption {
   label: string;

@@ -102,24 +102,27 @@
 
       <!-- 主内容插槽 -->
       <template #content>
-        <!-- 标题区域 -->
-        <TitleSection />
+        <!-- 微信小程序 slot 会创建包装层，需要额外容器来应用 gap -->
+        <view class="content-wrapper">
+          <!-- 标题区域 -->
+          <TitleSection />
 
-        <!-- 基础信息卡片 -->
-        <BaseInfoCard :user-info="userInfo" />
+          <!-- 基础信息卡片 -->
+          <BaseInfoCard :user-info="userInfo" />
 
-        <!-- 业务详情卡片 -->
-        <ApplyDetailCard
-          v-model="formData.applyType"
-          :form-data="formData"
-          :hide-type-picker="hideTypePicker"
-          :filtered-apply-type-options="filteredApplyTypeOptions"
-          :can-modify-apply-type="canModifyApplyType"
-          :repair-type-options="repairTypeOptions"
-          :repair-type="formData.repairType"
-          @update:repair-type="(val) => formData.repairType = val"
-          @form-update="handleFormUpdate"
-        />
+          <!-- 业务详情卡片 -->
+          <ApplyDetailCard
+            v-model="formData.applyType"
+            :form-data="formData"
+            :hide-type-picker="hideTypePicker"
+            :filtered-apply-type-options="filteredApplyTypeOptions"
+            :can-modify-apply-type="canModifyApplyType"
+            :repair-type-options="repairTypeOptions"
+            :repair-type="formData.repairType"
+            @update:repair-type="(val) => formData.repairType = val"
+            @form-update="handleFormUpdate"
+          />
+        </view>
       </template>
     </FormLayout>
   </view>
@@ -135,12 +138,10 @@ import ApplyDetailCard from './sections/ApplyDetailCard.vue';
 import BaseInfoCard from './sections/BaseInfoCard.vue';
 import FormLayout from './sections/FormLayout.vue';
 import TitleSection from './sections/TitleSection.vue';
-import {
-  repairTypeOptions,
-  useApplyFormActions,
-  useApplyFormPickers,
-  useApplyFormState,
-} from './composables';
+// 小程序不支持 barrel export，必须直接导入
+import { repairTypeOptions, useApplyFormState } from './composables/useApplyFormState';
+import { useApplyFormPickers } from './composables/useApplyFormPickers';
+import { useApplyFormActions } from './composables/useApplyFormActions';
 
 // 表单状态
 const {
@@ -198,6 +199,13 @@ onLoad((options: any) => {
 </script>
 
 <style lang="scss" scoped>
+// slot 内容包装器 - 应用 gap 布局
+.content-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 40rpx;
+}
+
 // 遮罩层 - 固定在屏幕，不受父容器影响
 .picker-overlay {
   position: fixed !important;

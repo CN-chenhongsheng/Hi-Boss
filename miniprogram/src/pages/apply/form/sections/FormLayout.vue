@@ -177,11 +177,12 @@ $glass-bg: rgb(255 255 255 / 65%);
 }
 
 // 主内容
+// 主内容
+// 注：gap 由 slot 内容的包装器自行控制（微信小程序 slot 会创建包装层）
 .main-content {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 40rpx;
   padding: 40rpx 32rpx;
   padding-top: 0;
   padding-bottom: calc(70rpx + env(safe-area-inset-bottom));
