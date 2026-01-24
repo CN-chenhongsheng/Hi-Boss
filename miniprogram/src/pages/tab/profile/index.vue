@@ -386,7 +386,7 @@ $shadow-lg: 0 8rpx 32rpx rgb(0 0 0 / 8%);
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: calc(var(--status-bar-height) + 50rpx) 32rpx 25rpx;
+  padding: calc(var(--status-bar-height) + 45rpx) 32rpx 25rpx;
 
   .header-title {
     display: flex;

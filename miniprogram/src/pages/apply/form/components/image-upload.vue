@@ -9,7 +9,7 @@
 
     <view class="upload-container">
       <view
-        v-for="(image, index) in imageList"
+        v-for="(image, index) in displayList"
         :key="index"
         class="upload-item upload-preview"
       >
@@ -24,7 +24,7 @@
         </view>
       </view>
       <view
-        v-if="imageList.length < maxCount"
+        v-if="displayList.length < maxLimit"
         class="upload-item upload-add"
         @click="handleAddImage"
       >
@@ -45,7 +45,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 
 interface Props {
   modelValue?: string[];
@@ -68,24 +68,30 @@ const emit = defineEmits<{
 }>();
 
 const imageList = ref<string[]>(props.modelValue || []);
+const maxLimit = computed(() => Math.min(props.maxCount, 3));
+const displayList = computed(() => imageList.value.slice(0, maxLimit.value));
 
 // 监听外部值变化
 watch(() => props.modelValue, (newVal) => {
-  imageList.value = newVal || [];
+  const nextList = (newVal || []).slice(0, maxLimit.value);
+  imageList.value = nextList;
+  if ((newVal || []).length > nextList.length) {
+    emit('update:modelValue', nextList);
+  }
 }, { immediate: true });
 
 // 添加图片
 function handleAddImage() {
-  if (imageList.value.length >= props.maxCount) {
+  if (imageList.value.length >= maxLimit.value) {
     uni.showToast({
-      title: `最多上传${props.maxCount}张图片`,
+      title: `最多上传${maxLimit.value}张图片`,
       icon: 'none',
     });
     return;
   }
 
   uni.chooseImage({
-    count: props.maxCount - imageList.value.length,
+    count: maxLimit.value - imageList.value.length,
     sizeType: ['compressed'],
     sourceType: ['album', 'camera'],
     success: (res) => {
@@ -139,7 +145,8 @@ function previewImage(index: number) {
 .upload-container {
   display: flex;
   width: 100%;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  gap: 12rpx;
 }
 
 .upload-item {

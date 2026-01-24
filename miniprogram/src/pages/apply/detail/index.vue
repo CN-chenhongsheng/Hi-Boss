@@ -12,204 +12,206 @@
       </view>
 
       <!-- 主内容 -->
-      <view class="main-content">
-        <!-- 状态展示区域 -->
-        <view class="status-section">
-          <view class="status-icon-wrapper">
-            <view class="status-icon-pulse" />
-            <u-icon name="clock-fill" size="64" color="#0adbc3" class="status-icon-main" />
-          </view>
-          <view class="status-text">
-            <view class="status-title">
-              {{ statusText }}
+      <scroll-view class="content-scroll" scroll-y>
+        <view class="main-content">
+          <!-- 状态展示区域 -->
+          <view class="status-section">
+            <view class="status-icon-wrapper">
+              <view class="status-icon-pulse" />
+              <u-icon name="clock-fill" size="64" color="#0adbc3" class="status-icon-main" />
             </view>
-            <view class="status-desc">
-              {{ statusDesc }}
-            </view>
-          </view>
-        </view>
-
-        <!-- 申请信息卡片 -->
-        <view class="glass-card info-card">
-          <!-- 卡片头部 -->
-          <view class="card-header">
-            <view class="card-header-left">
-              <view class="pulse-dot" />
-              <text class="apply-no">
-                NO. {{ applyNo }}
-              </text>
-            </view>
-            <view class="apply-type-tag">
-              {{ applyTypeName }}
-            </view>
-          </view>
-
-          <!-- 卡片内容 -->
-          <view class="card-body">
-            <!-- 学生信息 -->
-            <view class="student-info">
-              <image class="student-avatar" :src="studentInfo.avatar || defaultAvatar" mode="aspectFill" />
-              <view class="student-detail">
-                <view class="student-name">
-                  {{ studentInfo.name }}
-                </view>
-                <view class="student-meta">
-                  {{ studentInfo.grade }} {{ studentInfo.department }} · {{ studentInfo.level }}
-                </view>
+            <view class="status-text">
+              <view class="status-title">
+                {{ statusText }}
               </view>
-            </view>
-
-            <!-- 申请详情 -->
-            <view class="apply-details">
-              <!-- 目标宿舍 -->
-              <view v-if="detail.targetDorm" class="detail-item">
-                <view class="detail-icon">
-                  <u-icon name="home-fill" size="18" color="#608a85" />
-                </view>
-                <view class="detail-content">
-                  <view class="detail-label">
-                    目标宿舍
-                  </view>
-                  <view class="detail-value">
-                    {{ detail.targetDorm }}
-                  </view>
-                </view>
-              </view>
-
-              <!-- 申请理由 -->
-              <view v-if="detail.applyReason" class="detail-item">
-                <view class="detail-icon">
-                  <u-icon name="edit-pen-fill" size="18" color="#608a85" />
-                </view>
-                <view class="detail-content">
-                  <view class="detail-label">
-                    申请理由
-                  </view>
-                  <view class="detail-value">
-                    {{ detail.applyReason }}
-                  </view>
-                </view>
+              <view class="status-desc">
+                {{ statusDesc }}
               </view>
             </view>
           </view>
-        </view>
 
-        <!-- 处理进度卡片 -->
-        <view class="glass-card progress-card">
-          <view class="progress-title">
-            <u-icon name="clock-fill" size="20" color="#0adbc3" />
-            <text>处理进度</text>
-          </view>
-
-          <view class="progress-timeline">
-            <!-- 提交申请 -->
-            <view class="timeline-item">
-              <view class="timeline-icon-wrapper">
-                <u-icon name="checkmark-circle" size="24" color="#0adbc3" />
-                <view v-if="currentStep > 0" class="timeline-line timeline-line-active" />
+          <!-- 申请信息卡片 -->
+          <view class="glass-card info-card">
+            <!-- 卡片头部 -->
+            <view class="card-header">
+              <view class="card-header-left">
+                <view class="pulse-dot" />
+                <text class="apply-no">
+                  NO. {{ applyNo }}
+                </text>
               </view>
-              <view class="timeline-content">
-                <view class="timeline-header">
-                  <view class="timeline-title">
-                    提交申请
-                  </view>
-                  <view class="timeline-time">
-                    {{ progressSteps[0].time }}
-                  </view>
-                </view>
-                <view class="timeline-desc">
-                  {{ progressSteps[0].desc }}
-                </view>
+              <view class="apply-type-tag">
+                {{ applyTypeName }}
               </view>
             </view>
 
-            <!-- 辅导员审核 -->
-            <view class="timeline-item">
-              <view class="timeline-icon-wrapper">
-                <u-icon name="checkmark-circle" size="24" color="#0adbc3" />
-                <view v-if="currentStep > 1" class="timeline-line timeline-line-active" />
-              </view>
-              <view class="timeline-content">
-                <view class="timeline-header">
-                  <view class="timeline-title">
-                    辅导员审核
+            <!-- 卡片内容 -->
+            <view class="card-body">
+              <!-- 学生信息 -->
+              <view class="student-info">
+                <image class="student-avatar" :src="studentInfo.avatar || defaultAvatar" mode="aspectFill" />
+                <view class="student-detail">
+                  <view class="student-name">
+                    {{ studentInfo.name }}
                   </view>
-                  <view class="timeline-time">
-                    {{ progressSteps[1].time }}
+                  <view class="student-meta">
+                    {{ studentInfo.grade }} {{ studentInfo.department }} · {{ studentInfo.level }}
                   </view>
                 </view>
-                <view v-if="progressSteps[1].reviewer" class="timeline-reviewer">
-                  <image class="reviewer-avatar" :src="progressSteps[1].reviewer.avatar" mode="aspectFill" />
-                  <view class="reviewer-info">
-                    <text>{{ progressSteps[1].reviewer.name }}</text>
-                    <view class="reviewer-status">
-                      通过
+              </view>
+
+              <!-- 申请详情 -->
+              <view class="apply-details">
+                <!-- 目标宿舍 -->
+                <view v-if="detail.targetDorm" class="detail-item">
+                  <view class="detail-icon">
+                    <u-icon name="home-fill" size="18" color="#608a85" />
+                  </view>
+                  <view class="detail-content">
+                    <view class="detail-label">
+                      目标宿舍
+                    </view>
+                    <view class="detail-value">
+                      {{ detail.targetDorm }}
                     </view>
                   </view>
                 </view>
-                <view v-if="progressSteps[1].reviewReason" class="review-reason-card">
-                  <view class="review-reason-triangle" />
-                  <view class="review-reason-header">
-                    <u-icon name="checkmark-circle-fill" size="16" color="#0adbc3" />
-                    <text>审核原因</text>
+
+                <!-- 申请理由 -->
+                <view v-if="detail.applyReason" class="detail-item">
+                  <view class="detail-icon">
+                    <u-icon name="edit-pen-fill" size="18" color="#608a85" />
                   </view>
-                  <view class="review-reason-text">
-                    {{ progressSteps[1].reviewReason }}
+                  <view class="detail-content">
+                    <view class="detail-label">
+                      申请理由
+                    </view>
+                    <view class="detail-value">
+                      {{ detail.applyReason }}
+                    </view>
                   </view>
                 </view>
               </view>
             </view>
+          </view>
 
-            <!-- 宿管站确认 -->
-            <view class="timeline-item">
-              <view class="timeline-icon-wrapper">
-                <view v-if="currentStep === 2" class="timeline-icon-pulse">
-                  <view class="pulse-circle-bg" />
-                  <view class="custom-radio-icon custom-radio-icon-active" />
-                </view>
-                <view v-else class="custom-radio-icon" :class="currentStep > 2 ? 'custom-radio-icon-active' : 'custom-radio-icon-gray'" />
-                <view class="timeline-line" :class="currentStep > 2 ? 'timeline-line-active' : 'timeline-line-gray'" />
-              </view>
-              <view class="timeline-content">
-                <view class="timeline-header">
-                  <view class="timeline-title" :class="{ active: currentStep === 2, gray: currentStep < 2 }">
-                    宿管站确认
-                  </view>
-                  <view v-if="currentStep === 2" class="timeline-status-badge">
-                    进行中
-                  </view>
-                  <view v-else-if="progressSteps[2].time" class="timeline-time">
-                    {{ progressSteps[2].time }}
-                  </view>
-                </view>
-                <view class="timeline-desc" :class="{ gray: currentStep < 2 }">
-                  {{ progressSteps[2].desc }}
-                </view>
-              </view>
+          <!-- 处理进度卡片 -->
+          <view class="glass-card progress-card">
+            <view class="progress-title">
+              <u-icon name="clock-fill" size="20" color="#0adbc3" />
+              <text>处理进度</text>
             </view>
 
-            <!-- 完成 -->
-            <view class="timeline-item">
-              <view class="timeline-icon-wrapper">
-                <view class="custom-radio-icon custom-radio-icon-unchecked" :class="currentStep > 3 ? 'custom-radio-icon-active' : ''" />
-              </view>
-              <view class="timeline-content">
-                <view class="timeline-header">
-                  <view class="timeline-title" :class="{ gray: currentStep < 3 }">
-                    完成
+            <view class="progress-timeline">
+              <!-- 提交申请 -->
+              <view class="timeline-item">
+                <view class="timeline-icon-wrapper">
+                  <u-icon name="checkmark-circle" size="24" color="#0adbc3" />
+                  <view v-if="currentStep > 0" class="timeline-line timeline-line-active" />
+                </view>
+                <view class="timeline-content">
+                  <view class="timeline-header">
+                    <view class="timeline-title">
+                      提交申请
+                    </view>
+                    <view class="timeline-time">
+                      {{ progressSteps[0].time }}
+                    </view>
                   </view>
-                  <view class="timeline-time" :class="{ gray: currentStep < 3 }">
-                    {{ progressSteps[3].time || '--' }}
+                  <view class="timeline-desc">
+                    {{ progressSteps[0].desc }}
                   </view>
                 </view>
-                <view class="timeline-desc" :class="{ gray: currentStep < 3 }">
-                  {{ progressSteps[3].desc }}
+              </view>
+
+              <!-- 辅导员审核 -->
+              <view class="timeline-item">
+                <view class="timeline-icon-wrapper">
+                  <u-icon name="checkmark-circle" size="24" color="#0adbc3" />
+                  <view v-if="currentStep > 1" class="timeline-line timeline-line-active" />
+                </view>
+                <view class="timeline-content">
+                  <view class="timeline-header">
+                    <view class="timeline-title">
+                      辅导员审核
+                    </view>
+                    <view class="timeline-time">
+                      {{ progressSteps[1].time }}
+                    </view>
+                  </view>
+                  <view v-if="progressSteps[1].reviewer" class="timeline-reviewer">
+                    <image class="reviewer-avatar" :src="progressSteps[1].reviewer.avatar" mode="aspectFill" />
+                    <view class="reviewer-info">
+                      <text>{{ progressSteps[1].reviewer.name }}</text>
+                      <view class="reviewer-status">
+                        通过
+                      </view>
+                    </view>
+                  </view>
+                  <view v-if="progressSteps[1].reviewReason" class="review-reason-card">
+                    <view class="review-reason-triangle" />
+                    <view class="review-reason-header">
+                      <u-icon name="checkmark-circle-fill" size="16" color="#0adbc3" />
+                      <text>审核原因</text>
+                    </view>
+                    <view class="review-reason-text">
+                      {{ progressSteps[1].reviewReason }}
+                    </view>
+                  </view>
+                </view>
+              </view>
+
+              <!-- 宿管站确认 -->
+              <view class="timeline-item">
+                <view class="timeline-icon-wrapper">
+                  <view v-if="currentStep === 2" class="timeline-icon-pulse">
+                    <view class="pulse-circle-bg" />
+                    <view class="custom-radio-icon custom-radio-icon-active" />
+                  </view>
+                  <view v-else class="custom-radio-icon" :class="currentStep > 2 ? 'custom-radio-icon-active' : 'custom-radio-icon-gray'" />
+                  <view class="timeline-line" :class="currentStep > 2 ? 'timeline-line-active' : 'timeline-line-gray'" />
+                </view>
+                <view class="timeline-content">
+                  <view class="timeline-header">
+                    <view class="timeline-title" :class="{ active: currentStep === 2, gray: currentStep < 2 }">
+                      宿管站确认
+                    </view>
+                    <view v-if="currentStep === 2" class="timeline-status-badge">
+                      进行中
+                    </view>
+                    <view v-else-if="progressSteps[2].time" class="timeline-time">
+                      {{ progressSteps[2].time }}
+                    </view>
+                  </view>
+                  <view class="timeline-desc" :class="{ gray: currentStep < 2 }">
+                    {{ progressSteps[2].desc }}
+                  </view>
+                </view>
+              </view>
+
+              <!-- 完成 -->
+              <view class="timeline-item">
+                <view class="timeline-icon-wrapper">
+                  <view class="custom-radio-icon custom-radio-icon-unchecked" :class="currentStep > 3 ? 'custom-radio-icon-active' : ''" />
+                </view>
+                <view class="timeline-content">
+                  <view class="timeline-header">
+                    <view class="timeline-title" :class="{ gray: currentStep < 3 }">
+                      完成
+                    </view>
+                    <view class="timeline-time" :class="{ gray: currentStep < 3 }">
+                      {{ progressSteps[3].time || '--' }}
+                    </view>
+                  </view>
+                  <view class="timeline-desc" :class="{ gray: currentStep < 3 }">
+                    {{ progressSteps[3].desc }}
+                  </view>
                 </view>
               </view>
             </view>
           </view>
         </view>
-      </view>
+      </scroll-view>
 
       <!-- 底部安全区域 -->
       <view class="safe-bottom" />
@@ -514,6 +516,13 @@ $glass-border: rgb(255 255 255 / 60%);
   border-right: 2rpx solid rgb(255 255 255 / 20%);
 }
 
+// 内容滚动区域
+.content-scroll {
+  position: relative;
+  z-index: 10;
+  height: calc(100vh - var(--status-bar-height) - 84rpx);
+}
+
 // 顶部导航
 .header {
   position: sticky;
@@ -522,7 +531,7 @@ $glass-border: rgb(255 255 255 / 60%);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: calc(var(--status-bar-height) + 50rpx) 32rpx 25rpx;
+  padding: calc(var(--status-bar-height) + 45rpx) 32rpx 25rpx;
   backdrop-filter: blur(20rpx);
 
   .header-title {

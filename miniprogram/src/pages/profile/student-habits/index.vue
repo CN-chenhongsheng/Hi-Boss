@@ -5,14 +5,16 @@
     <view class="ambient-blob blob-accent" />
     <view class="ambient-blob blob-blue" />
 
-    <!-- 顶部导航 -->
-    <view class="header">
-      <view class="header-content">
-        <view class="header-title">
-          完善生活习惯
-        </view>
+    <!-- 顶部导航栏 -->
+    <header class="top-header">
+      <view class="header-back" @click="handleBack">
+        <u-icon name="arrow-left" size="22" color="#111817" />
       </view>
-    </view>
+      <view class="header-title">
+        完善生活习惯
+      </view>
+      <view class="header-placeholder" />
+    </header>
 
     <!-- 表单内容区域 -->
     <scroll-view class="content-scroll" scroll-y>
@@ -600,6 +602,11 @@ const volumeOptions: IOptionItem[] = [
   { label: '喜欢大声', value: 3 },
 ];
 
+// 返回
+function handleBack(): void {
+  uni.navigateBack();
+}
+
 // 验证表单
 function validateForm(): boolean {
   // 检查必填的选择题是否已填写（至少一项）
@@ -740,6 +747,7 @@ $primary: #0adbc3;
 $primary-dark: #009688;
 $accent: #ff8c42;
 $bg-light: #F0F4F8;
+$text-main: #111817;
 
 .habits-page {
   position: relative;
@@ -791,22 +799,40 @@ $bg-light: #F0F4F8;
   backdrop-filter: blur(32rpx);
 }
 
-// 顶部导航
-.header {
-  position: relative;
-  z-index: 100;
-  padding: calc(var(--status-bar-height) + 50rpx) 32rpx 25rpx;
+// 顶部导航栏
+.top-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: calc(var(--status-bar-height) + 45rpx) 32rpx 25rpx;
 
-  .header-content {
+  .header-back {
     display: flex;
     justify-content: center;
     align-items: center;
+    width: 80rpx;
+    height: 80rpx;
+    border-radius: 50%;
+
+    &:active {
+      background: rgb(0 0 0 / 5%);
+    }
   }
 
   .header-title {
     font-size: 36rpx;
+    text-align: center;
+    color: $text-main;
+    flex: 1;
     font-weight: 700;
-    color: #0f172a;
+    letter-spacing: 0.5rpx;
+  }
+
+  .header-placeholder {
+    width: 80rpx;
   }
 }
 

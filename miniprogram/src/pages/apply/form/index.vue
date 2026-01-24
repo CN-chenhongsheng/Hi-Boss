@@ -113,132 +113,131 @@
         </header>
 
         <!-- 主内容 -->
-        <main class="main-content">
-          <!-- 标题区域 -->
-          <view class="title-section">
-            <view class="title-row">
-              <view class="title-text">
-                申请信息填写
-              </view>
-              <view class="status-badge">
-                进行中
-              </view>
-            </view>
-            <view class="title-desc">
-              请如实填写以下信息，带
-              <text class="required-mark">
-                *
-              </text>
-              为必填项。
-              <br>
-              提交后将由宿管员进行审核。
-            </view>
-          </view>
-
-          <!-- 基础信息卡片 -->
-          <view class="glass-card section-card">
-            <view class="section-header">
-              <view class="section-title-wrapper">
-                <view class="section-indicator section-indicator-primary" />
-                <view class="section-title">
-                  基础信息
+        <scroll-view class="content-scroll" scroll-y>
+          <main class="main-content">
+            <!-- 标题区域 -->
+            <view class="title-section">
+              <view class="title-row">
+                <view class="title-text">
+                  申请信息填写
+                </view>
+                <view class="status-badge">
+                  进行中
                 </view>
               </view>
-              <view class="readonly-badge">
-                <u-icon name="lock" size="12" color="#6b7280" />
-                <text>只读</text>
+              <view class="title-desc">
+                请如实填写以下信息，带
+                <text class="required-mark">
+                  *
+                </text>
+                为必填项。
+                <br>
+                提交后将由宿管员进行审核。
               </view>
             </view>
 
-            <view class="user-info-card">
-              <view class="user-icon-wrapper">
-                <u-icon name="account" size="26" color="#fff" />
-              </view>
-              <view class="user-info-grid">
-                <view class="user-info-item">
-                  <view class="info-label">
-                    姓名
-                  </view>
-                  <view class="info-value">
-                    {{ userInfo?.studentInfo?.studentName || userInfo?.nickname || '--' }}
+            <!-- 基础信息卡片 -->
+            <view class="glass-card section-card">
+              <view class="section-header">
+                <view class="section-title-wrapper">
+                  <view class="section-indicator section-indicator-primary" />
+                  <view class="section-title">
+                    基础信息
                   </view>
                 </view>
-                <view class="user-info-item user-info-item-border">
-                  <view class="info-label">
-                    学号
-                  </view>
-                  <view class="info-value">
-                    {{ userInfo?.studentInfo?.studentNo || '--' }}
-                  </view>
+                <view class="readonly-badge">
+                  <u-icon name="lock" size="12" color="#6b7280" />
+                  <text>只读</text>
                 </view>
               </view>
-              <view class="user-info-decoration" />
+
+              <view class="user-info-card">
+                <view class="user-icon-wrapper">
+                  <u-icon name="account" size="26" color="#fff" />
+                </view>
+                <view class="user-info-grid">
+                  <view class="user-info-item">
+                    <view class="info-label">
+                      姓名
+                    </view>
+                    <view class="info-value">
+                      {{ userInfo?.studentInfo?.studentName || userInfo?.nickname || '--' }}
+                    </view>
+                  </view>
+                  <view class="user-info-item user-info-item-border">
+                    <view class="info-label">
+                      学号
+                    </view>
+                    <view class="info-value">
+                      {{ userInfo?.studentInfo?.studentNo || '--' }}
+                    </view>
+                  </view>
+                </view>
+                <view class="user-info-decoration" />
+              </view>
             </view>
-          </view>
 
-          <!-- 业务详情卡片 -->
-          <view class="glass-card section-card">
-            <view class="section-header">
-              <view class="section-title-wrapper">
-                <view class="section-indicator section-indicator-accent" />
-                <view class="section-title">
-                  业务详情
+            <!-- 业务详情卡片 -->
+            <view class="glass-card section-card">
+              <view class="section-header">
+                <view class="section-title-wrapper">
+                  <view class="section-indicator section-indicator-accent" />
+                  <view class="section-title">
+                    业务详情
+                  </view>
                 </view>
               </view>
-            </view>
 
-            <!-- 申请类型（type 直达时隐藏，无二次选择） -->
-            <ApplyTypePicker
-              v-if="!hideTypePicker"
-              v-model="formData.applyType"
-              :options="filteredApplyTypeOptions"
-              :can-modify="canModifyApplyType"
-            />
-
-            <!-- 动态表单组件 -->
-            <NormalCheckIn
-              v-if="formData.applyType === 'normalCheckIn'"
-              :form-data="getFormDataForComponent()"
-              @update="handleFormUpdate"
-            />
-            <TempCheckIn
-              v-else-if="formData.applyType === 'tempCheckIn'"
-              :form-data="getFormDataForComponent()"
-              @update="handleFormUpdate"
-            />
-            <Transfer
-              v-else-if="formData.applyType === 'transfer'"
-              :form-data="getFormDataForComponent()"
-              @update="handleFormUpdate"
-            />
-            <CheckOut
-              v-else-if="formData.applyType === 'checkOut'"
-              :form-data="getFormDataForComponent()"
-              @update="handleFormUpdate"
-            />
-            <Stay
-              v-else-if="formData.applyType === 'stay'"
-              :form-data="getFormDataForComponent()"
-              @update="handleFormUpdate"
-            />
-            <template v-else-if="formData.applyType === 'repair'">
-              <RepairTypePicker
-                v-model="formData.repairType"
-                :options="repairTypeOptions"
+              <!-- 申请类型（type 直达时隐藏，无二次选择） -->
+              <ApplyTypePicker
+                v-if="!hideTypePicker"
+                v-model="formData.applyType"
+                :options="filteredApplyTypeOptions"
+                :can-modify="canModifyApplyType"
               />
-              <Repair
+
+              <!-- 动态表单组件 -->
+              <NormalCheckIn
+                v-if="formData.applyType === 'normalCheckIn'"
                 :form-data="getFormDataForComponent()"
                 @update="handleFormUpdate"
               />
-            </template>
-          </view>
-        </main>
+              <TempCheckIn
+                v-else-if="formData.applyType === 'tempCheckIn'"
+                :form-data="getFormDataForComponent()"
+                @update="handleFormUpdate"
+              />
+              <Transfer
+                v-else-if="formData.applyType === 'transfer'"
+                :form-data="getFormDataForComponent()"
+                @update="handleFormUpdate"
+              />
+              <CheckOut
+                v-else-if="formData.applyType === 'checkOut'"
+                :form-data="getFormDataForComponent()"
+                @update="handleFormUpdate"
+              />
+              <Stay
+                v-else-if="formData.applyType === 'stay'"
+                :form-data="getFormDataForComponent()"
+                @update="handleFormUpdate"
+              />
+              <template v-else-if="formData.applyType === 'repair'">
+                <RepairTypePicker
+                  v-model="formData.repairType"
+                  :options="repairTypeOptions"
+                />
+                <Repair
+                  :form-data="getFormDataForComponent()"
+                  @update="handleFormUpdate"
+                />
+              </template>
+            </view>
+          </main>
+        </scroll-view>
 
         <!-- 底部操作栏 -->
         <view class="bottom-actions">
-          <view class="action-btn cancel-btn" @click="handleCancel">
-            取消
-          </view>
           <view class="action-btn submit-btn" @click="handleSubmit">
             <text>提交申请</text>
             <u-icon name="arrow-right" size="18" color="#fff" />
@@ -511,19 +510,6 @@ onLoad((options: any) => {
   }
 });
 
-// 取消
-function handleCancel() {
-  uni.showModal({
-    title: '确认取消',
-    content: '确定要取消填写吗？未保存的内容将丢失。',
-    success: (res) => {
-      if (res.confirm) {
-        uni.navigateBack();
-      }
-    },
-  });
-}
-
 // 提交
 async function handleSubmit() {
   if (!validateForm(formData)) {
@@ -665,11 +651,15 @@ $glass-border: rgb(255 255 255 / 80%);
   position: relative;
   z-index: 1;
   display: flex;
-  padding-bottom: 200rpx;
   margin: 0 auto;
-  max-width: 750rpx;
-  min-height: 100vh;
   flex-direction: column;
+}
+
+// 内容滚动区域
+.content-scroll {
+  position: relative;
+  z-index: 10;
+  height: calc(100vh - var(--status-bar-height) - 84rpx - 160rpx);
 }
 
 // 顶部导航栏
@@ -680,8 +670,7 @@ $glass-border: rgb(255 255 255 / 80%);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: calc(var(--status-bar-height) + 50rpx) 32rpx 25rpx;
-  backdrop-filter: blur(32rpx);
+  padding: calc(var(--status-bar-height) + 45rpx) 32rpx 25rpx;
 
   .header-back {
     display: flex;
@@ -718,6 +707,7 @@ $glass-border: rgb(255 255 255 / 80%);
   gap: 40rpx;
   padding: 40rpx 32rpx;
   padding-top: 0;
+  padding-bottom: calc(70rpx + env(safe-area-inset-bottom));
 }
 
 // 标题区域
@@ -1153,8 +1143,8 @@ $glass-border: rgb(255 255 255 / 80%);
   left: 0;
   z-index: 50;
   display: flex;
-  padding: 32rpx 48rpx;
-  padding-bottom: calc(32rpx + env(safe-area-inset-bottom));
+  padding: 20rpx 48rpx;
+  padding-bottom: calc(20rpx + env(safe-area-inset-bottom));
   margin: 0 auto;
   max-width: 750rpx;
   background: $glass-bg;
@@ -1177,19 +1167,11 @@ $glass-border: rgb(255 255 255 / 80%);
       transform: scale(0.95);
     }
 
-    &.cancel-btn {
-      color: $text-sub;
-      background: rgb(255 255 255 / 60%);
-      border: 1rpx solid rgb(229 231 235);
-      flex: 1;
-      backdrop-filter: blur(16rpx);
-    }
-
     &.submit-btn {
       color: #fff;
       background: linear-gradient(to right, $primary, $primary-dark);
       box-shadow: 0 8rpx 24rpx rgb(10 219 195 / 30%);
-      flex: 2;
+      flex: 1;
       gap: 16rpx;
 
       &:active {

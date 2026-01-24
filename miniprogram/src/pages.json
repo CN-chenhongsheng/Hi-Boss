@@ -73,7 +73,6 @@
         {
           "path": "student-habits/index",
           "style": {
-            "navigationBarTitleText": "完善生活习惯",
             "navigationStyle": "custom"
           }
         }
@@ -92,7 +91,6 @@
         {
           "path": "form/index",
           "style": {
-            "navigationBarTitleText": "业务填报",
             "navigationStyle": "custom"
           }
         }

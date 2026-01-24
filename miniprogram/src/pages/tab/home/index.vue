@@ -705,7 +705,7 @@ $bg-light: #F0F4F8;
   position: relative;
   z-index: 10;
   align-items: flex-start;
-  padding: calc(var(--status-bar-height) + 50rpx) 32rpx 25rpx;
+  padding: calc(var(--status-bar-height) + 45rpx) 32rpx 25rpx;
   margin-bottom: 10rpx;
 
   .header-left {
