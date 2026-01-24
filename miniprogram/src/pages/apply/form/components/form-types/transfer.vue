@@ -9,7 +9,8 @@
 </template>
 
 <script setup lang="ts">
-import { ReasonTextarea } from '../fields';
+// 小程序不支持 barrel export，必须直接导入 .vue 文件
+import ReasonTextarea from '../fields/ReasonTextarea.vue';
 
 interface Props {
   formData: {

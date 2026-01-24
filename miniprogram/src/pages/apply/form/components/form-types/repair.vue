@@ -32,7 +32,10 @@
 
 <script setup lang="ts">
 import { ref, watch } from 'vue';
-import { ImageUpload, ReasonTextarea, TextInput } from '../fields';
+// 小程序不支持 barrel export，必须直接导入 .vue 文件
+import ImageUpload from '../fields/image-upload.vue';
+import ReasonTextarea from '../fields/ReasonTextarea.vue';
+import TextInput from '../fields/TextInput.vue';
 
 interface Props {
   formData: {

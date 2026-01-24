@@ -61,15 +61,15 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
-import {
-  CheckOut,
-  NormalCheckIn,
-  Repair,
-  Stay,
-  TempCheckIn,
-  Transfer,
-} from '../components/form-types';
-import { ApplyTypePicker, RepairTypePicker } from '../components/pickers';
+// 小程序不支持 barrel export，必须直接导入 .vue 文件
+import CheckOut from '../components/form-types/check-out.vue';
+import NormalCheckIn from '../components/form-types/normal-check-in.vue';
+import Repair from '../components/form-types/repair.vue';
+import Stay from '../components/form-types/stay.vue';
+import TempCheckIn from '../components/form-types/temp-check-in.vue';
+import Transfer from '../components/form-types/transfer.vue';
+import ApplyTypePicker from '../components/pickers/apply-type-picker.vue';
+import RepairTypePicker from '../components/pickers/repair-type-picker.vue';
 import type { ApplyTypeOption, RepairTypeOption } from '../composables/useApplyFormState';
 import type { ApplyType, IApplyFormData } from '@/types';
 

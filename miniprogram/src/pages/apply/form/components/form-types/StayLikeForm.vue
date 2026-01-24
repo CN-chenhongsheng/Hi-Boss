@@ -77,8 +77,11 @@
 
 <script setup lang="ts">
 import { ref, watch } from 'vue';
-import { DateRangePickerField as DateRangePicker } from '../pickers';
-import { AttachmentAndSignature, ReasonTextarea, TextInput } from '../fields';
+// 小程序不支持 barrel export，必须直接导入 .vue 文件
+import DateRangePicker from '../pickers/date-range-picker.vue';
+import AttachmentAndSignature from '../fields/AttachmentAndSignature.vue';
+import ReasonTextarea from '../fields/ReasonTextarea.vue';
+import TextInput from '../fields/TextInput.vue';
 
 interface Props {
   formData: {

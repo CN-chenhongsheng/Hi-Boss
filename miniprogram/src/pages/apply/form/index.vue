@@ -128,8 +128,13 @@
 <script setup lang="ts">
 import { provide } from 'vue';
 import { onLoad } from '@dcloudio/uni-app';
-import { DateRangePicker, SignaturePicker } from './components/pickers';
-import { ApplyDetailCard, BaseInfoCard, FormLayout, TitleSection } from './sections';
+// 小程序不支持 barrel export，必须直接导入 .vue 文件
+import DateRangePicker from './components/pickers/DateRangePicker.vue';
+import SignaturePicker from './components/pickers/SignaturePicker.vue';
+import ApplyDetailCard from './sections/ApplyDetailCard.vue';
+import BaseInfoCard from './sections/BaseInfoCard.vue';
+import FormLayout from './sections/FormLayout.vue';
+import TitleSection from './sections/TitleSection.vue';
 import {
   repairTypeOptions,
   useApplyFormActions,
