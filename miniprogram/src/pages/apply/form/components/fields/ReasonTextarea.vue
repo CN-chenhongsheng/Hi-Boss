@@ -1,53 +1,52 @@
 <template>
-  <view class="form-section">
-    <!-- 申请原因 -->
-    <view class="textarea-group">
-      <view class="textarea-header">
-        <u-icon name="edit-pen" size="18" color="#0adbc3" />
-        <view class="textarea-label">
-          申请原因
-          <text class="required-mark">
-            *
-          </text>
-        </view>
+  <view class="textarea-group">
+    <view class="textarea-header">
+      <u-icon name="edit-pen" size="18" color="#0adbc3" />
+      <view class="textarea-label">
+        {{ label }}
+        <text v-if="required" class="required-mark">
+          *
+        </text>
       </view>
-      <textarea
-        :value="formData.reason"
-        class="textarea-input"
-        placeholder="请详细描述调宿原因..."
-        :maxlength="500"
-        @input="handleInput('reason', $event)"
-      />
     </view>
+    <textarea
+      :value="modelValue"
+      class="textarea-input"
+      :placeholder="placeholder"
+      :maxlength="maxlength"
+      @input="handleInput"
+    />
   </view>
 </template>
 
 <script setup lang="ts">
 interface Props {
-  formData: {
-    reason?: string;
-  };
+  modelValue?: string;
+  label?: string;
+  placeholder?: string;
+  required?: boolean;
+  maxlength?: number;
 }
 
-defineProps<Props>();
+withDefaults(defineProps<Props>(), {
+  modelValue: '',
+  label: '申请原因',
+  placeholder: '请详细描述申请原因...',
+  required: true,
+  maxlength: 500,
+});
 
 const emit = defineEmits<{
-  update: [field: string, value: any];
+  'update:modelValue': [value: string];
 }>();
 
-function handleInput(field: string, event: any) {
+function handleInput(event: any) {
   const value = event.detail?.value || '';
-  emit('update', field, value);
+  emit('update:modelValue', value);
 }
 </script>
 
 <style lang="scss" scoped>
-.form-section {
-  display: flex;
-  flex-direction: column;
-  gap: 32rpx;
-}
-
 .textarea-group {
   padding: 32rpx;
   background: rgb(255 255 255 / 60%);

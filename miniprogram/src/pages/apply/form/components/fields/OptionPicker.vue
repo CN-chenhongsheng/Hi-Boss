@@ -1,16 +1,17 @@
 <template>
-  <view class="repair-type-picker-wrapper">
+  <view class="option-picker-wrapper">
     <view
       class="input-group"
-      @click="openPicker()"
+      :class="{ disabled: !canModify }"
+      @click="canModify ? handleClick() : null"
     >
       <view class="input-icon">
-        <u-icon name="setting" size="20" color="#0adbc3" />
+        <u-icon :name="icon" size="20" color="#0adbc3" />
       </view>
       <view class="input-content">
         <view class="input-label">
-          报修类型
-          <text class="required-mark">
+          {{ label }}
+          <text v-if="required" class="required-mark">
             *
           </text>
         </view>
@@ -18,7 +19,7 @@
           {{ displayLabel }}
         </view>
       </view>
-      <view class="input-arrow">
+      <view v-if="canModify" class="input-arrow">
         <u-icon name="arrow-down-fill" size="20" color="#9ca3af" />
       </view>
     </view>
@@ -28,38 +29,56 @@
 <script setup lang="ts">
 import { computed, inject } from 'vue';
 
-interface RepairTypeOption {
+interface OptionItem {
   label: string;
-  value: number;
+  value: string | number;
 }
 
 interface Props {
-  modelValue: number | undefined;
-  options: RepairTypeOption[];
+  modelValue: string | number | undefined;
+  options: OptionItem[];
+  label?: string;
+  placeholder?: string;
+  icon?: string;
+  required?: boolean;
+  canModify?: boolean;
+  injectKey?: string;
 }
 
-const props = defineProps<Props>();
-
-// 从父组件注入打开选择器的函数
-const openRepairTypePicker = inject<() => void>('openRepairTypePicker');
-
-const displayLabel = computed(() => {
-  if (!props.modelValue) {
-    return '请选择报修类型';
-  }
-  const option = props.options.find(opt => opt.value === props.modelValue);
-  return option?.label || '请选择报修类型';
+const props = withDefaults(defineProps<Props>(), {
+  label: '选择类型',
+  placeholder: '请选择',
+  icon: 'list',
+  required: true,
+  canModify: true,
+  injectKey: '',
 });
 
-function openPicker() {
-  if (openRepairTypePicker) {
-    openRepairTypePicker();
+const emit = defineEmits<{
+  click: [];
+}>();
+
+// 从父组件注入打开选择器的函数
+const injectedOpenPicker = props.injectKey ? inject<() => void>(props.injectKey) : undefined;
+
+const displayLabel = computed(() => {
+  if (props.modelValue === undefined || props.modelValue === '') {
+    return props.placeholder;
   }
+  const option = props.options.find(opt => opt.value === props.modelValue);
+  return option?.label || props.placeholder;
+});
+
+function handleClick() {
+  if (injectedOpenPicker) {
+    injectedOpenPicker();
+  }
+  emit('click');
 }
 </script>
 
 <style lang="scss" scoped>
-.repair-type-picker-wrapper {
+.option-picker-wrapper {
   width: 100%;
 }
 
@@ -76,6 +95,12 @@ function openPicker() {
   cursor: pointer;
   user-select: none;
   -webkit-tap-highlight-color: transparent;
+
+  &.disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
 
   .input-icon {
     position: absolute;
@@ -133,7 +158,7 @@ function openPicker() {
     transition: all 0.3s;
   }
 
-  &:active {
+  &:active:not(.disabled) {
     background: rgb(255 255 255 / 100%);
     border-color: #0adbc3;
     box-shadow: 0 4rpx 12rpx rgb(10 219 195 / 15%);

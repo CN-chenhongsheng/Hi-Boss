@@ -39,9 +39,12 @@ export interface IApplyListItem {
   reason: string;
 }
 
+/** 申请类型 */
+export type ApplyType = 'normalCheckIn' | 'tempCheckIn' | 'transfer' | 'checkOut' | 'stay' | 'repair' | '';
+
 /** 申请表单数据 */
 export interface IApplyFormData {
-  applyType: string;
+  applyType: ApplyType;
   reason: string;
   images: string[];
   signature: string;
