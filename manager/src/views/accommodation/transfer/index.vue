@@ -75,9 +75,10 @@
     fetchDeleteTransfer,
     fetchBatchDeleteTransfer
   } from '@/api/accommodation-manage'
-  import { ElMessageBox, ElTag } from 'element-plus'
+  import { ElMessageBox } from 'element-plus'
   import TransferSearch from './modules/transfer-search.vue'
   import TransferDrawer from './modules/transfer-drawer.vue'
+  import ApprovalProgressTag from '@/components/core/approval/approval-progress-tag/index.vue'
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
 
   defineOptions({ name: 'AccommodationTransfer' })
@@ -173,21 +174,13 @@
         { prop: 'applyDate', label: '申请日期', width: 120, sortable: true },
         { prop: 'transferDate', label: '调宿日期', width: 120, sortable: true },
         {
-          prop: 'status',
-          label: '状态',
-          width: 100,
+          prop: 'approvalProgress',
+          label: '审批状态',
+          width: 120,
           formatter: (row: TransferListItem) => {
-            const statusMap: Record<
-              number,
-              { type: 'warning' | 'success' | 'danger' | 'info'; text: string }
-            > = {
-              1: { type: 'warning', text: '待审核' },
-              2: { type: 'success', text: '已通过' },
-              3: { type: 'danger', text: '已拒绝' },
-              4: { type: 'info', text: '已完成' }
-            }
-            const config = statusMap[row.status] || { type: 'info', text: row.statusText || '未知' }
-            return h(ElTag, { type: config.type, size: 'small' }, () => config.text)
+            return h(ApprovalProgressTag, {
+              approvalProgress: row.approvalProgress
+            })
           }
         },
         {

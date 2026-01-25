@@ -75,9 +75,10 @@
     fetchDeleteCheckOut,
     fetchBatchDeleteCheckOut
   } from '@/api/accommodation-manage'
-  import { ElMessageBox, ElTag } from 'element-plus'
+  import { ElMessageBox } from 'element-plus'
   import CheckOutSearch from './modules/check-out-search.vue'
   import CheckOutDrawer from './modules/check-out-drawer.vue'
+  import ApprovalProgressTag from '@/components/core/approval/approval-progress-tag/index.vue'
 
   defineOptions({ name: 'AccommodationCheckOut' })
 
@@ -154,21 +155,13 @@
         { prop: 'checkOutDate', label: '退宿日期', width: 120, sortable: true },
         { prop: 'checkOutReason', label: '退宿理由' },
         {
-          prop: 'status',
-          label: '状态',
-          width: 100,
+          prop: 'approvalProgress',
+          label: '审批状态',
+          width: 120,
           formatter: (row: CheckOutListItem) => {
-            const statusMap: Record<
-              number,
-              { type: 'warning' | 'success' | 'danger' | 'info'; text: string }
-            > = {
-              1: { type: 'warning', text: '待审核' },
-              2: { type: 'success', text: '已通过' },
-              3: { type: 'danger', text: '已拒绝' },
-              4: { type: 'info', text: '已完成' }
-            }
-            const config = statusMap[row.status] || { type: 'info', text: row.statusText || '未知' }
-            return h(ElTag, { type: config.type, size: 'small' }, () => config.text)
+            return h(ApprovalProgressTag, {
+              approvalProgress: row.approvalProgress
+            })
           }
         },
         {

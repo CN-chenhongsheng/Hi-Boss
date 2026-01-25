@@ -1,6 +1,7 @@
 package com.project.backend.accommodation.vo;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.project.core.vo.ApprovalProgress;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
@@ -76,6 +77,12 @@ public class CheckInVO implements Serializable {
 
     @Schema(description = "状态文本")
     private String statusText;
+
+    @Schema(description = "审批实例ID")
+    private Long approvalInstanceId;
+
+    @Schema(description = "审批进度信息")
+    private ApprovalProgress approvalProgress;
 
     @Schema(description = "审核人ID")
     private Long approverId;

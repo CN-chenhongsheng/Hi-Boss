@@ -20,9 +20,14 @@ import com.project.backend.approval.mapper.ApprovalNodeAssigneeMapper;
 import com.project.backend.approval.mapper.ApprovalNodeMapper;
 import com.project.backend.approval.mapper.ApprovalRecordMapper;
 import com.project.backend.approval.service.ApprovalService;
+import com.project.backend.approval.vo.ApprovalAssigneeVO;
 import com.project.backend.approval.vo.ApprovalInstanceVO;
 import com.project.backend.approval.vo.ApprovalNodeVO;
 import com.project.backend.approval.vo.ApprovalRecordVO;
+import com.project.backend.system.entity.Role;
+import com.project.backend.system.entity.User;
+import com.project.backend.system.mapper.RoleMapper;
+import com.project.backend.system.mapper.UserMapper;
 import com.project.core.exception.BusinessException;
 import com.project.core.result.PageResult;
 import lombok.RequiredArgsConstructor;
@@ -56,6 +61,8 @@ public class ApprovalServiceImpl implements ApprovalService {
     private final ApprovalNodeAssigneeMapper assigneeMapper;
     private final ApprovalInstanceMapper instanceMapper;
     private final ApprovalRecordMapper recordMapper;
+    private final RoleMapper roleMapper;
+    private final UserMapper userMapper;
 
     /**
      * 业务类型映射
@@ -459,6 +466,27 @@ public class ApprovalServiceImpl implements ApprovalService {
         List<ApprovalNodeVO> nodeVOs = nodes.stream().map(node -> {
             ApprovalNodeVO nodeVO = new ApprovalNodeVO();
             BeanUtil.copyProperties(node, nodeVO);
+            
+            // 加载审批人列表
+            List<ApprovalNodeAssignee> assignees = assigneeMapper.selectByNodeId(node.getId());
+            List<ApprovalAssigneeVO> assigneeVOs = new ArrayList<>();
+            for (ApprovalNodeAssignee assignee : assignees) {
+                ApprovalAssigneeVO assigneeVO = new ApprovalAssigneeVO();
+                BeanUtil.copyProperties(assignee, assigneeVO);
+                assigneeVO.setAssigneeTypeText(assignee.getAssigneeType() == 1 ? "角色" : "用户");
+                
+                // 获取审批人姓名
+                if (assignee.getAssigneeType() == 1) {
+                    Role role = roleMapper.selectById(assignee.getAssigneeId());
+                    assigneeVO.setAssigneeName(role != null ? role.getRoleName() : "未知角色");
+                } else {
+                    User user = userMapper.selectById(assignee.getAssigneeId());
+                    assigneeVO.setAssigneeName(user != null ? user.getNickname() : "未知用户");
+                }
+                assigneeVOs.add(assigneeVO);
+            }
+            nodeVO.setAssignees(assigneeVOs);
+            
             return nodeVO;
         }).collect(Collectors.toList());
         vo.setNodes(nodeVOs);

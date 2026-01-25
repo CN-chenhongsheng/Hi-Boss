@@ -87,3 +87,8 @@ knife4j:
   basic:
     enable: false
 
+# 文件上传配置
+file:
+  upload-dir: ./uploads  # 本地上传目录
+  public-path: /v1/common/files  # 公开访问路径前缀
+

@@ -36,7 +36,11 @@ const validators = {
     return true;
   },
   signature: (value: string): boolean => {
-    if (!value) {
+    // 调试：打印签名值
+    console.log('[FormValidation] 签名校验，值:', value, '类型:', typeof value, '长度:', value ? String(value).length : 0);
+
+    // 检查签名值是否存在（可以是 URL 或 base64 或临时路径）
+    if (!value || (typeof value === 'string' && !value.trim())) {
       uni.showToast({
         title: '请完成本人签名',
         icon: 'none',

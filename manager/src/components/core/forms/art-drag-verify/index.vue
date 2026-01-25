@@ -348,7 +348,11 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      cursor: move;
+      cursor: var(--cursor-grab);
+
+      svg {
+        cursor: var(--cursor-grab) !important;
+      }
 
       i {
         padding-left: 0;

@@ -1,4 +1,4 @@
-<!-- 入住申请审批信息组件 -->
+﻿<!-- 入住申请审批信息组件 -->
 <template>
   <ArtApprovalInfo
     :business-type="businessType"
@@ -19,67 +19,130 @@
             <ArtSvgIcon icon="ri:home-line" class="label-icon" />
             <span>入住类型</span>
           </div>
-          <div class="row-value">
-            <ElTag :type="checkInTypeTag" size="small">
-              {{ checkInData.checkInTypeText }}
-            </ElTag>
-          </div>
+          <ElTooltip
+            :content="checkInData.checkInTypeText"
+            placement="bottom"
+            popper-class="info-card-tooltip"
+            :disabled="!isTextOverflow(checkInData.checkInTypeText)"
+          >
+            <div class="row-value">
+              <ElTag :type="checkInTypeTag" size="small">
+                {{ checkInData.checkInTypeText }}
+              </ElTag>
+            </div>
+          </ElTooltip>
         </div>
         <div v-if="checkInData.campusName" class="info-row">
           <div class="row-label">
             <ArtSvgIcon icon="ri:map-pin-line" class="label-icon" />
             <span>校区</span>
           </div>
-          <div class="row-value">{{ checkInData.campusName }}</div>
+          <ElTooltip
+            :content="checkInData.campusName"
+            placement="bottom"
+            popper-class="info-card-tooltip"
+            :disabled="!isTextOverflow(checkInData.campusName)"
+          >
+            <div class="row-value">{{ checkInData.campusName }}</div>
+          </ElTooltip>
         </div>
         <div v-if="checkInData.roomCode" class="info-row">
           <div class="row-label">
             <ArtSvgIcon icon="ri:door-open-line" class="label-icon" />
             <span>房间编码</span>
           </div>
-          <div class="row-value is-code">{{ checkInData.roomCode }}</div>
+          <ElTooltip
+            :content="checkInData.roomCode"
+            placement="bottom"
+            popper-class="info-card-tooltip"
+            :disabled="!isTextOverflow(checkInData.roomCode)"
+          >
+            <div class="row-value is-code">{{ checkInData.roomCode }}</div>
+          </ElTooltip>
         </div>
         <div v-if="checkInData.bedCode" class="info-row">
           <div class="row-label">
             <ArtSvgIcon icon="ri:hotel-bed-line" class="label-icon" />
             <span>床位编码</span>
           </div>
-          <div class="row-value is-code">{{ checkInData.bedCode }}</div>
+          <ElTooltip
+            :content="checkInData.bedCode"
+            placement="bottom"
+            popper-class="info-card-tooltip"
+            :disabled="!isTextOverflow(checkInData.bedCode)"
+          >
+            <div class="row-value is-code">{{ checkInData.bedCode }}</div>
+          </ElTooltip>
         </div>
         <div v-if="checkInData.applyDate" class="info-row">
           <div class="row-label">
             <ArtSvgIcon icon="ri:calendar-line" class="label-icon" />
             <span>申请日期</span>
           </div>
-          <div class="row-value">{{ checkInData.applyDate }}</div>
+          <ElTooltip
+            :content="checkInData.applyDate"
+            placement="bottom"
+            popper-class="info-card-tooltip"
+            :disabled="!isTextOverflow(checkInData.applyDate)"
+          >
+            <div class="row-value">{{ checkInData.applyDate }}</div>
+          </ElTooltip>
         </div>
         <div v-if="checkInData.checkInDate" class="info-row">
           <div class="row-label">
             <ArtSvgIcon icon="ri:calendar-check-line" class="label-icon" />
             <span>入住日期</span>
           </div>
-          <div class="row-value">{{ checkInData.checkInDate }}</div>
+          <ElTooltip
+            :content="checkInData.checkInDate"
+            placement="bottom"
+            popper-class="info-card-tooltip"
+            :disabled="!isTextOverflow(checkInData.checkInDate)"
+          >
+            <div class="row-value">{{ checkInData.checkInDate }}</div>
+          </ElTooltip>
         </div>
         <div v-if="checkInData.expectedCheckOutDate" class="info-row">
           <div class="row-label">
             <ArtSvgIcon icon="ri:calendar-close-line" class="label-icon" />
             <span>预计退宿日期</span>
           </div>
-          <div class="row-value">{{ checkInData.expectedCheckOutDate }}</div>
+          <ElTooltip
+            :content="checkInData.expectedCheckOutDate"
+            placement="bottom"
+            popper-class="info-card-tooltip"
+            :disabled="!isTextOverflow(checkInData.expectedCheckOutDate)"
+          >
+            <div class="row-value">{{ checkInData.expectedCheckOutDate }}</div>
+          </ElTooltip>
         </div>
         <div v-if="checkInData.applyReason" class="info-row">
           <div class="row-label">
             <ArtSvgIcon icon="ri:file-edit-line" class="label-icon" />
             <span>申请原因</span>
           </div>
-          <div class="row-value">{{ checkInData.applyReason }}</div>
+          <ElTooltip
+            :content="checkInData.applyReason"
+            placement="bottom"
+            popper-class="info-card-tooltip"
+            :disabled="!isTextOverflow(checkInData.applyReason)"
+          >
+            <div class="row-value">{{ checkInData.applyReason }}</div>
+          </ElTooltip>
         </div>
         <div v-if="checkInData.remark" class="info-row">
           <div class="row-label">
             <ArtSvgIcon icon="ri:sticky-note-line" class="label-icon" />
             <span>备注</span>
           </div>
-          <div class="row-value">{{ checkInData.remark }}</div>
+          <ElTooltip
+            :content="checkInData.remark"
+            placement="bottom"
+            popper-class="info-card-tooltip"
+            :disabled="!isTextOverflow(checkInData.remark)"
+          >
+            <div class="row-value">{{ checkInData.remark }}</div>
+          </ElTooltip>
         </div>
       </div>
     </ElCard>
@@ -88,7 +151,7 @@
 
 <script setup lang="ts">
   import { ref, watch, computed } from 'vue'
-  import { ElCard, ElTag } from 'element-plus'
+  import { ElCard, ElTag, ElTooltip } from 'element-plus'
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
   import ArtApprovalInfo from '@/components/core/layouts/art-approval-info/index.vue'
   import { fetchGetCheckInDetail } from '@/api/accommodation-manage'
@@ -112,6 +175,12 @@
   const emit = defineEmits<Emits>()
 
   const checkInData = ref<Api.AccommodationManage.CheckInListItem | null>(props.checkInData || null)
+
+  // 判断文字是否可能溢出
+  const isTextOverflow = (text: string | undefined): boolean => {
+    if (!text) return false
+    return text.length > 30
+  }
 
   // 计算标签类型，避免 ESLint 误报过滤器
   const checkInTypeTag = computed<'primary' | 'warning'>(() => {
@@ -163,97 +232,3 @@
     emit('approval-success')
   }
 </script>
-
-<style lang="scss" scoped>
-  .info-card {
-    border: 1px solid var(--el-border-color-lighter);
-    border-radius: var(--el-border-radius-base);
-    transition: all 0.3s;
-
-    &:hover {
-      border-color: var(--el-color-primary-light-7);
-      box-shadow: 0 2px 12px 0 rgb(0 0 0 / 10%);
-    }
-
-    :deep(.el-card__header) {
-      padding: 12px 16px;
-      background: linear-gradient(
-        135deg,
-        var(--el-fill-color-lighter) 0%,
-        color-mix(in srgb, var(--el-color-primary) 6%, var(--el-bg-color)) 100%
-      );
-      border-bottom: 1px solid var(--el-border-color-lighter);
-    }
-
-    :deep(.el-card__body) {
-      padding: 4px 16px;
-    }
-
-    .card-header {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-
-      .header-icon {
-        font-size: 18px;
-        color: var(--el-color-primary);
-      }
-
-      .header-title {
-        font-size: 15px;
-        font-weight: 600;
-        color: var(--el-text-color-primary);
-      }
-    }
-
-    .info-list {
-      display: flex;
-      flex-direction: column;
-      gap: 0;
-    }
-
-    .info-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 12px 0;
-      border-bottom: 1px solid var(--el-border-color-extra-light);
-
-      &:last-of-type {
-        border-bottom: none;
-      }
-
-      .row-label {
-        display: flex;
-        gap: 8px;
-        align-items: center;
-        font-size: 13px;
-        color: var(--el-text-color-secondary);
-
-        .label-icon {
-          width: 16px;
-          height: 16px;
-          color: var(--el-text-color-placeholder);
-        }
-      }
-
-      .row-value {
-        display: flex;
-        gap: 6px;
-        align-items: center;
-        font-size: 13px;
-        font-weight: 500;
-        color: var(--el-text-color-primary);
-
-        &.is-code {
-          padding: 2px 8px;
-          font-family: 'SF Mono', Menlo, Consolas, monospace;
-          font-size: 12px;
-          color: var(--el-color-primary);
-          background: var(--el-color-primary-light-9);
-          border-radius: 4px;
-        }
-      }
-    }
-  }
-</style>

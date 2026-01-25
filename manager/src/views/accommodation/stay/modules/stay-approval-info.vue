@@ -1,4 +1,4 @@
-<!-- 留宿申请审批信息组件 -->
+﻿<!-- 留宿申请审批信息组件 -->
 <template>
   <ArtApprovalInfo
     :business-type="businessType"
@@ -19,56 +19,112 @@
             <ArtSvgIcon icon="ri:map-pin-line" class="label-icon" />
             <span>校区</span>
           </div>
-          <div class="row-value">{{ stayData.campusName }}</div>
+          <ElTooltip
+            :content="stayData.campusName"
+            placement="bottom"
+            popper-class="info-card-tooltip"
+            :disabled="!isTextOverflow(stayData.campusName)"
+          >
+            <div class="row-value">{{ stayData.campusName }}</div>
+          </ElTooltip>
         </div>
         <div v-if="stayData.roomCode" class="info-row">
           <div class="row-label">
             <ArtSvgIcon icon="ri:door-open-line" class="label-icon" />
             <span>房间编码</span>
           </div>
-          <div class="row-value is-code">{{ stayData.roomCode }}</div>
+          <ElTooltip
+            :content="stayData.roomCode"
+            placement="bottom"
+            popper-class="info-card-tooltip"
+            :disabled="!isTextOverflow(stayData.roomCode)"
+          >
+            <div class="row-value is-code">{{ stayData.roomCode }}</div>
+          </ElTooltip>
         </div>
         <div v-if="stayData.bedCode" class="info-row">
           <div class="row-label">
             <ArtSvgIcon icon="ri:hotel-bed-line" class="label-icon" />
             <span>床位编码</span>
           </div>
-          <div class="row-value is-code">{{ stayData.bedCode }}</div>
+          <ElTooltip
+            :content="stayData.bedCode"
+            placement="bottom"
+            popper-class="info-card-tooltip"
+            :disabled="!isTextOverflow(stayData.bedCode)"
+          >
+            <div class="row-value is-code">{{ stayData.bedCode }}</div>
+          </ElTooltip>
         </div>
         <div v-if="stayData.applyDate" class="info-row">
           <div class="row-label">
             <ArtSvgIcon icon="ri:calendar-line" class="label-icon" />
             <span>申请日期</span>
           </div>
-          <div class="row-value">{{ stayData.applyDate }}</div>
+          <ElTooltip
+            :content="stayData.applyDate"
+            placement="bottom"
+            popper-class="info-card-tooltip"
+            :disabled="!isTextOverflow(stayData.applyDate)"
+          >
+            <div class="row-value">{{ stayData.applyDate }}</div>
+          </ElTooltip>
         </div>
         <div v-if="stayData.stayStartDate" class="info-row">
           <div class="row-label">
             <ArtSvgIcon icon="ri:calendar-check-line" class="label-icon" />
             <span>留宿开始日期</span>
           </div>
-          <div class="row-value">{{ stayData.stayStartDate }}</div>
+          <ElTooltip
+            :content="stayData.stayStartDate"
+            placement="bottom"
+            popper-class="info-card-tooltip"
+            :disabled="!isTextOverflow(stayData.stayStartDate)"
+          >
+            <div class="row-value">{{ stayData.stayStartDate }}</div>
+          </ElTooltip>
         </div>
         <div v-if="stayData.stayEndDate" class="info-row">
           <div class="row-label">
             <ArtSvgIcon icon="ri:calendar-close-line" class="label-icon" />
             <span>留宿结束日期</span>
           </div>
-          <div class="row-value">{{ stayData.stayEndDate }}</div>
+          <ElTooltip
+            :content="stayData.stayEndDate"
+            placement="bottom"
+            popper-class="info-card-tooltip"
+            :disabled="!isTextOverflow(stayData.stayEndDate)"
+          >
+            <div class="row-value">{{ stayData.stayEndDate }}</div>
+          </ElTooltip>
         </div>
         <div v-if="stayData.stayReason" class="info-row">
           <div class="row-label">
             <ArtSvgIcon icon="ri:file-edit-line" class="label-icon" />
             <span>留宿理由</span>
           </div>
-          <div class="row-value">{{ stayData.stayReason }}</div>
+          <ElTooltip
+            :content="stayData.stayReason"
+            placement="bottom"
+            popper-class="info-card-tooltip"
+            :disabled="!isTextOverflow(stayData.stayReason)"
+          >
+            <div class="row-value">{{ stayData.stayReason }}</div>
+          </ElTooltip>
         </div>
         <div v-if="stayData.remark" class="info-row">
           <div class="row-label">
             <ArtSvgIcon icon="ri:sticky-note-line" class="label-icon" />
             <span>备注</span>
           </div>
-          <div class="row-value">{{ stayData.remark }}</div>
+          <ElTooltip
+            :content="stayData.remark"
+            placement="bottom"
+            popper-class="info-card-tooltip"
+            :disabled="!isTextOverflow(stayData.remark)"
+          >
+            <div class="row-value">{{ stayData.remark }}</div>
+          </ElTooltip>
         </div>
       </div>
     </ElCard>
@@ -77,7 +133,7 @@
 
 <script setup lang="ts">
   import { ref, watch } from 'vue'
-  import { ElCard } from 'element-plus'
+  import { ElCard, ElTooltip } from 'element-plus'
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
   import ArtApprovalInfo from '@/components/core/layouts/art-approval-info/index.vue'
   import { fetchGetStayDetail } from '@/api/accommodation-manage'
@@ -101,6 +157,12 @@
   const emit = defineEmits<Emits>()
 
   const stayData = ref<Api.AccommodationManage.StayListItem | null>(props.stayData || null)
+
+  // 判断文字是否可能溢出
+  const isTextOverflow = (text: string | undefined): boolean => {
+    if (!text) return false
+    return text.length > 30
+  }
 
   // 加载申请信息
   const loadStayData = async () => {
@@ -147,97 +209,3 @@
     emit('approval-success')
   }
 </script>
-
-<style lang="scss" scoped>
-  .info-card {
-    border: 1px solid var(--el-border-color-lighter);
-    border-radius: var(--el-border-radius-base);
-    transition: all 0.3s;
-
-    &:hover {
-      border-color: var(--el-color-primary-light-7);
-      box-shadow: 0 2px 12px 0 rgb(0 0 0 / 10%);
-    }
-
-    :deep(.el-card__header) {
-      padding: 12px 16px;
-      background: linear-gradient(
-        135deg,
-        var(--el-fill-color-lighter) 0%,
-        color-mix(in srgb, var(--el-color-primary) 6%, var(--el-bg-color)) 100%
-      );
-      border-bottom: 1px solid var(--el-border-color-lighter);
-    }
-
-    :deep(.el-card__body) {
-      padding: 4px 16px;
-    }
-
-    .card-header {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-
-      .header-icon {
-        font-size: 18px;
-        color: var(--el-color-primary);
-      }
-
-      .header-title {
-        font-size: 15px;
-        font-weight: 600;
-        color: var(--el-text-color-primary);
-      }
-    }
-
-    .info-list {
-      display: flex;
-      flex-direction: column;
-      gap: 0;
-    }
-
-    .info-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 12px 0;
-      border-bottom: 1px solid var(--el-border-color-extra-light);
-
-      &:last-of-type {
-        border-bottom: none;
-      }
-
-      .row-label {
-        display: flex;
-        gap: 8px;
-        align-items: center;
-        font-size: 13px;
-        color: var(--el-text-color-secondary);
-
-        .label-icon {
-          width: 16px;
-          height: 16px;
-          color: var(--el-text-color-placeholder);
-        }
-      }
-
-      .row-value {
-        display: flex;
-        gap: 6px;
-        align-items: center;
-        font-size: 13px;
-        font-weight: 500;
-        color: var(--el-text-color-primary);
-
-        &.is-code {
-          padding: 2px 8px;
-          font-family: 'SF Mono', Menlo, Consolas, monospace;
-          font-size: 12px;
-          color: var(--el-color-primary);
-          background: var(--el-color-primary-light-9);
-          border-radius: 4px;
-        }
-      }
-    }
-  }
-</style>

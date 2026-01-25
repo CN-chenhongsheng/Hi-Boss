@@ -73,6 +73,12 @@
               <div class="timeline-item">
                 <div class="timeline-header">
                   <span class="timeline-node-name">{{ item.nodeName }}</span>
+                  <span
+                    v-if="item.type === 'node' && getNodeTypeText(item.node)"
+                    class="timeline-node-type"
+                  >
+                    {{ getNodeTypeText(item.node) }}
+                  </span>
                   <ElTag v-if="item.type === 'start'" type="primary" size="small"> 已发起 </ElTag>
                   <ElTag
                     v-else-if="item.type === 'end'"
@@ -95,6 +101,16 @@
                 </div>
                 <div v-else-if="item.type === 'node' && item.record" class="timeline-meta">
                   <span class="timeline-approver">审批人：{{ item.record.approverName }}</span>
+                </div>
+                <div
+                  v-else-if="
+                    item.type === 'node' && !item.record && getNodeAssigneeNames(item.node)
+                  "
+                  class="timeline-meta"
+                >
+                  <span class="timeline-approver pending"
+                    >审批人：{{ getNodeAssigneeNames(item.node) }}</span
+                  >
                 </div>
                 <div v-if="item.type === 'node' && item.record?.opinion" class="timeline-opinion">
                   意见：{{ item.record.opinion }}
@@ -295,6 +311,31 @@
     return item.record.action === 1 ? 'success' : 'danger'
   }
 
+  // 获取节点审批人名称列表
+  const getNodeAssigneeNames = (node?: ApprovalNode) => {
+    if (!node?.assignees?.length) return ''
+    return node.assignees
+      .map((a) => a.assigneeName)
+      .filter(Boolean)
+      .join('、')
+  }
+
+  // 获取节点类型文本
+  const getNodeTypeText = (node?: ApprovalNode) => {
+    if (!node) return ''
+    if (node.nodeTypeText) return node.nodeTypeText
+    switch (node.nodeType) {
+      case 1:
+        return '串行'
+      case 2:
+        return '会签'
+      case 3:
+        return '或签'
+      default:
+        return ''
+    }
+  }
+
   const loadApprovalInfo = async () => {
     if (!props.businessId) {
       approvalInstance.value = null
@@ -374,92 +415,15 @@
     gap: 16px;
 
     .info-card {
-      border: 1px solid var(--el-border-color-lighter);
-      border-radius: var(--el-border-radius-base);
-      transition: all 0.3s;
-
-      &:hover {
-        border-color: var(--el-color-primary-light-7);
-        box-shadow: 0 2px 12px 0 rgb(0 0 0 / 10%);
-      }
-
-      :deep(.el-card__header) {
-        padding: 12px 16px;
-        background: linear-gradient(
-          135deg,
-          var(--el-fill-color-lighter) 0%,
-          color-mix(in srgb, var(--el-color-primary) 6%, var(--el-bg-color)) 100%
-        );
-        border-bottom: 1px solid var(--el-border-color-lighter);
-      }
-
-      :deep(.el-card__body) {
-        padding: 4px 16px;
-      }
-
-      .card-header {
-        display: flex;
-        gap: 8px;
-        align-items: center;
-
-        .header-icon {
-          font-size: 18px;
-          color: var(--el-color-primary);
-        }
-
-        .header-title {
-          font-size: 15px;
-          font-weight: 600;
-          color: var(--el-text-color-primary);
-        }
-      }
-
-      .info-list {
-        display: flex;
-        flex-direction: column;
-        gap: 0;
-      }
-
-      .info-row {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 12px 0;
-        border-bottom: 1px solid var(--el-border-color-extra-light);
-
-        &:last-of-type {
-          border-bottom: none;
-        }
-
-        .row-label {
-          display: flex;
-          gap: 8px;
-          align-items: center;
-          font-size: 13px;
-          color: var(--el-text-color-secondary);
-
-          .label-icon {
-            width: 16px;
-            height: 16px;
-            color: var(--el-text-color-placeholder);
-          }
-        }
-
-        .row-value {
-          display: flex;
-          gap: 6px;
-          align-items: center;
-          font-size: 13px;
-          font-weight: 500;
-          color: var(--el-text-color-primary);
-        }
-      }
-
       .timeline-content {
         min-height: 200px;
         max-height: 600px;
         padding: 12px 0;
         overflow-y: auto;
+
+        :deep(.el-timeline) {
+          padding-left: 4px;
+        }
 
         .timeline-item {
           .timeline-header {
@@ -473,6 +437,12 @@
               font-weight: 500;
               color: var(--el-text-color-primary);
             }
+
+            .timeline-node-type {
+              margin-left: 3px;
+              font-size: 12px;
+              color: var(--el-text-color-secondary);
+            }
           }
 
           .timeline-meta {
@@ -481,6 +451,10 @@
             .timeline-approver {
               font-size: 13px;
               color: var(--el-text-color-secondary);
+
+              &.pending {
+                color: var(--el-color-warning);
+              }
             }
           }
 
@@ -497,16 +471,6 @@
 
         :deep(.el-form-item) {
           margin-bottom: 16px;
-        }
-      }
-
-      .empty-state {
-        padding: 24px;
-        text-align: center;
-
-        .empty-text {
-          font-size: 14px;
-          color: var(--el-text-color-placeholder);
         }
       }
     }

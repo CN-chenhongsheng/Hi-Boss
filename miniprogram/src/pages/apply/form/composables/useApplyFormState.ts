@@ -98,7 +98,13 @@ export function useApplyFormState() {
   function handleFormUpdate(field: string, value: any): void {
     // 类型安全的字段更新
     if (field in formData) {
+      if (field === 'signature') {
+        console.log('[useApplyFormState] handleFormUpdate 收到签名:', value, '长度:', value ? String(value).length : 0);
+      }
       (formData as any)[field] = value;
+      if (field === 'signature') {
+        console.log('[useApplyFormState] 更新后 formData.signature:', formData.signature, '长度:', formData.signature ? formData.signature.length : 0);
+      }
     }
   }
 

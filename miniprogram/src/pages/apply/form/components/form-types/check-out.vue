@@ -40,10 +40,13 @@ const emit = defineEmits<{
 const images = ref(props.formData.images || []);
 const signature = ref(props.formData.signature || '');
 
-// 监听 formData 变化
+// 监听 formData 变化（但不要覆盖用户刚刚输入的签名值）
 watch(() => props.formData, (newData) => {
   images.value = newData.images || [];
-  signature.value = newData.signature || '';
+  // 只有当新值不为空时才更新签名，避免覆盖用户刚刚输入的签名
+  if (newData.signature && newData.signature.trim()) {
+    signature.value = newData.signature;
+  }
 }, { deep: true });
 
 function handleImagesChange(value: string[]) {
@@ -51,7 +54,12 @@ function handleImagesChange(value: string[]) {
 }
 
 function handleSignatureChange(value: string) {
+  console.log('[check-out.vue] 收到签名更新:', value, '长度:', value ? value.length : 0);
+  // 更新本地 ref
+  signature.value = value;
+  // 发出更新事件
   emit('update', 'signature', value);
+  console.log('[check-out.vue] emit 完成，本地 signature.value:', signature.value);
 }
 </script>
 

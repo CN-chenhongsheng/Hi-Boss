@@ -3,7 +3,6 @@
   <ArtDrawer
     v-model="drawerVisible"
     title="审批处理"
-    :size="450"
     :loading="loading"
     :with-header="true"
     @close="handleClose"

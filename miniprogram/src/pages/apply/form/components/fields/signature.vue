@@ -46,15 +46,21 @@ const signatureValue = ref(props.modelValue || '');
 function openSignatureModal() {
   if (openSignaturePicker) {
     openSignaturePicker(props.modelValue || '', (value) => {
-      emit('update:modelValue', value);
+      console.log('[signature.vue] 收到签名值:', value, '类型:', typeof value, '长度:', value ? value.length : 0);
       signatureValue.value = value;
+      emit('update:modelValue', value);
+      console.log('[signature.vue] emit 完成，当前 signatureValue:', signatureValue.value);
     });
   }
 }
 
 // 监听 modelValue 变化
 watch(() => props.modelValue, (newVal) => {
-  signatureValue.value = newVal || '';
+  console.log('[signature.vue] watch 触发，新值:', newVal, '长度:', newVal ? newVal.length : 0);
+  // 只有当新值不为空时才更新，避免覆盖用户刚刚输入的签名
+  if (newVal && newVal.trim()) {
+    signatureValue.value = newVal;
+  }
 }, { immediate: true });
 </script>
 

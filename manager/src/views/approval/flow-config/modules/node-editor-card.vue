@@ -440,7 +440,7 @@
       border-bottom: 1px solid var(--el-border-color-lighter);
 
       &.draggable-header {
-        cursor: move;
+        cursor: var(--cursor-grab);
         user-select: none;
       }
 

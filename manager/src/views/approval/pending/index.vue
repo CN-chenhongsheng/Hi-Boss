@@ -124,7 +124,11 @@
     resetSearchParams,
     handleSizeChange,
     handleCurrentChange,
-    refreshData
+    refreshData,
+    contextMenuItems,
+    contextMenuWidth,
+    handleRowContextmenu,
+    handleContextMenuSelect
   } = useTable<typeof fetchGetPendingList>({
     core: {
       apiFn: fetchGetPendingList,
@@ -176,13 +180,16 @@
           width: 120,
           fixed: 'right',
           formatter: (row: ApprovalInstance) => {
-            return [{ type: 'view', onClick: () => openApprovalDialog(row), label: '审批' }]
+            return [{ type: 'view', onClick: () => openApprovalDialog(row), label: '查看' }]
           }
         }
       ],
       immediate: true
     },
     adaptive: {
+      enabled: true
+    },
+    contextMenu: {
       enabled: true
     }
   })

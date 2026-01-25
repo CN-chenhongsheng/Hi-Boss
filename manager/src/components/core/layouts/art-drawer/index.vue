@@ -82,7 +82,7 @@
   const props = withDefaults(defineProps<Props>(), {
     modelValue: false,
     title: '',
-    size: '800px',
+    size: '450',
     direction: 'rtl',
     lockScroll: true,
     withHeader: true,

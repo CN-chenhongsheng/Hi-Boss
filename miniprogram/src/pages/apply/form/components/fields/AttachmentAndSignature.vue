@@ -58,7 +58,20 @@ watch(() => props.images, (newImages) => {
 }, { deep: true });
 
 watch(() => props.signature, (newSignature) => {
-  localSignature.value = newSignature || '';
+  console.log('[AttachmentAndSignature] props.signature watch 触发，新签名值:', newSignature, '长度:', newSignature ? newSignature.length : 0);
+  // 只有当新值不为空时才更新，避免覆盖用户刚刚输入的签名
+  if (newSignature && newSignature.trim()) {
+    localSignature.value = newSignature;
+  }
+});
+
+// 监听 localSignature 变化（v-model 会自动更新它，但不会触发 @update:model-value）
+watch(localSignature, (newValue) => {
+  console.log('[AttachmentAndSignature] localSignature watch 触发，新签名值:', newValue, '长度:', newValue ? newValue.length : 0);
+  if (newValue && newValue.trim()) {
+    emit('update:signature', newValue);
+    console.log('[AttachmentAndSignature] emit update:signature 完成');
+  }
 });
 
 function handleImagesChange(value: string[]) {
@@ -66,7 +79,9 @@ function handleImagesChange(value: string[]) {
 }
 
 function handleSignatureChange(value: string) {
-  emit('update:signature', value);
+  console.log('[AttachmentAndSignature] handleSignatureChange 被调用（不应该看到此日志）:', value);
+  // 这个函数实际上不会被调用，因为 v-model 会自动处理
+  // 保留这个函数只是为了向后兼容
 }
 </script>
 

@@ -2,7 +2,6 @@ package com.project.backend.accommodation.dto.stay;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 import java.time.LocalDate;
@@ -20,8 +19,7 @@ public class StaySaveDTO {
     @Schema(description = "留宿记录ID（编辑时必传）")
     private Long id;
 
-    @Schema(description = "学生ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "学生ID不能为空")
+    @Schema(description = "学生ID（学生端提交可不传，从 token 获取；管理端编辑时必传）")
     private Long studentId;
 
     @Schema(description = "校区编码")

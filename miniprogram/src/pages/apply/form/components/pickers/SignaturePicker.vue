@@ -65,6 +65,7 @@
 <script setup lang="ts">
 import { computed, getCurrentInstance, nextTick, onMounted, reactive, ref } from 'vue';
 import { useSignatureCanvas } from '@/composables/useSignatureCanvas';
+import { uploadSignatureAPI } from '@/api/common';
 
 const show = ref(false);
 const isClosing = ref(false);
@@ -191,13 +192,51 @@ async function handleConfirm() {
       }, 100);
       return;
     }
+
+    // 1. 导出签名（返回临时文件路径或 dataURL）
     const signatureValue = await exportSignature();
-    if (onConfirm.value) {
-      onConfirm.value(signatureValue);
+
+    // 2. 判断是否启用上传（开发环境可关闭，直接使用本地预览）
+    const enableUpload = import.meta.env.VITE_ENABLE_SIGNATURE_UPLOAD === 'true';
+
+    if (!enableUpload) {
+      // 开发模式：直接使用导出的 dataURL 或临时路径（不上传到服务器）
+      console.log('[SignaturePicker] 开发模式：直接使用本地签名，不上传到服务器');
+      console.log('[SignaturePicker] 签名值类型:', typeof signatureValue, '长度:', signatureValue ? signatureValue.length : 0);
+      console.log('[SignaturePicker] 签名值预览:', signatureValue ? signatureValue.substring(0, 100) : 'null');
+
+      if (onConfirm.value) {
+        onConfirm.value(signatureValue);
+      }
+      close();
+      return;
     }
-    close();
+
+    // 3. 生产模式：上传签名到服务器
+    uni.showLoading({ title: '正在上传签名...' });
+    try {
+      const signatureUrl = await uploadSignatureAPI(signatureValue);
+      uni.hideLoading();
+
+      // 上传成功，将 URL 传给回调
+      if (onConfirm.value) {
+        onConfirm.value(signatureUrl);
+      }
+      close();
+    }
+    catch (uploadError: any) {
+      uni.hideLoading();
+      console.error('上传签名失败:', uploadError);
+      uni.showToast({
+        title: uploadError?.message || '上传签名失败，请重试',
+        icon: 'none',
+        duration: 2000,
+      });
+      // 不关闭弹窗，让用户可以重试
+    }
   }
   catch (error) {
+    uni.hideLoading();
     console.error('导出签名失败:', error);
     uni.showToast({ title: '导出签名失败，请重试', icon: 'none' });
   }

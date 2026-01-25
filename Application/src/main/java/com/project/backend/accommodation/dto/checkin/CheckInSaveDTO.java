@@ -19,8 +19,7 @@ public class CheckInSaveDTO {
     @Schema(description = "入住记录ID（编辑时必传）")
     private Long id;
 
-    @Schema(description = "学生ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "学生ID不能为空")
+    @Schema(description = "学生ID（学生端提交可不传，从 token 获取；管理端编辑时必传）")
     private Long studentId;
 
     @Schema(description = "入住类型：1长期住宿 2临时住宿", requiredMode = Schema.RequiredMode.REQUIRED)

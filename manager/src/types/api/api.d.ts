@@ -58,6 +58,48 @@ declare namespace Api {
 
     /** 启用状态 */
     type EnableStatus = '1' | '2'
+
+    /** 审批进度节点信息 */
+    interface ApprovalProgressNode {
+      /** 节点ID */
+      nodeId: number
+      /** 节点名称 */
+      nodeName: string
+      /** 审批人姓名（多个用顿号分隔） */
+      assigneeNames: string
+      /** 节点状态：1-待处理 2-已通过 3-已拒绝 */
+      status: number
+      /** 节点状态文本 */
+      statusText: string
+      /** 审批动作文本 */
+      actionText?: string
+      /** 审批时间 */
+      approveTime?: string
+    }
+
+    /** 审批进度信息 */
+    interface ApprovalProgress {
+      /** 审批状态：1-待审核 2-已通过 3-已拒绝 4-已完成 */
+      status: number
+      /** 审批状态文本 */
+      statusText: string
+      /** 申请人姓名 */
+      applicantName?: string
+      /** 流程发起时间 */
+      startTime?: string
+      /** 下一审批人姓名 */
+      nextApproverName?: string
+      /** 审批进度描述文本 */
+      progressText: string
+      /** 已完成节点数 */
+      completedNodes?: number
+      /** 节点总数 */
+      totalNodes?: number
+      /** 审批进度百分比 */
+      progressPercent?: number
+      /** 审批流程节点进度列表 */
+      nodeTimeline?: ApprovalProgressNode[]
+    }
   }
 
   /** 认证类型 */
@@ -1235,6 +1277,8 @@ declare namespace Api {
       expectedCheckOutDate?: string
       status: number
       statusText?: string
+      approvalInstanceId?: number
+      approvalProgress?: Api.Common.ApprovalProgress
       approverId?: number
       approverName?: string
       approveTime?: string
@@ -1321,6 +1365,8 @@ declare namespace Api {
       transferDate?: string
       status: number
       statusText?: string
+      approvalInstanceId?: number
+      approvalProgress?: Api.Common.ApprovalProgress
       approverId?: number
       approverName?: string
       approveTime?: string
@@ -1392,6 +1438,8 @@ declare namespace Api {
       checkOutDate?: string
       status: number
       statusText?: string
+      approvalInstanceId?: number
+      approvalProgress?: Api.Common.ApprovalProgress
       approverId?: number
       approverName?: string
       approveTime?: string
@@ -1467,6 +1515,8 @@ declare namespace Api {
       stayEndDate?: string
       status: number
       statusText?: string
+      approvalInstanceId?: number
+      approvalProgress?: Api.Common.ApprovalProgress
       approverId?: number
       approverName?: string
       approveTime?: string
