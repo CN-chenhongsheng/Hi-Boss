@@ -91,13 +91,10 @@
     try {
       loading.value = true
 
-      // 如果有传入的 stayData，直接使用，否则请求详情
-      if (props.stayData) {
-        stayDetail.value = props.stayData
-      } else {
-        const stayRes = await fetchGetStayDetail(props.stayId)
-        stayDetail.value = stayRes || null
-      }
+      // 优先使用 stayId 调用API获取完整数据
+      // 这样可以确保数据是最新的和完整的
+      const stayRes = await fetchGetStayDetail(props.stayId)
+      stayDetail.value = stayRes || null
 
       // 根据留宿申请中的 studentId 获取学生详情
       if (stayDetail.value) {
@@ -116,6 +113,31 @@
         }
       }
     } catch (error) {
+      // 如果API调用失败，fallback到传入的 stayData
+      if (props.stayData) {
+        stayDetail.value = props.stayData
+        if (stayDetail.value) {
+          const studentId = stayDetail.value.studentId
+          if (studentId) {
+            try {
+              const studentRes = await fetchGetStudentDetail(studentId)
+              if (studentRes) {
+                studentData.value = studentRes
+              }
+            } catch {
+              studentData.value = {
+                studentNo: stayDetail.value.studentNo,
+                studentName: stayDetail.value.studentName
+              }
+            }
+          } else {
+            studentData.value = {
+              studentNo: stayDetail.value.studentNo,
+              studentName: stayDetail.value.studentName
+            }
+          }
+        }
+      }
       ElMessage.error('获取详情失败')
       console.error('获取详情失败:', error)
     } finally {
@@ -140,6 +162,24 @@
     () => {
       if (props.visible) {
         loadData()
+      }
+    }
+  )
+
+  // 监听 stayData 变化（作为备用）
+  watch(
+    () => props.stayData,
+    (newVal) => {
+      if (props.visible && newVal && !props.stayId) {
+        // 只有在没有 stayId 时才使用传入的数据
+        stayDetail.value = newVal
+        if (newVal.studentId) {
+          fetchGetStudentDetail(newVal.studentId).then((res) => {
+            if (res) {
+              studentData.value = res
+            }
+          })
+        }
       }
     }
   )

@@ -54,9 +54,9 @@
 
     <!-- 学生详情抽屉（查看） -->
     <StudentDrawer
-      v-if="dialogType === 'view'"
-      v-model:visible="dialogVisible"
-      :dialog-type="dialogType"
+      v-show="dialogType === 'view'"
+      v-model:visible="drawerVisible"
+      :dialog-type="(dialogType === 'view' ? 'view' : 'edit') as 'view' | 'edit'"
       :student-id="editData?.id"
       :student-data="editData"
       @saved="handleRefresh"
@@ -64,9 +64,9 @@
 
     <!-- 学生新增/编辑弹窗 -->
     <StudentDialog
-      v-if="dialogType === 'edit' || dialogType === 'add'"
+      v-show="dialogType === 'edit' || dialogType === 'add'"
       v-model:visible="dialogVisible"
-      :dialog-type="dialogType"
+      :dialog-type="(dialogType === 'add' ? 'add' : 'edit') as 'add' | 'edit'"
       :student-id="editData?.id"
       :student-data="editData"
       @saved="handleRefresh"
@@ -96,7 +96,8 @@
 
   // 状态管理
   const showSearchBar = ref(false)
-  const dialogVisible = ref(false)
+  const drawerVisible = ref(false) // 查看抽屉的显示状态
+  const dialogVisible = ref(false) // 编辑/新增弹窗的显示状态
   const dialogType = ref<'view' | 'edit' | 'add'>('view')
   const editData = ref<StudentListItem | null>(null)
 
@@ -257,7 +258,8 @@
   const handleView = async (row: StudentListItem) => {
     dialogType.value = 'view'
     editData.value = row
-    dialogVisible.value = true
+    drawerVisible.value = true
+    dialogVisible.value = false // 确保编辑弹窗关闭
     // 如果需要获取完整详情，可以调用API
     // try {
     //   const res = await fetchGetStudentDetail(row.id)
@@ -275,6 +277,7 @@
     dialogType.value = 'edit'
     editData.value = row
     dialogVisible.value = true
+    drawerVisible.value = false // 确保查看抽屉关闭
   }
 
   // 删除

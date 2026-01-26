@@ -91,13 +91,10 @@
     try {
       loading.value = true
 
-      // 如果有传入的 transferData，直接使用，否则请求详情
-      if (props.transferData) {
-        transferDetail.value = props.transferData
-      } else {
-        const transferRes = await fetchGetTransferDetail(props.transferId)
-        transferDetail.value = transferRes || null
-      }
+      // 优先使用 transferId 调用API获取完整数据
+      // 这样可以确保数据是最新的和完整的
+      const transferRes = await fetchGetTransferDetail(props.transferId)
+      transferDetail.value = transferRes || null
 
       // 根据调宿申请中的 studentId 获取学生详情
       if (transferDetail.value) {
@@ -116,6 +113,31 @@
         }
       }
     } catch (error) {
+      // 如果API调用失败，fallback到传入的 transferData
+      if (props.transferData) {
+        transferDetail.value = props.transferData
+        if (transferDetail.value) {
+          const studentId = transferDetail.value.studentId
+          if (studentId) {
+            try {
+              const studentRes = await fetchGetStudentDetail(studentId)
+              if (studentRes) {
+                studentData.value = studentRes
+              }
+            } catch {
+              studentData.value = {
+                studentNo: transferDetail.value.studentNo,
+                studentName: transferDetail.value.studentName
+              }
+            }
+          } else {
+            studentData.value = {
+              studentNo: transferDetail.value.studentNo,
+              studentName: transferDetail.value.studentName
+            }
+          }
+        }
+      }
       ElMessage.error('获取详情失败')
       console.error('获取详情失败:', error)
     } finally {
@@ -140,6 +162,24 @@
     () => {
       if (props.visible) {
         loadData()
+      }
+    }
+  )
+
+  // 监听 transferData 变化（作为备用）
+  watch(
+    () => props.transferData,
+    (newVal) => {
+      if (props.visible && newVal && !props.transferId) {
+        // 只有在没有 transferId 时才使用传入的数据
+        transferDetail.value = newVal
+        if (newVal.studentId) {
+          fetchGetStudentDetail(newVal.studentId).then((res) => {
+            if (res) {
+              studentData.value = res
+            }
+          })
+        }
       }
     }
   )

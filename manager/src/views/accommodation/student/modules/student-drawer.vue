@@ -83,11 +83,8 @@
       return
     }
 
-    if (props.studentData) {
-      formData.value = { ...props.studentData }
-      return
-    }
-
+    // 优先使用 studentId 调用API获取完整数据
+    // 这样可以确保数据是最新的和完整的
     try {
       loading.value = true
       const res = await fetchGetStudentDetail(props.studentId)
@@ -95,6 +92,10 @@
         formData.value = res
       }
     } catch {
+      // 如果API调用失败，fallback到传入的 studentData
+      if (props.studentData) {
+        formData.value = { ...props.studentData }
+      }
       ElMessage.error('获取学生详情失败')
     } finally {
       loading.value = false
@@ -118,6 +119,17 @@
     () => {
       if (props.visible) {
         loadStudentDetail()
+      }
+    }
+  )
+
+  // 监听 studentData 变化（作为备用）
+  watch(
+    () => props.studentData,
+    (newVal) => {
+      if (props.visible && newVal && !props.studentId) {
+        // 只有在没有 studentId 时才使用传入的数据
+        formData.value = { ...newVal }
       }
     }
   )

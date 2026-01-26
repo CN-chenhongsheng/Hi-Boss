@@ -91,13 +91,10 @@
     try {
       loading.value = true
 
-      // 如果有传入的 checkInData，直接使用，否则请求详情
-      if (props.checkInData) {
-        checkInDetail.value = props.checkInData
-      } else {
-        const checkInRes = await fetchGetCheckInDetail(props.checkInId)
-        checkInDetail.value = checkInRes || null
-      }
+      // 优先使用 checkInId 调用API获取完整数据
+      // 这样可以确保数据是最新的和完整的
+      const checkInRes = await fetchGetCheckInDetail(props.checkInId)
+      checkInDetail.value = checkInRes || null
 
       // 根据入住申请中的 studentId 获取学生详情
       if (checkInDetail.value) {
@@ -116,6 +113,31 @@
         }
       }
     } catch (error) {
+      // 如果API调用失败，fallback到传入的 checkInData
+      if (props.checkInData) {
+        checkInDetail.value = props.checkInData
+        if (checkInDetail.value) {
+          const studentId = checkInDetail.value.studentId
+          if (studentId) {
+            try {
+              const studentRes = await fetchGetStudentDetail(studentId)
+              if (studentRes) {
+                studentData.value = studentRes
+              }
+            } catch {
+              studentData.value = {
+                studentNo: checkInDetail.value.studentNo,
+                studentName: checkInDetail.value.studentName
+              }
+            }
+          } else {
+            studentData.value = {
+              studentNo: checkInDetail.value.studentNo,
+              studentName: checkInDetail.value.studentName
+            }
+          }
+        }
+      }
       ElMessage.error('获取详情失败')
       console.error('获取详情失败:', error)
     } finally {
@@ -140,6 +162,24 @@
     () => {
       if (props.visible) {
         loadData()
+      }
+    }
+  )
+
+  // 监听 checkInData 变化（作为备用）
+  watch(
+    () => props.checkInData,
+    (newVal) => {
+      if (props.visible && newVal && !props.checkInId) {
+        // 只有在没有 checkInId 时才使用传入的数据
+        checkInDetail.value = newVal
+        if (newVal.studentId) {
+          fetchGetStudentDetail(newVal.studentId).then((res) => {
+            if (res) {
+              studentData.value = res
+            }
+          })
+        }
       }
     }
   )

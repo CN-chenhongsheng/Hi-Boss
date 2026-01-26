@@ -121,6 +121,27 @@ public abstract class BaseCrudController<VO, QueryDTO, SaveDTO> {
     }
 
     /**
+     * 编辑（从请求体中读取ID）
+     */
+    @PutMapping
+    @Operation(summary = "编辑（从请求体中读取ID）")
+    @Log(title = "编辑", businessType = 2)
+    public R<Void> updateFromBody(@Valid @RequestBody SaveDTO saveDTO) {
+        Long id = getIdFromSaveDTO(saveDTO);
+        if (id == null) {
+            return R.fail("ID不能为空");
+        }
+        log.info("编辑{}，ID：{}，参数：{}", getEntityName(), id, saveDTO);
+        setIdIfExists(saveDTO, id);
+        boolean success = callSave(saveDTO);
+        if (success) {
+            return R.ok(getEntityName() + "编辑成功", null);
+        } else {
+            return R.fail(getEntityName() + "编辑失败");
+        }
+    }
+
+    /**
      * 删除
      */
     @DeleteMapping("/{id}")
@@ -152,5 +173,29 @@ public abstract class BaseCrudController<VO, QueryDTO, SaveDTO> {
             // 如果没有setId方法，忽略异常（某些DTO可能不需要ID）
             log.debug("SaveDTO {} 没有setId方法，跳过设置ID", saveDTO.getClass().getSimpleName());
         }
+    }
+
+    /**
+     * 从SaveDTO中获取ID
+     * 使用反射来获取ID，避免强依赖具体的SaveDTO类型
+     */
+    private Long getIdFromSaveDTO(SaveDTO saveDTO) {
+        try {
+            if (saveDTO != null) {
+                java.lang.reflect.Method getIdMethod = saveDTO.getClass().getMethod("getId");
+                Object id = getIdMethod.invoke(saveDTO);
+                if (id != null) {
+                    if (id instanceof Number) {
+                        return ((Number) id).longValue();
+                    } else if (id instanceof String) {
+                        return Long.parseLong((String) id);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            // 如果没有getId方法，返回null
+            log.debug("SaveDTO {} 没有getId方法", saveDTO.getClass().getSimpleName());
+        }
+        return null;
     }
 }
