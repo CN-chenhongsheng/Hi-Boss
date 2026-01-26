@@ -22,6 +22,12 @@ import com.project.backend.organization.mapper.CampusMapper;
 import com.project.backend.organization.mapper.ClassMapper;
 import com.project.backend.organization.mapper.DepartmentMapper;
 import com.project.backend.organization.mapper.MajorMapper;
+import com.project.backend.room.entity.Floor;
+import com.project.backend.room.entity.Room;
+import com.project.backend.room.entity.Bed;
+import com.project.backend.room.mapper.FloorMapper;
+import com.project.backend.room.mapper.RoomMapper;
+import com.project.backend.room.mapper.BedMapper;
 import com.project.backend.util.DictUtils;
 import com.project.backend.util.LifestyleTextConverter;
 import lombok.RequiredArgsConstructor;
@@ -48,6 +54,9 @@ public class StudentServiceImpl extends ServiceImpl<StudentMapper, Student> impl
     private final DepartmentMapper departmentMapper;
     private final MajorMapper majorMapper;
     private final ClassMapper classMapper;
+    private final FloorMapper floorMapper;
+    private final RoomMapper roomMapper;
+    private final BedMapper bedMapper;
 
     @Override
     public PageResult<StudentVO> pageList(StudentQueryDTO queryDTO) {
@@ -260,6 +269,54 @@ public class StudentServiceImpl extends ServiceImpl<StudentMapper, Student> impl
             Class classEntity = classMapper.selectById(student.getClassId());
             if (classEntity != null) {
                 vo.setClassName(classEntity.getClassName());
+            }
+        }
+
+        // 查询楼层名称
+        if (student.getFloorId() != null) {
+            Floor floor = floorMapper.selectById(student.getFloorId());
+            if (floor != null) {
+                vo.setFloorName(floor.getFloorName());
+            }
+        } else if (StrUtil.isNotBlank(student.getFloorCode())) {
+            // 如果没有floorId，尝试用floorCode查询
+            LambdaQueryWrapper<Floor> wrapper = new LambdaQueryWrapper<>();
+            wrapper.eq(Floor::getFloorCode, student.getFloorCode());
+            Floor floor = floorMapper.selectOne(wrapper);
+            if (floor != null) {
+                vo.setFloorName(floor.getFloorName());
+            }
+        }
+
+        // 查询房间名称
+        if (student.getRoomId() != null) {
+            Room room = roomMapper.selectById(student.getRoomId());
+            if (room != null) {
+                vo.setRoomName(room.getRoomNumber());
+            }
+        } else if (StrUtil.isNotBlank(student.getRoomCode())) {
+            // 如果没有roomId，尝试用roomCode查询
+            LambdaQueryWrapper<Room> wrapper = new LambdaQueryWrapper<>();
+            wrapper.eq(Room::getRoomCode, student.getRoomCode());
+            Room room = roomMapper.selectOne(wrapper);
+            if (room != null) {
+                vo.setRoomName(room.getRoomNumber());
+            }
+        }
+
+        // 查询床位名称
+        if (student.getBedId() != null) {
+            Bed bed = bedMapper.selectById(student.getBedId());
+            if (bed != null) {
+                vo.setBedName(bed.getBedNumber());
+            }
+        } else if (StrUtil.isNotBlank(student.getBedCode())) {
+            // 如果没有bedId，尝试用bedCode查询
+            LambdaQueryWrapper<Bed> wrapper = new LambdaQueryWrapper<>();
+            wrapper.eq(Bed::getBedCode, student.getBedCode());
+            Bed bed = bedMapper.selectOne(wrapper);
+            if (bed != null) {
+                vo.setBedName(bed.getBedNumber());
             }
         }
 

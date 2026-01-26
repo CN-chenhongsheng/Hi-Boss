@@ -117,17 +117,26 @@ public class StudentVO implements Serializable {
     @Schema(description = "楼层编码")
     private String floorCode;
 
+    @Schema(description = "楼层名称")
+    private String floorName;
+
     @Schema(description = "房间ID")
     private Long roomId;
 
     @Schema(description = "房间编码")
     private String roomCode;
 
+    @Schema(description = "房间名称")
+    private String roomName;
+
     @Schema(description = "床位ID")
     private Long bedId;
 
     @Schema(description = "床位编码")
     private String bedCode;
+
+    @Schema(description = "床位名称")
+    private String bedName;
 
     @Schema(description = "状态：1启用 0停用")
     private Integer status;
