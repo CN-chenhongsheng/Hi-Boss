@@ -50,6 +50,12 @@ export function useApplyFormActions(formData: IApplyFormData) {
           stayStartDate: formData.stayStartDate || '',
           stayEndDate: formData.stayEndDate || '',
           stayReason: formData.reason,
+          parentName: formData.parentName || '',
+          parentPhone: formData.parentPhone || '',
+          parentAgree: formData.parentAgree || 'disagree',
+          // 签名和附件都使用数组格式
+          signature: formData.signature ? [formData.signature] : [],
+          images: formData.images || [],
         });
       }
       else if (applyType === 'repair') {

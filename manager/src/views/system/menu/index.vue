@@ -98,9 +98,9 @@
    */
   const getMenuTypeTag = (type: string): 'primary' | 'success' | 'info' => {
     const typeMap: Record<string, 'primary' | 'success' | 'info'> = {
-      M: 'info', // 目录
+      M: 'success', // 目录
       C: 'primary', // 菜单
-      F: 'success' // 按钮
+      F: 'info' // 按钮
     }
     return typeMap[type] || 'info'
   }

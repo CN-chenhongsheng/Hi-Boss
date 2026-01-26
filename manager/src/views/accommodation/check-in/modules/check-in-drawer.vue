@@ -3,7 +3,6 @@
   <ArtDrawer
     v-model="drawerVisible"
     title="入住申请详情"
-    :size="450"
     :loading="loading"
     :with-header="true"
     @close="handleClose"

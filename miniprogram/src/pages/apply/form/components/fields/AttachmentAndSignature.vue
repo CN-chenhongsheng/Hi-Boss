@@ -6,7 +6,6 @@
       :label="imageLabel"
       :required="imageRequired"
       :max-count="maxImageCount"
-      @update:model-value="handleImagesChange"
     />
 
     <!-- 本人签名 -->
@@ -65,6 +64,11 @@ watch(() => props.signature, (newSignature) => {
   }
 });
 
+// 监听 localImages 变化（v-model 会自动更新它，需要手动发出事件）
+watch(localImages, (newImages) => {
+  emit('update:images', newImages || []);
+}, { deep: true });
+
 // 监听 localSignature 变化（v-model 会自动更新它，但不会触发 @update:model-value）
 watch(localSignature, (newValue) => {
   console.log('[AttachmentAndSignature] localSignature watch 触发，新签名值:', newValue, '长度:', newValue ? newValue.length : 0);
@@ -74,14 +78,10 @@ watch(localSignature, (newValue) => {
   }
 });
 
-function handleImagesChange(value: string[]) {
-  emit('update:images', value);
-}
-
 function handleSignatureChange(value: string) {
-  console.log('[AttachmentAndSignature] handleSignatureChange 被调用（不应该看到此日志）:', value);
-  // 这个函数实际上不会被调用，因为 v-model 会自动处理
-  // 保留这个函数只是为了向后兼容
+  // Signature 组件会直接 emit update:modelValue，这里同步更新 localSignature 并发出事件
+  localSignature.value = value;
+  emit('update:signature', value);
 }
 </script>
 

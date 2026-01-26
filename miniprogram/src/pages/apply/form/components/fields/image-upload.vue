@@ -46,6 +46,7 @@
 
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
+import { uploadImageAPI } from '@/api/common';
 
 interface Props {
   modelValue?: string[];
@@ -94,11 +95,40 @@ function handleAddImage() {
     count: maxLimit.value - imageList.value.length,
     sizeType: ['compressed'],
     sourceType: ['album', 'camera'],
-    success: (res) => {
-      imageList.value.push(...res.tempFilePaths);
-      emit('update:modelValue', imageList.value);
+    success: async (res) => {
+      // 显示上传进度
+      uni.showLoading({
+        title: '上传中...',
+        mask: true,
+      });
+
+      try {
+        // 依次上传每张图片（每个返回 string[]，需要展平）
+        const uploadPromises = (res.tempFilePaths as string[]).map((filePath: string) => uploadImageAPI(filePath));
+        const uploadResults = await Promise.all(uploadPromises);
+        // 展平数组：[[url1], [url2]] -> [url1, url2]
+        const uploadedUrls = uploadResults.flat();
+
+        // 将上传成功的 URL 添加到列表
+        imageList.value.push(...uploadedUrls);
+        emit('update:modelValue', imageList.value);
+
+        uni.hideLoading();
+        uni.showToast({
+          title: '上传成功',
+          icon: 'success',
+        });
+      }
+      catch (error: any) {
+        uni.hideLoading();
+        console.error('上传图片失败:', error);
+        uni.showToast({
+          title: error?.message || '上传失败',
+          icon: 'none',
+        });
+      }
     },
-    fail: (err) => {
+    fail: (err: any) => {
       console.error('选择图片失败:', err);
       uni.showToast({
         title: '选择图片失败',

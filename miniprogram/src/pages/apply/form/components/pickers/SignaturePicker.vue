@@ -197,7 +197,8 @@ async function handleConfirm() {
     const signatureValue = await exportSignature();
 
     // 2. 判断是否启用上传（开发环境可关闭，直接使用本地预览）
-    const enableUpload = import.meta.env.VITE_ENABLE_SIGNATURE_UPLOAD === 'true';
+    const enableUpload = import.meta.env.VITE_ENABLE_SIGNATURE_UPLOAD === 'true'
+      || import.meta.env.VITE_ENABLE_SIGNATURE_UPLOAD === true;
 
     if (!enableUpload) {
       // 开发模式：直接使用导出的 dataURL 或临时路径（不上传到服务器）
@@ -215,12 +216,12 @@ async function handleConfirm() {
     // 3. 生产模式：上传签名到服务器
     uni.showLoading({ title: '正在上传签名...' });
     try {
-      const signatureUrl = await uploadSignatureAPI(signatureValue);
+      const signatureUrls = await uploadSignatureAPI(signatureValue);
       uni.hideLoading();
 
-      // 上传成功，将 URL 传给回调
-      if (onConfirm.value) {
-        onConfirm.value(signatureUrl);
+      // 上传成功，将 URL 传给回调（取数组第一个元素）
+      if (onConfirm.value && signatureUrls.length > 0) {
+        onConfirm.value(signatureUrls[0]);
       }
       close();
     }

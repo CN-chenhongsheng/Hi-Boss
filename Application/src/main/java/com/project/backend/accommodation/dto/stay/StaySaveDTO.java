@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.util.List;
 
 /**
  * 留宿管理保存DTO（新增或编辑）
@@ -67,4 +68,19 @@ public class StaySaveDTO {
 
     @Schema(description = "备注")
     private String remark;
+
+    @Schema(description = "家长姓名")
+    private String parentName;
+
+    @Schema(description = "家长电话")
+    private String parentPhone;
+
+    @Schema(description = "家长是否同意：agree-同意 disagree-不同意")
+    private String parentAgree;
+
+    @Schema(description = "本人签名图片URL数组")
+    private List<String> signature;
+
+    @Schema(description = "附件图片URL数组")
+    private List<String> images;
 }

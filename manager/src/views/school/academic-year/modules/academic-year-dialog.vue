@@ -8,13 +8,18 @@
     @close="handleClose"
   >
     <ElForm ref="formRef" :model="form" :rules="rules" label-width="100px" label-position="right">
-      <ElFormItem label="学年编码" prop="yearCode">
-        <ElInput v-model="form.yearCode" placeholder="请输入学年编码" :disabled="isEdit" />
-      </ElFormItem>
-
-      <ElFormItem label="学年名称" prop="yearName">
-        <ElInput v-model="form.yearName" placeholder="请输入学年名称，如：2023-2024学年" />
-      </ElFormItem>
+      <ElRow :gutter="20">
+        <ElCol :span="12">
+          <ElFormItem label="学年编码" prop="yearCode">
+            <ElInput v-model="form.yearCode" placeholder="请输入学年编码" :disabled="isEdit" />
+          </ElFormItem>
+        </ElCol>
+        <ElCol :span="12">
+          <ElFormItem label="学年名称" prop="yearName">
+            <ElInput v-model="form.yearName" placeholder="请输入学年名称，如：2023-2024学年" />
+          </ElFormItem>
+        </ElCol>
+      </ElRow>
 
       <ElRow :gutter="20">
         <ElCol :span="12">
@@ -40,38 +45,85 @@
       </ElRow>
 
       <!-- 学期列表 -->
-      <ElFormItem label="学期管理">
-        <div class="semester-list">
-          <div v-for="(semester, index) in form.semesters" :key="index" class="semester-item">
-            <ElRow :gutter="10">
-              <ElCol :span="6">
-                <ElInput v-model="semester.semesterName" placeholder="学期名称，如：第一学期" />
-              </ElCol>
-              <ElCol :span="6">
-                <ElInput v-model="semester.semesterCode" placeholder="学期编码" />
-              </ElCol>
-              <ElCol :span="4">
-                <ElDatePicker
-                  v-model="semester.startDate"
-                  type="date"
-                  placeholder="开始日期"
-                  style="width: 100%"
-                />
-              </ElCol>
-              <ElCol :span="4">
-                <ElDatePicker
-                  v-model="semester.endDate"
-                  type="date"
-                  placeholder="结束日期"
-                  style="width: 100%"
-                />
-              </ElCol>
-              <ElCol :span="4">
-                <ElButton type="danger" :icon="Delete" circle @click="removeSemester(index)" />
-              </ElCol>
-            </ElRow>
+      <ElFormItem label="学期管理" prop="semesters">
+        <div class="semester-wrapper">
+          <!-- 学期列表 -->
+          <div v-if="form.semesters.length > 0" class="semester-list">
+            <div v-for="(semester, index) in form.semesters" :key="index" class="semester-card">
+              <div class="semester-header">
+                <div class="semester-index">
+                  <ArtSvgIcon icon="ri:calendar-line" class="index-icon" />
+                  <span class="index-text">学期 {{ index + 1 }}</span>
+                </div>
+                <ElButton
+                  text
+                  type="danger"
+                  :icon="Delete"
+                  class="delete-btn"
+                  @click="removeSemester(index)"
+                >
+                  删除
+                </ElButton>
+              </div>
+              <div class="semester-content">
+                <ElRow :gutter="12">
+                  <ElCol :span="12">
+                    <div class="form-field">
+                      <label class="field-label">学期名称</label>
+                      <ElInput
+                        v-model="semester.semesterName"
+                        placeholder="如：第一学期"
+                        size="default"
+                      />
+                    </div>
+                  </ElCol>
+                  <ElCol :span="12">
+                    <div class="form-field">
+                      <label class="field-label">学期编码</label>
+                      <ElInput
+                        v-model="semester.semesterCode"
+                        placeholder="如：2023-1"
+                        size="default"
+                      />
+                    </div>
+                  </ElCol>
+                  <ElCol :span="12">
+                    <div class="form-field">
+                      <label class="field-label">开始日期</label>
+                      <ElDatePicker
+                        v-model="semester.startDate"
+                        type="date"
+                        placeholder="选择开始日期"
+                        style="width: 100%"
+                        size="default"
+                      />
+                    </div>
+                  </ElCol>
+                  <ElCol :span="12">
+                    <div class="form-field">
+                      <label class="field-label">结束日期</label>
+                      <ElDatePicker
+                        v-model="semester.endDate"
+                        type="date"
+                        placeholder="选择结束日期"
+                        style="width: 100%"
+                        size="default"
+                      />
+                    </div>
+                  </ElCol>
+                </ElRow>
+              </div>
+            </div>
           </div>
-          <ElButton type="primary" :icon="Plus" @click="addSemester"> 添加学期 </ElButton>
+          <!-- 空状态 -->
+          <div v-else class="semester-empty">
+            <ArtSvgIcon icon="ri:inbox-line" class="empty-icon" />
+            <p class="empty-text">暂无学期，请点击下方按钮添加学期</p>
+          </div>
+          <!-- 添加按钮 -->
+          <ElButton type="primary" :icon="Plus" class="add-semester-btn" @click="addSemester">
+            添加学期
+          </ElButton>
         </div>
       </ElFormItem>
     </ElForm>
@@ -87,6 +139,7 @@
   import { Plus, Delete } from '@element-plus/icons-vue'
   import { ElDatePicker } from 'element-plus'
   import type { FormInstance, FormRules } from 'element-plus'
+  import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
   import { fetchAddAcademicYear, fetchUpdateAcademicYear } from '@/api/school-manage'
 
   interface SemesterItem {
@@ -143,7 +196,20 @@
     yearCode: [{ required: true, message: '请输入学年编码', trigger: 'blur' }],
     yearName: [{ required: true, message: '请输入学年名称', trigger: 'blur' }],
     startDate: [{ required: true, message: '请选择开始日期', trigger: 'change' }],
-    endDate: [{ required: true, message: '请选择结束日期', trigger: 'change' }]
+    endDate: [{ required: true, message: '请选择结束日期', trigger: 'change' }],
+    semesters: [
+      {
+        required: true,
+        validator: (_rule, value, callback) => {
+          if (!value || value.length === 0) {
+            callback(new Error('请至少添加一个学期'))
+          } else {
+            callback()
+          }
+        },
+        trigger: 'change'
+      }
+    ]
   })
 
   /**
@@ -156,6 +222,8 @@
       startDate: null,
       endDate: null
     })
+    // 触发验证
+    formRef.value?.validateField('semesters')
   }
 
   /**
@@ -163,6 +231,8 @@
    */
   const removeSemester = (index: number): void => {
     form.semesters.splice(index, 1)
+    // 触发验证
+    formRef.value?.validateField('semesters')
   }
 
   /**
@@ -263,12 +333,127 @@
 </script>
 
 <style scoped lang="scss">
-  .semester-list {
-    .semester-item {
-      padding: 10px;
-      margin-bottom: 10px;
-      background-color: var(--el-fill-color-lighter);
-      border-radius: calc(var(--custom-radius) / 1.2 + 2px) !important;
+  .semester-wrapper {
+    width: 100%;
+
+    .semester-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 16px;
+
+      .semester-card {
+        overflow: hidden;
+        background-color: var(--el-bg-color);
+        border: 1px solid var(--el-border-color-lighter);
+        border-radius: 8px;
+        transition: all 0.3s ease;
+
+        &:hover {
+          border-color: var(--el-color-primary-light-7);
+          box-shadow: 0 2px 8px 0 rgb(0 0 0 / 6%);
+        }
+
+        .semester-header {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 12px 16px;
+          background: linear-gradient(
+            135deg,
+            var(--el-color-primary-light-9) 0%,
+            var(--el-fill-color-lighter) 100%
+          );
+          border-bottom: 1px solid var(--el-border-color-lighter);
+
+          .semester-index {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+
+            .index-icon {
+              font-size: 18px;
+              color: var(--el-color-primary);
+            }
+
+            .index-text {
+              font-size: 14px;
+              font-weight: 600;
+              color: var(--el-text-color-primary);
+            }
+          }
+
+          .delete-btn {
+            padding: 4px 12px;
+            font-size: 13px;
+            transition: all 0.2s ease;
+
+            &:hover {
+              color: var(--el-color-danger);
+              background-color: var(--el-color-danger-light-9);
+            }
+          }
+        }
+
+        .semester-content {
+          padding: 16px;
+
+          .form-field {
+            margin-bottom: 12px;
+
+            &:last-child {
+              margin-bottom: 0;
+            }
+
+            .field-label {
+              display: block;
+              padding-left: 2px;
+              margin-bottom: 6px;
+              font-size: 13px;
+              font-weight: 500;
+              color: var(--el-text-color-secondary);
+            }
+          }
+        }
+      }
+    }
+
+    .semester-empty {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 48px 24px;
+      margin-bottom: 16px;
+      background-color: var(--el-fill-color-extra-light);
+      border: 2px dashed var(--el-border-color-light);
+      border-radius: 8px;
+
+      .empty-icon {
+        margin-bottom: 12px;
+        font-size: 64px;
+        color: var(--el-text-color-placeholder);
+        opacity: 0.6;
+      }
+
+      .empty-text {
+        margin: 0;
+        font-size: 14px;
+        color: var(--el-text-color-secondary);
+      }
+    }
+
+    .add-semester-btn {
+      width: 100%;
+      height: 40px;
+      font-weight: 500;
+      border-radius: 6px;
+      transition: all 0.3s ease;
+
+      &:hover {
+        box-shadow: 0 4px 12px 0 rgb(64 158 255 / 30%);
+        transform: translateY(-1px);
+      }
     }
   }
 </style>

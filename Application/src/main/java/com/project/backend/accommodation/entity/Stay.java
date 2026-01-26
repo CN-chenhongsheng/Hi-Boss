@@ -101,4 +101,24 @@ public class Stay extends BaseEntity {
     @Schema(description = "备注")
     @TableField("remark")
     private String remark;
+
+    @Schema(description = "家长姓名")
+    @TableField("parent_name")
+    private String parentName;
+
+    @Schema(description = "家长电话")
+    @TableField("parent_phone")
+    private String parentPhone;
+
+    @Schema(description = "家长是否同意：agree-同意 disagree-不同意")
+    @TableField("parent_agree")
+    private String parentAgree;
+
+    @Schema(description = "本人签名图片URL")
+    @TableField("signature")
+    private String signature;
+
+    @Schema(description = "附件图片列表（JSON字符串数组）")
+    @TableField("images")
+    private String images;
 }

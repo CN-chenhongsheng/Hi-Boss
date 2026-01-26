@@ -85,6 +85,16 @@ export interface IStaySubmitParams {
   stayEndDate: string;
   /** 留宿理由 */
   stayReason: string;
+  /** 家长姓名 */
+  parentName: string;
+  /** 家长电话 */
+  parentPhone: string;
+  /** 家长是否同意：agree-同意 disagree-不同意 */
+  parentAgree: string;
+  /** 本人签名图片URL数组 */
+  signature: string[];
+  /** 附件图片URL数组 */
+  images?: string[];
 }
 
 /**

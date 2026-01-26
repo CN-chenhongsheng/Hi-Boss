@@ -147,6 +147,7 @@
     max-width: 100%;
     height: 100%;
     padding: 4px 2px;
+    cursor: var(--cursor-pointer);
     border-radius: 4px;
     transition: all 0.2s ease;
 

@@ -1096,7 +1096,6 @@
 
     .flow-canvas-wrapper {
       .canvas-container {
-        background: #0f172a;
         background-image: radial-gradient(circle, #334155 1px, transparent 1px);
       }
     }

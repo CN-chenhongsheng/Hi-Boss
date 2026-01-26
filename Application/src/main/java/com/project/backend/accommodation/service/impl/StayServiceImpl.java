@@ -34,6 +34,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
@@ -57,6 +60,7 @@ public class StayServiceImpl extends ServiceImpl<StayMapper, Stay> implements St
     private final ApprovalService approvalService;
     private final ApprovalInstanceMapper approvalInstanceMapper;
     private final ApprovalRecordMapper approvalRecordMapper;
+    private final ObjectMapper objectMapper;
 
     @Override
     public PageResult<StayVO> pageList(StayQueryDTO queryDTO) {
@@ -112,11 +116,29 @@ public class StayServiceImpl extends ServiceImpl<StayMapper, Stay> implements St
         }
 
         Stay stay = new Stay();
-        BeanUtil.copyProperties(saveDTO, stay);
+        BeanUtil.copyProperties(saveDTO, stay, "signature", "images");
+
+        // 转换签名和附件数组为 JSON 字符串
+        try {
+            if (saveDTO.getSignature() != null && !saveDTO.getSignature().isEmpty()) {
+                stay.setSignature(objectMapper.writeValueAsString(saveDTO.getSignature()));
+            }
+            if (saveDTO.getImages() != null && !saveDTO.getImages().isEmpty()) {
+                stay.setImages(objectMapper.writeValueAsString(saveDTO.getImages()));
+            }
+        } catch (JsonProcessingException e) {
+            log.error("转换签名/附件为JSON失败", e);
+            throw new BusinessException("保存签名/附件失败");
+        }
 
         // 填充学生冗余字段
         stay.setStudentName(student.getStudentName());
         stay.setStudentNo(student.getStudentNo());
+
+        // 调试日志：打印家长信息
+        log.info("保存留宿申请 - 家长信息: parentName={}, parentPhone={}, parentAgree={}, signature={}, images={}", 
+                stay.getParentName(), stay.getParentPhone(), stay.getParentAgree(), 
+                stay.getSignature(), stay.getImages());
 
         boolean isNew = saveDTO.getId() == null;
 
@@ -265,6 +287,11 @@ public class StayServiceImpl extends ServiceImpl<StayMapper, Stay> implements St
             if (campus != null) {
                 vo.setCampusName(campus.getCampusName());
             }
+        }
+
+        // 转换家长是否同意文本
+        if (StrUtil.isNotBlank(stay.getParentAgree())) {
+            vo.setParentAgreeText("agree".equals(stay.getParentAgree()) ? "同意" : "不同意");
         }
 
         // 填充审批进度信息

@@ -1495,6 +1495,11 @@ declare namespace Api {
       approveOpinion?: string
       stayReason: string
       remark?: string
+      parentName?: string
+      parentPhone?: string
+      parentAgree?: string
+      signature?: string
+      images?: string
     }
 
     /** 留宿管理列表项 */
@@ -1523,6 +1528,12 @@ declare namespace Api {
       approveOpinion?: string
       stayReason: string
       remark?: string
+      parentName?: string
+      parentPhone?: string
+      parentAgree?: string
+      parentAgreeText?: string
+      signature?: string
+      images?: string
       createTime?: string
       updateTime?: string
     }

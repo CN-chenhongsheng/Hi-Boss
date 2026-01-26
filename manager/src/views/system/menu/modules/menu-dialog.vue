@@ -15,7 +15,8 @@
             <ElTreeSelect
               v-model="form.parentId"
               :data="menuTreeOptions"
-              :props="{ label: 'menuName', value: 'id' }"
+              :props="{ label: 'menuName' }"
+              value-key="id"
               check-strictly
               :render-after-expand="false"
               placeholder="请选择上级菜单（默认为顶级菜单）"
@@ -76,9 +77,14 @@
         </ElCol>
         <ElCol :span="12" v-if="form.menuType !== 'F'">
           <ElFormItem label="菜单图标" prop="icon">
-            <ElInput v-model="form.icon" placeholder="如：i-carbon-user">
+            <ElInput v-model="form.icon" placeholder="如：ri:calendar-line">
               <template #prefix>
                 <i :class="form.icon" v-if="form.icon"></i>
+              </template>
+              <template #suffix>
+                <ElButton text type="primary" class="icon-link-btn" @click="handleOpenRemixIcon">
+                  去官网
+                </ElButton>
               </template>
             </ElInput>
           </ElFormItem>
@@ -335,6 +341,13 @@
   }
 
   /**
+   * 打开 Remix Icon 官网
+   */
+  const handleOpenRemixIcon = (): void => {
+    window.open('https://remixicon.com/', '_blank')
+  }
+
+  /**
    * 提交表单
    */
   const handleSubmit = async (): Promise<void> => {
@@ -417,5 +430,15 @@
     :deep(.el-form-item) {
       margin-bottom: 18px;
     }
+  }
+
+  :deep(.el-form-item__content) {
+    justify-content: space-evenly;
+  }
+
+  :deep(.icon-link-btn) {
+    height: 24px;
+    padding: 0 6px;
+    font-size: 12px;
   }
 </style>

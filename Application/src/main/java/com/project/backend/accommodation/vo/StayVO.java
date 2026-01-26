@@ -97,6 +97,24 @@ public class StayVO implements Serializable {
     @Schema(description = "备注")
     private String remark;
 
+    @Schema(description = "家长姓名")
+    private String parentName;
+
+    @Schema(description = "家长电话")
+    private String parentPhone;
+
+    @Schema(description = "家长是否同意：agree-同意 disagree-不同意")
+    private String parentAgree;
+
+    @Schema(description = "家长是否同意文本")
+    private String parentAgreeText;
+
+    @Schema(description = "本人签名图片URL")
+    private String signature;
+
+    @Schema(description = "附件图片列表（JSON字符串数组）")
+    private String images;
+
     @Schema(description = "创建时间")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createTime;

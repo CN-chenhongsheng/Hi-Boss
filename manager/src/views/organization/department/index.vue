@@ -354,12 +354,13 @@
 
     try {
       await ElMessageBox.confirm(
-        `确定要批量删除选中的 ${selectedCount.value} 条院系数据吗？此操作不可恢复！`,
+        `确定要批量删除选中的 ${selectedCount.value} 个院系吗？<br/>提示：删除院系后，该院系下的所有专业和班级也会被删除。`,
         '批量删除确认',
         {
           type: 'warning',
           confirmButtonText: '确定删除',
-          cancelButtonText: '取消'
+          cancelButtonText: '取消',
+          dangerouslyUseHTMLString: true
         }
       )
       await fetchBatchDeleteDepartment(selectedIds.value as number[])
