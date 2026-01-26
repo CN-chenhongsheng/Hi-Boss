@@ -1158,10 +1158,13 @@ declare namespace Api {
       className?: string
       floorId?: number
       floorCode?: string
+      floorName?: string
       roomId?: number
       roomCode?: string
+      roomName?: string
       bedId?: number
       bedCode?: string
+      bedName?: string
       status: number
       statusText?: string
       remark?: string
@@ -1268,10 +1271,13 @@ declare namespace Api {
       campusCode?: string
       campusName?: string
       floorCode?: string
+      floorName?: string
       roomId?: number
       roomCode?: string
+      roomName?: string
       bedId?: number
       bedCode?: string
+      bedName?: string
       applyDate?: string
       checkInDate?: string
       expectedCheckOutDate?: string
@@ -1350,17 +1356,23 @@ declare namespace Api {
       originalCampusCode?: string
       originalCampusName?: string
       originalFloorCode?: string
+      originalFloorName?: string
       originalRoomId?: number
       originalRoomCode?: string
+      originalRoomName?: string
       originalBedId?: number
       originalBedCode?: string
+      originalBedName?: string
       targetCampusCode?: string
       targetCampusName?: string
       targetFloorCode?: string
+      targetFloorName?: string
       targetRoomId?: number
       targetRoomCode?: string
+      targetRoomName?: string
       targetBedId?: number
       targetBedCode?: string
+      targetBedName?: string
       applyDate?: string
       transferDate?: string
       status: number
@@ -1430,10 +1442,13 @@ declare namespace Api {
       campusCode?: string
       campusName?: string
       floorCode?: string
+      floorName?: string
       roomId?: number
       roomCode?: string
+      roomName?: string
       bedId?: number
       bedCode?: string
+      bedName?: string
       applyDate?: string
       checkOutDate?: string
       status: number
@@ -1511,10 +1526,13 @@ declare namespace Api {
       campusCode?: string
       campusName?: string
       floorCode?: string
+      floorName?: string
       roomId?: number
       roomCode?: string
+      roomName?: string
       bedId?: number
       bedCode?: string
+      bedName?: string
       applyDate?: string
       stayStartDate?: string
       stayEndDate?: string

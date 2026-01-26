@@ -14,48 +14,6 @@
         </div>
       </template>
       <div class="info-list">
-        <div v-if="stayData.campusName" class="info-row">
-          <div class="row-label">
-            <ArtSvgIcon icon="ri:map-pin-line" class="label-icon" />
-            <span>校区</span>
-          </div>
-          <ElTooltip
-            :content="stayData.campusName"
-            placement="bottom"
-            popper-class="info-card-tooltip"
-            :disabled="!isTextOverflow(stayData.campusName)"
-          >
-            <div class="row-value">{{ stayData.campusName }}</div>
-          </ElTooltip>
-        </div>
-        <div v-if="stayData.roomCode" class="info-row">
-          <div class="row-label">
-            <ArtSvgIcon icon="ri:door-open-line" class="label-icon" />
-            <span>房间编码</span>
-          </div>
-          <ElTooltip
-            :content="stayData.roomCode"
-            placement="bottom"
-            popper-class="info-card-tooltip"
-            :disabled="!isTextOverflow(stayData.roomCode)"
-          >
-            <div class="row-value is-code">{{ stayData.roomCode }}</div>
-          </ElTooltip>
-        </div>
-        <div v-if="stayData.bedCode" class="info-row">
-          <div class="row-label">
-            <ArtSvgIcon icon="ri:hotel-bed-line" class="label-icon" />
-            <span>床位编码</span>
-          </div>
-          <ElTooltip
-            :content="stayData.bedCode"
-            placement="bottom"
-            popper-class="info-card-tooltip"
-            :disabled="!isTextOverflow(stayData.bedCode)"
-          >
-            <div class="row-value is-code">{{ stayData.bedCode }}</div>
-          </ElTooltip>
-        </div>
         <div v-if="stayData.applyDate" class="info-row">
           <div class="row-label">
             <ArtSvgIcon icon="ri:calendar-line" class="label-icon" />

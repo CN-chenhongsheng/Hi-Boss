@@ -64,6 +64,10 @@
             <ArtSvgIcon icon="ri:book-open-line" class="chip-icon" />
             <span>{{ studentData.majorName }}</span>
           </div>
+          <div v-if="studentData.className" class="info-chip">
+            <ArtSvgIcon icon="ri:group-line" class="chip-icon" />
+            <span>{{ studentData.className }}</span>
+          </div>
         </div>
       </div>
 

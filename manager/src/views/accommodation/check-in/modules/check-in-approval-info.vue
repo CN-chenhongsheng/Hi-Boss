@@ -32,48 +32,6 @@
             </div>
           </ElTooltip>
         </div>
-        <div v-if="checkInData.campusName" class="info-row">
-          <div class="row-label">
-            <ArtSvgIcon icon="ri:map-pin-line" class="label-icon" />
-            <span>校区</span>
-          </div>
-          <ElTooltip
-            :content="checkInData.campusName"
-            placement="bottom"
-            popper-class="info-card-tooltip"
-            :disabled="!isTextOverflow(checkInData.campusName)"
-          >
-            <div class="row-value">{{ checkInData.campusName }}</div>
-          </ElTooltip>
-        </div>
-        <div v-if="checkInData.roomCode" class="info-row">
-          <div class="row-label">
-            <ArtSvgIcon icon="ri:door-open-line" class="label-icon" />
-            <span>房间编码</span>
-          </div>
-          <ElTooltip
-            :content="checkInData.roomCode"
-            placement="bottom"
-            popper-class="info-card-tooltip"
-            :disabled="!isTextOverflow(checkInData.roomCode)"
-          >
-            <div class="row-value is-code">{{ checkInData.roomCode }}</div>
-          </ElTooltip>
-        </div>
-        <div v-if="checkInData.bedCode" class="info-row">
-          <div class="row-label">
-            <ArtSvgIcon icon="ri:hotel-bed-line" class="label-icon" />
-            <span>床位编码</span>
-          </div>
-          <ElTooltip
-            :content="checkInData.bedCode"
-            placement="bottom"
-            popper-class="info-card-tooltip"
-            :disabled="!isTextOverflow(checkInData.bedCode)"
-          >
-            <div class="row-value is-code">{{ checkInData.bedCode }}</div>
-          </ElTooltip>
-        </div>
         <div v-if="checkInData.applyDate" class="info-row">
           <div class="row-label">
             <ArtSvgIcon icon="ri:calendar-line" class="label-icon" />

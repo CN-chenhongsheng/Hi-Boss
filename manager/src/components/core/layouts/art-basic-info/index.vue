@@ -1,4 +1,4 @@
-﻿<!-- 学生基本信息模块 -->
+<!-- 学生基本信息模块 -->
 <template>
   <div class="student-basic-info">
     <!-- 联系信息卡片 -->
@@ -183,27 +183,16 @@
             </div>
           </ElTooltip>
         </div>
-        <div v-if="data.className" class="info-row">
-          <div class="row-label">
-            <ArtSvgIcon icon="ri:group-line" class="label-icon" />
-            <span>班级</span>
-          </div>
-          <ElTooltip
-            :content="data.className"
-            placement="bottom"
-            popper-class="info-card-tooltip"
-            :disabled="!isTextOverflow(data.className)"
-          >
-            <div class="row-value">{{ data.className }}</div>
-          </ElTooltip>
-        </div>
         <div
           v-if="
+            !data.campusName &&
+            !data.deptName &&
+            !data.majorName &&
+            !data.className &&
             !data.enrollmentYear &&
             !data.schoolingLength &&
             !data.currentGrade &&
-            !data.academicStatusText &&
-            !data.className
+            !data.academicStatusText
           "
           class="empty-state"
         >
@@ -221,35 +210,49 @@
         </div>
       </template>
       <div class="info-list">
-        <div v-if="data.roomCode" class="info-row">
+        <div v-if="data.floorName" class="info-row">
+          <div class="row-label">
+            <ArtSvgIcon icon="ri:building-2-line" class="label-icon" />
+            <span>楼层</span>
+          </div>
+          <ElTooltip
+            :content="data.floorName"
+            placement="bottom"
+            popper-class="info-card-tooltip"
+            :disabled="!isTextOverflow(data.floorName)"
+          >
+            <div class="row-value">{{ data.floorName }}</div>
+          </ElTooltip>
+        </div>
+        <div v-if="data.roomName" class="info-row">
           <div class="row-label">
             <ArtSvgIcon icon="ri:door-open-line" class="label-icon" />
-            <span>房间编码</span>
+            <span>房间</span>
           </div>
           <ElTooltip
-            :content="data.roomCode"
+            :content="data.roomName"
             placement="bottom"
             popper-class="info-card-tooltip"
-            :disabled="!isTextOverflow(data.roomCode)"
+            :disabled="!isTextOverflow(data.roomName)"
           >
-            <div class="row-value is-code">{{ data.roomCode }}</div>
+            <div class="row-value">{{ data.roomName }}</div>
           </ElTooltip>
         </div>
-        <div v-if="data.bedCode" class="info-row">
+        <div v-if="data.bedName" class="info-row">
           <div class="row-label">
             <ArtSvgIcon icon="ri:hotel-bed-line" class="label-icon" />
-            <span>床位编码</span>
+            <span>床位</span>
           </div>
           <ElTooltip
-            :content="data.bedCode"
+            :content="data.bedName"
             placement="bottom"
             popper-class="info-card-tooltip"
-            :disabled="!isTextOverflow(data.bedCode)"
+            :disabled="!isTextOverflow(data.bedName)"
           >
-            <div class="row-value is-code">{{ data.bedCode }}</div>
+            <div class="row-value">{{ data.bedName }}</div>
           </ElTooltip>
         </div>
-        <div v-if="!data.roomCode && !data.bedCode" class="empty-state">
+        <div v-if="!data.floorName && !data.roomName && !data.bedName" class="empty-state">
           <span class="empty-text">暂无住宿信息</span>
         </div>
       </div>
@@ -289,7 +292,7 @@
   const isTextOverflow = (text: string | undefined | number): boolean => {
     if (!text) return false
     const str = String(text)
-    return str.length > 30
+    return str.length > 20
   }
 
   // 获取学籍状态样式类

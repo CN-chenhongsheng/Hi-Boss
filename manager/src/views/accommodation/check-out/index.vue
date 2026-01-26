@@ -153,7 +153,7 @@
         { prop: 'bedCode', label: '床位编码', width: 120 },
         { prop: 'applyDate', label: '申请日期', width: 120, sortable: true },
         { prop: 'checkOutDate', label: '退宿日期', width: 120, sortable: true },
-        { prop: 'checkOutReason', label: '退宿理由' },
+        { prop: 'checkOutReason', label: '退宿理由', showOverflowTooltip: true },
         {
           prop: 'approvalProgress',
           label: '审批状态',

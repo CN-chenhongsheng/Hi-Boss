@@ -1,4 +1,4 @@
-﻿<!-- 调宿申请审批信息组件 -->
+<!-- 调宿申请审批信息组件 -->
 <template>
   <ArtApprovalInfo
     :business-type="businessType"
@@ -31,32 +31,46 @@
               <div class="row-value">{{ transferData.originalCampusName }}</div>
             </ElTooltip>
           </div>
-          <div v-if="transferData.originalRoomCode" class="info-row">
+          <div v-if="transferData.originalFloorName" class="info-row">
+            <div class="row-label">
+              <ArtSvgIcon icon="ri:building-2-line" class="label-icon" />
+              <span>原楼层</span>
+            </div>
+            <ElTooltip
+              :content="transferData.originalFloorName"
+              placement="bottom"
+              popper-class="info-card-tooltip"
+              :disabled="!isTextOverflow(transferData.originalFloorName)"
+            >
+              <div class="row-value">{{ transferData.originalFloorName }}</div>
+            </ElTooltip>
+          </div>
+          <div v-if="transferData.originalRoomName" class="info-row">
             <div class="row-label">
               <ArtSvgIcon icon="ri:door-open-line" class="label-icon" />
               <span>原房间</span>
             </div>
             <ElTooltip
-              :content="transferData.originalRoomCode"
+              :content="transferData.originalRoomName"
               placement="bottom"
               popper-class="info-card-tooltip"
-              :disabled="!isTextOverflow(transferData.originalRoomCode)"
+              :disabled="!isTextOverflow(transferData.originalRoomName)"
             >
-              <div class="row-value is-code">{{ transferData.originalRoomCode }}</div>
+              <div class="row-value">{{ transferData.originalRoomName }}</div>
             </ElTooltip>
           </div>
-          <div v-if="transferData.originalBedCode" class="info-row">
+          <div v-if="transferData.originalBedName" class="info-row">
             <div class="row-label">
               <ArtSvgIcon icon="ri:hotel-bed-line" class="label-icon" />
               <span>原床位</span>
             </div>
             <ElTooltip
-              :content="transferData.originalBedCode"
+              :content="transferData.originalBedName"
               placement="bottom"
               popper-class="info-card-tooltip"
-              :disabled="!isTextOverflow(transferData.originalBedCode)"
+              :disabled="!isTextOverflow(transferData.originalBedName)"
             >
-              <div class="row-value is-code">{{ transferData.originalBedCode }}</div>
+              <div class="row-value">{{ transferData.originalBedName }}</div>
             </ElTooltip>
           </div>
         </div>
@@ -78,32 +92,46 @@
               <div class="row-value">{{ transferData.targetCampusName }}</div>
             </ElTooltip>
           </div>
-          <div v-if="transferData.targetRoomCode" class="info-row">
+          <div v-if="transferData.targetFloorName" class="info-row">
+            <div class="row-label">
+              <ArtSvgIcon icon="ri:building-2-line" class="label-icon" />
+              <span>目标楼层</span>
+            </div>
+            <ElTooltip
+              :content="transferData.targetFloorName"
+              placement="bottom"
+              popper-class="info-card-tooltip"
+              :disabled="!isTextOverflow(transferData.targetFloorName)"
+            >
+              <div class="row-value">{{ transferData.targetFloorName }}</div>
+            </ElTooltip>
+          </div>
+          <div v-if="transferData.targetRoomName" class="info-row">
             <div class="row-label">
               <ArtSvgIcon icon="ri:door-open-line" class="label-icon" />
               <span>目标房间</span>
             </div>
             <ElTooltip
-              :content="transferData.targetRoomCode"
+              :content="transferData.targetRoomName"
               placement="bottom"
               popper-class="info-card-tooltip"
-              :disabled="!isTextOverflow(transferData.targetRoomCode)"
+              :disabled="!isTextOverflow(transferData.targetRoomName)"
             >
-              <div class="row-value is-code">{{ transferData.targetRoomCode }}</div>
+              <div class="row-value">{{ transferData.targetRoomName }}</div>
             </ElTooltip>
           </div>
-          <div v-if="transferData.targetBedCode" class="info-row">
+          <div v-if="transferData.targetBedName" class="info-row">
             <div class="row-label">
               <ArtSvgIcon icon="ri:hotel-bed-line" class="label-icon" />
               <span>目标床位</span>
             </div>
             <ElTooltip
-              :content="transferData.targetBedCode"
+              :content="transferData.targetBedName"
               placement="bottom"
               popper-class="info-card-tooltip"
-              :disabled="!isTextOverflow(transferData.targetBedCode)"
+              :disabled="!isTextOverflow(transferData.targetBedName)"
             >
-              <div class="row-value is-code">{{ transferData.targetBedCode }}</div>
+              <div class="row-value">{{ transferData.targetBedName }}</div>
             </ElTooltip>
           </div>
         </div>

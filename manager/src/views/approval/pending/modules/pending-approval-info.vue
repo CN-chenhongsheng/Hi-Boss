@@ -1,4 +1,4 @@
-﻿<!-- 待办审批信息组件 -->
+<!-- 待办审批信息组件 -->
 <template>
   <ArtApprovalInfo
     :business-type="businessType"
@@ -99,34 +99,49 @@
             <div class="row-value">{{ businessData.campusName }}</div>
           </ElTooltip>
         </div>
-        <!-- 房间编码 -->
-        <div v-if="businessData.roomCode" class="info-row">
+        <!-- 楼层 -->
+        <div v-if="businessData.floorName" class="info-row">
           <div class="row-label">
-            <ArtSvgIcon icon="ri:door-open-line" class="label-icon" />
-            <span>房间编码</span>
+            <ArtSvgIcon icon="ri:building-2-line" class="label-icon" />
+            <span>楼层</span>
           </div>
           <ElTooltip
-            :content="businessData.roomCode"
+            :content="businessData.floorName"
             placement="bottom"
             popper-class="info-card-tooltip"
-            :disabled="!isTextOverflow(businessData.roomCode)"
+            :disabled="!isTextOverflow(businessData.floorName)"
           >
-            <div class="row-value is-code">{{ businessData.roomCode }}</div>
+            <div class="row-value">{{ businessData.floorName }}</div>
           </ElTooltip>
         </div>
-        <!-- 床位编码 -->
-        <div v-if="businessData.bedCode" class="info-row">
+        <!-- 房间 -->
+        <div v-if="businessData.roomName" class="info-row">
           <div class="row-label">
-            <ArtSvgIcon icon="ri:hotel-bed-line" class="label-icon" />
-            <span>床位编码</span>
+            <ArtSvgIcon icon="ri:door-open-line" class="label-icon" />
+            <span>房间</span>
           </div>
           <ElTooltip
-            :content="businessData.bedCode"
+            :content="businessData.roomName"
             placement="bottom"
             popper-class="info-card-tooltip"
-            :disabled="!isTextOverflow(businessData.bedCode)"
+            :disabled="!isTextOverflow(businessData.roomName)"
           >
-            <div class="row-value is-code">{{ businessData.bedCode }}</div>
+            <div class="row-value">{{ businessData.roomName }}</div>
+          </ElTooltip>
+        </div>
+        <!-- 床位 -->
+        <div v-if="businessData.bedName" class="info-row">
+          <div class="row-label">
+            <ArtSvgIcon icon="ri:hotel-bed-line" class="label-icon" />
+            <span>床位</span>
+          </div>
+          <ElTooltip
+            :content="businessData.bedName"
+            placement="bottom"
+            popper-class="info-card-tooltip"
+            :disabled="!isTextOverflow(businessData.bedName)"
+          >
+            <div class="row-value">{{ businessData.bedName }}</div>
           </ElTooltip>
         </div>
         <!-- 申请日期 -->
