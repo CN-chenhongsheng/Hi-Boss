@@ -1,54 +1,13 @@
 <!-- 待办审批页面 -->
 <template>
   <div class="art-full-height">
-    <!-- 搜索 -->
-    <ElCard v-show="showSearchBar" class="art-search-card" shadow="never">
-      <ElForm :model="formFilters" label-width="80px">
-        <ElRow :gutter="16">
-          <ElCol :xs="24" :sm="12" :md="8" :lg="6">
-            <ElFormItem label="业务类型">
-              <ElSelect
-                v-model="formFilters.businessType"
-                placeholder="请选择业务类型"
-                clearable
-                style="width: 100%"
-              >
-                <ElOption
-                  v-for="item in businessTypeOptions"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value"
-                />
-              </ElSelect>
-            </ElFormItem>
-          </ElCol>
-          <ElCol :xs="24" :sm="12" :md="8" :lg="6">
-            <ElFormItem label="申请人">
-              <ElInput
-                v-model="formFilters.applicantName"
-                placeholder="请输入申请人姓名"
-                clearable
-                @keyup.enter="handleSearch"
-              />
-            </ElFormItem>
-          </ElCol>
-          <ElCol :xs="24" :sm="12" :md="8" :lg="6">
-            <ElFormItem label=" ">
-              <ElSpace>
-                <ElButton type="primary" @click="handleSearch" v-ripple>
-                  <i class="ri-search-line mr-1"></i>
-                  查询
-                </ElButton>
-                <ElButton @click="handleReset" v-ripple>
-                  <i class="ri-refresh-line mr-1"></i>
-                  重置
-                </ElButton>
-              </ElSpace>
-            </ElFormItem>
-          </ElCol>
-        </ElRow>
-      </ElForm>
-    </ElCard>
+    <!-- 搜索栏 -->
+    <PendingSearch
+      v-show="showSearchBar"
+      v-model="formFilters"
+      @search="handleSearch"
+      @reset="handleReset"
+    />
 
     <ElCard
       class="art-table-card"
@@ -60,7 +19,15 @@
         v-model:showSearchBar="showSearchBar"
         :loading="loading"
         @refresh="refreshData"
-      />
+      >
+        <template #left>
+          <ElSpace wrap>
+            <ElButton :disabled="selectedCount === 0" @click="handleBatchApprove" v-ripple>
+              批量审核{{ selectedCount > 0 ? `(${selectedCount})` : '' }}
+            </ElButton>
+          </ElSpace>
+        </template>
+      </ArtTableHeader>
 
       <!-- 表格 -->
       <ArtTable
@@ -72,6 +39,8 @@
         :data="data"
         :columns="columns"
         :pagination="pagination"
+        row-key="id"
+        @selection-change="handleSelectionChange"
         @pagination:size-change="handleSizeChange"
         @pagination:current-change="handleCurrentChange"
       />
@@ -83,25 +52,25 @@
       :instance-data="currentInstance"
       @success="handleApprovalSuccess"
     />
+
+    <!-- 批量审核对话框 -->
+    <BatchApprovalDialog
+      v-model:visible="batchApprovalDialogVisible"
+      :selected-instances="selectedRows"
+      @success="handleBatchApprovalSuccess"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-  import { onMounted } from 'vue'
   import { useTable } from '@/hooks/core/useTable'
   import { fetchGetPendingList, type ApprovalInstance } from '@/api/approval-manage'
   import ApprovalDrawer from './modules/approval-drawer.vue'
-  import { ElTag } from 'element-plus'
-  import { useBusinessType } from '@/hooks'
+  import BatchApprovalDialog from './modules/batch-approval-dialog.vue'
+  import PendingSearch from './modules/pending-search.vue'
+  import { ElTag, ElMessage } from 'element-plus'
 
   defineOptions({ name: 'ApprovalPending' })
-
-  // 业务类型（从字典获取）
-  const { businessTypeOptions, fetchBusinessTypes } = useBusinessType()
-
-  onMounted(() => {
-    fetchBusinessTypes()
-  })
 
   // 搜索相关
   const formFilters = ref({
@@ -113,6 +82,11 @@
   const showSearchBar = ref(false)
   const approvalDialogVisible = ref(false)
   const currentInstance = ref<ApprovalInstance | null>(null)
+  const batchApprovalDialogVisible = ref(false)
+
+  // 选中行
+  const selectedRows = ref<ApprovalInstance[]>([])
+  const selectedCount = computed(() => selectedRows.value.length)
 
   const {
     columns,
@@ -142,6 +116,7 @@
         size: 'pageSize'
       },
       columnsFactory: () => [
+        { type: 'selection' },
         {
           prop: 'businessType',
           label: '业务类型',
@@ -214,6 +189,26 @@
   }
 
   const handleApprovalSuccess = async () => {
+    await refreshData()
+  }
+
+  // 处理表格行选择变化
+  const handleSelectionChange = (selection: ApprovalInstance[]): void => {
+    selectedRows.value = selection
+  }
+
+  // 处理批量审核
+  const handleBatchApprove = (): void => {
+    if (selectedCount.value === 0) {
+      ElMessage.warning('请先选择要审核的审批项')
+      return
+    }
+    batchApprovalDialogVisible.value = true
+  }
+
+  // 处理批量审核成功
+  const handleBatchApprovalSuccess = async () => {
+    selectedRows.value = []
     await refreshData()
   }
 </script>

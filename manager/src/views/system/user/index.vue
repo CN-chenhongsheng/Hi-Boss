@@ -7,7 +7,7 @@
       v-model="formFilters"
       @search="handleSearch"
       @reset="handleReset"
-    ></UserSearch>
+    />
 
     <ElCard
       class="art-table-card"

@@ -1,6 +1,7 @@
 <!-- 流程配置页面 -->
 <template>
   <div class="art-full-height">
+    <!-- 搜索栏 -->
     <FlowSearch
       v-show="showSearchBar"
       v-model="formFilters"
