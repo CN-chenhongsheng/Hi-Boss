@@ -2,14 +2,14 @@
 <template>
   <div class="student-lifestyle-info">
     <!-- 作息习惯卡片 -->
-    <ElCard class="lifestyle-card" shadow="hover">
+    <ElCard class="info-card" shadow="hover">
       <template #header>
         <div class="card-header">
           <ArtSvgIcon icon="ri:moon-line" class="header-icon" />
           <span class="header-title">作息习惯</span>
         </div>
       </template>
-      <div class="lifestyle-content">
+      <div class="info-list">
         <div v-if="data.sleepScheduleText" class="info-row">
           <div class="row-label">
             <ArtSvgIcon icon="ri:time-line" class="label-icon" />
@@ -75,14 +75,14 @@
     </ElCard>
 
     <!-- 生活习惯卡片 -->
-    <ElCard class="lifestyle-card" shadow="hover">
+    <ElCard class="info-card" shadow="hover">
       <template #header>
         <div class="card-header">
           <ArtSvgIcon icon="ri:heart-line" class="header-icon" />
           <span class="header-title">生活习惯</span>
         </div>
       </template>
-      <div class="lifestyle-content">
+      <div class="info-list">
         <div
           v-if="data.smokingStatus !== undefined && data.smokingStatus !== null"
           class="info-row"
@@ -138,14 +138,14 @@
     </ElCard>
 
     <!-- 社交偏好卡片 -->
-    <ElCard class="lifestyle-card" shadow="hover">
+    <ElCard class="info-card" shadow="hover">
       <template #header>
         <div class="card-header">
           <ArtSvgIcon icon="ri:team-line" class="header-icon" />
           <span class="header-title">社交偏好</span>
         </div>
       </template>
-      <div class="lifestyle-content">
+      <div class="info-list">
         <div v-if="data.socialPreferenceText" class="info-row">
           <div class="row-label">
             <ArtSvgIcon icon="ri:chat-smile-2-line" class="label-icon" />
@@ -177,14 +177,14 @@
     </ElCard>
 
     <!-- 学习习惯卡片 -->
-    <ElCard class="lifestyle-card" shadow="hover">
+    <ElCard class="info-card" shadow="hover">
       <template #header>
         <div class="card-header">
           <ArtSvgIcon icon="ri:book-read-line" class="header-icon" />
           <span class="header-title">学习习惯</span>
         </div>
       </template>
-      <div class="lifestyle-content">
+      <div class="info-list">
         <div v-if="data.studyInRoomText" class="info-row">
           <div class="row-label">
             <ArtSvgIcon icon="ri:home-office-line" class="label-icon" />
@@ -216,14 +216,14 @@
     </ElCard>
 
     <!-- 娱乐习惯卡片 -->
-    <ElCard class="lifestyle-card" shadow="hover">
+    <ElCard class="info-card" shadow="hover">
       <template #header>
         <div class="card-header">
           <ArtSvgIcon icon="ri:gamepad-line" class="header-icon" />
           <span class="header-title">娱乐习惯</span>
         </div>
       </template>
-      <div class="lifestyle-content">
+      <div class="info-list">
         <div v-if="data.gamingPreferenceText" class="info-row">
           <div class="row-label">
             <ArtSvgIcon icon="ri:gamepad-line" class="label-icon" />
@@ -269,7 +269,7 @@
     <!-- 特殊需求卡片 -->
     <ElCard
       v-if="data.specialNeeds || data.roommatePreference"
-      class="lifestyle-card"
+      class="info-card"
       shadow="hover"
     >
       <template #header>
@@ -315,117 +315,7 @@
     gap: 16px;
   }
 
-  .lifestyle-card {
-    border: 1px solid var(--el-border-color-lighter);
-    border-radius: var(--el-border-radius-base);
-    transition: all 0.3s;
-
-    &:hover {
-      border-color: var(--el-color-primary-light-7);
-      box-shadow: 0 2px 12px 0 rgb(0 0 0 / 10%);
-    }
-
-    :deep(.el-card__header) {
-      padding: 12px 16px;
-      background: var(--el-fill-color-lighter);
-      border-bottom: 1px solid var(--el-border-color-lighter);
-    }
-
-    :deep(.el-card__body) {
-      padding: 4px 16px;
-    }
-
-    .card-header {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-
-      .header-icon {
-        font-size: 18px;
-        color: var(--el-color-primary);
-      }
-
-      .header-title {
-        font-size: 15px;
-        font-weight: 600;
-        color: var(--el-text-color-primary);
-      }
-    }
-
-    .lifestyle-content {
-      display: flex;
-      flex-direction: column;
-      gap: 0;
-    }
-
-    .info-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 12px 0;
-      border-bottom: 1px solid var(--el-border-color-extra-light);
-
-      &:last-of-type {
-        border-bottom: none;
-      }
-
-      .row-label {
-        display: flex;
-        gap: 8px;
-        align-items: center;
-        font-size: 13px;
-        color: var(--el-text-color-secondary);
-
-        .label-icon {
-          width: 16px;
-          height: 16px;
-          color: var(--el-text-color-placeholder);
-        }
-      }
-
-      .row-value {
-        display: flex;
-        gap: 6px;
-        align-items: center;
-        font-size: 13px;
-        font-weight: 500;
-        color: var(--el-text-color-primary);
-
-        .value-dot {
-          width: 6px;
-          height: 6px;
-          background: var(--el-text-color-placeholder);
-          border-radius: 50%;
-        }
-
-        &.is-good {
-          color: var(--el-color-success);
-
-          .value-dot {
-            background: var(--el-color-success);
-          }
-        }
-
-        &.is-warn {
-          color: var(--el-color-warning-dark-2);
-
-          .value-dot {
-            background: var(--el-color-warning);
-          }
-        }
-      }
-    }
-
-    .empty-state {
-      padding: 24px;
-      text-align: center;
-
-      .empty-text {
-        font-size: 14px;
-        color: var(--el-text-color-placeholder);
-      }
-    }
-
+  .info-card {
     .special-content {
       display: flex;
       flex-direction: column;

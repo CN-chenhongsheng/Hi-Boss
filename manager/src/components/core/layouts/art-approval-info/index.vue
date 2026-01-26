@@ -94,7 +94,7 @@
                   >
                     {{ item.record.actionText }}
                   </ElTag>
-                  <ElTag v-else type="info" size="small">待审批</ElTag>
+                  <ElTag v-else type="warning" size="small">待审批</ElTag>
                 </div>
                 <div v-if="item.type === 'start'" class="timeline-meta">
                   <span class="timeline-approver">发起人：{{ item.applicantName }}</span>
@@ -307,8 +307,8 @@
     if (item.type === 'end') {
       return item.status === 2 ? 'success' : 'danger'
     }
-    if (!item.record) return 'primary' // 待审批状态
-    return item.record.action === 1 ? 'success' : 'danger'
+    if (!item.record) return 'warning' // 待审批状态 - 黄色
+    return item.record.action === 1 ? 'success' : 'danger' // 通过-绿色，驳回-红色
   }
 
   // 获取节点审批人名称列表

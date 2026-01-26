@@ -54,7 +54,6 @@
 
     <!-- 学生详情抽屉（查看） -->
     <StudentDrawer
-      v-show="dialogType === 'view'"
       v-model:visible="drawerVisible"
       :dialog-type="(dialogType === 'view' ? 'view' : 'edit') as 'view' | 'edit'"
       :student-id="editData?.id"
@@ -64,7 +63,6 @@
 
     <!-- 学生新增/编辑弹窗 -->
     <StudentDialog
-      v-show="dialogType === 'edit' || dialogType === 'add'"
       v-model:visible="dialogVisible"
       :dialog-type="(dialogType === 'add' ? 'add' : 'edit') as 'add' | 'edit'"
       :student-id="editData?.id"

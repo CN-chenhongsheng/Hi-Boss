@@ -266,7 +266,7 @@
         {
           prop: 'manageScope',
           label: '管理范围',
-          width: 150,
+          minWidth: 150,
           formatter: (row) => {
             const formatted = formatManageScopeSync(row.manageScope)
             // 将字符串按"、"拆分，每个部分作为一个 tag
@@ -285,7 +285,7 @@
             const tooltipContent = parts.join('、')
             const displayTags = [
               h(ElTag, { size: 'small', type: 'primary' }, () => parts[0]),
-              h(ElTag, { size: 'small', type: 'info' }, () => `+${parts.length - 1}`)
+              h(ElTag, { size: 'small', type: 'primary' }, () => `+${parts.length - 1}`)
             ]
 
             return h(
@@ -304,7 +304,7 @@
         {
           prop: 'roleNames',
           label: '角色',
-          width: 200,
+          minWidth: 150,
           formatter: (row) => {
             const roleList = Array.isArray(row.roleNames)
               ? row.roleNames
@@ -324,7 +324,7 @@
             const tooltipContent = roleList.join('、')
             const displayTags = [
               h(ElTag, { size: 'small', type: 'primary' }, () => roleList[0]),
-              h(ElTag, { size: 'small', type: 'info' }, () => `+${roleList.length - 1}`)
+              h(ElTag, { size: 'small', type: 'primary' }, () => `+${roleList.length - 1}`)
             ]
 
             return h(

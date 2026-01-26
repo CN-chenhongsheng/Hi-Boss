@@ -11,7 +11,7 @@
         <ElProgress
           v-if="isInProgress"
           :percentage="progressPercent"
-          :stroke-width="12"
+          :stroke-width="15"
           :text-inside="true"
           :show-text="true"
           class="progress-bar"
@@ -157,10 +157,19 @@
 
     .progress-bar {
       width: 100%;
+      cursor: var(--cursor-pointer);
+    }
+
+    :deep(.el-progress-bar) {
+      cursor: var(--cursor-pointer);
+    }
+
+    :deep(.el-progress-bar__outer) {
+      cursor: var(--cursor-pointer);
     }
 
     :deep(.el-progress__text) {
-      font-size: 12px;
+      font-size: 10px;
     }
   }
 

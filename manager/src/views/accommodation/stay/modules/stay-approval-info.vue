@@ -129,10 +129,12 @@
             <ArtSvgIcon icon="ri:checkbox-circle-line" class="label-icon" />
             <span>家长是否同意</span>
           </div>
-          <div class="row-value">
-            <ElTag :type="stayData.parentAgree === 'agree' ? 'success' : 'danger'" size="small">
-              {{ stayData.parentAgreeText }}
-            </ElTag>
+          <div
+            class="row-value"
+            :class="stayData.parentAgree === 'agree' ? 'is-good' : 'is-danger'"
+          >
+            <span class="value-dot"></span>
+            {{ stayData.parentAgreeText }}
           </div>
         </div>
       </div>
@@ -202,7 +204,7 @@
 
 <script setup lang="ts">
   import { ref, watch, computed } from 'vue'
-  import { ElCard, ElTooltip, ElTag, ElImage } from 'element-plus'
+  import { ElCard, ElTooltip, ElImage } from 'element-plus'
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
   import ArtApprovalInfo from '@/components/core/layouts/art-approval-info/index.vue'
   import { fetchGetStayDetail } from '@/api/accommodation-manage'

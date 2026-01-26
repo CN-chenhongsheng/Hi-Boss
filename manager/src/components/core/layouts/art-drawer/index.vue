@@ -15,6 +15,7 @@
     :z-index="zIndex"
     @open="handleOpen"
     @close="handleClose"
+    class="art-drawer"
   >
     <template v-if="withHeader" #header>
       <slot name="header">
@@ -171,7 +172,6 @@
       margin-bottom: 20px;
       font-size: 18px;
       font-weight: 600;
-      border-bottom: 1px solid var(--el-border-color-light);
     }
   }
 </style>

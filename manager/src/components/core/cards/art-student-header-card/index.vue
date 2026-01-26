@@ -87,9 +87,8 @@
     flex-direction: column;
     gap: 16px;
     padding: 20px;
-    background: linear-gradient(to bottom, var(--el-color-primary-light-9) 0%, transparent 100%);
     border: 1px solid var(--el-border-color-lighter);
-    border-radius: var(--el-border-radius-base);
+    border-radius: calc(var(--custom-radius) / 2 + 2px) !important;
     transition:
       border-color 0.2s ease,
       box-shadow 0.2s ease;
@@ -97,6 +96,11 @@
     &:hover {
       border-color: var(--el-color-primary-light-7);
       box-shadow: 0 2px 5px rgb(0 0 0 / 4%);
+      background: linear-gradient(
+        0deg,
+        #ffffff00 0%,
+        color-mix(in srgb, var(--el-color-primary) 3%, var(--el-bg-color)) 100%
+      );
     }
 
     // 主信息区
