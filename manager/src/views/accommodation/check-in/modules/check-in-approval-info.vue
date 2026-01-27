@@ -21,7 +21,7 @@
           </div>
           <ElTooltip
             :content="checkInData.checkInTypeText"
-            placement="bottom"
+            placement="bottom-end"
             popper-class="info-card-tooltip"
             :disabled="!isTextOverflow(checkInData.checkInTypeText)"
           >
@@ -39,7 +39,7 @@
           </div>
           <ElTooltip
             :content="checkInData.applyDate"
-            placement="bottom"
+            placement="bottom-end"
             popper-class="info-card-tooltip"
             :disabled="!isTextOverflow(checkInData.applyDate)"
           >
@@ -53,7 +53,7 @@
           </div>
           <ElTooltip
             :content="checkInData.checkInDate"
-            placement="bottom"
+            placement="bottom-end"
             popper-class="info-card-tooltip"
             :disabled="!isTextOverflow(checkInData.checkInDate)"
           >
@@ -67,7 +67,7 @@
           </div>
           <ElTooltip
             :content="checkInData.expectedCheckOutDate"
-            placement="bottom"
+            placement="bottom-end"
             popper-class="info-card-tooltip"
             :disabled="!isTextOverflow(checkInData.expectedCheckOutDate)"
           >
@@ -81,7 +81,7 @@
           </div>
           <ElTooltip
             :content="checkInData.applyReason"
-            placement="bottom"
+            placement="bottom-end"
             popper-class="info-card-tooltip"
             :disabled="!isTextOverflow(checkInData.applyReason)"
           >
@@ -95,7 +95,7 @@
           </div>
           <ElTooltip
             :content="checkInData.remark"
-            placement="bottom"
+            placement="bottom-end"
             popper-class="info-card-tooltip"
             :disabled="!isTextOverflow(checkInData.remark)"
           >

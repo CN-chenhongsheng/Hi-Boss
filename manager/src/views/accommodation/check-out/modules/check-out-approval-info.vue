@@ -21,7 +21,7 @@
           </div>
           <ElTooltip
             :content="checkOutData.campusName"
-            placement="bottom"
+            placement="bottom-end"
             popper-class="info-card-tooltip"
             :disabled="!isTextOverflow(checkOutData.campusName)"
           >
@@ -35,7 +35,7 @@
           </div>
           <ElTooltip
             :content="checkOutData.floorName"
-            placement="bottom"
+            placement="bottom-end"
             popper-class="info-card-tooltip"
             :disabled="!isTextOverflow(checkOutData.floorName)"
           >
@@ -49,7 +49,7 @@
           </div>
           <ElTooltip
             :content="checkOutData.roomName"
-            placement="bottom"
+            placement="bottom-end"
             popper-class="info-card-tooltip"
             :disabled="!isTextOverflow(checkOutData.roomName)"
           >
@@ -63,7 +63,7 @@
           </div>
           <ElTooltip
             :content="checkOutData.bedName"
-            placement="bottom"
+            placement="bottom-end"
             popper-class="info-card-tooltip"
             :disabled="!isTextOverflow(checkOutData.bedName)"
           >
@@ -77,7 +77,7 @@
           </div>
           <ElTooltip
             :content="checkOutData.applyDate"
-            placement="bottom"
+            placement="bottom-end"
             popper-class="info-card-tooltip"
             :disabled="!isTextOverflow(checkOutData.applyDate)"
           >
@@ -91,7 +91,7 @@
           </div>
           <ElTooltip
             :content="checkOutData.checkOutDate"
-            placement="bottom"
+            placement="bottom-end"
             popper-class="info-card-tooltip"
             :disabled="!isTextOverflow(checkOutData.checkOutDate)"
           >
@@ -105,7 +105,7 @@
           </div>
           <ElTooltip
             :content="checkOutData.checkOutReason"
-            placement="bottom"
+            placement="bottom-end"
             popper-class="info-card-tooltip"
             :disabled="!isTextOverflow(checkOutData.checkOutReason)"
           >
@@ -119,7 +119,7 @@
           </div>
           <ElTooltip
             :content="checkOutData.remark"
-            placement="bottom"
+            placement="bottom-end"
             popper-class="info-card-tooltip"
             :disabled="!isTextOverflow(checkOutData.remark)"
           >

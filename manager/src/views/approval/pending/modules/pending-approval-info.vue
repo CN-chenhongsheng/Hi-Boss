@@ -22,7 +22,7 @@
           </div>
           <ElTooltip
             :content="businessTypeText"
-            placement="bottom"
+            placement="bottom-end"
             popper-class="info-card-tooltip"
             :disabled="!isTextOverflow(businessTypeText)"
           >
@@ -39,7 +39,7 @@
           </div>
           <ElTooltip
             :content="businessData.checkInTypeText"
-            placement="bottom"
+            placement="bottom-end"
             popper-class="info-card-tooltip"
             :disabled="!isTextOverflow(businessData.checkInTypeText)"
           >
@@ -58,7 +58,7 @@
           </div>
           <ElTooltip
             :content="businessData.transferTypeText"
-            placement="bottom"
+            placement="bottom-end"
             popper-class="info-card-tooltip"
             :disabled="!isTextOverflow(businessData.transferTypeText)"
           >
@@ -75,7 +75,7 @@
           </div>
           <ElTooltip
             :content="businessData.stayTypeText"
-            placement="bottom"
+            placement="bottom-end"
             popper-class="info-card-tooltip"
             :disabled="!isTextOverflow(businessData.stayTypeText)"
           >
@@ -92,7 +92,7 @@
           </div>
           <ElTooltip
             :content="businessData.campusName"
-            placement="bottom"
+            placement="bottom-end"
             popper-class="info-card-tooltip"
             :disabled="!isTextOverflow(businessData.campusName)"
           >
@@ -107,7 +107,7 @@
           </div>
           <ElTooltip
             :content="businessData.floorName"
-            placement="bottom"
+            placement="bottom-end"
             popper-class="info-card-tooltip"
             :disabled="!isTextOverflow(businessData.floorName)"
           >
@@ -122,7 +122,7 @@
           </div>
           <ElTooltip
             :content="businessData.roomName"
-            placement="bottom"
+            placement="bottom-end"
             popper-class="info-card-tooltip"
             :disabled="!isTextOverflow(businessData.roomName)"
           >
@@ -137,7 +137,7 @@
           </div>
           <ElTooltip
             :content="businessData.bedName"
-            placement="bottom"
+            placement="bottom-end"
             popper-class="info-card-tooltip"
             :disabled="!isTextOverflow(businessData.bedName)"
           >
@@ -152,7 +152,7 @@
           </div>
           <ElTooltip
             :content="businessData.applyDate"
-            placement="bottom"
+            placement="bottom-end"
             popper-class="info-card-tooltip"
             :disabled="!isTextOverflow(businessData.applyDate)"
           >
@@ -167,7 +167,7 @@
           </div>
           <ElTooltip
             :content="businessData.checkInDate"
-            placement="bottom"
+            placement="bottom-end"
             popper-class="info-card-tooltip"
             :disabled="!isTextOverflow(businessData.checkInDate)"
           >
@@ -182,7 +182,7 @@
           </div>
           <ElTooltip
             :content="businessData.checkOutDate"
-            placement="bottom"
+            placement="bottom-end"
             popper-class="info-card-tooltip"
             :disabled="!isTextOverflow(businessData.checkOutDate)"
           >
@@ -197,7 +197,7 @@
           </div>
           <ElTooltip
             :content="businessData.startDate"
-            placement="bottom"
+            placement="bottom-end"
             popper-class="info-card-tooltip"
             :disabled="!isTextOverflow(businessData.startDate)"
           >
@@ -211,7 +211,7 @@
           </div>
           <ElTooltip
             :content="businessData.endDate"
-            placement="bottom"
+            placement="bottom-end"
             popper-class="info-card-tooltip"
             :disabled="!isTextOverflow(businessData.endDate)"
           >
@@ -226,7 +226,7 @@
           </div>
           <ElTooltip
             :content="businessData.applyReason"
-            placement="bottom"
+            placement="bottom-end"
             popper-class="info-card-tooltip"
             :disabled="!isTextOverflow(businessData.applyReason)"
           >
@@ -241,7 +241,7 @@
           </div>
           <ElTooltip
             :content="businessData.remark"
-            placement="bottom"
+            placement="bottom-end"
             popper-class="info-card-tooltip"
             :disabled="!isTextOverflow(businessData.remark)"
           >

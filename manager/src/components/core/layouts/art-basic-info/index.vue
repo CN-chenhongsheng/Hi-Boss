@@ -17,7 +17,7 @@
           </div>
           <ElTooltip
             :content="data.phone"
-            placement="bottom"
+            placement="bottom-end"
             popper-class="info-card-tooltip"
             :disabled="!isTextOverflow(data.phone)"
           >
@@ -31,7 +31,7 @@
           </div>
           <ElTooltip
             :content="data.email"
-            placement="bottom"
+            placement="bottom-end"
             popper-class="info-card-tooltip"
             :disabled="!isTextOverflow(data.email)"
           >
@@ -45,7 +45,7 @@
           </div>
           <ElTooltip
             :content="data.idCard"
-            placement="bottom"
+            placement="bottom-end"
             popper-class="info-card-tooltip"
             :disabled="!isTextOverflow(data.idCard)"
           >
@@ -74,7 +74,7 @@
           </div>
           <ElTooltip
             :content="data.birthDate"
-            placement="bottom"
+            placement="bottom-end"
             popper-class="info-card-tooltip"
             :disabled="!isTextOverflow(data.birthDate)"
           >
@@ -88,7 +88,7 @@
           </div>
           <ElTooltip
             :content="data.nation"
-            placement="bottom"
+            placement="bottom-end"
             popper-class="info-card-tooltip"
             :disabled="!isTextOverflow(data.nation)"
           >
@@ -102,7 +102,7 @@
           </div>
           <ElTooltip
             :content="data.politicalStatus"
-            placement="bottom"
+            placement="bottom-end"
             popper-class="info-card-tooltip"
             :disabled="!isTextOverflow(data.politicalStatus)"
           >
@@ -131,7 +131,7 @@
           </div>
           <ElTooltip
             :content="String(data.enrollmentYear)"
-            placement="bottom"
+            placement="bottom-end"
             popper-class="info-card-tooltip"
             :disabled="!isTextOverflow(data.enrollmentYear)"
           >
@@ -145,7 +145,7 @@
           </div>
           <ElTooltip
             :content="`${data.schoolingLength}年`"
-            placement="bottom"
+            placement="bottom-end"
             popper-class="info-card-tooltip"
             :disabled="!isTextOverflow(data.schoolingLength)"
           >
@@ -159,7 +159,7 @@
           </div>
           <ElTooltip
             :content="data.currentGrade"
-            placement="bottom"
+            placement="bottom-end"
             popper-class="info-card-tooltip"
             :disabled="!isTextOverflow(data.currentGrade)"
           >
@@ -173,7 +173,7 @@
           </div>
           <ElTooltip
             :content="data.academicStatusText"
-            placement="bottom"
+            placement="bottom-end"
             popper-class="info-card-tooltip"
             :disabled="!isTextOverflow(data.academicStatusText)"
           >
@@ -217,7 +217,7 @@
           </div>
           <ElTooltip
             :content="data.floorName"
-            placement="bottom"
+            placement="bottom-end"
             popper-class="info-card-tooltip"
             :disabled="!isTextOverflow(data.floorName)"
           >
@@ -231,7 +231,7 @@
           </div>
           <ElTooltip
             :content="data.roomName"
-            placement="bottom"
+            placement="bottom-end"
             popper-class="info-card-tooltip"
             :disabled="!isTextOverflow(data.roomName)"
           >
@@ -245,7 +245,7 @@
           </div>
           <ElTooltip
             :content="data.bedName"
-            placement="bottom"
+            placement="bottom-end"
             popper-class="info-card-tooltip"
             :disabled="!isTextOverflow(data.bedName)"
           >

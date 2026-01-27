@@ -21,7 +21,7 @@
           </div>
           <ElTooltip
             :content="stayData.applyDate"
-            placement="bottom"
+            placement="bottom-end"
             popper-class="info-card-tooltip"
             :disabled="!isTextOverflow(stayData.applyDate)"
           >
@@ -35,7 +35,7 @@
           </div>
           <ElTooltip
             :content="stayData.stayStartDate"
-            placement="bottom"
+            placement="bottom-end"
             popper-class="info-card-tooltip"
             :disabled="!isTextOverflow(stayData.stayStartDate)"
           >
@@ -49,7 +49,7 @@
           </div>
           <ElTooltip
             :content="stayData.stayEndDate"
-            placement="bottom"
+            placement="bottom-end"
             popper-class="info-card-tooltip"
             :disabled="!isTextOverflow(stayData.stayEndDate)"
           >
@@ -63,7 +63,7 @@
           </div>
           <ElTooltip
             :content="stayData.stayReason"
-            placement="bottom"
+            placement="bottom-end"
             popper-class="info-card-tooltip"
             :disabled="!isTextOverflow(stayData.stayReason)"
           >
@@ -77,7 +77,7 @@
           </div>
           <ElTooltip
             :content="stayData.remark"
-            placement="bottom"
+            placement="bottom-end"
             popper-class="info-card-tooltip"
             :disabled="!isTextOverflow(stayData.remark)"
           >
@@ -103,7 +103,7 @@
           </div>
           <ElTooltip
             :content="stayData.parentName"
-            placement="bottom"
+            placement="bottom-end"
             popper-class="info-card-tooltip"
             :disabled="!isTextOverflow(stayData.parentName)"
           >
@@ -117,7 +117,7 @@
           </div>
           <ElTooltip
             :content="stayData.parentPhone"
-            placement="bottom"
+            placement="bottom-end"
             popper-class="info-card-tooltip"
             :disabled="!isTextOverflow(stayData.parentPhone)"
           >

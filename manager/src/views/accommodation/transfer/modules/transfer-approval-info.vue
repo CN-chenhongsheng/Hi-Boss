@@ -144,7 +144,7 @@
           </div>
           <ElTooltip
             :content="transferData.applyDate"
-            placement="bottom"
+            placement="bottom-end"
             popper-class="info-card-tooltip"
             :disabled="!isTextOverflow(transferData.applyDate)"
           >
@@ -158,7 +158,7 @@
           </div>
           <ElTooltip
             :content="transferData.transferDate"
-            placement="bottom"
+            placement="bottom-end"
             popper-class="info-card-tooltip"
             :disabled="!isTextOverflow(transferData.transferDate)"
           >
@@ -172,7 +172,7 @@
           </div>
           <ElTooltip
             :content="transferData.transferReason"
-            placement="bottom"
+            placement="bottom-end"
             popper-class="info-card-tooltip"
             :disabled="!isTextOverflow(transferData.transferReason)"
           >
@@ -186,7 +186,7 @@
           </div>
           <ElTooltip
             :content="transferData.remark"
-            placement="bottom"
+            placement="bottom-end"
             popper-class="info-card-tooltip"
             :disabled="!isTextOverflow(transferData.remark)"
           >
