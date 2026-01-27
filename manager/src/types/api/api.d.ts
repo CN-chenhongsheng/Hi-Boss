@@ -961,6 +961,27 @@ declare namespace Api {
     }
 
     /** 床位列表项 */
+    /**
+     * 床位管理列表项
+     *
+     * @remarks
+     * **后端数据约定**：当返回 `studentName` 字段时，必须同时返回以下字段（用于表格姓名列的悬浮卡片显示）：
+     * - `studentNo` - 学号
+     * - `gender` / `genderText` - 性别
+     * - `phone` - 手机号
+     * - `nation` - 民族
+     * - `politicalStatus` - 政治面貌
+     * - `campusName` - 校区
+     * - `deptName` - 院系
+     * - `majorName` - 专业
+     * - `className` - 班级
+     * - `floorName` - 楼栋
+     * - `roomName` - 房间
+     * - `bedName` - 床位
+     * - `academicStatusText` - 学籍状态
+     * - `enrollmentYear` - 入学年份
+     * - `currentGrade` - 当前年级
+     */
     interface BedListItem {
       id: number
       bedCode: string
@@ -979,6 +1000,20 @@ declare namespace Api {
       bedStatusText?: string
       studentId?: number
       studentName?: string
+      studentNo?: string
+      gender?: number
+      genderText?: string
+      phone?: string
+      nation?: string
+      politicalStatus?: string
+      deptName?: string
+      majorName?: string
+      className?: string
+      roomName?: string
+      bedName?: string
+      academicStatusText?: string
+      enrollmentYear?: number
+      currentGrade?: string
       checkInDate?: string
       checkOutDate?: string
       sort?: number
@@ -1124,7 +1159,27 @@ declare namespace Api {
     /** 学生详情（继承列表项的所有字段，用于详情页） */
     type StudentDetail = StudentListItem
 
-    /** 学生列表项 */
+    /**
+     * 学生列表项
+     *
+     * @remarks
+     * **后端数据约定**：当返回 `studentName` 字段时，必须同时返回以下字段（用于表格姓名列的悬浮卡片显示）：
+     * - `studentNo` - 学号
+     * - `gender` / `genderText` - 性别
+     * - `phone` - 手机号
+     * - `nation` - 民族
+     * - `politicalStatus` - 政治面貌
+     * - `campusName` - 校区
+     * - `deptName` - 院系
+     * - `majorName` - 专业
+     * - `className` - 班级
+     * - `floorName` - 楼栋
+     * - `roomName` - 房间
+     * - `bedName` - 床位
+     * - `academicStatusText` - 学籍状态
+     * - `enrollmentYear` - 入学年份
+     * - `currentGrade` - 当前年级
+     */
     interface StudentListItem {
       id: number
       studentNo: string
@@ -1261,11 +1316,43 @@ declare namespace Api {
     }
 
     /** 入住管理列表项 */
+    /**
+     * 入住管理列表项
+     *
+     * @remarks
+     * **后端数据约定**：当返回 `studentName` 字段时，必须同时返回以下字段（用于表格姓名列的悬浮卡片显示）：
+     * - `studentNo` - 学号
+     * - `gender` / `genderText` - 性别
+     * - `phone` - 手机号
+     * - `nation` - 民族
+     * - `politicalStatus` - 政治面貌
+     * - `campusName` - 校区
+     * - `deptName` - 院系
+     * - `majorName` - 专业
+     * - `className` - 班级
+     * - `floorName` - 楼栋
+     * - `roomName` - 房间
+     * - `bedName` - 床位
+     * - `academicStatusText` - 学籍状态
+     * - `enrollmentYear` - 入学年份
+     * - `currentGrade` - 当前年级
+     */
     interface CheckInListItem {
       id: number
       studentId: number
       studentName?: string
       studentNo?: string
+      gender?: number
+      genderText?: string
+      phone?: string
+      nation?: string
+      politicalStatus?: string
+      deptName?: string
+      majorName?: string
+      className?: string
+      academicStatusText?: string
+      enrollmentYear?: number
+      currentGrade?: string
       checkInType: number
       checkInTypeText?: string
       campusCode?: string
@@ -1345,7 +1432,27 @@ declare namespace Api {
       remark?: string
     }
 
-    /** 调宿管理列表项 */
+    /**
+     * 调宿管理列表项
+     *
+     * @remarks
+     * **后端数据约定**：当返回 `studentName` 字段时，必须同时返回以下字段（用于表格姓名列的悬浮卡片显示）：
+     * - `studentNo` - 学号
+     * - `gender` / `genderText` - 性别
+     * - `phone` - 手机号
+     * - `nation` - 民族
+     * - `politicalStatus` - 政治面貌
+     * - `campusName` - 校区
+     * - `deptName` - 院系
+     * - `majorName` - 专业
+     * - `className` - 班级
+     * - `floorName` - 楼栋
+     * - `roomName` - 房间
+     * - `bedName` - 床位
+     * - `academicStatusText` - 学籍状态
+     * - `enrollmentYear` - 入学年份
+     * - `currentGrade` - 当前年级
+     */
     interface TransferListItem {
       id: number
       studentId: number
@@ -1353,6 +1460,15 @@ declare namespace Api {
       studentNo?: string
       gender?: number
       genderText?: string
+      phone?: string
+      nation?: string
+      politicalStatus?: string
+      deptName?: string
+      majorName?: string
+      className?: string
+      academicStatusText?: string
+      enrollmentYear?: number
+      currentGrade?: string
       originalCampusCode?: string
       originalCampusName?: string
       originalFloorCode?: string
@@ -1433,12 +1549,43 @@ declare namespace Api {
       remark?: string
     }
 
-    /** 退宿管理列表项 */
+    /**
+     * 退宿管理列表项
+     *
+     * @remarks
+     * **后端数据约定**：当返回 `studentName` 字段时，必须同时返回以下字段（用于表格姓名列的悬浮卡片显示）：
+     * - `studentNo` - 学号
+     * - `gender` / `genderText` - 性别
+     * - `phone` - 手机号
+     * - `nation` - 民族
+     * - `politicalStatus` - 政治面貌
+     * - `campusName` - 校区
+     * - `deptName` - 院系
+     * - `majorName` - 专业
+     * - `className` - 班级
+     * - `floorName` - 楼栋
+     * - `roomName` - 房间
+     * - `bedName` - 床位
+     * - `academicStatusText` - 学籍状态
+     * - `enrollmentYear` - 入学年份
+     * - `currentGrade` - 当前年级
+     */
     interface CheckOutListItem {
       id: number
       studentId: number
       studentName?: string
       studentNo?: string
+      gender?: number
+      genderText?: string
+      phone?: string
+      nation?: string
+      politicalStatus?: string
+      deptName?: string
+      majorName?: string
+      className?: string
+      academicStatusText?: string
+      enrollmentYear?: number
+      currentGrade?: string
       campusCode?: string
       campusName?: string
       floorCode?: string
@@ -1517,12 +1664,43 @@ declare namespace Api {
       images?: string
     }
 
-    /** 留宿管理列表项 */
+    /**
+     * 留宿管理列表项
+     *
+     * @remarks
+     * **后端数据约定**：当返回 `studentName` 字段时，必须同时返回以下字段（用于表格姓名列的悬浮卡片显示）：
+     * - `studentNo` - 学号
+     * - `gender` / `genderText` - 性别
+     * - `phone` - 手机号
+     * - `nation` - 民族
+     * - `politicalStatus` - 政治面貌
+     * - `campusName` - 校区
+     * - `deptName` - 院系
+     * - `majorName` - 专业
+     * - `className` - 班级
+     * - `floorName` - 楼栋
+     * - `roomName` - 房间
+     * - `bedName` - 床位
+     * - `academicStatusText` - 学籍状态
+     * - `enrollmentYear` - 入学年份
+     * - `currentGrade` - 当前年级
+     */
     interface StayListItem {
       id: number
       studentId: number
       studentName?: string
       studentNo?: string
+      gender?: number
+      genderText?: string
+      phone?: string
+      nation?: string
+      politicalStatus?: string
+      deptName?: string
+      majorName?: string
+      className?: string
+      academicStatusText?: string
+      enrollmentYear?: number
+      currentGrade?: string
       campusCode?: string
       campusName?: string
       floorCode?: string

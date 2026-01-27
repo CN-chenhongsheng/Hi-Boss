@@ -75,10 +75,12 @@
     fetchDeleteStay,
     fetchBatchDeleteStay
   } from '@/api/accommodation-manage'
-  import { ElMessageBox } from 'element-plus'
+  import { ElMessageBox, ElPopover } from 'element-plus'
   import StaySearch from './modules/stay-search.vue'
   import StayDrawer from './modules/stay-drawer.vue'
   import ApprovalProgressTag from '@/components/core/approval/approval-progress-tag/index.vue'
+  import StudentInfoPopover from '@/components/core/cards/art-student-info-popover/index.vue'
+  import { enrichStudentInfo } from '@/utils/student/enrichStudentInfo'
 
   defineOptions({ name: 'AccommodationStay' })
 
@@ -148,13 +150,36 @@
       columnsFactory: () => [
         { type: 'selection', width: 50 },
         { prop: 'studentNo', label: '学号', width: 120 },
-        { prop: 'studentName', label: '学生姓名', minWidth: 100 },
-        { prop: 'campusName', label: '校区', minWidth: 100 },
-        { prop: 'deptName', label: '院系', minWidth: 120 },
-        { prop: 'majorName', label: '专业', minWidth: 120 },
-        { prop: 'className', label: '班级', minWidth: 100 },
-        { prop: 'roomCode', label: '房间编码', width: 120 },
-        { prop: 'bedCode', label: '床位编码', width: 120 },
+        {
+          prop: 'studentName',
+          label: '学生姓名',
+          minWidth: 100,
+          formatter: (row: StayListItem) => {
+            // 只有当有学生姓名时才显示悬浮卡片
+            if (!row.studentName) {
+              return h('span', row.studentName || '--')
+            }
+            return h(ElPopover, {
+              placement: 'bottom-start',
+              trigger: 'hover',
+              width: 320,
+              popperClass: 'student-info-popover'
+            }, {
+              default: () => h(StudentInfoPopover, { student: row }),
+              reference: () =>
+                h('span', {
+                  class: 'cursor-pointer hover:underline',
+                  style: { color: 'var(--el-color-primary)' }
+                }, row.studentName)
+            })
+          }
+        },
+        { prop: 'campusName', label: '校区', minWidth: 100, showOverflowTooltip: true },
+        { prop: 'deptName', label: '院系', minWidth: 120, showOverflowTooltip: true },
+        { prop: 'majorName', label: '专业', minWidth: 120, showOverflowTooltip: true },
+        { prop: 'className', label: '班级', minWidth: 100, showOverflowTooltip: true },
+        { prop: 'roomName', label: '房间', width: 120, showOverflowTooltip: true },
+        { prop: 'bedName', label: '床位', width: 120, showOverflowTooltip: true },
         { prop: 'applyDate', label: '申请日期', width: 120, sortable: true },
         { prop: 'stayStartDate', label: '留宿开始日期', width: 120, sortable: true },
         { prop: 'stayEndDate', label: '留宿结束日期', width: 120, sortable: true },
@@ -188,6 +213,14 @@
           }
         }
       ]
+    },
+    hooks: {
+      onSuccess: async (tableData) => {
+        // 补齐学生信息
+        const enrichedData = await enrichStudentInfo(tableData)
+        // 更新数据
+        data.value = enrichedData
+      }
     },
     adaptive: {
       enabled: true

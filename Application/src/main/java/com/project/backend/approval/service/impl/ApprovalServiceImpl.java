@@ -28,6 +28,10 @@ import com.project.backend.system.entity.Role;
 import com.project.backend.system.entity.User;
 import com.project.backend.system.mapper.RoleMapper;
 import com.project.backend.system.mapper.UserMapper;
+import com.project.backend.accommodation.entity.Student;
+import com.project.backend.accommodation.mapper.StudentMapper;
+import com.project.backend.accommodation.service.StudentInfoEnricher;
+import com.project.backend.util.DictUtils;
 import com.project.core.exception.BusinessException;
 import com.project.core.result.PageResult;
 import lombok.RequiredArgsConstructor;
@@ -63,6 +67,8 @@ public class ApprovalServiceImpl implements ApprovalService {
     private final ApprovalRecordMapper recordMapper;
     private final RoleMapper roleMapper;
     private final UserMapper userMapper;
+    private final StudentMapper studentMapper;
+    private final StudentInfoEnricher studentInfoEnricher;
 
     /**
      * 业务类型映射
@@ -491,7 +497,28 @@ public class ApprovalServiceImpl implements ApprovalService {
         }).collect(Collectors.toList());
         vo.setNodes(nodeVOs);
 
+        // 填充学生详细信息（当业务类型为学生相关业务时）
+        if (isStudentBusinessType(instance.getBusinessType()) && instance.getApplicantId() != null) {
+            Student student = studentMapper.selectById(instance.getApplicantId());
+            if (student != null) {
+                // 先设置学号（ApprovalInstanceVO 特有字段）
+                vo.setStudentNo(student.getStudentNo());
+                // 使用封装的方法填充其他学生信息
+                studentInfoEnricher.enrichStudentInfo(student, vo, "campusName");
+            }
+        }
+
         return vo;
+    }
+
+    /**
+     * 判断是否为学生相关业务类型
+     */
+    private boolean isStudentBusinessType(String businessType) {
+        return "check_in".equals(businessType) 
+            || "check_out".equals(businessType)
+            || "transfer".equals(businessType)
+            || "stay".equals(businessType);
     }
 
     /**

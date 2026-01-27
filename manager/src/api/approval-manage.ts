@@ -78,7 +78,28 @@ export interface ApprovalFlowBinding {
   updateTime?: string
 }
 
-/** 审批实例 */
+/**
+ * 审批实例
+ *
+ * @remarks
+ * **后端数据约定**：当返回 `applicantName` 字段且业务类型为学生相关业务（check_in、check_out、transfer、stay）时，
+ * 必须同时返回以下字段（用于表格申请人列的悬浮卡片显示）：
+ * - `studentNo` - 学号
+ * - `gender` / `genderText` - 性别
+ * - `phone` - 手机号
+ * - `nation` - 民族
+ * - `politicalStatus` - 政治面貌
+ * - `campusName` - 校区
+ * - `deptName` - 院系
+ * - `majorName` - 专业
+ * - `className` - 班级
+ * - `floorName` - 楼栋
+ * - `roomName` - 房间
+ * - `bedName` - 床位
+ * - `academicStatusText` - 学籍状态
+ * - `enrollmentYear` - 入学年份
+ * - `currentGrade` - 当前年级
+ */
 export interface ApprovalInstance {
   id: number
   flowId: number
@@ -88,6 +109,23 @@ export interface ApprovalInstance {
   businessId: number
   applicantId: number
   applicantName: string
+  // 学生信息字段（当业务类型为学生相关业务时返回）
+  studentNo?: string
+  gender?: number
+  genderText?: string
+  phone?: string
+  nation?: string
+  politicalStatus?: string
+  campusName?: string
+  deptName?: string
+  majorName?: string
+  className?: string
+  floorName?: string
+  roomName?: string
+  bedName?: string
+  academicStatusText?: string
+  enrollmentYear?: number
+  currentGrade?: string
   currentNodeId?: number
   currentNodeName?: string
   status: number

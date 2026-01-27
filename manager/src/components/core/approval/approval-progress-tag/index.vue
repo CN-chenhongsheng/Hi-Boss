@@ -166,6 +166,11 @@
 
     :deep(.el-progress-bar__outer) {
       cursor: var(--cursor-pointer);
+      overflow: visible;
+    }
+
+    :deep(.el-progress-bar__inner) {
+      box-shadow: 0 0 5px 0 var(--el-color-primary);
     }
 
     :deep(.el-progress__text) {

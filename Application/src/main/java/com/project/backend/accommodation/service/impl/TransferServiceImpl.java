@@ -21,6 +21,7 @@ import com.project.backend.approval.vo.ApprovalAssigneeVO;
 import com.project.backend.approval.vo.ApprovalRecordVO;
 import com.project.backend.accommodation.entity.Student;
 import com.project.backend.accommodation.mapper.StudentMapper;
+import com.project.backend.accommodation.service.StudentInfoEnricher;
 import com.project.backend.organization.entity.Campus;
 import com.project.backend.organization.mapper.CampusMapper;
 import com.project.backend.approval.service.ApprovalService;
@@ -54,6 +55,7 @@ public class TransferServiceImpl extends ServiceImpl<TransferMapper, Transfer> i
 
     private final StudentMapper studentMapper;
     private final CampusMapper campusMapper;
+    private final StudentInfoEnricher studentInfoEnricher;
     private final ApprovalService approvalService;
     private final ApprovalInstanceMapper approvalInstanceMapper;
     private final ApprovalRecordMapper approvalRecordMapper;
@@ -272,6 +274,14 @@ public class TransferServiceImpl extends ServiceImpl<TransferMapper, Transfer> i
             Campus campus = campusMapper.selectOne(wrapper);
             if (campus != null) {
                 vo.setTargetCampusName(campus.getCampusName());
+            }
+        }
+
+        // 填充学生详细信息
+        if (transfer.getStudentId() != null) {
+            Student student = studentMapper.selectById(transfer.getStudentId());
+            if (student != null) {
+                studentInfoEnricher.enrichStudentInfo(student, vo, "originalCampusName");
             }
         }
 

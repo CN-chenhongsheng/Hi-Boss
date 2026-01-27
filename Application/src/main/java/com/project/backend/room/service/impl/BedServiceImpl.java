@@ -9,6 +9,10 @@ import com.project.core.exception.BusinessException;
 import com.project.core.result.PageResult;
 import com.project.backend.organization.entity.Campus;
 import com.project.backend.organization.mapper.CampusMapper;
+import com.project.backend.accommodation.entity.Student;
+import com.project.backend.accommodation.mapper.StudentMapper;
+import com.project.backend.accommodation.service.StudentInfoEnricher;
+import com.project.backend.util.DictUtils;
 import com.project.backend.room.dto.bed.BedBatchCreateDTO;
 import com.project.backend.room.dto.bed.BedQueryDTO;
 import com.project.backend.room.dto.bed.BedSaveDTO;
@@ -45,6 +49,8 @@ public class BedServiceImpl extends ServiceImpl<BedMapper, Bed> implements BedSe
     private final RoomMapper roomMapper;
     private final FloorMapper floorMapper;
     private final CampusMapper campusMapper;
+    private final StudentMapper studentMapper;
+    private final StudentInfoEnricher studentInfoEnricher;
 
     @Override
     public PageResult<BedVO> pageList(BedQueryDTO queryDTO) {
@@ -283,6 +289,17 @@ public class BedServiceImpl extends ServiceImpl<BedMapper, Bed> implements BedSe
             Campus campus = campusMapper.selectByCampusCode(bed.getCampusCode());
             if (campus != null) {
                 vo.setCampusName(campus.getCampusName());
+            }
+        }
+
+        // 填充学生详细信息
+        if (bed.getStudentId() != null) {
+            Student student = studentMapper.selectById(bed.getStudentId());
+            if (student != null) {
+                // 先设置学号（BedVO 特有字段）
+                vo.setStudentNo(student.getStudentNo());
+                // 使用封装的方法填充其他学生信息
+                studentInfoEnricher.enrichStudentInfo(student, vo);
             }
         }
 

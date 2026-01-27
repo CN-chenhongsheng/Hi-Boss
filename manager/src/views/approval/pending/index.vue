@@ -68,7 +68,9 @@
   import ApprovalDrawer from './modules/approval-drawer.vue'
   import BatchApprovalDialog from './modules/batch-approval-dialog.vue'
   import PendingSearch from './modules/pending-search.vue'
-  import { ElTag, ElMessage } from 'element-plus'
+  import { ElTag, ElMessage, ElPopover } from 'element-plus'
+  import StudentInfoPopover from '@/components/core/cards/art-student-info-popover/index.vue'
+  import { enrichStudentInfo } from '@/utils/student/enrichStudentInfo'
 
   defineOptions({ name: 'ApprovalPending' })
 
@@ -128,7 +130,40 @@
         {
           prop: 'applicantName',
           label: '申请人',
-          width: 120
+          width: 120,
+          formatter: (row: ApprovalInstance) => {
+            // 只有当有申请人姓名且是学生相关业务时才显示悬浮卡片
+            if (!row.applicantName) {
+              return h('span', row.applicantName || '--')
+            }
+            // 判断是否为学生相关业务
+            const isStudentBusiness = ['check_in', 'check_out', 'transfer', 'stay'].includes(
+              row.businessType
+            )
+            if (!isStudentBusiness || !row.studentNo) {
+              // 非学生业务或没有学生信息，直接显示姓名
+              return h('span', row.applicantName)
+            }
+            return h(ElPopover, {
+              placement: 'bottom-start',
+              trigger: 'hover',
+              width: 320,
+              popperClass: 'student-info-popover'
+            }, {
+              default: () =>
+                h(StudentInfoPopover, {
+                  student: {
+                    ...row,
+                    studentName: row.applicantName
+                  }
+                }),
+              reference: () =>
+                h('span', {
+                  class: 'cursor-pointer hover:underline',
+                  style: { color: 'var(--el-color-primary)' }
+                }, row.applicantName)
+            })
+          }
         },
         {
           prop: 'flowName',
@@ -160,6 +195,14 @@
         }
       ],
       immediate: true
+    },
+    hooks: {
+      onSuccess: async (tableData) => {
+        // 补齐学生信息（工具函数会自动判断是否需要补齐）
+        const enrichedData = await enrichStudentInfo(tableData)
+        // 更新数据
+        data.value = enrichedData
+      }
     },
     adaptive: {
       enabled: true

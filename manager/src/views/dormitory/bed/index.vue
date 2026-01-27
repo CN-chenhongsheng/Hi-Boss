@@ -76,8 +76,10 @@
     fetchBatchDeleteBed,
     fetchUpdateBedStatus
   } from '@/api/dormitory-manage'
-  import { ElMessageBox, ElMessage } from 'element-plus'
+  import { ElMessageBox, ElMessage, ElPopover } from 'element-plus'
   import ArtSwitch from '@/components/core/forms/art-switch/index.vue'
+  import StudentInfoPopover from '@/components/core/cards/art-student-info-popover/index.vue'
+  import { enrichStudentInfo } from '@/utils/student/enrichStudentInfo'
   import { h } from 'vue'
 
   defineOptions({ name: 'Bed' })
@@ -193,7 +195,26 @@
         {
           prop: 'studentName',
           label: '入住学生',
-          minWidth: 120
+          minWidth: 120,
+          formatter: (row: BedListItem) => {
+            // 只有当有学生姓名时才显示悬浮卡片
+            if (!row.studentName) {
+              return h('span', row.studentName || '--')
+            }
+            return h(ElPopover, {
+              placement: 'bottom-start',
+              trigger: 'hover',
+              width: 320,
+              popperClass: 'student-info-popover'
+            }, {
+              default: () => h(StudentInfoPopover, { student: row }),
+              reference: () =>
+                h('span', {
+                  class: 'cursor-pointer hover:underline',
+                  style: { color: 'var(--el-color-primary)' }
+                }, row.studentName)
+            })
+          }
         },
         {
           prop: 'checkInDate',
@@ -250,6 +271,14 @@
         }
       ],
       immediate: true
+    },
+    hooks: {
+      onSuccess: async (tableData) => {
+        // 补齐学生信息
+        const enrichedData = await enrichStudentInfo(tableData)
+        // 更新数据
+        data.value = enrichedData
+      }
     },
     adaptive: {
       enabled: true
