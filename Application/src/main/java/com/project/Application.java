@@ -1,4 +1,4 @@
-package com.project.backend;
+package com.project;
 
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
@@ -6,7 +6,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
 
 /**
- * 宿舍管理系统后端启动类
+ * 系统后端启动类
  * 
  * @author 陈鸿昇
  * @since 2025-12-30
@@ -22,12 +22,12 @@ import org.springframework.context.annotation.ComponentScan;
         "com.project.backend.school.mapper",
         "com.project.backend.system.mapper"
 })
-public class SusheApplication {
+public class Application {
 
     public static void main(String[] args) {
-        SpringApplication.run(SusheApplication.class, args);
+        SpringApplication.run(Application.class, args);
         System.out.println("\n=================================");
-        System.out.println("  宿舍管理系统后端启动成功！");
+        System.out.println("  系统后端启动成功！");
         System.out.println("  接口文档地址: http://localhost:8080/api/doc.html");
         System.out.println("  接口地址: http://localhost:8080/api");
         System.out.println("=================================\n");

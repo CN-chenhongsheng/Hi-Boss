@@ -16,7 +16,7 @@
     <artifactId>project-backend</artifactId>
     <version>1.0.0</version>
     <name>project-backend</name>
-    <description>宿舍管理系统后端 - Spring Boot 3.2.x</description>
+    <description>系统后端 - Spring Boot 3.2.x</description>
     
     <properties>
         <java.version>21</java.version>

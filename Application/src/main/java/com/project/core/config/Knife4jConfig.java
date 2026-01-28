@@ -20,9 +20,9 @@ public class Knife4jConfig {
     public OpenAPI customOpenAPI() {
         return new OpenAPI()
                 .info(new Info()
-                        .title("宿舍管理系统API文档")
+                        .title("系统API文档")
                         .version("1.0.0")
-                        .description("宿舍管理系统后端接口文档 - 基于Spring Boot 3.2.x + MyBatis-Plus + Sa-Token")
+                        .description("系统后端接口文档 - 基于Spring Boot 3.2.x + MyBatis-Plus + Sa-Token")
                         .contact(new Contact()
                                 .name("陈鸿昇")
                                 .email("your-email@example.com"))
