@@ -72,24 +72,14 @@ public class ApprovalFlowServiceImpl extends ServiceImpl<ApprovalFlowMapper, App
      * 节点类型映射
      */
     private String getNodeTypeText(Integer nodeType) {
-        return switch (nodeType) {
-            case 1 -> "串行";
-            case 2 -> "会签";
-            case 3 -> "或签";
-            default -> "未知";
-        };
+        return DictUtils.getLabel("approval_node_type", nodeType, "未知");
     }
 
     /**
      * 拒绝处理映射
      */
     private String getRejectActionText(Integer rejectAction) {
-        return switch (rejectAction) {
-            case 1 -> "直接结束";
-            case 2 -> "退回申请人";
-            case 3 -> "退回上一节点";
-            default -> "未知";
-        };
+        return DictUtils.getLabel("approval_reject_action", rejectAction, "未知");
     }
 
     @Override

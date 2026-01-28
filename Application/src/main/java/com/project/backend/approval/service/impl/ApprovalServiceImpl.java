@@ -74,13 +74,7 @@ public class ApprovalServiceImpl implements ApprovalService {
      * 业务类型映射
      */
     private String getBusinessTypeText(String businessType) {
-        return switch (businessType) {
-            case "check_in" -> "入住申请";
-            case "transfer" -> "调宿申请";
-            case "check_out" -> "退宿申请";
-            case "stay" -> "留宿申请";
-            default -> businessType;
-        };
+        return DictUtils.getLabel("approval_business_type", businessType, businessType);
     }
 
     @Override
@@ -527,7 +521,7 @@ public class ApprovalServiceImpl implements ApprovalService {
     private ApprovalRecordVO convertRecordToVO(ApprovalRecord record) {
         ApprovalRecordVO vo = new ApprovalRecordVO();
         BeanUtil.copyProperties(record, vo);
-        vo.setActionText(record.getAction() == 1 ? "通过" : "拒绝");
+        vo.setActionText(DictUtils.getLabel("approval_action", record.getAction(), "未知"));
 
         // 获取实例信息
         ApprovalInstance instance = instanceMapper.selectById(record.getInstanceId());
@@ -545,13 +539,7 @@ public class ApprovalServiceImpl implements ApprovalService {
      * 状态文本
      */
     private String getStatusText(Integer status) {
-        return switch (status) {
-            case 1 -> "进行中";
-            case 2 -> "已通过";
-            case 3 -> "已拒绝";
-            case 4 -> "已撤回";
-            default -> "未知";
-        };
+        return DictUtils.getLabel("approval_instance_status", status, "未知");
     }
 
     @Override

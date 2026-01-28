@@ -337,14 +337,8 @@ public class TransferServiceImpl extends ServiceImpl<TransferMapper, Transfer> i
                 String nodeName = instance.getCurrentNodeName() != null ? instance.getCurrentNodeName() : "待审批";
                 String approverName = nextApproverName != null ? nextApproverName : "未指定";
                 progress.setProgressText(String.format("%s(%s)", nodeName, approverName));
-            } else if (status != null && status == 2) {
-                progress.setProgressText("已通过");
-            } else if (status != null && status == 3) {
-                progress.setProgressText("已拒绝");
-            } else if (status != null && status == 4) {
-                progress.setProgressText("已完成");
             } else {
-                progress.setProgressText("未知进度");
+                progress.setProgressText(DictUtils.getLabel("transfer_status", status, "未知进度"));
             }
         } else {
             if (status != null && status != 1) {
@@ -405,10 +399,10 @@ public class TransferServiceImpl extends ServiceImpl<TransferMapper, Transfer> i
                     if (record != null) {
                         if (record.getAction() != null && record.getAction() == 2) {
                             timelineNode.setStatus(3);
-                            timelineNode.setStatusText("已拒绝");
+                            timelineNode.setStatusText(DictUtils.getLabel("approval_action", 2, "已拒绝"));
                         } else {
                             timelineNode.setStatus(2);
-                            timelineNode.setStatusText("已通过");
+                            timelineNode.setStatusText(DictUtils.getLabel("approval_action", 1, "已通过"));
                         }
                         timelineNode.setActionText(record.getActionText());
                         timelineNode.setApproveTime(record.getApproveTime());
