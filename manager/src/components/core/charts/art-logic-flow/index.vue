@@ -134,6 +134,7 @@
     (e: 'node:click', event: NodeClickEvent): void
     (e: 'node:add', node: any): void
     (e: 'node:delete', node: any): void
+    (e: 'node:dragstart', event: any): void
     (e: 'node:dragend', event: any): void
     (e: 'edge:click', event: EdgeClickEvent): void
     (e: 'edge:add', edge: any): void
@@ -244,6 +245,9 @@
         lfInstance.render(dataToRender)
         // 渲染后自动居中适应视图
         await nextTick()
+        // 先调整画布大小，确保 lf-graph 填充父容器
+        lfInstance.resize()
+        // 然后居中适应视图
         lfInstance.fitView(50) // 50px 边距
         // 初始化历史记录
         saveToHistory()
@@ -260,6 +264,15 @@
    */
   const setupEventListeners = () => {
     if (!lfInstance) return
+
+    // 节点 mousedown 事件（用于跟踪点击开始位置）
+    lfInstance.on('node:mousedown', ({ e }: any) => {
+      // 通过自定义事件传递 mousedown 信息
+      if (e) {
+        ;(e.target as any).__lfMouseDownPos = { x: e.clientX, y: e.clientY }
+        ;(e.target as any).__lfMouseDownTime = Date.now()
+      }
+    })
 
     // 节点点击
     lfInstance.on('node:click', ({ data, e }: any) => {
@@ -284,12 +297,17 @@
     })
 
     // 边 hover 事件
+    const currentLfInstance = lfInstance
     lfInstance.on('edge:mouseenter', ({ data }: any) => {
-      lfInstance.setProperties(data.id, { isHovered: true })
+      if (currentLfInstance) {
+        currentLfInstance.setProperties(data.id, { isHovered: true })
+      }
     })
 
     lfInstance.on('edge:mouseleave', ({ data }: any) => {
-      lfInstance.setProperties(data.id, { isHovered: false })
+      if (currentLfInstance) {
+        currentLfInstance.setProperties(data.id, { isHovered: false })
+      }
     })
 
     // 边添加
@@ -310,13 +328,19 @@
     })
 
     // 节点拖拽开始
-    lfInstance.on('node:dragstart', () => {
+    lfInstance.on('node:dragstart', (data: any) => {
+      emit('node:dragstart', data)
       // 添加全局 mouseup 监听，确保在容器外部也能结束拖拽
       document.addEventListener('mouseup', handleGlobalMouseUp, true)
     })
 
     // 节点拖拽结束
     lfInstance.on('node:dragend', (data: any) => {
+      // 清除拖拽节点的 mousedown 位置信息，避免影响后续点击
+      if (data && data.e && data.e.target) {
+        delete (data.e.target as any).__lfMouseDownPos
+        delete (data.e.target as any).__lfMouseDownTime
+      }
       emit('node:dragend', data)
       // 移除全局 mouseup 监听
       document.removeEventListener('mouseup', handleGlobalMouseUp, true)
@@ -332,10 +356,16 @@
     // 如果 LogicFlow 正在拖拽，强制结束拖拽
     const graphModel = (lfInstance as any).graphModel
     if (graphModel && graphModel.dragNode) {
+      // 获取拖拽节点数据
+      const dragNode = graphModel.dragNode
+      const dragNodeData = dragNode ? { data: dragNode.getData(), e: null } : {}
+
       // 清除拖拽状态
       graphModel.dragNode = null
-      // 触发拖拽结束事件
-      lfInstance.emit('node:dragend', {})
+
+      // 触发拖拽结束事件 - 使用 LogicFlow 的事件系统
+      // 这会触发我们注册的 node:dragend 监听器
+      lfInstance.emit('node:dragend', dragNodeData)
       // 移除全局监听
       document.removeEventListener('mouseup', handleGlobalMouseUp, true)
     } else {
@@ -405,6 +435,9 @@
 
         // 如果已初始化，恢复之前的视图状态；否则自动居中
         await nextTick()
+        // 先调整画布大小，确保 lf-graph 填充父容器（特别是容器尺寸变化时）
+        lfInstance.resize()
+
         if (isInitialized.value) {
           // 恢复之前的视图状态，保持用户当前的缩放和位置
           const transformModel = lfInstance.graphModel.transformModel
@@ -412,10 +445,6 @@
           transformModel.SCALE_Y = savedTransform.SCALE_Y
           transformModel.TRANSLATE_X = savedTransform.TRANSLATE_X
           transformModel.TRANSLATE_Y = savedTransform.TRANSLATE_Y
-          // 触发视图更新 - 使用 LogicFlow 的内部方法更新视图
-          // 注意：直接修改 transformModel 后，LogicFlow 会在下次渲染时应用这些值
-          // 为了立即生效，我们触发一个 resize 来强制重绘
-          lfInstance.resize()
         } else {
           // 首次渲染，自动居中
           lfInstance.fitView(50)
@@ -717,6 +746,12 @@
     :deep(svg) {
       background: transparent !important;
       background-color: transparent !important;
+    }
+
+    // 确保 lf-graph 填充父容器
+    :deep(.lf-graph) {
+      width: 100% !important;
+      height: 100% !important;
     }
 
     // 隐藏网格 SVG

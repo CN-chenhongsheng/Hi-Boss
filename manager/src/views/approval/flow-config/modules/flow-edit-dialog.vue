@@ -23,9 +23,13 @@
             :show-toolbar="false"
             :nodeRegistrar="registerApprovalNodes"
             :auto-resize="true"
+            layout-direction="vertical"
+            :node-spacing-x="200"
+            :node-spacing-y="150"
             height="100%"
             @node:click="handleNodeClick"
             @edge:click="handleEdgeClick"
+            @node:dragstart="handleNodeDragStart"
             @node:dragend="handleNodeDragEnd"
           />
 
@@ -149,6 +153,10 @@
   const selectedNodeType = ref<'start' | 'approval' | 'end' | null>(null)
   const nodeEditorPosition = ref({ x: 0, y: 0 })
 
+  // 拖拽状态跟踪
+  const isDragging = ref(false)
+  const dragStartPos = ref({ x: 0, y: 0 })
+
   // 审批人选择状态
   const assigneeDialogVisible = ref(false)
   const currentSelectedIds = ref<number[]>([])
@@ -197,89 +205,150 @@
   // 获取 LogicFlow 实例
   const getLogicFlowInstance = () => logicFlowRef.value?.getInstance()
 
+  // 备用机制：全局 mouseup 监听器，确保拖拽状态被清除
+  const handleGlobalMouseUpForDrag = () => {
+    if (isDragging.value) {
+      isDragging.value = false
+      dragStartPos.value = { x: 0, y: 0 }
+      // 移除监听器
+      document.removeEventListener('mouseup', handleGlobalMouseUpForDrag, true)
+    }
+  }
+
+  // 处理节点拖拽开始
+  const handleNodeDragStart = (event: any) => {
+    // 记录拖拽开始状态和位置
+    isDragging.value = true
+    if (event.e) {
+      dragStartPos.value = { x: event.e.clientX, y: event.e.clientY }
+    }
+    // 添加全局 mouseup 监听器作为备用机制
+    document.addEventListener('mouseup', handleGlobalMouseUpForDrag, true)
+  }
+
   // 处理节点点击
   const handleNodeClick = (event: any) => {
     const data = event.node
-    const { type, id, x, y, properties } = data
+    const clickEvent = event.e
 
-    // 处理开始节点
-    if (type === 'start-node') {
+    // 延迟检查拖拽状态（因为 dragstart 可能在 click 之后触发）
+    // 如果正在拖拽，不显示卡片
+    setTimeout(() => {
+      // 如果正在拖拽，不显示卡片
+      if (isDragging.value) {
+        return
+      }
+
+      // 拖拽已结束，检查是否是拖拽：通过检查 mousedown 和 click 之间的移动距离和时间
+      // 只有在拖拽未开始时才检查移动距离，避免拖拽后的点击被误判
+      if (clickEvent && clickEvent.target) {
+        const mouseDownPos = (clickEvent.target as any).__lfMouseDownPos
+        const mouseDownTime = (clickEvent.target as any).__lfMouseDownTime
+
+        if (mouseDownPos && mouseDownTime) {
+          // 检查时间间隔，如果超过 300ms，认为是新的点击，不是拖拽
+          const timeDiff = Date.now() - mouseDownTime
+          if (timeDiff < 300) {
+            const moveDistance = Math.sqrt(
+              Math.pow(clickEvent.clientX - mouseDownPos.x, 2) +
+                Math.pow(clickEvent.clientY - mouseDownPos.y, 2)
+            )
+            // 如果移动距离超过 5px，认为是拖拽，不显示卡片
+            if (moveDistance > 5) {
+              return
+            }
+          }
+        }
+      }
+
+      // 确认是点击后，清除 mousedown 位置信息，避免影响后续点击
+      if (clickEvent && clickEvent.target) {
+        delete (clickEvent.target as any).__lfMouseDownPos
+        delete (clickEvent.target as any).__lfMouseDownTime
+      }
+
+      // 继续处理点击事件
+      const { type, id, x, y, properties } = data
+
+      // 处理开始节点
+      if (type === 'start-node') {
+        selectedNodeId.value = id
+        selectedNodeType.value = 'start'
+        selectedNodeData.value = null
+
+        // 计算编辑器位置
+        const canvasRect = canvasContainerRef.value?.getBoundingClientRect()
+        const lfInstance = getLogicFlowInstance()
+        if (canvasRect && lfInstance) {
+          const { transformModel } = lfInstance.graphModel
+          const { SCALE_X, SCALE_Y, TRANSLATE_X, TRANSLATE_Y } = transformModel
+          const screenX = x * SCALE_X + TRANSLATE_X
+          const screenY = y * SCALE_Y + TRANSLATE_Y
+          nodeEditorPosition.value = { x: screenX, y: screenY }
+        }
+
+        nodeEditorVisible.value = true
+        updateNodeSelection()
+        return
+      }
+
+      // 处理结束节点（只显示选中状态，不弹出编辑器）
+      if (type === 'end-node') {
+        selectedNodeId.value = id
+        selectedNodeType.value = 'end'
+        selectedNodeData.value = null
+        nodeEditorVisible.value = false
+        updateNodeSelection()
+        return
+      }
+
+      // 处理审批节点
+      if (type !== 'approval-node') {
+        clearSelection()
+        return
+      }
+
+      // 更新选中状态
       selectedNodeId.value = id
-      selectedNodeType.value = 'start'
-      selectedNodeData.value = null
+      selectedNodeType.value = 'approval'
 
-      // 计算编辑器位置
+      // 找到对应的节点数据
+      const nodeIndex = formData.nodes?.findIndex((n) => `approval-${n.id}` === id)
+      if (nodeIndex !== undefined && nodeIndex >= 0 && formData.nodes) {
+        selectedNodeData.value = { ...formData.nodes[nodeIndex] }
+      } else {
+        // 新节点（还没有ID）
+        selectedNodeData.value = {
+          nodeName: properties?.nodeName || '',
+          nodeOrder: properties?.nodeOrder || 1,
+          nodeType: properties?.nodeType || 1,
+          rejectAction: properties?.rejectAction || 1,
+          assignees: properties?.assignees || []
+        }
+      }
+
+      // 计算编辑器位置（画布坐标转换为容器坐标）
       const canvasRect = canvasContainerRef.value?.getBoundingClientRect()
       const lfInstance = getLogicFlowInstance()
       if (canvasRect && lfInstance) {
         const { transformModel } = lfInstance.graphModel
         const { SCALE_X, SCALE_Y, TRANSLATE_X, TRANSLATE_Y } = transformModel
+
+        // 将 LogicFlow 坐标转换为屏幕坐标
         const screenX = x * SCALE_X + TRANSLATE_X
         const screenY = y * SCALE_Y + TRANSLATE_Y
-        nodeEditorPosition.value = { x: screenX, y: screenY }
+
+        nodeEditorPosition.value = {
+          x: screenX,
+          y: screenY
+        }
       }
 
       nodeEditorVisible.value = true
+
+      // 更新节点选中状态
       updateNodeSelection()
-      return
-    }
-
-    // 处理结束节点（只显示选中状态，不弹出编辑器）
-    if (type === 'end-node') {
-      selectedNodeId.value = id
-      selectedNodeType.value = 'end'
-      selectedNodeData.value = null
-      nodeEditorVisible.value = false
-      updateNodeSelection()
-      return
-    }
-
-    // 处理审批节点
-    if (type !== 'approval-node') {
-      clearSelection()
-      return
-    }
-
-    // 更新选中状态
-    selectedNodeId.value = id
-    selectedNodeType.value = 'approval'
-
-    // 找到对应的节点数据
-    const nodeIndex = formData.nodes?.findIndex((n) => `approval-${n.id}` === id)
-    if (nodeIndex !== undefined && nodeIndex >= 0 && formData.nodes) {
-      selectedNodeData.value = { ...formData.nodes[nodeIndex] }
-    } else {
-      // 新节点（还没有ID）
-      selectedNodeData.value = {
-        nodeName: properties?.nodeName || '',
-        nodeOrder: properties?.nodeOrder || 1,
-        nodeType: properties?.nodeType || 1,
-        rejectAction: properties?.rejectAction || 1,
-        assignees: properties?.assignees || []
-      }
-    }
-
-    // 计算编辑器位置（画布坐标转换为容器坐标）
-    const canvasRect = canvasContainerRef.value?.getBoundingClientRect()
-    const lfInstance = getLogicFlowInstance()
-    if (canvasRect && lfInstance) {
-      const { transformModel } = lfInstance.graphModel
-      const { SCALE_X, SCALE_Y, TRANSLATE_X, TRANSLATE_Y } = transformModel
-
-      // 将 LogicFlow 坐标转换为屏幕坐标
-      const screenX = x * SCALE_X + TRANSLATE_X
-      const screenY = y * SCALE_Y + TRANSLATE_Y
-
-      nodeEditorPosition.value = {
-        x: screenX,
-        y: screenY
-      }
-    }
-
-    nodeEditorVisible.value = true
-
-    // 更新节点选中状态
-    updateNodeSelection()
+    }, 50)
   }
 
   // 更新节点选中状态
@@ -601,7 +670,21 @@
    * 处理节点拖拽结束事件
    * 将拖拽后的位置同步到 formData.nodes
    */
-  const handleNodeDragEnd = () => {
+  const handleNodeDragEnd = (event?: any) => {
+    // 清除拖拽状态
+    isDragging.value = false
+    dragStartPos.value = { x: 0, y: 0 }
+    // 移除备用监听器
+    document.removeEventListener('mouseup', handleGlobalMouseUpForDrag, true)
+
+    // 清除 mousedown 位置信息，避免影响后续点击
+    // 注意：这个清除已经在 art-logic-flow/index.vue 中处理了
+    // 这里保留是为了兼容性，如果 event 中有 target，也清除一下
+    if (event && event.e && event.e.target) {
+      delete (event.e.target as any).__lfMouseDownPos
+      delete (event.e.target as any).__lfMouseDownTime
+    }
+
     const lfInstance = getLogicFlowInstance()
     if (!lfInstance || !formData.nodes) return
 
@@ -755,7 +838,16 @@
     // 使用组件暴露的 fitView 方法，与工具栏按钮效果一致
     const lfInstance = logicFlowRef.value?.getInstance()
     if (lfInstance) {
-      lfInstance.fitView(50)
+      // 先调整画布大小，确保 lf-graph 填充父容器
+      lfInstance.resize()
+      // 然后居中适应视图，使用更大的 padding 让缩放更小（显示更多内容）
+      lfInstance.fitView(200)
+      // 进一步缩小缩放比例（缩小到约 40%）
+      await nextTick()
+      // 多次缩小以达到目标缩放比例
+      for (let i = 0; i < 15; i++) {
+        lfInstance.zoom(false)
+      }
     }
   }
 

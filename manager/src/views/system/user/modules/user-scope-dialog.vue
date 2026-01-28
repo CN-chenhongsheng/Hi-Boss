@@ -143,11 +143,14 @@
 
       // 延迟一点时间确保 LogicFlow 完全初始化
       setTimeout(() => {
-        updateNodeSelection(data)
-        // 确保画布居中显示
         if (logicFlowRef.value) {
           const lfInstance = logicFlowRef.value.getInstance()
           if (lfInstance) {
+            // 先调整画布大小，确保 lf-graph 填充父容器
+            lfInstance.resize()
+            // 然后更新节点样式
+            updateNodeSelection(data)
+            // 最后确保画布居中显示
             lfInstance.fitView(50)
           }
         }
@@ -392,8 +395,11 @@
         if (lfInstance) {
           // 延迟一点时间确保节点已完全渲染
           setTimeout(() => {
+            // 先调整画布大小，确保 lf-graph 填充父容器
+            lfInstance.resize()
+            // 然后更新节点样式
             updateNodeSelection(newData)
-            // 确保画布居中显示
+            // 最后确保画布居中显示
             lfInstance.fitView(50)
           }, 150)
         }
@@ -402,6 +408,9 @@
         const lfInstance = newRef.getInstance()
         if (lfInstance) {
           setTimeout(() => {
+            // 先调整画布大小，确保 lf-graph 填充父容器
+            lfInstance.resize()
+            // 然后确保画布居中显示
             lfInstance.fitView(50)
           }, 150)
         }
