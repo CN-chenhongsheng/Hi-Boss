@@ -158,8 +158,8 @@
 
 <style lang="scss" scoped>
   .student-info-popover-content {
-    padding: 4px 0;
     max-height: 500px;
+    padding: 4px 0;
     overflow-y: auto;
     scrollbar-width: none; // Firefox 隐藏滚动条
 
@@ -188,11 +188,11 @@
 
       .row-label {
         display: flex;
+        flex-shrink: 0;
         gap: 8px;
         align-items: center;
         font-size: 12px;
         color: var(--el-text-color-secondary);
-        flex-shrink: 0;
 
         .label-icon {
           width: 14px;
@@ -203,24 +203,24 @@
 
       .row-value {
         display: flex;
+        flex-shrink: 1;
         gap: 6px;
         align-items: center;
+        max-width: 180px;
+        padding-left: 12px;
+        overflow: hidden;
         font-size: 12px;
         font-weight: 500;
         color: var(--el-text-color-primary);
-        padding-left: 12px;
         text-overflow: ellipsis;
-        overflow: hidden;
         white-space: nowrap;
-        max-width: 180px;
-        flex-shrink: 1;
 
         .value-dot {
+          flex-shrink: 0;
           width: 5px;
           height: 5px;
           background: var(--el-text-color-placeholder);
           border-radius: 50%;
-          flex-shrink: 0;
         }
 
         &.is-good {
@@ -258,8 +258,8 @@
 <style lang="scss">
   // 全局样式，用于覆盖 ElPopover 的默认样式
   .student-info-popover {
-    padding: 12px 16px !important;
     max-width: 320px !important;
+    padding: 12px 16px !important;
 
     .el-popover__title {
       display: none;

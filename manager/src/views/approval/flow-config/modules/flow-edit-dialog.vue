@@ -3,6 +3,7 @@
   <ElDialog
     v-model="dialogVisible"
     :title="dialogType === 'add' ? '新建审批流程' : '编辑审批流程'"
+    class="flow-edit-dialog"
     width="90%"
     top="5vmin"
     :close-on-click-modal="false"
@@ -14,7 +15,18 @@
       <div class="flow-canvas-wrapper">
         <div class="canvas-container" ref="canvasContainerRef">
           <!-- LogicFlow 画布 -->
-          <div ref="lfContainerRef" class="lf-container"></div>
+          <ArtLogicFlow
+            ref="logicFlowRef"
+            :data="logicFlowData"
+            :readonly="false"
+            :show-toolbar="false"
+            :nodeRegistrar="registerApprovalNodes"
+            :auto-resize="true"
+            height="100%"
+            @node:click="handleNodeClick"
+            @edge:click="handleEdgeClick"
+            @node:dragend="handleNodeDragEnd"
+          />
 
           <!-- LogicFlow 工具栏 -->
           <LogicFlowToolbar
@@ -76,10 +88,6 @@
 
 <script setup lang="ts">
   import { ref, reactive, computed, watch, nextTick, onUnmounted, onMounted } from 'vue'
-  import LogicFlow from '@logicflow/core'
-  import '@logicflow/core/dist/index.css'
-  import { MiniMap, Snapshot } from '@logicflow/extension'
-  import '@logicflow/extension/lib/style/index.css'
   import { useFullscreen } from '@vueuse/core'
   import { ElMessage, ElMessageBox } from 'element-plus'
   import {
@@ -91,9 +99,16 @@
     type ApprovalAssignee
   } from '@/api/approval-manage'
   import { registerApprovalNodes } from '@/components/core/charts/art-logic-flow/approval-node'
+  import ArtLogicFlow from '@/components/core/charts/art-logic-flow/index.vue'
   import LogicFlowToolbar from '@/components/core/charts/art-logic-flow/toolbar.vue'
   import { useBusinessType } from '@/hooks'
-  import { approvalNodesToLogicFlow, createNewApprovalNode, reorderNodes } from './flow-data-utils'
+  import {
+    approvalNodesToLogicFlow,
+    createNewApprovalNode,
+    reorderNodes,
+    syncNodePositions
+  } from './flow-data-utils'
+  import type { LogicFlowData } from '@/components/core/charts/art-logic-flow/types'
   import NodeEditorCard from './node-editor-card.vue'
   import AssigneeSelectDialog from './assignee-select-dialog.vue'
 
@@ -115,13 +130,12 @@
 
   // Refs
   const canvasContainerRef = ref<HTMLElement>()
-  const lfContainerRef = ref<HTMLElement>()
+  const logicFlowRef = ref<InstanceType<typeof ArtLogicFlow>>()
   const nodeEditorRef = ref<InstanceType<typeof NodeEditorCard>>()
 
   // State
   const submitLoading = ref(false)
   const activeCollapse = ref(['info'])
-  let lfInstance: LogicFlow | null = null
 
   // 工具栏状态
   const miniMapVisible = ref(false)
@@ -161,126 +175,16 @@
 
   const formData = reactive<ApprovalFlow>(initialFormData())
 
-  // ResizeObserver 用于监听容器尺寸变化
-  let resizeObserver: ResizeObserver | null = null
+  // 用于 LogicFlow 组件的数据 - 改为 ref，手动控制更新
+  const logicFlowData = ref<LogicFlowData>({ nodes: [], edges: [] })
 
-  // 初始化 LogicFlow
-  const initLogicFlow = async () => {
-    if (!lfContainerRef.value) return
-
-    // 等待 DOM 完全渲染，确保容器尺寸正确
-    await nextTick()
-    // 增加延迟时间，确保弹窗完全展开
-    await new Promise((resolve) => setTimeout(resolve, 300))
-    // 使用 requestAnimationFrame 确保浏览器完成布局计算
-    await new Promise((resolve) => requestAnimationFrame(resolve))
-
-    // 注册插件
-    LogicFlow.use(MiniMap)
-    LogicFlow.use(Snapshot)
-
-    // 获取容器的父元素尺寸（canvas-container）
-    const parentEl = lfContainerRef.value.parentElement
-    // 如果尺寸为 0 或未定义，使用默认值，后续会在 renderFlow 中重新调整
-    const width = parentEl?.clientWidth || 800
-    const height = parentEl?.clientHeight || 600
-
-    lfInstance = new LogicFlow({
-      width,
-      height,
-      container: lfContainerRef.value,
-      grid: false,
-      background: {
-        color: '#f8fafc'
-      },
-      keyboard: {
-        enabled: true
-      },
-      // 禁用默认的文本编辑
-      textEdit: false,
-      // 节点不可拖拽连线
-      nodeTextDraggable: false,
-      edgeTextDraggable: false,
-      // 调整节点位置
-      adjustNodePosition: false,
-      // 禁止调整边
-      adjustEdge: false,
-      adjustEdgeStartAndEnd: false,
-      // 静默模式（部分禁用交互）
-      isSilentMode: false,
-      // 禁止缩放滚动
-      stopScrollGraph: false,
-      stopZoomGraph: false,
-      // 禁止移动节点
-      stopMoveGraph: false,
-      // 节点可选
-      nodeSelectedOutline: false
+  // 手动更新 logicFlowData 的函数
+  const regenerateFlowData = () => {
+    logicFlowData.value = approvalNodesToLogicFlow(formData.nodes || [], selectedNodeId.value, {
+      flowName: formData.flowName,
+      businessType: formData.businessType,
+      status: formData.status
     })
-
-    // 注册自定义节点
-    registerApprovalNodes(lfInstance)
-
-    // 监听节点点击
-    lfInstance.on('node:click', ({ data }) => {
-      handleNodeClick(data)
-    })
-
-    // 监听边（连接线）点击 - 在边中间添加节点
-    lfInstance.on('edge:click', ({ data }) => {
-      handleEdgeClick(data)
-    })
-
-    // 监听自定义节点删除事件（从节点卡片删除按钮触发）
-    handleNodeDeleteFromButton = (e: Event) => {
-      const customEvent = e as CustomEvent
-      const { nodeId } = customEvent.detail || {}
-
-      // 尝试从 LogicFlow 实例获取节点属性（最可靠的方式）
-      if (lfInstance && nodeId) {
-        try {
-          const lfNodeModel = lfInstance.getNodeModelById(nodeId)
-          if (lfNodeModel) {
-            // 节点属性将在 handleNodeDelete 中获取
-          }
-        } catch (error) {
-          console.warn('[FlowEditDialog] 无法从 LogicFlow 获取节点属性:', error)
-        }
-      }
-
-      // 选中节点并删除 - 使用 LogicFlow 的节点 ID 作为 selectedNodeId
-      selectedNodeId.value = nodeId
-      selectedNodeType.value = 'approval'
-
-      // 调用删除函数（handleNodeDelete 会尝试多种方式查找节点）
-      handleNodeDelete()
-    }
-
-    // 监听 DOM 自定义事件（从 document 监听，确保能捕获所有事件）
-    if (handleNodeDeleteFromButton) {
-      document.addEventListener('logicflow-node-delete', handleNodeDeleteFromButton)
-    }
-
-    // 监听画布点击（取消选中）
-    lfInstance.on('blank:click', () => {
-      clearSelection()
-    })
-
-    // 监听容器尺寸变化，自动调整画布尺寸
-    if (parentEl) {
-      resizeObserver = new ResizeObserver(() => {
-        if (lfInstance && parentEl) {
-          const newWidth = parentEl.clientWidth
-          const newHeight = parentEl.clientHeight
-          if (newWidth > 0 && newHeight > 0) {
-            lfInstance.resize(newWidth, newHeight)
-          }
-        }
-      })
-      resizeObserver.observe(parentEl)
-    }
-
-    // 渲染流程（会在 renderFlow 中重新调整尺寸）
-    renderFlow()
   }
 
   // 键盘事件处理函数（用于删除节点）
@@ -289,48 +193,12 @@
   // 节点删除按钮点击事件处理函数
   let handleNodeDeleteFromButton: ((e: Event) => void) | null = null
 
-  // 渲染流程图
-  const renderFlow = () => {
-    if (!lfInstance) return
-
-    try {
-      // 先清空画布，确保完全重新渲染
-      lfInstance.clearData()
-
-      const flowData = approvalNodesToLogicFlow(formData.nodes || [], selectedNodeId.value, {
-        flowName: formData.flowName,
-        businessType: formData.businessType,
-        status: formData.status
-      })
-
-      // 确保有边数据
-      if (!flowData.edges || flowData.edges.length === 0) {
-        console.warn(
-          '[FlowEditDialog] 生成的流程数据中没有边，节点数:',
-          flowData.nodes?.length || 0
-        )
-      }
-
-      // 获取容器实际尺寸并调整画布
-      const parentEl = lfContainerRef.value?.parentElement
-      if (parentEl && lfInstance) {
-        const actualWidth = parentEl.clientWidth
-        const actualHeight = parentEl.clientHeight
-        // 只有当尺寸大于 0 时才调整（避免在容器未完全渲染时使用错误尺寸）
-        if (actualWidth > 0 && actualHeight > 0) {
-          lfInstance.resize(actualWidth, actualHeight)
-        }
-      }
-
-      // 重新渲染流程（包括所有节点和边）
-      lfInstance.render(flowData)
-    } catch (error) {
-      console.error('[FlowEditDialog] 渲染流程失败:', error)
-    }
-  }
+  // 获取 LogicFlow 实例
+  const getLogicFlowInstance = () => logicFlowRef.value?.getInstance()
 
   // 处理节点点击
-  const handleNodeClick = (data: any) => {
+  const handleNodeClick = (event: any) => {
+    const data = event.node
     const { type, id, x, y, properties } = data
 
     // 处理开始节点
@@ -341,6 +209,7 @@
 
       // 计算编辑器位置
       const canvasRect = canvasContainerRef.value?.getBoundingClientRect()
+      const lfInstance = getLogicFlowInstance()
       if (canvasRect && lfInstance) {
         const { transformModel } = lfInstance.graphModel
         const { SCALE_X, SCALE_Y, TRANSLATE_X, TRANSLATE_Y } = transformModel
@@ -391,6 +260,7 @@
 
     // 计算编辑器位置（画布坐标转换为容器坐标）
     const canvasRect = canvasContainerRef.value?.getBoundingClientRect()
+    const lfInstance = getLogicFlowInstance()
     if (canvasRect && lfInstance) {
       const { transformModel } = lfInstance.graphModel
       const { SCALE_X, SCALE_Y, TRANSLATE_X, TRANSLATE_Y } = transformModel
@@ -413,6 +283,7 @@
 
   // 更新节点选中状态
   const updateNodeSelection = () => {
+    const lfInstance = getLogicFlowInstance()
     if (!lfInstance) return
 
     // 更新所有节点的选中状态
@@ -457,6 +328,7 @@
     }
 
     // 更新开始节点的显示
+    const lfInstance = getLogicFlowInstance()
     if (lfInstance) {
       lfInstance.setProperties('start-node', {
         flowName: formData.flowName,
@@ -481,6 +353,7 @@
     let index = -1
 
     // 优先通过 LogicFlow 节点属性中的 nodeOrder 查找（最可靠的方式）
+    const lfInstance = getLogicFlowInstance()
     if (selectedNodeId.value && lfInstance) {
       try {
         const lfNodeModel = lfInstance.getNodeModelById(selectedNodeId.value)
@@ -566,6 +439,7 @@
 
     // 方法1: 通过 LogicFlow 实例查找节点属性（优先使用此方法）
     // 从 LogicFlow 节点获取 nodeOrder，因为新节点可能没有 id
+    const lfInstance = getLogicFlowInstance()
     if (lfInstance && selectedNodeId.value) {
       try {
         const lfNodeModel = lfInstance.getNodeModelById(selectedNodeId.value)
@@ -625,9 +499,8 @@
 
       clearSelection()
 
-      // 等待 DOM 更新后再重新渲染流程
-      await nextTick()
-      renderFlow()
+      // 删除后需要重新生成 flowData
+      regenerateFlowData()
 
       ElMessage.success('节点已删除')
     } catch {
@@ -635,30 +508,18 @@
     }
   }
 
-  // 添加新节点
-  // const handleAddNode = () => {
-  //   if (!formData.nodes) {
-  //     formData.nodes = []
-  //   }
-
-  //   const newNode = createNewApprovalNode(formData.nodes.length + 1)
-  //   formData.nodes.push(newNode)
-
-  //   renderFlow()
-
-  //   // 选中新添加的节点
-  //   nextTick(() => {
-  //     // 简单地重新渲染，新节点会显示
-  //     ElMessage.success('节点已添加，请点击节点进行编辑')
-  //   })
-  // }
-
   // 处理边（连接线）点击 - 在边中间添加节点
   // 重构后的简化逻辑：直接通过 nodeOrder 计算插入位置
-  const handleEdgeClick = (edgeData: any) => {
+  const handleEdgeClick = (event: any) => {
+    const edgeData = event.edge
+    const lfInstance = getLogicFlowInstance()
     if (!lfInstance || !formData.nodes) return
 
     const { sourceNodeId, targetNodeId } = edgeData
+
+    // 步骤0：先同步当前所有节点的位置（关键！避免添加节点时丢失已拖拽的位置）
+    const currentLfData = lfInstance.getGraphData() as LogicFlowData
+    formData.nodes = syncNodePositions(formData.nodes, currentLfData)
 
     // 步骤1：获取源节点和目标节点的 nodeOrder
     let sourceOrder = 0 // 开始节点的 order 视为 0
@@ -698,8 +559,26 @@
     // 步骤2：计算新节点的 nodeOrder（在源和目标之间）
     const newNodeOrder = (sourceOrder + targetOrder) / 2
 
-    // 步骤3：创建新节点并添加到数组
-    const newNode = createNewApprovalNode(newNodeOrder)
+    // 获取源节点和目标节点的数据，计算新节点的位置（在边的中点）
+    let sourceNode, targetNode
+    try {
+      sourceNode = lfInstance.getNodeModelById(sourceNodeId)
+      targetNode = lfInstance.getNodeModelById(targetNodeId)
+    } catch (error) {
+      console.warn('[handleEdgeClick] 无法获取节点模型:', error)
+      return
+    }
+
+    // 获取节点数据
+    const sourceData = (sourceNode as any).getData()
+    const targetData = (targetNode as any).getData()
+
+    // 计算中点位置
+    const newX = (sourceData.x + targetData.x) / 2
+    const newY = (sourceData.y + targetData.y) / 2
+
+    // 步骤3：创建新节点并添加到数组（带位置）
+    const newNode = createNewApprovalNode(newNodeOrder, newX, newY)
     formData.nodes.push(newNode)
 
     // 步骤4：按 nodeOrder 排序
@@ -708,43 +587,57 @@
     // 步骤5：重新分配整数 nodeOrder (1, 2, 3...)
     formData.nodes = reorderNodes(formData.nodes)
 
-    // 步骤6：清除选中状态并重新渲染
+    // 步骤6：清除选中状态
     clearSelection()
-    renderFlow()
+
+    // 重新生成 flowData
+    regenerateFlowData()
 
     ElMessage.success('节点已添加，请点击节点进行编辑')
+  }
+
+  /**
+   * 处理节点拖拽结束事件
+   * 将拖拽后的位置同步到 formData.nodes
+   */
+  const handleNodeDragEnd = () => {
+    const lfInstance = getLogicFlowInstance()
+    if (!lfInstance || !formData.nodes) return
+
+    // 获取当前 LogicFlow 数据（包含最新位置）
+    const currentLfData = lfInstance.getGraphData() as LogicFlowData
+
+    // 同步位置到 formData.nodes
+    formData.nodes = syncNodePositions(formData.nodes, currentLfData)
+
+    console.log('[DragEnd] 节点位置已同步到 formData.nodes')
   }
 
   // ============ 工具栏功能处理函数 ============
 
   // 放大
   const handleZoomIn = () => {
-    if (!lfInstance) return
-    lfInstance.zoom(true)
+    logicFlowRef.value?.zoomIn()
   }
 
   // 缩小
   const handleZoomOut = () => {
-    if (!lfInstance) return
-    lfInstance.zoom(false)
+    logicFlowRef.value?.zoomOut()
   }
 
   // 重置缩放
   const handleResetZoom = () => {
-    if (!lfInstance) return
-    lfInstance.resetZoom()
+    logicFlowRef.value?.resetZoom()
   }
 
   // 适应视图
   const handleFitView = () => {
-    if (!lfInstance) return
-    // 使用当前配置的 fitView 和 zoom，确保缩放和居中效果一致
-    lfInstance.fitView(800)
-    lfInstance.zoom(0.7)
+    logicFlowRef.value?.fitView(50)
   }
 
   // 切换小地图
   const handleToggleMiniMap = () => {
+    const lfInstance = getLogicFlowInstance()
     if (!lfInstance) return
     miniMapVisible.value = !miniMapVisible.value
     const extension = (lfInstance as any).extension
@@ -764,6 +657,7 @@
 
   // 导出图片
   const handleExportImage = async () => {
+    const lfInstance = getLogicFlowInstance()
     if (!lfInstance) return
 
     try {
@@ -842,9 +736,17 @@
           Object.assign(formData, initialFormData())
         }
 
-        // 初始化 LogicFlow
+        // 数据加载后重新生成 flowData
+        regenerateFlowData()
+
+        // 数据加载后，等待画布渲染完毕再居中
         await nextTick()
-        initLogicFlow()
+        setTimeout(() => {
+          const lfInstance = logicFlowRef.value?.getInstance()
+          if (lfInstance) {
+            lfInstance.fitView(50)
+          }
+        }, 200)
       }
     }
   )
@@ -853,18 +755,6 @@
   const handleClosed = () => {
     Object.assign(formData, initialFormData())
     clearSelection()
-
-    // 清理 ResizeObserver
-    if (resizeObserver) {
-      resizeObserver.disconnect()
-      resizeObserver = null
-    }
-
-    // 销毁 LogicFlow 实例
-    if (lfInstance) {
-      lfInstance.destroy()
-      lfInstance = null
-    }
   }
 
   // 提交表单
@@ -897,6 +787,13 @@
           ElMessage.warning(`节点 "${node.nodeName}" 未配置审批人`)
           return
         }
+      }
+
+      // 提交前同步当前位置
+      const lfInstance = getLogicFlowInstance()
+      if (lfInstance && formData.nodes) {
+        const currentLfData = lfInstance.getGraphData() as LogicFlowData
+        formData.nodes = syncNodePositions(formData.nodes, currentLfData)
       }
 
       submitLoading.value = true
@@ -968,26 +865,31 @@
       document.removeEventListener('logicflow-node-delete', handleNodeDeleteFromButton)
       handleNodeDeleteFromButton = null
     }
-
-    // 清理 ResizeObserver
-    if (resizeObserver) {
-      resizeObserver.disconnect()
-      resizeObserver = null
-    }
-
-    // 清理 LogicFlow 实例
-    if (lfInstance) {
-      lfInstance.destroy()
-      lfInstance = null
-    }
   })
 </script>
 
 <style scoped lang="scss">
+  /* 关键：ElDialog 的结构由 ElementPlus 渲染，.el-dialog__body 不带当前 scoped 标记。
+     这里用全局选择器 + 给 ElDialog 加专用 class，确保样式一定命中。 */
+  :global(.flow-edit-dialog) {
+    .el-dialog__body {
+      display: flex;
+      flex-direction: column;
+      height: 700px;
+      min-height: 700px;
+      max-height: calc(100vh - 160px);
+    }
+  }
+
   .dialog-content {
     display: flex;
     flex-direction: column;
-    height: 100%;
+
+    /* 直接给内容区一个可计算高度，避免 Dialog body 结构差异导致 100% 失效 */
+    height: 700px;
+    min-height: 700px;
+    min-height: 0;
+    max-height: calc(100vh - 160px);
   }
 
   .flow-info-collapse {
@@ -1035,38 +937,19 @@
     display: flex;
     flex: 1;
     flex-direction: column;
+    height: 100%;
     min-height: 0;
 
     .canvas-container {
       position: relative;
       flex: 1;
       width: 100%;
-      min-height: 600px;
+      height: 100%;
+      min-height: 700px;
       overflow: hidden;
-      background: #f8fafc;
-      background-image: radial-gradient(circle, #d0d5dd 1px, transparent 1px);
-      background-size: 20px 20px;
+      background-color: var(--el-fill-color-light);
+      border: 1px solid var(--el-border-color-light);
       border-radius: var(--el-border-radius-base);
-
-      .lf-container {
-        width: 100% !important;
-        height: 100% !important;
-
-        > div {
-          width: 100% !important;
-          height: 100% !important;
-        }
-
-        .lf-graph {
-          width: 100% !important;
-          height: 100% !important;
-
-          svg {
-            width: 100% !important;
-            height: 100% !important;
-          }
-        }
-      }
     }
   }
 
@@ -1096,7 +979,7 @@
 
     .flow-canvas-wrapper {
       .canvas-container {
-        background-image: radial-gradient(circle, #334155 1px, transparent 1px);
+        background-image: none !important;
       }
     }
   }

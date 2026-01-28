@@ -144,25 +144,33 @@
               // 非学生业务或没有学生信息，直接显示姓名
               return h('span', row.applicantName)
             }
-            return h(ElPopover, {
-              placement: 'bottom-start',
-              trigger: 'hover',
-              width: 320,
-              popperClass: 'student-info-popover'
-            }, {
-              default: () =>
-                h(StudentInfoPopover, {
-                  student: {
-                    ...row,
-                    studentName: row.applicantName
-                  }
-                }),
-              reference: () =>
-                h('span', {
-                  class: 'cursor-pointer hover:underline',
-                  style: { color: 'var(--el-color-primary)' }
-                }, row.applicantName)
-            })
+            return h(
+              ElPopover,
+              {
+                placement: 'bottom-start',
+                trigger: 'hover',
+                width: 320,
+                popperClass: 'student-info-popover'
+              },
+              {
+                default: () =>
+                  h(StudentInfoPopover, {
+                    student: {
+                      ...row,
+                      studentName: row.applicantName
+                    }
+                  }),
+                reference: () =>
+                  h(
+                    'span',
+                    {
+                      class: 'cursor-pointer hover:underline',
+                      style: { color: 'var(--el-color-primary)' }
+                    },
+                    row.applicantName
+                  )
+              }
+            )
           }
         },
         {

@@ -19,6 +19,7 @@ import com.project.backend.room.mapper.BedMapper;
 import com.project.backend.room.mapper.FloorMapper;
 import com.project.backend.room.mapper.RoomMapper;
 import com.project.backend.room.service.RoomService;
+import com.project.backend.room.service.StatisticsService;
 import com.project.backend.room.vo.RoomVO;
 import com.project.backend.util.DictUtils;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +32,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -47,8 +49,10 @@ public class RoomServiceImpl extends ServiceImpl<RoomMapper, Room> implements Ro
     private final FloorMapper floorMapper;
     private final BedMapper bedMapper;
     private final CampusMapper campusMapper;
+    private final StatisticsService statisticsService;
 
     @Override
+    @Transactional(readOnly = true)
     public PageResult<RoomVO> pageList(RoomQueryDTO queryDTO) {
         LambdaQueryWrapper<Room> wrapper = new LambdaQueryWrapper<>();
         wrapper.like(StrUtil.isNotBlank(queryDTO.getRoomCode()), Room::getRoomCode, queryDTO.getRoomCode())
@@ -65,20 +69,22 @@ public class RoomServiceImpl extends ServiceImpl<RoomMapper, Room> implements Ro
         Page<Room> page = new Page<>(queryDTO.getPageNum(), queryDTO.getPageSize());
         page(page, wrapper);
 
-        List<RoomVO> voList = page.getRecords().stream()
-                .map(this::convertToVO)
-                .collect(Collectors.toList());
+        List<Room> rooms = page.getRecords();
+        List<RoomVO> voList = convertToVOList(rooms);
 
         return PageResult.build(voList, page.getTotal(), page.getCurrent(), page.getSize());
     }
 
     @Override
+    @Transactional(readOnly = true)
     public RoomVO getDetailById(Long id) {
         Room room = getById(id);
         if (room == null) {
             throw new BusinessException("房间不存在");
         }
-        return convertToVO(room);
+        // 使用批量转换方法，即使只有一个元素也能保持一致性
+        List<RoomVO> voList = convertToVOList(List.of(room));
+        return voList.isEmpty() ? null : voList.get(0);
     }
 
     @Override
@@ -124,7 +130,7 @@ public class RoomServiceImpl extends ServiceImpl<RoomMapper, Room> implements Ro
             boolean result = save(room);
 
             // 更新楼层统计字段
-            updateFloorStatistics(room.getFloorId());
+            statisticsService.updateFloorStatistics(room.getFloorId());
 
             return result;
         } else {
@@ -133,12 +139,12 @@ public class RoomServiceImpl extends ServiceImpl<RoomMapper, Room> implements Ro
             boolean result = updateById(room);
             if (result && oldRoom != null && !oldRoom.getFloorId().equals(room.getFloorId())) {
                 // 更新旧楼层的统计字段
-                updateFloorStatistics(oldRoom.getFloorId());
+                statisticsService.updateFloorStatistics(oldRoom.getFloorId());
                 // 更新新楼层的统计字段
-                updateFloorStatistics(room.getFloorId());
+                statisticsService.updateFloorStatistics(room.getFloorId());
             } else if (result) {
                 // 楼层ID未变化，只更新当前楼层统计字段
-                updateFloorStatistics(room.getFloorId());
+                statisticsService.updateFloorStatistics(room.getFloorId());
             }
             return result;
         }
@@ -182,7 +188,7 @@ public class RoomServiceImpl extends ServiceImpl<RoomMapper, Room> implements Ro
 
         // 更新楼层统计字段
         if (result && room.getFloorId() != null) {
-            updateFloorStatistics(room.getFloorId());
+            statisticsService.updateFloorStatistics(room.getFloorId());
         }
 
         return result;
@@ -234,7 +240,93 @@ public class RoomServiceImpl extends ServiceImpl<RoomMapper, Room> implements Ro
     }
 
     /**
-     * 实体转VO
+     * 批量转换实体到VO（优化版本，避免N+1查询问题）
+     */
+    private List<RoomVO> convertToVOList(List<Room> rooms) {
+        if (rooms == null || rooms.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        // 批量加载所有关联的楼层
+        Set<Long> floorIds = rooms.stream()
+                .map(Room::getFloorId)
+                .filter(id -> id != null)
+                .collect(Collectors.toSet());
+        Map<Long, Floor> floorMap = floorIds.isEmpty() ? Map.of() :
+                floorMapper.selectBatchIds(floorIds).stream()
+                        .collect(Collectors.toMap(Floor::getId, f -> f));
+
+        // 批量加载所有关联的校区
+        Set<String> campusCodes = rooms.stream()
+                .map(Room::getCampusCode)
+                .filter(code -> StrUtil.isNotBlank(code))
+                .collect(Collectors.toSet());
+        Map<String, Campus> campusMap = campusCodes.isEmpty() ? Map.of() :
+                campusCodes.stream()
+                        .map(campusMapper::selectByCampusCode)
+                        .filter(campus -> campus != null)
+                        .collect(Collectors.toMap(Campus::getCampusCode, c -> c));
+
+        // 批量统计每个房间的床位数
+        Set<Long> roomIds = rooms.stream()
+                .map(Room::getId)
+                .filter(id -> id != null)
+                .collect(Collectors.toSet());
+        Map<Long, Long> bedCountMap = new HashMap<>();
+        if (!roomIds.isEmpty()) {
+            // 查询所有相关床位
+            LambdaQueryWrapper<Bed> bedWrapper = new LambdaQueryWrapper<>();
+            bedWrapper.in(Bed::getRoomId, roomIds);
+            List<Bed> beds = bedMapper.selectList(bedWrapper);
+
+            // 按房间ID分组统计
+            bedCountMap = beds.stream()
+                    .collect(Collectors.groupingBy(Bed::getRoomId, Collectors.counting()));
+        }
+
+        // 转换为VO列表
+        Map<Long, Long> finalBedCountMap = bedCountMap;
+        return rooms.stream()
+                .map(room -> convertToVO(room, floorMap, campusMap, finalBedCountMap))
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * 实体转VO（优化版本，使用预加载的数据）
+     */
+    private RoomVO convertToVO(Room room, Map<Long, Floor> floorMap,
+                              Map<String, Campus> campusMap, Map<Long, Long> bedCountMap) {
+        RoomVO vo = new RoomVO();
+        BeanUtil.copyProperties(room, vo);
+        vo.setStatusText(DictUtils.getLabel("sys_common_status", room.getStatus(), "未知"));
+        vo.setRoomTypeText(DictUtils.getLabel("dormitory_room_type", room.getRoomType(), "未知"));
+        vo.setRoomStatusText(DictUtils.getLabel("dormitory_room_status", room.getRoomStatus(), "未知"));
+
+        // 从缓存获取楼层信息
+        if (room.getFloorId() != null) {
+            Floor floor = floorMap.get(room.getFloorId());
+            if (floor != null) {
+                vo.setFloorName(floor.getFloorName());
+            }
+        }
+
+        // 从缓存获取校区信息
+        if (StrUtil.isNotBlank(room.getCampusCode())) {
+            Campus campus = campusMap.get(room.getCampusCode());
+            if (campus != null) {
+                vo.setCampusName(campus.getCampusName());
+            }
+        }
+
+        // 从预先统计的数据获取床位数
+        Long bedCount = bedCountMap.getOrDefault(room.getId(), 0L);
+        vo.setTotalBeds(bedCount.intValue());
+
+        return vo;
+    }
+
+    /**
+     * 实体转VO（保留原方法用于单个对象转换）
      */
     private RoomVO convertToVO(Room room) {
         RoomVO vo = new RoomVO();
@@ -370,7 +462,7 @@ public class RoomServiceImpl extends ServiceImpl<RoomMapper, Room> implements Ro
 
         // 更新楼层统计字段
         if (result) {
-            updateFloorStatistics(dto.getFloorId());
+            statisticsService.updateFloorStatistics(dto.getFloorId());
         }
 
         return roomsToCreate.size();
@@ -378,10 +470,11 @@ public class RoomServiceImpl extends ServiceImpl<RoomMapper, Room> implements Ro
 
     /**
      * 检查房间是否被床位关联
-     * 
+     *
      * @param roomId 房间ID
      * @return true-有床位关联，false-无床位关联
      */
+    @Transactional(readOnly = true)
     public boolean checkRoomHasBeds(Long roomId) {
         if (roomId == null) {
             return false;
@@ -390,40 +483,5 @@ public class RoomServiceImpl extends ServiceImpl<RoomMapper, Room> implements Ro
         bedWrapper.eq(Bed::getRoomId, roomId);
         long bedCount = bedMapper.selectCount(bedWrapper);
         return bedCount > 0;
-    }
-
-    /**
-     * 更新楼层统计字段
-     */
-    private void updateFloorStatistics(Long floorId) {
-        if (floorId == null) {
-            return;
-        }
-
-        // 统计该楼层的房间数和床位数
-        LambdaQueryWrapper<Room> roomWrapper = new LambdaQueryWrapper<>();
-        roomWrapper.eq(Room::getFloorId, floorId);
-        long totalRooms = count(roomWrapper);
-
-        // 统计该楼层所有房间的床位数
-        List<Room> rooms = list(roomWrapper);
-        int totalBeds = rooms.stream()
-                .mapToInt(room -> room.getBedCount() != null ? room.getBedCount() : 0)
-                .sum();
-
-        // 统计该楼层所有床位的入住人数
-        LambdaQueryWrapper<Bed> bedWrapper = new LambdaQueryWrapper<>();
-        bedWrapper.eq(Bed::getFloorId, floorId)
-                   .eq(Bed::getBedStatus, 2); // 2-已占用
-        long currentOccupancy = bedMapper.selectCount(bedWrapper);
-
-        // 更新楼层统计字段
-        Floor floor = floorMapper.selectById(floorId);
-        if (floor != null) {
-            floor.setTotalRooms((int) totalRooms);
-            floor.setTotalBeds(totalBeds);
-            floor.setCurrentOccupancy((int) currentOccupancy);
-            floorMapper.updateById(floor);
-        }
     }
 }

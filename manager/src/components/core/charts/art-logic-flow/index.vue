@@ -101,6 +101,8 @@
     nodeSpacingX?: number
     /** 节点垂直间距（用于布局） */
     nodeSpacingY?: number
+    /** 自定义节点注册函数（可选） */
+    nodeRegistrar?: (lf: LogicFlow) => void
   }
 
   const props = withDefaults(defineProps<Props>(), {
@@ -123,13 +125,15 @@
     showExport: true,
     layoutDirection: undefined,
     nodeSpacingX: 250,
-    nodeSpacingY: 120
+    nodeSpacingY: 120,
+    nodeRegistrar: undefined
   })
 
   interface Emits {
     (e: 'node:click', event: NodeClickEvent): void
     (e: 'node:add', node: any): void
     (e: 'node:delete', node: any): void
+    (e: 'node:dragend', event: any): void
     (e: 'edge:click', event: EdgeClickEvent): void
     (e: 'edge:add', edge: any): void
     (e: 'edge:delete', edge: any): void
@@ -207,7 +211,11 @@
     lfInstance = new LogicFlow(config)
 
     // 注册自定义节点
-    registerGlassNode(lfInstance)
+    if (props.nodeRegistrar) {
+      props.nodeRegistrar(lfInstance)
+    } else {
+      registerGlassNode(lfInstance)
+    }
 
     // 注册事件监听
     setupEventListeners()
@@ -291,7 +299,8 @@
     })
 
     // 节点拖拽结束
-    lfInstance.on('node:dragend', () => {
+    lfInstance.on('node:dragend', (data: any) => {
+      emit('node:dragend', data)
       // 移除全局 mouseup 监听
       document.removeEventListener('mouseup', handleGlobalMouseUp, true)
     })
@@ -592,10 +601,11 @@
     },
     /**
      * 适应视图
+     * @param padding 边距（像素）
      */
-    fitView: () => {
+    fitView: (padding?: number) => {
       if (!lfInstance) return
-      lfInstance.fitView()
+      lfInstance.fitView(padding)
     },
     /**
      * 清空画布
@@ -652,10 +662,7 @@
     width: 100%;
     height: 100%;
     overflow: hidden;
-    // 直接在容器上设置背景
-    background-color: #f8fafc !important;
-    background-image: radial-gradient(circle, #d0d5dd 1px, transparent 1px) !important;
-    background-size: 20px 20px !important;
+    background-color: var(--el-fill-color-light) !important;
     border-radius: 4px;
 
     // 强制 LogicFlow 所有内部元素透明
@@ -747,8 +754,7 @@
     }
 
     .art-logic-flow-container {
-      background-color: #1a1a1a !important;
-      background-image: radial-gradient(circle, #333 1px, transparent 1px) !important;
+      background-image: none !important;
     }
   }
 </style>

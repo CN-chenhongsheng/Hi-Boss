@@ -84,15 +84,20 @@ export function approvalNodesToLogicFlow(
   let prevNodeId = startNodeId
   currentY += NODE_SPACING.vertical
 
-  // 2. 添加审批节点
+  // 2. 添加审批节点 - 优先使用保存的坐标
   sortedNodes.forEach((node) => {
     const nodeId = node.id ? `approval-${node.id}` : generateId()
+
+    // 优先级1：使用保存的坐标（如果存在）
+    // 优先级2：使用默认间距计算
+    const nodeX = node.x !== undefined ? node.x : NODE_SPACING.centerX
+    const nodeY = node.y !== undefined ? node.y : currentY
 
     lfNodes.push({
       id: nodeId,
       type: 'approval-node',
-      x: NODE_SPACING.centerX,
-      y: currentY,
+      x: nodeX, // 使用优先级坐标
+      y: nodeY, // 使用优先级坐标
       properties: {
         // 原始数据
         originalId: node.id,
@@ -112,21 +117,30 @@ export function approvalNodesToLogicFlow(
       id: `edge-${prevNodeId}-${nodeId}`,
       sourceNodeId: prevNodeId,
       targetNodeId: nodeId,
-      type: 'polyline',
+      type: 'bezier',
       properties: {}
     })
 
     prevNodeId = nodeId
-    currentY += NODE_SPACING.vertical
+
+    // 仅在使用默认坐标时递增 currentY
+    if (node.y === undefined) {
+      currentY += NODE_SPACING.vertical
+    }
   })
 
   // 3. 添加结束节点
+  // 计算结束节点位置：基于最后一个审批节点
+  const lastApprovalNode = sortedNodes[sortedNodes.length - 1]
+  const endY =
+    lastApprovalNode?.y !== undefined ? lastApprovalNode.y + NODE_SPACING.vertical : currentY
+
   const endNodeId = 'end-node'
   lfNodes.push({
     id: endNodeId,
     type: 'end-node',
     x: NODE_SPACING.centerX,
-    y: currentY,
+    y: endY,
     properties: {
       isSelected: selectedNodeId === endNodeId
     }
@@ -137,7 +151,7 @@ export function approvalNodesToLogicFlow(
     id: `edge-${prevNodeId}-${endNodeId}`,
     sourceNodeId: prevNodeId,
     targetNodeId: endNodeId,
-    type: 'polyline',
+    type: 'bezier',
     properties: {}
   })
 
@@ -175,15 +189,19 @@ export function logicFlowToApprovalNodes(data: LogicFlowData): ApprovalNode[] {
 /**
  * 创建一个新的审批节点数据
  * @param order 节点顺序
+ * @param x X 坐标（可选）
+ * @param y Y 坐标（可选）
  * @returns 新的审批节点
  */
-export function createNewApprovalNode(order: number): ApprovalNode {
+export function createNewApprovalNode(order: number, x?: number, y?: number): ApprovalNode {
   return {
     nodeName: '',
     nodeOrder: order,
     nodeType: 1,
     rejectAction: 1,
-    assignees: []
+    assignees: [],
+    x,
+    y
   }
 }
 
@@ -307,4 +325,34 @@ export function getRejectActionText(rejectAction: number): string {
     3: '退回上一节点'
   }
   return texts[rejectAction] || '直接结束'
+}
+
+/**
+ * 将 LogicFlow 中的节点位置同步回 ApprovalNode 数组
+ * @param nodes ApprovalNode 数组
+ * @param lfData 当前 LogicFlow 数据（包含最新位置）
+ * @returns 更新后的 ApprovalNode 数组
+ */
+export function syncNodePositions(nodes: ApprovalNode[], lfData: LogicFlowData): ApprovalNode[] {
+  return nodes.map((node) => {
+    // 查找匹配的 LogicFlow 节点
+    const lfNode = lfData.nodes.find((lfn) => {
+      // 通过 originalId 匹配（如果节点有 id）
+      if (node.id) {
+        return lfn.properties?.originalId === node.id
+      }
+      // 通过 nodeOrder 匹配新节点（没有 id）
+      return lfn.properties?.nodeOrder === node.nodeOrder && lfn.type === 'approval-node'
+    })
+
+    if (lfNode) {
+      return {
+        ...node,
+        x: lfNode.x,
+        y: lfNode.y
+      }
+    }
+
+    return node
+  })
 }

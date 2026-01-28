@@ -201,19 +201,27 @@
             if (!row.studentName) {
               return h('span', row.studentName || '--')
             }
-            return h(ElPopover, {
-              placement: 'bottom-start',
-              trigger: 'hover',
-              width: 320,
-              popperClass: 'student-info-popover'
-            }, {
-              default: () => h(StudentInfoPopover, { student: row }),
-              reference: () =>
-                h('span', {
-                  class: 'cursor-pointer hover:underline',
-                  style: { color: 'var(--el-color-primary)' }
-                }, row.studentName)
-            })
+            return h(
+              ElPopover,
+              {
+                placement: 'bottom-start',
+                trigger: 'hover',
+                width: 320,
+                popperClass: 'student-info-popover'
+              },
+              {
+                default: () => h(StudentInfoPopover, { student: row }),
+                reference: () =>
+                  h(
+                    'span',
+                    {
+                      class: 'cursor-pointer hover:underline',
+                      style: { color: 'var(--el-color-primary)' }
+                    },
+                    row.studentName
+                  )
+              }
+            )
           }
         },
         {

@@ -2,7 +2,7 @@ package com.project.backend.common.aspect;
 
 import com.project.core.annotation.RateLimit;
 import com.project.core.exception.BusinessException;
-import jakarta.servlet.http.HttpServletRequest;
+import com.project.core.util.RequestUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -14,8 +14,6 @@ import org.springframework.core.annotation.Order;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Component;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.lang.reflect.Method;
 import java.util.Collections;
@@ -97,7 +95,7 @@ public class RateLimitAspect {
             // 如果没有指定key，使用类名:方法:IP 作为key
             String className = point.getTarget().getClass().getName();
             String methodName = point.getSignature().getName();
-            String ip = getIpAddr();
+            String ip = RequestUtils.getClientIp();
             key = String.format("rate:limit:%s:%s:%s", className, methodName, ip);
         } else {
             // 如果指定了key，添加前缀
@@ -105,29 +103,5 @@ public class RateLimitAspect {
         }
 
         return key;
-    }
-
-    /**
-     * 获取客户端IP地址
-     */
-    private String getIpAddr() {
-        ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-        if (attributes == null) {
-            return "unknown";
-        }
-
-        HttpServletRequest request = attributes.getRequest();
-        String ip = request.getHeader("X-Forwarded-For");
-        if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
-            ip = request.getHeader("X-Real-IP");
-        }
-        if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
-            ip = request.getRemoteAddr();
-        }
-        // 处理多个IP的情况（取第一个IP）
-        if (ip != null && ip.contains(",")) {
-            ip = ip.split(",")[0].trim();
-        }
-        return ip != null ? ip : "unknown";
     }
 }

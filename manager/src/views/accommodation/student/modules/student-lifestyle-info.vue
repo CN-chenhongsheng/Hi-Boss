@@ -267,11 +267,7 @@
     </ElCard>
 
     <!-- 特殊需求卡片 -->
-    <ElCard
-      v-if="data.specialNeeds || data.roommatePreference"
-      class="info-card"
-      shadow="hover"
-    >
+    <ElCard v-if="data.specialNeeds || data.roommatePreference" class="info-card" shadow="hover">
       <template #header>
         <div class="card-header">
           <ArtSvgIcon icon="ri:information-line" class="header-icon" />

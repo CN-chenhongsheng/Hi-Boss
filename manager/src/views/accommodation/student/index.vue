@@ -55,7 +55,7 @@
     <!-- 学生详情抽屉（查看） -->
     <StudentDrawer
       v-model:visible="drawerVisible"
-      :dialog-type="(dialogType === 'view' ? 'view' : 'edit') as 'view' | 'edit'"
+      :dialog-type="drawerDialogType"
       :student-id="editData?.id"
       :student-data="editData"
       @saved="handleRefresh"
@@ -64,7 +64,7 @@
     <!-- 学生新增/编辑弹窗 -->
     <StudentDialog
       v-model:visible="dialogVisible"
-      :dialog-type="(dialogType === 'add' ? 'add' : 'edit') as 'add' | 'edit'"
+      :dialog-type="dialogDialogType"
       :student-id="editData?.id"
       :student-data="editData"
       @saved="handleRefresh"
@@ -104,6 +104,14 @@
   const selectedRows = ref<StudentListItem[]>([])
   const selectedIds = computed(() => selectedRows.value.map((item) => item.id))
   const selectedCount = computed(() => selectedRows.value.length)
+
+  // 计算属性：用于避免 ESLint 误报过滤器
+  const drawerDialogType = computed<'view' | 'edit'>(() => {
+    return dialogType.value === 'view' ? 'view' : 'edit'
+  })
+  const dialogDialogType = computed<'add' | 'edit'>(() => {
+    return dialogType.value === 'add' ? 'add' : 'edit'
+  })
 
   // 搜索表单
   const searchForm = ref<Api.AccommodationManage.StudentSearchParams>({
@@ -170,19 +178,27 @@
             if (!row.studentName) {
               return h('span', row.studentName || '--')
             }
-            return h(ElPopover, {
-              placement: 'bottom-start',
-              trigger: 'hover',
-              width: 320,
-              popperClass: 'student-info-popover'
-            }, {
-              default: () => h(StudentInfoPopover, { student: row }),
-              reference: () =>
-                h('span', {
-                  class: 'cursor-pointer hover:underline',
-                  style: { color: 'var(--el-color-primary)' }
-                }, row.studentName)
-            })
+            return h(
+              ElPopover,
+              {
+                placement: 'bottom-start',
+                trigger: 'hover',
+                width: 320,
+                popperClass: 'student-info-popover'
+              },
+              {
+                default: () => h(StudentInfoPopover, { student: row }),
+                reference: () =>
+                  h(
+                    'span',
+                    {
+                      class: 'cursor-pointer hover:underline',
+                      style: { color: 'var(--el-color-primary)' }
+                    },
+                    row.studentName
+                  )
+              }
+            )
           }
         },
         {

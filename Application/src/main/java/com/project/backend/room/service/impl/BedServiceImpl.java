@@ -23,8 +23,8 @@ import com.project.backend.room.mapper.BedMapper;
 import com.project.backend.room.mapper.FloorMapper;
 import com.project.backend.room.mapper.RoomMapper;
 import com.project.backend.room.service.BedService;
+import com.project.backend.room.service.StatisticsService;
 import com.project.backend.room.vo.BedVO;
-import com.project.backend.util.DictUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -33,6 +33,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -51,8 +53,10 @@ public class BedServiceImpl extends ServiceImpl<BedMapper, Bed> implements BedSe
     private final CampusMapper campusMapper;
     private final StudentMapper studentMapper;
     private final StudentInfoEnricher studentInfoEnricher;
+    private final StatisticsService statisticsService;
 
     @Override
+    @Transactional(readOnly = true)
     public PageResult<BedVO> pageList(BedQueryDTO queryDTO) {
         LambdaQueryWrapper<Bed> wrapper = new LambdaQueryWrapper<>();
         wrapper.like(StrUtil.isNotBlank(queryDTO.getBedCode()), Bed::getBedCode, queryDTO.getBedCode())
@@ -71,20 +75,22 @@ public class BedServiceImpl extends ServiceImpl<BedMapper, Bed> implements BedSe
         Page<Bed> page = new Page<>(queryDTO.getPageNum(), queryDTO.getPageSize());
         page(page, wrapper);
 
-        List<BedVO> voList = page.getRecords().stream()
-                .map(this::convertToVO)
-                .collect(Collectors.toList());
+        List<Bed> beds = page.getRecords();
+        List<BedVO> voList = convertToVOList(beds);
 
         return PageResult.build(voList, page.getTotal(), page.getCurrent(), page.getSize());
     }
 
     @Override
+    @Transactional(readOnly = true)
     public BedVO getDetailById(Long id) {
         Bed bed = getById(id);
         if (bed == null) {
             throw new BusinessException("床位不存在");
         }
-        return convertToVO(bed);
+        // 使用批量转换方法，即使只有一个元素也能保持一致性
+        List<BedVO> voList = convertToVOList(List.of(bed));
+        return voList.isEmpty() ? null : voList.get(0);
     }
 
     @Override
@@ -124,9 +130,9 @@ public class BedServiceImpl extends ServiceImpl<BedMapper, Bed> implements BedSe
 
             // 更新房间和楼层统计字段
             if (result) {
-                updateRoomStatistics(bed.getRoomId());
+                statisticsService.updateRoomStatistics(bed.getRoomId());
                 if (bed.getFloorId() != null) {
-                    updateFloorStatistics(bed.getFloorId());
+                    statisticsService.updateFloorStatistics(bed.getFloorId());
                 }
             }
 
@@ -138,21 +144,21 @@ public class BedServiceImpl extends ServiceImpl<BedMapper, Bed> implements BedSe
             if (result && oldBed != null) {
                 // 如果房间ID变化，更新旧房间和新房间的统计字段
                 if (!oldBed.getRoomId().equals(bed.getRoomId())) {
-                    updateRoomStatistics(oldBed.getRoomId());
-                    updateRoomStatistics(bed.getRoomId());
+                    statisticsService.updateRoomStatistics(oldBed.getRoomId());
+                    statisticsService.updateRoomStatistics(bed.getRoomId());
                     // 如果楼层ID也变化，更新楼层统计字段
                     if (oldBed.getFloorId() != null && bed.getFloorId() != null &&
                         !oldBed.getFloorId().equals(bed.getFloorId())) {
-                        updateFloorStatistics(oldBed.getFloorId());
-                        updateFloorStatistics(bed.getFloorId());
+                        statisticsService.updateFloorStatistics(oldBed.getFloorId());
+                        statisticsService.updateFloorStatistics(bed.getFloorId());
                     } else if (bed.getFloorId() != null) {
-                        updateFloorStatistics(bed.getFloorId());
+                        statisticsService.updateFloorStatistics(bed.getFloorId());
                     }
                 } else {
                     // 房间ID未变化，只更新当前房间和楼层统计字段
-                    updateRoomStatistics(bed.getRoomId());
+                    statisticsService.updateRoomStatistics(bed.getRoomId());
                     if (bed.getFloorId() != null) {
-                        updateFloorStatistics(bed.getFloorId());
+                        statisticsService.updateFloorStatistics(bed.getFloorId());
                     }
                 }
             }
@@ -177,10 +183,10 @@ public class BedServiceImpl extends ServiceImpl<BedMapper, Bed> implements BedSe
         // 更新房间和楼层统计字段
         if (result) {
             if (bed.getRoomId() != null) {
-                updateRoomStatistics(bed.getRoomId());
+                statisticsService.updateRoomStatistics(bed.getRoomId());
             }
             if (bed.getFloorId() != null) {
-                updateFloorStatistics(bed.getFloorId());
+                statisticsService.updateFloorStatistics(bed.getFloorId());
             }
         }
 
@@ -219,10 +225,10 @@ public class BedServiceImpl extends ServiceImpl<BedMapper, Bed> implements BedSe
         if (result) {
             try {
                 if (bed.getRoomId() != null) {
-                    updateRoomStatistics(bed.getRoomId());
+                    statisticsService.updateRoomStatistics(bed.getRoomId());
                 }
                 if (bed.getFloorId() != null) {
-                    updateFloorStatistics(bed.getFloorId());
+                    statisticsService.updateFloorStatistics(bed.getFloorId());
                 }
             } catch (Exception e) {
                 log.error("更新床位统计字段失败，床位ID：{}，房间ID：{}，楼层ID：{}",
@@ -235,7 +241,131 @@ public class BedServiceImpl extends ServiceImpl<BedMapper, Bed> implements BedSe
     }
 
     /**
-     * 实体转VO
+     * 批量转换实体到VO（优化版本，避免N+1查询问题）
+     */
+    private List<BedVO> convertToVOList(List<Bed> beds) {
+        if (beds == null || beds.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        // 批量加载所有关联的房间
+        Set<Long> roomIds = beds.stream()
+                .map(Bed::getRoomId)
+                .filter(id -> id != null)
+                .collect(Collectors.toSet());
+        Map<Long, Room> roomMap = roomIds.isEmpty() ? Map.of() :
+                roomMapper.selectBatchIds(roomIds).stream()
+                        .collect(Collectors.toMap(Room::getId, r -> r));
+
+        // 批量加载所有关联的楼层
+        Set<Long> floorIds = beds.stream()
+                .map(Bed::getFloorId)
+                .filter(id -> id != null)
+                .collect(Collectors.toSet());
+        // 同时添加房间中的楼层ID
+        roomMap.values().stream()
+                .map(Room::getFloorId)
+                .filter(id -> id != null)
+                .forEach(floorIds::add);
+        Map<Long, Floor> floorMap = floorIds.isEmpty() ? Map.of() :
+                floorMapper.selectBatchIds(floorIds).stream()
+                        .collect(Collectors.toMap(Floor::getId, f -> f));
+
+        // 批量加载所有关联的校区
+        Set<String> campusCodes = beds.stream()
+                .map(Bed::getCampusCode)
+                .filter(code -> StrUtil.isNotBlank(code))
+                .collect(Collectors.toSet());
+        Map<String, Campus> campusMap = campusCodes.isEmpty() ? Map.of() :
+                campusCodes.stream()
+                        .map(campusMapper::selectByCampusCode)
+                        .filter(campus -> campus != null)
+                        .collect(Collectors.toMap(Campus::getCampusCode, c -> c));
+
+        // 批量加载所有关联的学生
+        Set<Long> studentIds = beds.stream()
+                .map(Bed::getStudentId)
+                .filter(id -> id != null)
+                .collect(Collectors.toSet());
+        Map<Long, Student> studentMap = studentIds.isEmpty() ? Map.of() :
+                studentMapper.selectBatchIds(studentIds).stream()
+                        .collect(Collectors.toMap(Student::getId, s -> s));
+
+        // 转换为VO列表
+        return beds.stream()
+                .map(bed -> convertToVO(bed, roomMap, floorMap, campusMap, studentMap))
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * 实体转VO（优化版本，使用预加载的数据）
+     */
+    private BedVO convertToVO(Bed bed, Map<Long, Room> roomMap, Map<Long, Floor> floorMap,
+                             Map<String, Campus> campusMap, Map<Long, Student> studentMap) {
+        BedVO vo = new BedVO();
+        BeanUtil.copyProperties(bed, vo);
+        vo.setStatusText(DictUtils.getLabel("sys_common_status", bed.getStatus(), "未知"));
+        vo.setBedPositionText(DictUtils.getLabel("dormitory_bed_position", bed.getBedPosition(), "未知"));
+        vo.setBedStatusText(DictUtils.getLabel("dormitory_bed_status", bed.getBedStatus(), "未知"));
+
+        // 从缓存获取房间信息
+        Room room = null;
+        if (bed.getRoomId() != null) {
+            room = roomMap.get(bed.getRoomId());
+            if (room != null) {
+                vo.setRoomNumber(room.getRoomNumber());
+                // 如果床位的floorId为空或不一致，从房间获取
+                if (bed.getFloorId() == null || !bed.getFloorId().equals(room.getFloorId())) {
+                    if (room.getFloorId() != null) {
+                        vo.setFloorId(room.getFloorId());
+                    }
+                }
+                // 如果床位的floorCode为空或不一致，从房间获取
+                if (StrUtil.isBlank(bed.getFloorCode()) || !bed.getFloorCode().equals(room.getFloorCode())) {
+                    if (StrUtil.isNotBlank(room.getFloorCode())) {
+                        vo.setFloorCode(room.getFloorCode());
+                    }
+                }
+            }
+        }
+
+        // 从缓存获取楼层信息
+        Long floorIdToQuery = bed.getFloorId();
+        if (floorIdToQuery == null && room != null && room.getFloorId() != null) {
+            floorIdToQuery = room.getFloorId();
+        }
+        if (floorIdToQuery != null) {
+            Floor floor = floorMap.get(floorIdToQuery);
+            if (floor != null) {
+                vo.setFloorName(floor.getFloorName());
+                if (StrUtil.isBlank(vo.getFloorCode()) || !vo.getFloorCode().equals(floor.getFloorCode())) {
+                    vo.setFloorCode(floor.getFloorCode());
+                }
+            }
+        }
+
+        // 从缓存获取校区信息
+        if (StrUtil.isNotBlank(bed.getCampusCode())) {
+            Campus campus = campusMap.get(bed.getCampusCode());
+            if (campus != null) {
+                vo.setCampusName(campus.getCampusName());
+            }
+        }
+
+        // 从缓存获取学生信息
+        if (bed.getStudentId() != null) {
+            Student student = studentMap.get(bed.getStudentId());
+            if (student != null) {
+                vo.setStudentNo(student.getStudentNo());
+                studentInfoEnricher.enrichStudentInfo(student, vo);
+            }
+        }
+
+        return vo;
+    }
+
+    /**
+     * 实体转VO（保留原方法用于单个对象转换）
      */
     private BedVO convertToVO(Bed bed) {
         BedVO vo = new BedVO();
@@ -388,83 +518,12 @@ public class BedServiceImpl extends ServiceImpl<BedMapper, Bed> implements BedSe
 
         // 更新房间和楼层统计字段
         if (result) {
-            updateRoomStatistics(dto.getRoomId());
+            statisticsService.updateRoomStatistics(dto.getRoomId());
             if (room.getFloorId() != null) {
-                updateFloorStatistics(room.getFloorId());
+                statisticsService.updateFloorStatistics(room.getFloorId());
             }
         }
 
         return bedsToCreate.size();
-    }
-
-    /**
-     * 更新房间统计字段
-     */
-    private void updateRoomStatistics(Long roomId) {
-        if (roomId == null) {
-            return;
-        }
-
-        try {
-            // 统计该房间已占用的床位数
-            LambdaQueryWrapper<Bed> bedWrapper = new LambdaQueryWrapper<>();
-            bedWrapper.eq(Bed::getRoomId, roomId)
-                      .eq(Bed::getBedStatus, 2); // 2-已占用
-            long currentOccupancy = count(bedWrapper);
-
-            // 更新房间统计字段
-            Room room = roomMapper.selectById(roomId);
-            if (room != null) {
-                room.setCurrentOccupancy((int) currentOccupancy);
-                roomMapper.updateById(room);
-            } else {
-                log.warn("更新房间统计字段失败：房间不存在，房间ID：{}", roomId);
-            }
-        } catch (Exception e) {
-            log.error("更新房间统计字段异常，房间ID：{}", roomId, e);
-            throw e; // 重新抛出异常，由调用方处理
-        }
-    }
-
-    /**
-     * 更新楼层统计字段
-     */
-    private void updateFloorStatistics(Long floorId) {
-        if (floorId == null) {
-            return;
-        }
-
-        try {
-            // 统计该楼层的房间数和床位数
-            LambdaQueryWrapper<Room> roomWrapper = new LambdaQueryWrapper<>();
-            roomWrapper.eq(Room::getFloorId, floorId);
-            long totalRooms = roomMapper.selectCount(roomWrapper);
-
-            // 统计该楼层所有房间的床位数
-            List<Room> rooms = roomMapper.selectList(roomWrapper);
-            int totalBeds = rooms.stream()
-                    .mapToInt(room -> room.getBedCount() != null ? room.getBedCount() : 0)
-                    .sum();
-
-            // 统计该楼层所有床位的入住人数
-            LambdaQueryWrapper<Bed> bedWrapper = new LambdaQueryWrapper<>();
-            bedWrapper.eq(Bed::getFloorId, floorId)
-                       .eq(Bed::getBedStatus, 2); // 2-已占用
-            long currentOccupancy = count(bedWrapper);
-
-            // 更新楼层统计字段
-            Floor floor = floorMapper.selectById(floorId);
-            if (floor != null) {
-                floor.setTotalRooms((int) totalRooms);
-                floor.setTotalBeds(totalBeds);
-                floor.setCurrentOccupancy((int) currentOccupancy);
-                floorMapper.updateById(floor);
-            } else {
-                log.warn("更新楼层统计字段失败：楼层不存在，楼层ID：{}", floorId);
-            }
-        } catch (Exception e) {
-            log.error("更新楼层统计字段异常，楼层ID：{}", floorId, e);
-            throw e; // 重新抛出异常，由调用方处理
-        }
     }
 }

@@ -41,8 +41,7 @@ function needsStudentInfo(item: any): boolean {
   const hasStudentId = !!item.studentId
   const hasApplicantId = !!item.applicantId
   const hasStudentName = !!item.studentName || !!item.applicantName
-  const hasBasicInfo =
-    item.studentNo && item.gender !== undefined && item.phone && item.deptName
+  const hasBasicInfo = item.studentNo && item.gender !== undefined && item.phone && item.deptName
 
   return (hasStudentId || hasApplicantId || hasStudentName) && !hasBasicInfo
 }
@@ -53,9 +52,9 @@ function needsStudentInfo(item: any): boolean {
  * @param items 列表数据
  * @returns 补齐后的列表数据
  */
-export async function enrichStudentInfo<
-  T extends { studentId?: number; applicantId?: number }
->(items: T[]): Promise<T[]> {
+export async function enrichStudentInfo<T extends { studentId?: number; applicantId?: number }>(
+  items: T[]
+): Promise<T[]> {
   // 如果没有数据，直接返回
   if (!items || items.length === 0) return items
 
@@ -76,9 +75,7 @@ export async function enrichStudentInfo<
   if (studentIds.length === 0) return items
 
   // 3. 并发获取学生详情
-  const studentDetails = await Promise.all(
-    studentIds.map((id) => getStudentInfo(id))
-  )
+  const studentDetails = await Promise.all(studentIds.map((id) => getStudentInfo(id)))
 
   // 4. 创建 studentId -> 学生详情的映射
   const studentMap = new Map(
@@ -104,8 +101,7 @@ export async function enrichStudentInfo<
       genderText: (item as any).genderText || studentDetail.genderText,
       phone: (item as any).phone || studentDetail.phone,
       nation: (item as any).nation || studentDetail.nation,
-      politicalStatus:
-        (item as any).politicalStatus || studentDetail.politicalStatus,
+      politicalStatus: (item as any).politicalStatus || studentDetail.politicalStatus,
       campusName: (item as any).campusName || studentDetail.campusName,
       deptName: (item as any).deptName || studentDetail.deptName,
       majorName: (item as any).majorName || studentDetail.majorName,
@@ -113,10 +109,8 @@ export async function enrichStudentInfo<
       floorName: (item as any).floorName || studentDetail.floorName,
       roomName: (item as any).roomName || studentDetail.roomName,
       bedName: (item as any).bedName || studentDetail.bedName,
-      academicStatusText:
-        (item as any).academicStatusText || studentDetail.academicStatusText,
-      enrollmentYear:
-        (item as any).enrollmentYear ?? studentDetail.enrollmentYear,
+      academicStatusText: (item as any).academicStatusText || studentDetail.academicStatusText,
+      enrollmentYear: (item as any).enrollmentYear ?? studentDetail.enrollmentYear,
       currentGrade: (item as any).currentGrade || studentDetail.currentGrade
     }
   })

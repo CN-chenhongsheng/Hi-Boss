@@ -38,8 +38,10 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -61,6 +63,7 @@ public class CheckInServiceImpl extends ServiceImpl<CheckInMapper, CheckIn> impl
     private final ApprovalRecordMapper approvalRecordMapper;
 
     @Override
+    @Transactional(readOnly = true)
     public PageResult<CheckInVO> pageList(CheckInQueryDTO queryDTO) {
         LambdaQueryWrapper<CheckIn> wrapper = new LambdaQueryWrapper<>();
         wrapper.like(StrUtil.isNotBlank(queryDTO.getStudentNo()), CheckIn::getStudentNo, queryDTO.getStudentNo())
@@ -77,20 +80,22 @@ public class CheckInServiceImpl extends ServiceImpl<CheckInMapper, CheckIn> impl
         Page<CheckIn> page = new Page<>(queryDTO.getPageNum(), queryDTO.getPageSize());
         page(page, wrapper);
 
-        List<CheckInVO> voList = page.getRecords().stream()
-                .map(this::convertToVO)
-                .collect(Collectors.toList());
+        List<CheckIn> checkIns = page.getRecords();
+        List<CheckInVO> voList = convertToVOList(checkIns);
 
         return PageResult.build(voList, page.getTotal(), page.getCurrent(), page.getSize());
     }
 
     @Override
+    @Transactional(readOnly = true)
     public CheckInVO getDetailById(Long id) {
         CheckIn checkIn = getById(id);
         if (checkIn == null) {
             throw new BusinessException("入住记录不存在");
         }
-        return convertToVO(checkIn);
+        // 使用批量转换方法，即使只有一个元素也能保持一致性
+        List<CheckInVO> voList = convertToVOList(List.of(checkIn));
+        return voList.isEmpty() ? null : voList.get(0);
     }
 
     @Override
@@ -251,7 +256,82 @@ public class CheckInServiceImpl extends ServiceImpl<CheckInMapper, CheckIn> impl
     }
 
     /**
-     * 实体转VO
+     * 批量转换实体到VO（优化版本，避免N+1查询问题）
+     */
+    private List<CheckInVO> convertToVOList(List<CheckIn> checkIns) {
+        if (checkIns == null || checkIns.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        // 批量加载所有关联的校区
+        Set<String> campusCodes = checkIns.stream()
+                .map(CheckIn::getCampusCode)
+                .filter(code -> StrUtil.isNotBlank(code))
+                .collect(Collectors.toSet());
+        Map<String, Campus> campusMap = new HashMap<>();
+        if (!campusCodes.isEmpty()) {
+            campusCodes.forEach(code -> {
+                LambdaQueryWrapper<Campus> wrapper = new LambdaQueryWrapper<>();
+                wrapper.eq(Campus::getCampusCode, code);
+                Campus campus = campusMapper.selectOne(wrapper);
+                if (campus != null) {
+                    campusMap.put(code, campus);
+                }
+            });
+        }
+
+        // 批量加载所有关联的学生
+        Set<Long> studentIds = checkIns.stream()
+                .map(CheckIn::getStudentId)
+                .filter(id -> id != null)
+                .collect(Collectors.toSet());
+        Map<Long, Student> studentMap = studentIds.isEmpty() ? Map.of() :
+                studentMapper.selectBatchIds(studentIds).stream()
+                        .collect(Collectors.toMap(Student::getId, s -> s));
+
+        // 转换为VO列表
+        return checkIns.stream()
+                .map(checkIn -> convertToVO(checkIn, campusMap, studentMap))
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * 实体转VO（优化版本，使用预加载的数据）
+     */
+    private CheckInVO convertToVO(CheckIn checkIn, Map<String, Campus> campusMap,
+                                  Map<Long, Student> studentMap) {
+        CheckInVO vo = new CheckInVO();
+        BeanUtil.copyProperties(checkIn, vo);
+        vo.setStatusText(DictUtils.getLabel("check_in_status", checkIn.getStatus(), "未知"));
+        vo.setCheckInTypeText(checkIn.getCheckInType() != null && checkIn.getCheckInType() == 1 ? "长期住宿" : "临时住宿");
+
+        // 从缓存获取校区信息
+        if (StrUtil.isNotBlank(checkIn.getCampusCode())) {
+            Campus campus = campusMap.get(checkIn.getCampusCode());
+            if (campus != null) {
+                vo.setCampusName(campus.getCampusName());
+            }
+        }
+
+        // 从缓存获取学生信息
+        if (checkIn.getStudentId() != null) {
+            Student student = studentMap.get(checkIn.getStudentId());
+            if (student != null) {
+                studentInfoEnricher.enrichStudentInfo(student, vo, "campusName");
+            }
+        }
+
+        // 填充审批进度信息
+        if (checkIn.getApprovalInstanceId() != null) {
+            vo.setApprovalInstanceId(checkIn.getApprovalInstanceId());
+            vo.setApprovalProgress(buildApprovalProgress(checkIn.getApprovalInstanceId(), checkIn.getStatus()));
+        }
+
+        return vo;
+    }
+
+    /**
+     * 实体转VO（保留原方法用于单个对象转换）
      */
     private CheckInVO convertToVO(CheckIn checkIn) {
         CheckInVO vo = new CheckInVO();

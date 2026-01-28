@@ -413,26 +413,31 @@
 
 <style scoped lang="scss">
   .scope-dialog-content {
+    display: flex;
+    flex-direction: column;
     height: 700px;
-    min-height: 600px;
+    min-height: 700px;
 
     .error-message {
       margin-bottom: 20px;
     }
 
     .logic-flow-wrapper {
+      flex: 1;
       width: 100%;
-      height: 100%;
+      min-height: 0;
       overflow: hidden;
+      background-color: var(--el-fill-color-light);
       border: 1px solid var(--el-border-color-light);
       border-radius: var(--el-border-radius-base);
     }
 
     .empty-message {
       display: flex;
+      flex: 1;
       align-items: center;
       justify-content: center;
-      height: 100%;
+      min-height: 0;
     }
   }
 
@@ -440,5 +445,14 @@
     display: flex;
     gap: 12px;
     justify-content: flex-end;
+  }
+
+  // 暗色主题适配
+  :global(.dark) {
+    .scope-dialog-content {
+      .logic-flow-wrapper {
+        background-image: none;
+      }
+    }
   }
 </style>

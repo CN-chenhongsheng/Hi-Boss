@@ -3,6 +3,7 @@ package com.project.backend.common.aspect;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.project.core.annotation.Log;
 import com.project.core.context.UserContext;
+import com.project.core.util.RequestUtils;
 import com.project.backend.system.entity.OperLog;
 import com.project.backend.system.service.OperLogService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -56,16 +57,6 @@ public class LogAspect {
      */
     private static final int STATUS_SUCCESS = 0;
     private static final int STATUS_ERROR = 1;
-
-    /**
-     * IP 请求头列表
-     */
-    private static final String[] IP_HEADERS = {
-            "X-Forwarded-For",
-            "X-Real-IP",
-            "Proxy-Client-IP",
-            "WL-Proxy-Client-IP"
-    };
 
     /**
      * 配置织入切面
@@ -138,7 +129,7 @@ public class LogAspect {
                 operLog.setOperUrl(request.getRequestURI());
 
                 // 设置IP地址
-                String ip = getIpAddr(request);
+                String ip = RequestUtils.getClientIp(request);
                 operLog.setOperIp(ip);
 
                 // 设置设备类型
@@ -243,33 +234,6 @@ public class LogAspect {
         return str.length() > MAX_CONTENT_LENGTH
                 ? str.substring(0, MAX_CONTENT_LENGTH) + "..."
                 : str;
-    }
-
-    /**
-     * 获取客户端IP地址
-     */
-    private String getIpAddr(HttpServletRequest request) {
-        for (String header : IP_HEADERS) {
-            String ip = request.getHeader(header);
-            if (isValidIp(ip)) {
-                return extractFirstIp(ip);
-            }
-        }
-        return request.getRemoteAddr();
-    }
-
-    /**
-     * 判断IP是否有效
-     */
-    private boolean isValidIp(String ip) {
-        return ip != null && !ip.isEmpty() && !"unknown".equalsIgnoreCase(ip);
-    }
-
-    /**
-     * 提取第一个IP（处理多个IP的情况）
-     */
-    private String extractFirstIp(String ip) {
-        return ip.contains(",") ? ip.split(",")[0].trim() : ip;
     }
 
     /**

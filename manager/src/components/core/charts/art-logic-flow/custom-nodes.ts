@@ -7,6 +7,34 @@
 import { HtmlNode, HtmlNodeModel } from '@logicflow/core'
 
 /**
+ * 获取 CSS 变量值
+ */
+const getCSSVar = (varName: string, fallback: string = ''): string => {
+  return getComputedStyle(document.documentElement).getPropertyValue(varName).trim() || fallback
+}
+
+/**
+ * 获取背景颜色
+ */
+const getBgColor = (): string => {
+  return getCSSVar('--el-bg-color', '#ffffff')
+}
+
+/**
+ * 获取主要文本颜色
+ */
+const getTextPrimaryColor = (): string => {
+  return getCSSVar('--el-text-color-primary', '#303133')
+}
+
+/**
+ * 获取次要文本颜色
+ */
+const getTextSecondaryColor = (): string => {
+  return getCSSVar('--el-text-color-secondary', '#606266')
+}
+
+/**
  * 玻璃态悬浮节点
  */
 class GlassNodeModel extends HtmlNodeModel {
@@ -33,6 +61,11 @@ class GlassNodeView extends HtmlNode {
     const { nodeType, isSelected, label } = properties as any
     // 使用 properties 中的 label，而不是 text.value
     const textLabel = label || ''
+
+    // 获取主题颜色
+    const bgColor = getBgColor()
+    const textPrimaryColor = getTextPrimaryColor()
+    const textSecondaryColor = getTextSecondaryColor()
 
     // 获取层级颜色
     const getColor = (type: string) => {
@@ -62,7 +95,7 @@ class GlassNodeView extends HtmlNode {
       display: flex;
       align-items: center;
       padding: 0 12px;
-      background: ${isSelected ? 'rgba(255, 255, 255, 0.95)' : 'rgba(255, 255, 255, 0.85)'};
+      background: ${bgColor};
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
       border: ${isSelected ? '2px' : '1.5px'} solid ${isSelected ? themeColor : `${themeColor}50`};
@@ -80,9 +113,7 @@ class GlassNodeView extends HtmlNode {
       container.style.borderColor = themeColor
     }
     container.onmouseleave = () => {
-      container.style.background = isSelected
-        ? 'rgba(255, 255, 255, 0.95)'
-        : 'rgba(255, 255, 255, 0.85)'
+      container.style.background = bgColor
       container.style.borderColor = isSelected ? themeColor : `${themeColor}50`
     }
 
@@ -140,7 +171,7 @@ class GlassNodeView extends HtmlNode {
     title.style.cssText = `
       font-size: 13px;
       font-weight: 500;
-      color: #1a1a1a;
+      color: ${textPrimaryColor};
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -151,7 +182,7 @@ class GlassNodeView extends HtmlNode {
     const subTitle = document.createElement('div')
     subTitle.style.cssText = `
       font-size: 10px;
-      color: #8c8c8c;
+      color: ${textSecondaryColor};
       text-transform: uppercase;
       letter-spacing: 0.5px;
     `

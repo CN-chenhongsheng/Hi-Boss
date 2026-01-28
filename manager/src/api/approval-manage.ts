@@ -34,6 +34,9 @@ export interface ApprovalNode {
   remark?: string
   assignees: ApprovalAssignee[]
   createTime?: string
+  // 节点位置坐标（用于保存用户自定义布局）
+  x?: number
+  y?: number
 }
 
 /** 审批流程 */
