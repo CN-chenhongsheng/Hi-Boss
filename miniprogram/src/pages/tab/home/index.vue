@@ -643,11 +643,8 @@ onMounted(async () => {
 </script>
 
 <style lang="scss" scoped>
-// 主题变量
-$primary: #0adbc3;
-$primary-dark: #009688;
-$accent: #ff8c42;
-$bg-light: #F0F4F8;
+// 导入公共样式变量
+@import '@/styles/variables.scss';
 
 .home-page {
   position: relative;
@@ -691,40 +688,31 @@ $bg-light: #F0F4F8;
   }
 }
 
-// 毛玻璃卡片
-.glass-card {
-  background: rgb(255 255 255 / 65%);
-  border: 2rpx solid rgb(255 255 255 / 60%);
-  border-radius: 42rpx;
-  box-shadow: 0 8rpx 60rpx rgb(0 0 0 / 3%);
-  backdrop-filter: blur(32rpx);
-}
-
 // 顶部导航
 .header {
   position: relative;
   z-index: 10;
   align-items: flex-start;
-  padding: calc(var(--status-bar-height) + 45rpx) 32rpx 25rpx;
+  padding: calc(var(--status-bar-height) + 45rpx) $spacing-lg 25rpx;
   margin-bottom: 10rpx;
 
   .header-left {
     .date-text {
-      font-size: 24rpx;
-      color: #64748b;
-      font-weight: 500;
+      font-size: $font-sm;
+      color: $text-sub;
+      font-weight: $font-medium;
     }
 
     .greeting-text {
-      margin-top: 8rpx;
-      font-size: 48rpx;
-      color: #0f172a;
-      font-weight: 700;
+      margin-top: $spacing-xs;
+      font-size: $font-2xl;
+      color: $text-main;
+      font-weight: $font-bold;
       line-height: 1.2;
     }
 
     .header-unlogged {
-      margin-top: 8rpx;
+      margin-top: $spacing-xs;
 
       .greeting-text {
         margin-top: 0;
@@ -734,14 +722,14 @@ $bg-light: #F0F4F8;
       .login-btn {
         display: inline-flex;
         align-items: center;
-        padding: 8rpx 16rpx;
-        font-size: 24rpx;
+        padding: $spacing-xs $spacing-sm;
+        font-size: $font-sm;
         color: $primary;
         background: rgb(10 219 195 / 10%);
-        border-radius: 9999rpx;
-        transition: all 0.2s;
+        border-radius: $radius-full;
+        transition: $transition-fast;
         gap: 4rpx;
-        font-weight: 700;
+        font-weight: $font-bold;
 
         &:active {
           background: rgb(10 219 195 / 20%);
@@ -755,25 +743,25 @@ $bg-light: #F0F4F8;
 .student-home {
   position: relative;
   z-index: 10;
-  padding: 0 32rpx;
+  padding: 0 $spacing-lg;
 }
 
 // 用户卡片
 .user-card {
-  padding: 32rpx;
-  margin-bottom: 32rpx;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-lg;
 
   .user-card-content {
     display: flex;
     align-items: center;
-    gap: 24rpx;
+    gap: $spacing-md;
   }
 
   .avatar {
     width: 120rpx;
     height: 120rpx;
     background: #e2e8f0;
-    border: 4rpx solid rgb(255 255 255 / 80%);
+    border: 4rpx solid $glass-border;
     border-radius: 50%;
     flex-shrink: 0;
   }
@@ -782,37 +770,37 @@ $bg-light: #F0F4F8;
     flex: 1;
 
     .user-name {
-      font-size: 36rpx;
-      font-weight: 700;
-      color: #0f172a;
+      font-size: $font-xl;
+      font-weight: $font-bold;
+      color: $text-main;
       line-height: 1.2;
     }
 
     .student-no {
-      margin-top: 8rpx;
-      font-size: 24rpx;
-      color: #64748b;
-      font-weight: 500;
+      margin-top: $spacing-xs;
+      font-size: $font-sm;
+      color: $text-sub;
+      font-weight: $font-medium;
     }
 
     .dorm-tag {
       display: inline-flex;
       align-items: center;
-      padding: 8rpx 20rpx;
-      margin-top: 16rpx;
-      font-size: 24rpx;
+      padding: $spacing-xs 20rpx;
+      margin-top: $spacing-sm;
+      font-size: $font-sm;
       color: $primary-dark;
       background: rgb(10 219 195 / 10%);
       border-radius: 12rpx;
-      gap: 8rpx;
-      font-weight: 600;
+      gap: $spacing-xs;
+      font-weight: $font-semibold;
     }
   }
 }
 
 // 区块样式
 .section {
-  margin-bottom: 32rpx;
+  margin-bottom: $spacing-lg;
 }
 
 .section-header {
@@ -824,9 +812,9 @@ $bg-light: #F0F4F8;
 
 .section-title {
   margin-bottom: 20rpx;
-  font-size: 36rpx;
-  color: #0f172a;
-  font-weight: 700;
+  font-size: $font-xl;
+  color: $text-main;
+  font-weight: $font-bold;
 
   .section-header & {
     margin-bottom: 0;
@@ -834,32 +822,32 @@ $bg-light: #F0F4F8;
 }
 
 .section-more {
-  font-size: 24rpx;
-  color: #64748b;
-  font-weight: 500;
+  font-size: $font-sm;
+  color: $text-sub;
+  font-weight: $font-medium;
 }
 
 .filter-btn {
-  padding: 8rpx;
+  padding: $spacing-xs;
 }
 
 // 通知公告区域
 .notice-section {
-  padding-right: 32rpx;
-  padding-left: 32rpx;
-  margin-right: -32rpx;
+  padding-right: $spacing-lg;
+  padding-left: $spacing-lg;
+  margin-right: -$spacing-lg;
   margin-bottom: 0;
-  margin-left: -32rpx;
+  margin-left: -$spacing-lg;
 
   .section-header {
-    padding-right: 0rpx;
+    padding-right: 0;
   }
 }
 
 .notice-scroll {
   display: flex;
-  margin-right: -32rpx;
-  margin-bottom: 32rpx;
+  margin-right: -$spacing-lg;
+  margin-bottom: $spacing-lg;
   height: 190rpx;
   white-space: nowrap;
   background: transparent;
@@ -873,8 +861,8 @@ $bg-light: #F0F4F8;
   position: relative;
   display: flex;
   overflow: hidden;
-  padding: 24rpx;
-  margin-right: 24rpx;
+  padding: $spacing-md;
+  margin-right: $spacing-md;
   width: 480rpx;
   min-width: 480rpx;
   height: 140rpx;
@@ -902,16 +890,16 @@ $bg-light: #F0F4F8;
   .notice-meta {
     display: flex;
     align-items: center;
-    gap: 16rpx;
+    gap: $spacing-sm;
     margin-bottom: 12rpx;
   }
 
   .notice-tag {
     display: inline-block;
     padding: 4rpx 12rpx;
-    font-size: 20rpx;
-    border-radius: 16rpx;
-    font-weight: 700;
+    font-size: $font-xs;
+    border-radius: $radius-sm;
+    font-weight: $font-bold;
 
     &.tag-urgent {
       color: $accent;
@@ -934,26 +922,26 @@ $bg-light: #F0F4F8;
 
   .notice-date {
     font-size: 22rpx;
-    color: #94a3b8;
+    color: $text-disabled;
   }
 
   .notice-title {
     overflow: hidden;
-    margin-bottom: 8rpx;
-    font-size: 28rpx;
+    margin-bottom: $spacing-xs;
+    font-size: $font-md;
     text-overflow: ellipsis;
     white-space: nowrap;
-    color: #0f172a;
-    font-weight: 700;
+    color: $text-main;
+    font-weight: $font-bold;
     line-height: 1.3;
   }
 
   .notice-desc {
     overflow: hidden;
-    font-size: 24rpx;
+    font-size: $font-sm;
     text-overflow: ellipsis;
     white-space: nowrap;
-    color: #64748b;
+    color: $text-sub;
     line-height: 1.5;
   }
 }
@@ -962,7 +950,7 @@ $bg-light: #F0F4F8;
 .service-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 24rpx;
+  gap: $spacing-md;
 }
 
 .service-item {
@@ -973,7 +961,7 @@ $bg-light: #F0F4F8;
   overflow: hidden;
   width: 100%;
   height: 160rpx;
-  transition: all 0.3s;
+  transition: $transition-normal;
   flex-direction: column;
 
   &:active {
@@ -992,7 +980,7 @@ $bg-light: #F0F4F8;
     bottom: -50rpx;
     z-index: 0;
     opacity: 0.08;
-    transition: all 0.5s;
+    transition: $transition-slow;
     transform: rotate(12deg);
     pointer-events: none;
 
@@ -1019,8 +1007,8 @@ $bg-light: #F0F4F8;
   }
 
   .service-name {
-    font-size: 24rpx;
-    font-weight: 700;
+    font-size: $font-sm;
+    font-weight: $font-bold;
     color: #334155;
   }
 }
@@ -1039,13 +1027,13 @@ $bg-light: #F0F4F8;
 .apply-item {
   display: flex;
   align-items: center;
-  padding: 24rpx;
+  padding: $spacing-md;
 
   .apply-icon {
     display: flex;
     justify-content: center;
     align-items: center;
-    margin-right: 24rpx;
+    margin-right: $spacing-md;
     width: 72rpx;
     height: 72rpx;
     border-radius: 25rpx;
@@ -1065,15 +1053,15 @@ $bg-light: #F0F4F8;
 
     .apply-title {
       font-size: 26rpx;
-      font-weight: 700;
-      color: #0f172a;
+      font-weight: $font-bold;
+      color: $text-main;
     }
 
     .apply-status {
       padding: 4rpx 12rpx;
-      font-size: 20rpx;
-      border-radius: 8rpx;
-      font-weight: 500;
+      font-size: $font-xs;
+      border-radius: $spacing-xs;
+      font-weight: $font-medium;
 
       &.status-processing {
         color: $accent;
@@ -1098,7 +1086,7 @@ $bg-light: #F0F4F8;
 
     .apply-date {
       font-size: 22rpx;
-      color: #94a3b8;
+      color: $text-disabled;
     }
   }
 }
@@ -1107,13 +1095,13 @@ $bg-light: #F0F4F8;
 .utility-stats {
   display: flex;
   flex-direction: column;
-  gap: 24rpx;
+  gap: $spacing-md;
 }
 
 .utility-card {
   position: relative;
-  overflow: visible; // 改为 visible 以避免图表被裁剪
-  padding: 32rpx;
+  overflow: visible;
+  padding: $spacing-lg;
 }
 
 .utility-bg-blob {
@@ -1142,19 +1130,19 @@ $bg-light: #F0F4F8;
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 24rpx;
+  margin-bottom: $spacing-md;
 }
 
 .utility-info {
   display: flex;
   flex-direction: column;
-  gap: 8rpx;
+  gap: $spacing-xs;
 }
 
 .utility-title-row {
   display: flex;
   align-items: center;
-  gap: 16rpx;
+  gap: $spacing-sm;
 }
 
 .utility-icon-wrapper {
@@ -1174,31 +1162,31 @@ $bg-light: #F0F4F8;
 }
 
 .utility-title {
-  font-size: 32rpx;
-  font-weight: 700;
-  color: #111817;
+  font-size: $font-lg;
+  font-weight: $font-bold;
+  color: $text-main;
   letter-spacing: 0.5rpx;
 }
 
 .utility-value-row {
   display: flex;
   align-items: baseline;
-  gap: 8rpx;
-  margin-top: 16rpx;
+  gap: $spacing-xs;
+  margin-top: $spacing-sm;
 }
 
 .utility-value {
   font-size: 90rpx;
   line-height: 1;
-  font-weight: 700;
-  color: #111817;
+  font-weight: $font-bold;
+  color: $text-main;
   letter-spacing: -2rpx;
 }
 
 .utility-unit {
-  font-size: 28rpx;
-  color: #6b7280;
-  font-weight: 500;
+  font-size: $font-md;
+  color: $text-sub;
+  font-weight: $font-medium;
   transform: translateY(-4rpx);
 }
 
@@ -1206,10 +1194,10 @@ $bg-light: #F0F4F8;
   display: flex;
   align-items: center;
   padding: 12rpx 20rpx;
-  font-size: 24rpx;
-  border-radius: 16rpx;
-  gap: 8rpx;
-  font-weight: 600;
+  font-size: $font-sm;
+  border-radius: $radius-sm;
+  gap: $spacing-xs;
+  font-weight: $font-semibold;
 
   &.trend-down {
     color: #22c55e;
@@ -1227,9 +1215,9 @@ $bg-light: #F0F4F8;
 .utility-chart {
   position: relative;
   z-index: 10;
-  overflow: visible; // 允许图表内容显示，不被裁剪
-  margin-top: 24rpx;
-  margin-bottom: 8rpx;
+  overflow: visible;
+  margin-top: $spacing-md;
+  margin-bottom: $spacing-xs;
   width: 100%;
   height: 240rpx;
 }
@@ -1239,10 +1227,5 @@ $bg-light: #F0F4F8;
   overflow: visible;
   width: 100%;
   height: 100%;
-}
-
-// 底部安全区域
-.safe-bottom {
-  height: calc(env(safe-area-inset-bottom) + 80rpx);
 }
 </style>

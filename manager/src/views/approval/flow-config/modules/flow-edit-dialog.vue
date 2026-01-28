@@ -9,6 +9,7 @@
     :close-on-click-modal="false"
     destroy-on-close
     @closed="handleClosed"
+    @opened="handleDialogOpened"
   >
     <div class="dialog-content">
       <!-- 可视化流程编辑区域 -->
@@ -739,17 +740,24 @@
         // 数据加载后重新生成 flowData
         regenerateFlowData()
 
-        // 数据加载后，等待画布渲染完毕再居中
-        await nextTick()
-        setTimeout(() => {
-          const lfInstance = logicFlowRef.value?.getInstance()
-          if (lfInstance) {
-            lfInstance.fitView(50)
-          }
-        }, 200)
+        // 居中操作将在 @opened 事件中处理，确保弹窗完全打开后再执行
       }
     }
   )
+
+  // 弹窗打开完成后的处理
+  const handleDialogOpened = async () => {
+    // 等待画布完全渲染后再居中
+    await nextTick()
+    await new Promise((resolve) => setTimeout(resolve, 200))
+    await nextTick()
+
+    // 使用组件暴露的 fitView 方法，与工具栏按钮效果一致
+    const lfInstance = logicFlowRef.value?.getInstance()
+    if (lfInstance) {
+      lfInstance.fitView(50)
+    }
+  }
 
   // 弹窗关闭时清理
   const handleClosed = () => {
@@ -794,6 +802,13 @@
       if (lfInstance && formData.nodes) {
         const currentLfData = lfInstance.getGraphData() as LogicFlowData
         formData.nodes = syncNodePositions(formData.nodes, currentLfData)
+
+        // 清除临时 ID（提交到后端时不需要）
+        formData.nodes.forEach((node) => {
+          if (node.tempId) {
+            delete node.tempId
+          }
+        })
       }
 
       submitLoading.value = true
@@ -875,9 +890,7 @@
     .el-dialog__body {
       display: flex;
       flex-direction: column;
-      height: 700px;
       min-height: 700px;
-      max-height: calc(100vh - 160px);
     }
   }
 
@@ -889,7 +902,6 @@
     height: 700px;
     min-height: 700px;
     min-height: 0;
-    max-height: calc(100vh - 160px);
   }
 
   .flow-info-collapse {

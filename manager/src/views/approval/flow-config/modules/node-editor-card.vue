@@ -15,18 +15,34 @@
       >
         <span class="card-title">{{ nodeType === 'start' ? '流程配置' : '编辑节点' }}</span>
         <div class="card-actions">
-          <ElButton
-            v-if="nodeType === 'approval'"
-            size="small"
-            type="danger"
-            text
-            @click="handleDelete"
-            class="delete-btn"
-          >
-            <i class="ri-delete-bin-line"></i>
+          <ElButton size="small" text @click="handleClose" class="close-btn">
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
           </ElButton>
-          <ElButton size="small" text @click="handleClose">
-            <i class="ri-close-line"></i>
+          <ElButton size="small" text type="primary" @click="handleConfirm" class="confirm-btn">
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
           </ElButton>
         </div>
       </div>
@@ -36,12 +52,7 @@
         <!-- 流程名称 -->
         <div class="form-item">
           <label class="form-label required">流程名称</label>
-          <ElInput
-            v-model="localFlowData.flowName"
-            placeholder="请输入流程名称"
-            size="small"
-            @change="handleFlowUpdate"
-          />
+          <ElInput v-model="localFlowData.flowName" placeholder="请输入流程名称" size="small" />
         </div>
 
         <!-- 流程编码 -->
@@ -52,7 +63,6 @@
             placeholder="请输入流程编码（唯一）"
             size="small"
             :disabled="dialogType === 'edit'"
-            @change="handleFlowUpdate"
           />
         </div>
 
@@ -65,7 +75,6 @@
             size="small"
             style="width: 100%"
             :disabled="dialogType === 'edit'"
-            @change="handleFlowUpdate"
           >
             <ElOption
               v-for="item in businessTypeOptions"
@@ -85,7 +94,6 @@
             :rows="3"
             placeholder="请输入备注信息"
             size="small"
-            @change="handleFlowUpdate"
           />
         </div>
       </div>
@@ -95,12 +103,7 @@
         <!-- 节点名称 -->
         <div class="form-item">
           <label class="form-label">节点名称</label>
-          <ElInput
-            v-model="localData.nodeName"
-            placeholder="请输入节点名称"
-            size="small"
-            @change="handleUpdate"
-          />
+          <ElInput v-model="localData.nodeName" placeholder="请输入节点名称" size="small" />
         </div>
 
         <!-- 节点类型 -->
@@ -111,7 +114,6 @@
             placeholder="请选择"
             size="small"
             style="width: 100%"
-            @change="handleUpdate"
           >
             <ElOption label="串行（单人审批）" :value="1" />
             <ElOption label="会签（所有人通过）" :value="2" />
@@ -127,7 +129,6 @@
             placeholder="请选择"
             size="small"
             style="width: 100%"
-            @change="handleUpdate"
           >
             <ElOption label="直接结束" :value="1" />
             <ElOption label="退回申请人" :value="2" />
@@ -380,8 +381,13 @@
     emit('update:visible', false)
   }
 
-  const handleDelete = () => {
-    emit('delete')
+  const handleConfirm = () => {
+    if (props.nodeType === 'start') {
+      handleFlowUpdate()
+    } else {
+      handleUpdate()
+    }
+    handleClose()
   }
 
   const handleRemoveAssignee = (index: number) => {
@@ -462,8 +468,29 @@
         display: flex;
         gap: 4px;
 
-        .delete-btn:hover {
-          color: #ef4444;
+        .close-btn,
+        .confirm-btn {
+          padding: 5px 6px !important;
+        }
+
+        .close-btn {
+          color: var(--el-text-color-secondary);
+          opacity: 0.8;
+
+          &:hover {
+            color: var(--el-text-color-primary);
+            opacity: 1;
+          }
+        }
+
+        .confirm-btn {
+          color: var(--el-color-primary);
+          opacity: 0.8;
+
+          &:hover {
+            color: var(--el-color-primary);
+            opacity: 1;
+          }
         }
       }
     }

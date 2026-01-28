@@ -327,95 +327,26 @@ onMounted(() => {
 </script>
 
 <style lang="scss" scoped>
-// 主题变量
-$primary: #0adbc3;
-$primary-dark: #08bda8;
-$accent: #ff9f43;
-$bg-light: #f5f8f8;
-$text-main: #111817;
-$text-sub: #6b7280;
-$glass-bg: rgb(255 255 255 / 65%);
-$glass-border: rgb(255 255 255 / 80%);
-$glass-border-light: rgb(255 255 255 / 60%);
+// 导入公共样式变量
+@import '@/styles/variables.scss';
+
+// ========================================
+// 页面布局
+// ========================================
 
 .message-page {
   overflow-x: hidden;
   min-height: 100vh;
-  background: linear-gradient(135deg, #f0fdfa 0%, #ecfccb0c 100%);
+  background: linear-gradient(135deg, $bg-gradient-start 0%, $bg-gradient-end 100%);
   background-attachment: fixed;
 }
 
-// 背景装饰
-.bg-decorations {
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  overflow: hidden;
+// ========================================
+// 头部区域
+// ========================================
 
-  .blob {
-    position: absolute;
-    border-radius: 50%;
-    filter: blur(100rpx);
-    animation: float 20s ease-in-out infinite;
-
-    &.blob-1 {
-      top: -200rpx;
-      right: -100rpx;
-      width: 600rpx;
-      height: 600rpx;
-      background: rgb(255 220 220 / 75%);
-      animation-delay: 0s;
-    }
-
-    &.blob-2 {
-      bottom: -150rpx;
-      left: -100rpx;
-      width: 500rpx;
-      height: 500rpx;
-      background: rgb(255 220 180 / 45%);
-      animation-delay: 5s;
-    }
-
-    &.blob-3 {
-      top: 50%;
-      left: 50%;
-      width: 400rpx;
-      height: 400rpx;
-      background: rgb(255 200 180 / 30%);
-      animation-delay: 10s;
-      transform: translate(-50%, -50%);
-    }
-  }
-}
-
-@keyframes float {
-  0%, 100% {
-    transform: translate(0, 0) scale(1);
-  }
-
-  33% {
-    transform: translate(30rpx, -30rpx) scale(1.1);
-  }
-
-  66% {
-    transform: translate(-30rpx, 30rpx) scale(0.9);
-  }
-}
-
-.page-container {
-  position: relative;
-  z-index: 1;
-  display: flex;
-  margin: 0 auto;
-  max-width: 750rpx;
-  min-height: 100vh;
-  flex-direction: column;
-}
-
-// 精美头部区域
 .header-section {
-  padding: 0 32rpx 24rpx;
+  padding: 0 $spacing-lg $spacing-md;
 
   .status-bar {
     width: 100%;
@@ -425,7 +356,7 @@ $glass-border-light: rgb(255 255 255 / 60%);
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0 0 24rpx;
+    padding: 0 0 $spacing-md;
 
     .header-left {
       flex: 1;
@@ -438,35 +369,34 @@ $glass-border-light: rgb(255 255 255 / 60%);
         .header-title {
           font-size: 40rpx;
           color: $text-main;
-          font-weight: 700;
+          font-weight: $font-bold;
           letter-spacing: 0.5rpx;
         }
 
         .header-subtitle {
           font-size: 22rpx;
           color: $text-sub;
-          font-weight: 500;
+          font-weight: $font-medium;
           letter-spacing: 1rpx;
           text-transform: uppercase;
         }
       }
     }
-
   }
 
   // 统计卡片
   .stats-cards {
     display: flex;
-    gap: 16rpx;
-    margin-top: 16rpx;
+    gap: $spacing-sm;
+    margin-top: $spacing-sm;
 
     .stat-card {
       display: flex;
       align-items: center;
-      padding: 20rpx 24rpx;
+      padding: 20rpx $spacing-md;
       border-radius: 20rpx;
-      transition: all 0.3s;
-      gap: 16rpx;
+      transition: $transition-normal;
+      gap: $spacing-sm;
       flex: 1;
 
       &:active {
@@ -490,56 +420,44 @@ $glass-border-light: rgb(255 255 255 / 60%);
         flex: 1;
 
         .stat-value {
-          font-size: 32rpx;
+          font-size: $font-lg;
           color: $text-main;
-          font-weight: 700;
+          font-weight: $font-bold;
           line-height: 1;
         }
 
         .stat-label {
           font-size: 22rpx;
           color: $text-sub;
-          font-weight: 500;
+          font-weight: $font-medium;
         }
       }
 
-      &.stat-card-1 {
-        .stat-icon {
-          background: linear-gradient(135deg, #0adbc3 0%, #08bda8 100%);
-          box-shadow: 0 4rpx 12rpx rgb(10 219 195 / 30%);
-        }
+      &.stat-card-1 .stat-icon {
+        background: linear-gradient(135deg, $primary 0%, $primary-dark 100%);
+        box-shadow: $shadow-lg;
       }
 
-      &.stat-card-2 {
-        .stat-icon {
-          background: linear-gradient(135deg, #ff9f43 0%, #ff8f2b 100%);
-          box-shadow: 0 4rpx 12rpx rgb(255 159 67 / 30%);
-        }
+      &.stat-card-2 .stat-icon {
+        background: linear-gradient(135deg, $accent 0%, $accent-dark 100%);
+        box-shadow: 0 4rpx 12rpx rgb(255 159 67 / 30%);
       }
     }
   }
 }
 
-// 消息分类标签
+// ========================================
+// 消息分类标签（扩展公共样式）
+// ========================================
+
 .message-tabs {
-  position: sticky;
-  top: 0;
-  z-index: 40;
-  display: flex;
-  overflow: hidden;
-  padding: 0;
-  margin: 0 32rpx 24rpx;
-  background: $glass-bg;
-  border: 2rpx solid $glass-border;
-  border-radius: 24rpx;
-  box-shadow: 0 8rpx 32rpx rgb(31 38 135 / 7%);
-  backdrop-filter: blur(32rpx);
+  margin: 0 $spacing-lg $spacing-md;
 
   .tab-item {
     position: relative;
     padding: 20rpx 0;
     text-align: center;
-    transition: all 0.3s;
+    transition: $transition-normal;
     flex: 1;
 
     .tab-content {
@@ -548,19 +466,17 @@ $glass-border-light: rgb(255 255 255 / 60%);
       align-items: center;
       gap: 6rpx;
       color: $text-sub;
-      transition: all 0.3s;
+      transition: $transition-normal;
 
       .tab-label {
         font-size: 26rpx;
-        font-weight: 500;
+        font-weight: $font-medium;
       }
     }
 
-    &.active {
-      .tab-content {
-        color: $primary;
-        font-weight: 700;
-      }
+    &.active .tab-content {
+      color: $primary;
+      font-weight: $font-bold;
     }
   }
 
@@ -572,20 +488,28 @@ $glass-border-light: rgb(255 255 255 / 60%);
     background: linear-gradient(90deg, $primary 0%, $primary-dark 100%);
     border-radius: 2rpx;
     box-shadow: 0 2rpx 8rpx rgb(10 219 195 / 40%);
-    transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition:
+      left 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+      transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     pointer-events: none;
   }
 }
 
+// ========================================
 // 消息列表容器
+// ========================================
+
 .message-list {
-  padding: 0 32rpx;
-  padding-bottom: calc(24rpx + env(safe-area-inset-bottom));
+  padding: 0 $spacing-lg;
+  padding-bottom: calc($spacing-md + env(safe-area-inset-bottom));
   width: auto;
   flex: 1;
 }
 
-// 加载状态
+// ========================================
+// 加载和空状态
+// ========================================
+
 .loading {
   display: flex;
   justify-content: center;
@@ -597,29 +521,18 @@ $glass-border-light: rgb(255 255 255 / 60%);
     width: 60rpx;
     height: 60rpx;
     border: 4rpx solid rgb(243 243 243);
-    border-top: 4rpx solid $primary;
+    border-top-color: $primary;
     border-radius: 50%;
-    animation: spin 1s linear infinite;
+    animation: loading-spin 1s linear infinite;
   }
 
   .loading-text {
-    margin-top: 24rpx;
-    font-size: 28rpx;
+    margin-top: $spacing-md;
+    font-size: $font-md;
     color: $text-sub;
   }
 }
 
-@keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-
-  100% {
-    transform: rotate(360deg);
-  }
-}
-
-// 空状态
 .empty {
   display: flex;
   justify-content: center;
@@ -627,19 +540,24 @@ $glass-border-light: rgb(255 255 255 / 60%);
   padding: 120rpx 0;
 }
 
+// ========================================
 // 列表内容
+// ========================================
+
 .list-content {
   display: flex;
   flex-direction: column;
-  gap: 16rpx;
+  gap: $spacing-sm;
 }
 
-// 消息项包装器
 .message-item-wrapper {
   opacity: 0;
 }
 
+// ========================================
 // 消息项
+// ========================================
+
 .message-item {
   position: relative;
   display: flex;
@@ -649,7 +567,7 @@ $glass-border-light: rgb(255 255 255 / 60%);
   border: 2rpx solid $glass-border-light;
   border-radius: 20rpx;
   box-shadow: 0 4rpx 16rpx rgb(31 38 135 / 5%);
-  transition: all 0.3s;
+  transition: $transition-normal;
   backdrop-filter: blur(32rpx);
 
   &:active {
@@ -659,13 +577,12 @@ $glass-border-light: rgb(255 255 255 / 60%);
 
   .item-main {
     display: flex;
-    padding: 20rpx 24rpx;
+    padding: 20rpx $spacing-md;
     flex-direction: column;
     gap: 12rpx;
     flex: 1;
     min-width: 0;
 
-    // 消息头部
     .item-header {
       display: flex;
       align-items: center;
@@ -680,13 +597,14 @@ $glass-border-light: rgb(255 255 255 / 60%);
         border-radius: 12rpx;
         flex-shrink: 0;
 
+        // 图标类型颜色
         &.icon-type-1 {
-          background: linear-gradient(135deg, #0adbc3 0%, #08bda8 100%);
+          background: linear-gradient(135deg, $primary 0%, $primary-dark 100%);
           box-shadow: 0 2rpx 8rpx rgb(10 219 195 / 25%);
         }
 
         &.icon-type-2 {
-          background: linear-gradient(135deg, #ff9f43 0%, #ff8f2b 100%);
+          background: linear-gradient(135deg, $accent 0%, $accent-dark 100%);
           box-shadow: 0 2rpx 8rpx rgb(255 159 67 / 25%);
         }
 
@@ -716,15 +634,15 @@ $glass-border-light: rgb(255 255 255 / 60%);
         .title-row {
           display: flex;
           align-items: center;
-          gap: 8rpx;
+          gap: $spacing-xs;
 
           .title {
             overflow: hidden;
-            font-size: 28rpx;
+            font-size: $font-md;
             text-overflow: ellipsis;
             white-space: nowrap;
             color: $text-main;
-            font-weight: 600;
+            font-weight: $font-semibold;
             flex: 1;
           }
 
@@ -733,7 +651,7 @@ $glass-border-light: rgb(255 255 255 / 60%);
             display: flex;
             justify-content: center;
             align-items: center;
-            margin-left: 8rpx;
+            margin-left: $spacing-xs;
             flex-shrink: 0;
 
             .badge-dot {
@@ -742,19 +660,18 @@ $glass-border-light: rgb(255 255 255 / 60%);
               background: linear-gradient(135deg, #ff6b6b 0%, #ff5252 100%);
               border-radius: 50%;
               box-shadow: 0 0 0 0 rgb(255 107 107 / 70%);
-              animation: pulse 2s infinite;
+              animation: badge-pulse 2s infinite;
             }
           }
         }
 
         .time {
           font-size: 22rpx;
-          color: #9ca3af;
+          color: $text-disabled;
         }
       }
     }
 
-    // 消息内容
     .item-body {
       overflow: hidden;
       padding-left: 56rpx;
@@ -762,7 +679,7 @@ $glass-border-light: rgb(255 255 255 / 60%);
       white-space: nowrap;
 
       .content {
-        font-size: 24rpx;
+        font-size: $font-sm;
         color: $text-sub;
         line-height: 1.6;
       }
@@ -770,28 +687,21 @@ $glass-border-light: rgb(255 255 255 / 60%);
   }
 }
 
-// 毛玻璃卡片
-.glass-card {
-  background: $glass-bg;
-  border: 2rpx solid $glass-border;
-  box-shadow: 0 8rpx 32rpx rgb(31 38 135 / 7%);
-  backdrop-filter: blur(32rpx);
-}
+// ========================================
+// 动画
+// ========================================
 
-// 淡入动画
-@keyframes fadeIn {
+@keyframes loading-spin {
   from {
-    opacity: 0;
-    transform: translateY(20rpx);
+    transform: rotate(0deg);
   }
 
   to {
-    opacity: 1;
-    transform: translateY(0);
+    transform: rotate(360deg);
   }
 }
 
-@keyframes pulse {
+@keyframes badge-pulse {
   0% {
     box-shadow: 0 0 0 0 rgb(255 107 107 / 70%);
   }
@@ -803,9 +713,5 @@ $glass-border-light: rgb(255 255 255 / 60%);
   100% {
     box-shadow: 0 0 0 0 rgb(255 107 107 / 0%);
   }
-}
-
-.animate-fade-in {
-  animation: fadeIn 0.5s ease-out forwards;
 }
 </style>

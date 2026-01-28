@@ -86,7 +86,12 @@ export function approvalNodesToLogicFlow(
 
   // 2. 添加审批节点 - 优先使用保存的坐标
   sortedNodes.forEach((node) => {
-    const nodeId = node.id ? `approval-${node.id}` : generateId()
+    // 优先使用 tempId（新节点），其次使用 id（已保存节点）
+    const nodeId = node.id
+      ? `approval-${node.id}`
+      : node.tempId
+        ? `approval-${node.tempId}`
+        : generateId()
 
     // 优先级1：使用保存的坐标（如果存在）
     // 优先级2：使用默认间距计算
@@ -99,8 +104,9 @@ export function approvalNodesToLogicFlow(
       x: nodeX, // 使用优先级坐标
       y: nodeY, // 使用优先级坐标
       properties: {
-        // 原始数据
+        // 原始数据 - 保存 originalId 和 tempId 到 properties
         originalId: node.id,
+        tempId: node.tempId,
         nodeName: node.nodeName,
         nodeOrder: node.nodeOrder,
         nodeType: node.nodeType,
@@ -117,7 +123,7 @@ export function approvalNodesToLogicFlow(
       id: `edge-${prevNodeId}-${nodeId}`,
       sourceNodeId: prevNodeId,
       targetNodeId: nodeId,
-      type: 'bezier',
+      type: 'custom-bezier',
       properties: {}
     })
 
@@ -151,7 +157,7 @@ export function approvalNodesToLogicFlow(
     id: `edge-${prevNodeId}-${endNodeId}`,
     sourceNodeId: prevNodeId,
     targetNodeId: endNodeId,
-    type: 'bezier',
+    type: 'custom-bezier',
     properties: {}
   })
 
@@ -201,7 +207,9 @@ export function createNewApprovalNode(order: number, x?: number, y?: number): Ap
     rejectAction: 1,
     assignees: [],
     x,
-    y
+    y,
+    // 生成临时唯一 ID（使用时间戳 + 随机数）
+    tempId: `temp-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`
   }
 }
 
@@ -337,12 +345,33 @@ export function syncNodePositions(nodes: ApprovalNode[], lfData: LogicFlowData):
   return nodes.map((node) => {
     // 查找匹配的 LogicFlow 节点
     const lfNode = lfData.nodes.find((lfn) => {
-      // 通过 originalId 匹配（如果节点有 id）
-      if (node.id) {
-        return lfn.properties?.originalId === node.id
+      // 优先级1：通过 tempId 匹配（新节点）
+      if (node.tempId && lfn.properties?.tempId) {
+        return lfn.properties.tempId === node.tempId
       }
-      // 通过 nodeOrder 匹配新节点（没有 id）
-      return lfn.properties?.nodeOrder === node.nodeOrder && lfn.type === 'approval-node'
+
+      // 优先级2：通过 originalId 匹配（已保存节点）
+      // 注意：LogicFlow 的 getGraphData() 会将 properties 中的数值序列化为字符串
+      // 因此需要进行类型转换后再比较
+      if (node.id && lfn.properties?.originalId != null) {
+        const lfOriginalId =
+          typeof lfn.properties.originalId === 'string'
+            ? Number.parseInt(lfn.properties.originalId, 10)
+            : Number(lfn.properties.originalId)
+        return lfOriginalId === node.id
+      }
+
+      // 优先级3：通过 nodeOrder 匹配（备用，仅用于审批节点）
+      // 同样需要类型转换
+      if (lfn.properties?.nodeOrder != null && lfn.type === 'approval-node') {
+        const lfNodeOrder =
+          typeof lfn.properties.nodeOrder === 'string'
+            ? Number.parseInt(lfn.properties.nodeOrder, 10)
+            : Number(lfn.properties.nodeOrder)
+        return lfNodeOrder === node.nodeOrder
+      }
+
+      return false
     })
 
     if (lfNode) {

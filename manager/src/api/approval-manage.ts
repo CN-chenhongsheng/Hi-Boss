@@ -37,6 +37,8 @@ export interface ApprovalNode {
   // 节点位置坐标（用于保存用户自定义布局）
   x?: number
   y?: number
+  // 临时唯一标识符（用于新节点追踪，不提交到后端）
+  tempId?: string
 }
 
 /** 审批流程 */

@@ -313,21 +313,21 @@ async function handleLogout() {
 </script>
 
 <style lang="scss" scoped>
-// 主题变量 - 浅色温暖系
-$primary: #10b981;
-$primary-light: #d1fae5;
+// 导入公共样式变量
+@import '@/styles/variables.scss';
+
+// 页面特有颜色 - 绿色主题
+$profile-primary: #10b981;
+$profile-primary-light: #d1fae5;
 $accent-purple: #8b5cf6;
 $accent-blue: #3b82f6;
 $accent-orange: #f59e0b;
 $accent-pink: #ec4899;
 $bg-page: #f8fafc;
 $bg-card: #fff;
-$text-main: #1e293b;
-$text-sub: #64748b;
-$text-light: #94a3b8;
-$shadow-sm: 0 2rpx 8rpx rgb(0 0 0 / 4%);
-$shadow-md: 0 4rpx 16rpx rgb(0 0 0 / 6%);
-$shadow-lg: 0 8rpx 32rpx rgb(0 0 0 / 8%);
+$shadow-page-sm: 0 2rpx 8rpx rgb(0 0 0 / 4%);
+$shadow-page-md: 0 4rpx 16rpx rgb(0 0 0 / 6%);
+$shadow-page-lg: 0 8rpx 32rpx rgb(0 0 0 / 8%);
 
 .profile-page {
   position: relative;
@@ -386,17 +386,17 @@ $shadow-lg: 0 8rpx 32rpx rgb(0 0 0 / 8%);
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: calc(var(--status-bar-height) + 45rpx) 32rpx 25rpx;
+  padding: calc(var(--status-bar-height) + 45rpx) $spacing-lg 25rpx;
 
   .header-title {
     display: flex;
     justify-content: center;
     align-items: center;
     width: auto;
-    font-size: 36rpx;
+    font-size: $font-xl;
     color: $text-main;
     border-radius: 50%;
-    font-weight: 700;
+    font-weight: $font-bold;
     letter-spacing: 0.5rpx;
   }
 }
@@ -407,17 +407,17 @@ $shadow-lg: 0 8rpx 32rpx rgb(0 0 0 / 8%);
   display: flex;
   flex-direction: column;
   gap: 28rpx;
-  padding: 16rpx 28rpx;
+  padding: $spacing-sm 28rpx;
 }
 
 // 个人资料卡片
 .profile-card {
   position: relative;
   overflow: hidden;
-  padding: 40rpx 32rpx;
+  padding: 40rpx $spacing-lg;
   background: $bg-card;
-  border-radius: 32rpx;
-  box-shadow: $shadow-lg;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-page-lg;
 
   .profile-decor {
     position: absolute;
@@ -465,7 +465,7 @@ $shadow-lg: 0 8rpx 32rpx rgb(0 0 0 / 8%);
 
   .avatar-ring {
     padding: 6rpx;
-    background: linear-gradient(135deg, #10b981 0%, #3b82f6 50%, #8b5cf6 100%);
+    background: linear-gradient(135deg, $profile-primary 0%, $accent-blue 50%, $accent-purple 100%);
     border-radius: 50%;
 
     .avatar {
@@ -487,20 +487,20 @@ $shadow-lg: 0 8rpx 32rpx rgb(0 0 0 / 8%);
     padding: 4rpx 12rpx;
     background: #fff;
     border-radius: 20rpx;
-    box-shadow: $shadow-md;
+    box-shadow: $shadow-page-md;
 
     .online-dot {
       width: 12rpx;
       height: 12rpx;
-      background: #10b981;
+      background: $profile-primary;
       border-radius: 50%;
       animation: pulse 2s infinite;
     }
 
     .online-text {
       font-size: 18rpx;
-      color: #10b981;
-      font-weight: 600;
+      color: $profile-primary;
+      font-weight: $font-semibold;
     }
   }
 }
@@ -537,7 +537,7 @@ $shadow-lg: 0 8rpx 32rpx rgb(0 0 0 / 8%);
       text-overflow: ellipsis;
       white-space: nowrap;
       color: $text-main;
-      font-weight: 700;
+      font-weight: $font-bold;
       flex: 1;
     }
 
@@ -545,16 +545,16 @@ $shadow-lg: 0 8rpx 32rpx rgb(0 0 0 / 8%);
       display: flex;
       align-items: center;
       gap: 6rpx;
-      padding: 6rpx 16rpx;
+      padding: 6rpx $spacing-sm;
       background: rgb(16 185 129 / 10%);
       border-radius: 20rpx;
-      transition: all 0.2s;
+      transition: $transition-fast;
       flex-shrink: 0;
 
       text {
         font-size: 22rpx;
-        color: #10b981;
-        font-weight: 600;
+        color: $profile-primary;
+        font-weight: $font-semibold;
       }
 
       &:active {
@@ -567,15 +567,15 @@ $shadow-lg: 0 8rpx 32rpx rgb(0 0 0 / 8%);
   .role-tag {
     display: inline-flex;
     align-items: center;
-    gap: 8rpx;
-    padding: 6rpx 16rpx;
+    gap: $spacing-xs;
+    padding: 6rpx $spacing-sm;
     background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
     border-radius: 20rpx;
 
     text {
       font-size: 22rpx;
       color: #92400e;
-      font-weight: 600;
+      font-weight: $font-semibold;
     }
   }
 }
@@ -585,21 +585,21 @@ $shadow-lg: 0 8rpx 32rpx rgb(0 0 0 / 8%);
   position: relative;
   z-index: 10;
   display: flex;
-  gap: 16rpx;
-  margin-top: 24rpx;
+  gap: $spacing-sm;
+  margin-top: $spacing-md;
 
   .info-tag {
     display: flex;
     align-items: center;
-    gap: 8rpx;
+    gap: $spacing-xs;
     padding: 12rpx 20rpx;
     background: #f8fafc;
-    border-radius: 16rpx;
+    border-radius: $radius-sm;
 
     text {
-      font-size: 24rpx;
+      font-size: $font-sm;
       color: $text-sub;
-      font-weight: 500;
+      font-weight: $font-medium;
     }
   }
 }
@@ -615,14 +615,14 @@ $shadow-lg: 0 8rpx 32rpx rgb(0 0 0 / 8%);
   .title-icon {
     width: 8rpx;
     height: 32rpx;
-    background: linear-gradient(180deg, #10b981 0%, #3b82f6 100%);
+    background: linear-gradient(180deg, $profile-primary 0%, $accent-blue 100%);
     border-radius: 4rpx;
   }
 
   text {
     font-size: 30rpx;
     color: $text-main;
-    font-weight: 600;
+    font-weight: $font-semibold;
   }
 }
 
@@ -638,15 +638,15 @@ $shadow-lg: 0 8rpx 32rpx rgb(0 0 0 / 8%);
     display: flex;
     align-items: center;
     gap: 20rpx;
-    padding: 28rpx 24rpx;
+    padding: 28rpx $spacing-md;
     background: $bg-card;
-    border-radius: 24rpx;
-    box-shadow: $shadow-md;
-    transition: all 0.2s;
+    border-radius: $radius-md;
+    box-shadow: $shadow-page-md;
+    transition: $transition-fast;
 
     &:active {
       transform: scale(0.98);
-      box-shadow: $shadow-sm;
+      box-shadow: $shadow-page-sm;
     }
 
     .action-icon {
@@ -660,19 +660,19 @@ $shadow-lg: 0 8rpx 32rpx rgb(0 0 0 / 8%);
       flex-shrink: 0;
 
       &.apply-icon {
-        background: linear-gradient(135deg, #6ee7b7 0%, #10b981 100%);
+        background: linear-gradient(135deg, #6ee7b7 0%, $profile-primary 100%);
       }
 
       &.repair-icon {
-        background: linear-gradient(135deg, #93c5fd 0%, #3b82f6 100%);
+        background: linear-gradient(135deg, #93c5fd 0%, $accent-blue 100%);
       }
 
       &.roommates-icon {
-        background: linear-gradient(135deg, #c4b5fd 0%, #8b5cf6 100%);
+        background: linear-gradient(135deg, #c4b5fd 0%, $accent-purple 100%);
       }
 
       &.notice-icon {
-        background: linear-gradient(135deg, #fcd34d 0%, #f59e0b 100%);
+        background: linear-gradient(135deg, #fcd34d 0%, $accent-orange 100%);
       }
 
       .notice-dot {
@@ -694,14 +694,14 @@ $shadow-lg: 0 8rpx 32rpx rgb(0 0 0 / 8%);
 
       .action-name {
         margin-bottom: 4rpx;
-        font-size: 28rpx;
+        font-size: $font-md;
         color: $text-main;
-        font-weight: 600;
+        font-weight: $font-semibold;
       }
 
       .action-desc {
         font-size: 22rpx;
-        color: $text-light;
+        color: $text-disabled;
       }
     }
   }
@@ -712,15 +712,15 @@ $shadow-lg: 0 8rpx 32rpx rgb(0 0 0 / 8%);
   .menu-list {
     overflow: hidden;
     background: $bg-card;
-    border-radius: 24rpx;
-    box-shadow: $shadow-md;
+    border-radius: $radius-md;
+    box-shadow: $shadow-page-md;
   }
 
   .menu-item {
     display: flex;
     align-items: center;
     gap: 20rpx;
-    padding: 28rpx 24rpx;
+    padding: 28rpx $spacing-md;
     transition: background-color 0.2s;
     border-bottom: 1rpx solid #f1f5f9;
 
@@ -760,18 +760,18 @@ $shadow-lg: 0 8rpx 32rpx rgb(0 0 0 / 8%);
 
     .menu-label {
       flex: 1;
-      font-size: 28rpx;
+      font-size: $font-md;
       color: $text-main;
-      font-weight: 500;
+      font-weight: $font-medium;
     }
 
     .version-badge {
       padding: 4rpx 12rpx;
-      margin-right: 8rpx;
-      font-size: 20rpx;
-      color: $text-light;
+      margin-right: $spacing-xs;
+      font-size: $font-xs;
+      color: $text-disabled;
       background: #f1f5f9;
-      border-radius: 8rpx;
+      border-radius: $spacing-xs;
     }
   }
 }
@@ -779,7 +779,7 @@ $shadow-lg: 0 8rpx 32rpx rgb(0 0 0 / 8%);
 // 退出登录
 .logout-section {
   padding: 0 4rpx;
-  margin-top: 8rpx;
+  margin-top: $spacing-xs;
 
   .logout-btn {
     display: flex;
@@ -789,14 +789,14 @@ $shadow-lg: 0 8rpx 32rpx rgb(0 0 0 / 8%);
     padding: 28rpx;
     background: #fff;
     border: 2rpx solid #fecaca;
-    border-radius: 24rpx;
-    box-shadow: $shadow-sm;
-    transition: all 0.2s;
+    border-radius: $radius-md;
+    box-shadow: $shadow-page-sm;
+    transition: $transition-fast;
 
     text {
-      font-size: 28rpx;
+      font-size: $font-md;
       color: #ef4444;
-      font-weight: 500;
+      font-weight: $font-medium;
     }
 
     &:active {

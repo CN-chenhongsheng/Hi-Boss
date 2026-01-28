@@ -56,6 +56,7 @@
   import { getDefaultConfig, getReadonlyConfig, getDarkThemeConfig } from './config'
   import { validateLogicFlowData, autoLayout } from './utils'
   import { registerGlassNode } from './custom-nodes'
+  import { registerCustomEdge } from './custom-edges'
   import LogicFlowToolbar from './toolbar.vue'
 
   defineOptions({ name: 'ArtLogicFlow' })
@@ -156,6 +157,8 @@
   const historyStack = ref<LogicFlowData[]>([])
   const historyIndex = ref(-1)
   const isHistoryAction = ref(false)
+  // 是否已初始化（用于判断是否需要自动 fitView）
+  const isInitialized = ref(false)
 
   // 容器样式
   const containerStyle = computed(() => {
@@ -217,6 +220,9 @@
       registerGlassNode(lfInstance)
     }
 
+    // 注册自定义边
+    registerCustomEdge(lfInstance)
+
     // 注册事件监听
     setupEventListeners()
 
@@ -241,6 +247,8 @@
         lfInstance.fitView(50) // 50px 边距
         // 初始化历史记录
         saveToHistory()
+        // 标记为已初始化
+        isInitialized.value = true
       } else {
         console.warn('[ArtLogicFlow] 数据验证失败:', validation.errors)
       }
@@ -273,6 +281,15 @@
     // 边点击
     lfInstance.on('edge:click', ({ data, e }: any) => {
       emit('edge:click', { edge: data, e })
+    })
+
+    // 边 hover 事件
+    lfInstance.on('edge:mouseenter', ({ data }: any) => {
+      lfInstance.setProperties(data.id, { isHovered: true })
+    })
+
+    lfInstance.on('edge:mouseleave', ({ data }: any) => {
+      lfInstance.setProperties(data.id, { isHovered: false })
     })
 
     // 边添加
@@ -364,6 +381,15 @@
       if (!lfInstance || !newData) return
       const validation = validateLogicFlowData(newData)
       if (validation.valid) {
+        // 保存当前视图状态（缩放和偏移）
+        const transformModel = lfInstance.graphModel.transformModel
+        const savedTransform = {
+          SCALE_X: transformModel.SCALE_X,
+          SCALE_Y: transformModel.SCALE_Y,
+          TRANSLATE_X: transformModel.TRANSLATE_X,
+          TRANSLATE_Y: transformModel.TRANSLATE_Y
+        }
+
         // 如果指定了布局方向，先进行自动布局
         let dataToRender = newData
         if (props.layoutDirection) {
@@ -376,9 +402,25 @@
           })
         }
         lfInstance.render(dataToRender)
-        // 渲染后自动居中
+
+        // 如果已初始化，恢复之前的视图状态；否则自动居中
         await nextTick()
-        lfInstance.fitView(50)
+        if (isInitialized.value) {
+          // 恢复之前的视图状态，保持用户当前的缩放和位置
+          const transformModel = lfInstance.graphModel.transformModel
+          transformModel.SCALE_X = savedTransform.SCALE_X
+          transformModel.SCALE_Y = savedTransform.SCALE_Y
+          transformModel.TRANSLATE_X = savedTransform.TRANSLATE_X
+          transformModel.TRANSLATE_Y = savedTransform.TRANSLATE_Y
+          // 触发视图更新 - 使用 LogicFlow 的内部方法更新视图
+          // 注意：直接修改 transformModel 后，LogicFlow 会在下次渲染时应用这些值
+          // 为了立即生效，我们触发一个 resize 来强制重绘
+          lfInstance.resize()
+        } else {
+          // 首次渲染，自动居中
+          lfInstance.fitView(50)
+          isInitialized.value = true
+        }
       }
     },
     { deep: true }
