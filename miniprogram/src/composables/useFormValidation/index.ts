@@ -56,6 +56,7 @@ interface ValidationRule { field: keyof IApplyFormData; validator: ValidatorKey;
 
 const formRules: Record<string, ValidationRule[]> = {
   normalCheckIn: [
+    { field: 'stayStartDate', validator: 'required', label: '入住日期' },
     { field: 'reason', validator: 'required', label: '申请原因' },
   ],
   tempCheckIn: [
@@ -72,7 +73,8 @@ const formRules: Record<string, ValidationRule[]> = {
     { field: 'reason', validator: 'required', label: '申请原因' },
   ],
   checkOut: [
-    { field: 'reason', validator: 'required', label: '申请原因' },
+    { field: 'stayStartDate', validator: 'required', label: '退宿日期' },
+    { field: 'reason', validator: 'required', label: '退宿理由' },
     { field: 'signature', validator: 'signature' },
   ],
   stay: [

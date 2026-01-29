@@ -57,6 +57,7 @@ export interface IApplyFormData {
   repairType?: number;
   phone?: string;
   description?: string;
+  urgentLevel?: number;
 }
 
 /** 首页快捷服务入口 */

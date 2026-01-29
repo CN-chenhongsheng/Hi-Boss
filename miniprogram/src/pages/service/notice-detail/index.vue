@@ -1,30 +1,39 @@
 <template>
   <view class="notice-detail-page">
-    <view v-if="loading" class="loading">
-      <view class="loading-spinner" />
-      <view class="loading-text">
-        加载中...
-      </view>
+    <!-- 背景装饰 -->
+    <view class="bg-decorations">
+      <view class="blob blob-1" />
+      <view class="blob blob-2" />
+      <view class="blob blob-3" />
     </view>
 
-    <view v-else-if="notice" class="notice-content">
-      <view class="notice-header">
-        <view class="title">
-          {{ notice.title }}
-        </view>
-        <view class="meta">
-          <view class="publisher">
-            {{ notice.publisherName }}
-          </view>
-          <view class="time">
-            {{ notice.publishTime }}
-          </view>
+    <view class="page-container">
+      <view v-if="loading" class="loading">
+        <view class="loading-spinner" />
+        <view class="loading-text">
+          加载中...
         </view>
       </view>
 
-      <view class="notice-body">
-        <view class="content">
-          {{ notice.content }}
+      <view v-else-if="notice" class="glass-card notice-content">
+        <view class="notice-header">
+          <view class="title">
+            {{ notice.title }}
+          </view>
+          <view class="meta">
+            <view class="publisher">
+              {{ notice.publisherName }}
+            </view>
+            <view class="time">
+              {{ notice.publishTime }}
+            </view>
+          </view>
+        </view>
+
+        <view class="notice-body">
+          <view class="content">
+            {{ notice.content }}
+          </view>
         </view>
       </view>
     </view>
@@ -68,9 +77,21 @@ onMounted(() => {
 </script>
 
 <style lang="scss" scoped>
+@import '@/styles/variables.scss';
+
 .notice-detail-page {
+  position: relative;
   min-height: 100vh;
-  background-color: #f5f5f5;
+  background: linear-gradient(135deg, $bg-gradient-start 0%, $bg-gradient-end 100%);
+}
+
+.page-container {
+  position: relative;
+  z-index: 1;
+  padding: 24rpx;
+  margin: 0 auto;
+  max-width: 750rpx;
+  min-height: 100vh;
 }
 
 .loading {
@@ -78,15 +99,15 @@ onMounted(() => {
   justify-content: center;
   align-items: center;
   padding: 100rpx 0;
-  font-size: 28rpx;
-  color: #999;
+  font-size: $font-md;
+  color: $text-sub;
   flex-direction: column;
 
   .loading-spinner {
     width: 60rpx;
     height: 60rpx;
-    border: 4rpx solid #f3f3f3;
-    border-top: 4rpx solid #2196F3;
+    border: 4rpx solid rgb(243 243 243);
+    border-top: 4rpx solid $primary;
     border-radius: 50%;
     animation: spin 1s linear infinite;
   }
@@ -102,25 +123,25 @@ onMounted(() => {
 }
 
 .notice-content {
-  background: #fff;
+  padding: 0;
 
   .notice-header {
     padding: 40rpx 30rpx;
-    border-bottom: 1rpx solid #f0f0f0;
+    border-bottom: 1rpx solid rgb(229 231 235 / 50%);
 
     .title {
       margin-bottom: 20rpx;
-      font-size: 36rpx;
-      color: #333;
-      font-weight: 600;
+      font-size: $font-xl;
+      color: $text-main;
+      font-weight: $font-semibold;
       line-height: 1.5;
     }
 
     .meta {
       display: flex;
       align-items: center;
-      font-size: 24rpx;
-      color: #999;
+      font-size: $font-sm;
+      color: $text-sub;
 
       .publisher {
         margin-right: 20rpx;
@@ -132,9 +153,9 @@ onMounted(() => {
     padding: 30rpx;
 
     .content {
-      font-size: 28rpx;
+      font-size: $font-md;
       white-space: pre-wrap;
-      color: #666;
+      color: $text-sub;
       line-height: 1.8;
     }
   }

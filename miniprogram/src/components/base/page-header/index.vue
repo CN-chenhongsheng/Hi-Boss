@@ -36,7 +36,7 @@ function handleBack() {
 </script>
 
 <style lang="scss" scoped>
-@use '@/styles/variables' as *;
+@import '@/styles/variables.scss';
 
 .page-header {
   position: sticky;

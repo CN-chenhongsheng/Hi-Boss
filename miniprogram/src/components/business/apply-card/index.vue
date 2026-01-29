@@ -56,7 +56,7 @@ function handleClick() {
 </script>
 
 <style lang="scss" scoped>
-@use '@/styles/variables' as *;
+@import '@/styles/variables.scss';
 
 .glass-card {
   padding: 24rpx;

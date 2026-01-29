@@ -18,7 +18,7 @@ export enum RepairType {
   /** 网络 */
   NETWORK = 4,
   /** 其他 */
-  OTHER = 99,
+  OTHER = 5,
 }
 
 /**
@@ -36,24 +36,48 @@ export const RepairTypeText: Record<RepairType, string> = {
  * 报修状态枚举
  */
 export enum RepairStatus {
-  /** 待处理 */
+  /** 待接单 */
   PENDING = 1,
-  /** 处理中 */
-  PROCESSING = 2,
+  /** 已接单 */
+  ACCEPTED = 2,
+  /** 维修中 */
+  IN_PROGRESS = 3,
   /** 已完成 */
-  COMPLETED = 3,
+  COMPLETED = 4,
   /** 已取消 */
-  CANCELLED = 4,
+  CANCELLED = 5,
 }
 
 /**
  * 报修状态文本映射
  */
 export const RepairStatusText: Record<RepairStatus, string> = {
-  [RepairStatus.PENDING]: '待处理',
-  [RepairStatus.PROCESSING]: '处理中',
+  [RepairStatus.PENDING]: '待接单',
+  [RepairStatus.ACCEPTED]: '已接单',
+  [RepairStatus.IN_PROGRESS]: '维修中',
   [RepairStatus.COMPLETED]: '已完成',
   [RepairStatus.CANCELLED]: '已取消',
+};
+
+/**
+ * 紧急程度枚举
+ */
+export enum UrgentLevel {
+  /** 一般 */
+  NORMAL = 1,
+  /** 紧急 */
+  URGENT = 2,
+  /** 非常紧急 */
+  VERY_URGENT = 3,
+}
+
+/**
+ * 紧急程度文本映射
+ */
+export const UrgentLevelText: Record<UrgentLevel, string> = {
+  [UrgentLevel.NORMAL]: '一般',
+  [UrgentLevel.URGENT]: '紧急',
+  [UrgentLevel.VERY_URGENT]: '非常紧急',
 };
 
 /**
@@ -66,38 +90,48 @@ export interface IRepair extends IBaseEntity {
   studentName?: string;
   /** 学号 */
   studentNo?: string;
-  /** 联系电话 */
-  phone?: string;
-  /** 校区编码 */
-  campusCode?: string;
-  /** 楼层编码 */
-  floorCode?: string;
   /** 房间ID */
   roomId?: number;
   /** 房间编码 */
   roomCode?: string;
+  /** 床位ID */
+  bedId?: number;
+  /** 床位编码 */
+  bedCode?: string;
   /** 报修类型 */
-  repairType: RepairType;
-  /** 报修描述 */
-  description: string;
+  repairType: number;
+  /** 报修类型文本 */
+  repairTypeText?: string;
+  /** 故障描述 */
+  faultDescription: string;
   /** 故障图片 */
-  images?: string[];
+  faultImages?: string[];
+  /** 紧急程度 */
+  urgentLevel: number;
+  /** 紧急程度文本 */
+  urgentLevelText?: string;
   /** 状态 */
-  status: RepairStatus;
-  /** 处理人ID */
-  handlerId?: number;
-  /** 处理人姓名 */
-  handlerName?: string;
-  /** 处理时间 */
-  handleTime?: string;
+  status: number;
+  /** 状态文本 */
+  statusText?: string;
+  /** 维修人员ID */
+  repairPersonId?: number;
+  /** 维修人员姓名 */
+  repairPersonName?: string;
+  /** 预约时间 */
+  appointmentTime?: string;
   /** 完成时间 */
   completeTime?: string;
-  /** 处理结果 */
-  handleResult?: string;
-  /** 满意度评分 1-5 */
+  /** 维修结果描述 */
+  repairResult?: string;
+  /** 维修后图片 */
+  repairImages?: string[];
+  /** 评分 1-5星 */
   rating?: number;
+  /** 评分文本 */
+  ratingText?: string;
   /** 评价内容 */
-  comment?: string;
+  ratingComment?: string;
   /** 备注 */
   remark?: string;
 }
@@ -113,11 +147,11 @@ export interface IRepairQueryParams extends IPageParams {
   /** 学生姓名 */
   studentName?: string;
   /** 报修类型 */
-  repairType?: RepairType;
-  /** 楼层编码 */
-  floorCode?: string;
+  repairType?: number;
+  /** 房间ID */
+  roomId?: number;
   /** 状态 */
-  status?: RepairStatus;
+  status?: number;
   /** 创建时间开始 */
   createTimeStart?: string;
   /** 创建时间结束 */
@@ -128,38 +162,42 @@ export interface IRepairQueryParams extends IPageParams {
  * 报修提交参数
  */
 export interface IRepairSubmitParams {
+  /** 学生ID */
+  studentId?: number;
+  /** 学生姓名 */
+  studentName?: string;
+  /** 学号 */
+  studentNo?: string;
+  /** 房间ID */
+  roomId?: number;
+  /** 房间编码 */
+  roomCode?: string;
+  /** 床位ID */
+  bedId?: number;
+  /** 床位编码 */
+  bedCode?: string;
   /** 报修类型 */
-  repairType: RepairType;
-  /** 报修描述 */
-  description: string;
+  repairType: number;
+  /** 故障描述 */
+  faultDescription: string;
   /** 故障图片 */
-  images?: string[];
-  /** 联系电话 */
-  phone?: string;
-}
-
-/**
- * 报修处理参数
- */
-export interface IRepairHandleParams {
-  /** 报修ID */
-  id: number;
-  /** 状态 2=处理中 3=已完成 */
-  status: 2 | 3;
-  /** 处理结果 */
-  handleResult?: string;
+  faultImages?: string[];
+  /** 紧急程度 */
+  urgentLevel: number;
+  /** 预约时间 */
+  appointmentTime?: string;
+  /** 备注 */
+  remark?: string;
 }
 
 /**
  * 报修评价参数
  */
 export interface IRepairRatingParams {
-  /** 报修ID */
-  id: number;
-  /** 满意度评分 1-5 */
+  /** 评分 1-5 */
   rating: number;
   /** 评价内容 */
-  comment?: string;
+  ratingComment?: string;
 }
 
 /**

@@ -52,8 +52,13 @@
       <!-- 通知公告 -->
       <view class="section notice-section">
         <view class="section-header">
-          <view class="section-title">
-            通知公告
+          <view class="section-title-wrapper">
+            <view class="section-title">
+              通知公告
+            </view>
+            <view v-if="unreadNoticeCount > 0" class="unread-badge">
+              {{ unreadNoticeCount > 99 ? '99+' : unreadNoticeCount }}
+            </view>
           </view>
           <view class="section-more" @click="handleGoNoticeList">
             查看全部
@@ -263,9 +268,23 @@ import type { IApplyDisplay, INoticeDisplay, IQuickService } from '@/types';
 import useUserStore from '@/store/modules/user';
 import { ROUTE_CONSTANTS } from '@/constants';
 import { USE_MOCK } from '@/mock';
+import { getCheckInPageAPI } from '@/api/accommodation/check-in';
+import { getTransferPageAPI } from '@/api/accommodation/transfer';
+import { getCheckOutPageAPI } from '@/api/accommodation/check-out';
+import { getStayPageAPI } from '@/api/accommodation/stay';
+import { getMyAppliesAPI, getStudentHomeStatisticsAPI } from '@/api';
+import {
+  transformCheckInToDisplay,
+  transformCheckOutToDisplay,
+  transformMyApplyToDisplay,
+  transformStayToDisplay,
+  transformTransferToDisplay,
+} from '@/utils/apply-transform';
+import { useNotice } from '@/hooks/use-notice';
 
 const userStore = useUserStore();
 const { userInfo, isLoggedIn } = storeToRefs(userStore);
+const { unreadCount: unreadNoticeCount, loadUnreadCount } = useNotice();
 
 const defaultAvatar = 'https://via.placeholder.com/150';
 const showAgreePrivacy = ref(false);
@@ -495,7 +514,7 @@ function handleGoLogin(): void {
 // 加载数据
 async function loadData(): Promise<void> {
   try {
-    // 通知列表 - 暂时使用写死的数据（接口未完成）
+    // 1. 通知列表 - 暂时使用写死的数据（阶段二再接入）
     noticeList.value = [
       {
         id: 1,
@@ -526,7 +545,7 @@ async function loadData(): Promise<void> {
       },
     ];
 
-    // 申请列表 - 根据 USE_MOCK 决定使用 Mock 数据或真实 API
+    // 2. 申请列表 - 根据 USE_MOCK 决定使用 Mock 数据或真实 API
     if (USE_MOCK) {
       applyList.value = [
         {
@@ -620,17 +639,30 @@ async function loadData(): Promise<void> {
       ];
     }
     else {
-      // TODO: 真实API调用 - 待接口完成后实现
-      // const statistics = await getStudentHomeStatisticsAPI();
-      // if (statistics) {
-      //   // 根据统计数据加载申请列表
-      //   applyList.value = await loadApplyList();
-      // }
-      applyList.value = [];
+      // 调用真实API加载申请列表（使用统一的我的申请接口）
+      await loadApplyListFromAPI();
     }
   }
   catch (error) {
     console.error('加载首页数据失败:', error);
+  }
+}
+
+// 从API加载申请列表
+async function loadApplyListFromAPI(): Promise<void> {
+  try {
+    // 使用统一的我的申请API，限制返回最近4条
+    const result = await getMyAppliesAPI({ limit: 4 });
+
+    // 转换为展示格式
+    applyList.value = result.list.map(transformMyApplyToDisplay);
+
+    console.log('首页申请列表加载成功:', applyList.value);
+  }
+  catch (error) {
+    console.error('从API加载申请列表失败:', error);
+    // 降级方案：使用空数组
+    applyList.value = [];
   }
 }
 
@@ -639,6 +671,10 @@ onMounted(async () => {
   await userStore.checkLoginStatus();
   // 加载页面数据
   loadData();
+  // 加载未读通知数量
+  if (isLoggedIn.value) {
+    loadUnreadCount();
+  }
 });
 </script>
 
@@ -808,6 +844,12 @@ onMounted(async () => {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 20rpx;
+
+  .section-title-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 12rpx;
+  }
 }
 
 .section-title {
@@ -819,6 +861,21 @@ onMounted(async () => {
   .section-header & {
     margin-bottom: 0;
   }
+}
+
+.unread-badge {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0 8rpx;
+  min-width: 32rpx;
+  height: 32rpx;
+  font-size: 20rpx;
+  color: #fff;
+  background: linear-gradient(135deg, #ff6b6b 0%, #ff5252 100%);
+  border-radius: 16rpx;
+  box-shadow: 0 4rpx 12rpx rgb(255 107 107 / 30%);
+  font-weight: $font-bold;
 }
 
 .section-more {

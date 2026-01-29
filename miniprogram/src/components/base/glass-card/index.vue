@@ -28,7 +28,7 @@ const customStyle = computed(() => ({
 </script>
 
 <style lang="scss" scoped>
-@use '@/styles/variables' as *;
+@import '@/styles/variables.scss';
 
 .glass-card {
   background: $glass-bg;

@@ -125,11 +125,18 @@ export class MenuProcessor {
       楼层管理: 'Floor',
       房间管理: 'Room',
       床位管理: 'Bed',
+      住宿管理: 'Accommodation',
+      人员管理: 'AccommodationStudent',
+      入住管理: 'AccommodationCheckIn',
+      调宿管理: 'AccommodationTransfer',
+      退宿管理: 'AccommodationCheckOut',
+      留宿管理: 'AccommodationStay',
       系统管理: 'System',
       用户管理: 'User',
       角色管理: 'Role',
       菜单管理: 'Menus',
       字典管理: 'Dict',
+      操作日志: 'OperLog',
       个人中心: 'UserCenter',
       异常页面: 'Exception',
       '403': 'Exception403',
@@ -137,7 +144,11 @@ export class MenuProcessor {
       '500': 'Exception500',
       结果页面: 'Result',
       成功页: 'ResultSuccess',
-      失败页: 'ResultFail'
+      失败页: 'ResultFail',
+      审批管理: 'Approval',
+      流程配置: 'ApprovalFlowConfig',
+      待办审批: 'ApprovalPending',
+      审批记录: 'ApprovalHistory'
     }
     return nameMap[menuName] || `Menu${id}`
   }

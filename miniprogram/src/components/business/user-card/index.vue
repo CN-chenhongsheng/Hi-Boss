@@ -37,7 +37,7 @@ const defaultAvatar = 'https://via.placeholder.com/150';
 </script>
 
 <style lang="scss" scoped>
-@use '@/styles/variables' as *;
+@import '@/styles/variables.scss';
 
 .glass-card {
   padding: $spacing-lg;

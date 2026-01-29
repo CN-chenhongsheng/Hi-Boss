@@ -85,9 +85,13 @@
         class="message-list"
         scroll-y
         :show-scrollbar="false"
+        refresher-enabled
+        :refresher-triggered="refreshing"
+        @refresherrefresh="onRefresh"
+        @scrolltolower="onLoadMore"
       >
-        <!-- 加载状态 -->
-        <view v-if="loading" class="loading">
+        <!-- 加载状态（首次加载） -->
+        <view v-if="loading && list.length === 0" class="loading">
           <view class="loading-spinner" />
           <view class="loading-text">
             加载中...
@@ -115,20 +119,20 @@
               <view class="item-main">
                 <!-- 消息头部 -->
                 <view class="item-header">
-                  <view class="icon-wrapper" :class="`icon-type-${item.type}`">
-                    <u-icon :name="getIconName(item.type)" size="18" color="#fff" />
+                  <view class="icon-wrapper" :class="`icon-type-${item.noticeType}`">
+                    <u-icon :name="getIconName(item.noticeType)" size="18" color="#fff" />
                   </view>
                   <view class="header-info">
                     <view class="title-row">
                       <text class="title">
                         {{ item.title }}
                       </text>
-                      <view v-if="!item.isRead" class="new-badge">
+                      <view v-if="!isRead(item)" class="new-badge">
                         <view class="badge-dot" />
                       </view>
                     </view>
                     <text class="time">
-                      {{ formatTime(item.createTime) }}
+                      {{ formatTime(item.publishTime || item.createTime || '') }}
                     </text>
                   </view>
                   <u-icon name="arrow-right" size="16" color="#9ca3af" />
@@ -143,6 +147,21 @@
               </view>
             </view>
           </view>
+
+          <!-- 加载更多状态 -->
+          <view v-if="!finished && list.length > 0" class="load-more">
+            <view v-if="loading" class="loading-spinner-small" />
+            <text v-else class="load-more-text">
+              上拉加载更多
+            </text>
+          </view>
+
+          <!-- 加载完成提示 -->
+          <view v-else-if="finished && list.length > 0" class="load-finished">
+            <text class="load-finished-text">
+              没有更多了
+            </text>
+          </view>
         </view>
       </scroll-view>
     </view>
@@ -152,16 +171,9 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue';
 import { ROUTE_CONSTANTS } from '@/constants';
+import type { INotice, INoticeQueryParams } from '@/types';
 import { NoticeType } from '@/types';
-
-interface MessageItem {
-  id: number;
-  type: NoticeType;
-  title: string;
-  content: string;
-  createTime: string;
-  isRead: boolean;
-}
+import { getNoticePageAPI, getUnreadNoticeCountAPI, markNoticeReadAPI } from '@/api';
 
 interface TabItem {
   label: string;
@@ -170,9 +182,17 @@ interface TabItem {
 }
 
 const loading = ref(false);
-const list = ref<MessageItem[]>([]);
+const refreshing = ref(false);
+const finished = ref(false);
+const list = ref<INotice[]>([]);
 const activeTab = ref<'all' | NoticeType>('all');
 const statusBarHeight = ref(0);
+const totalUnreadCount = ref(0);
+
+// 分页参数
+const pageNum = ref(1);
+const pageSize = 20;
+const total = ref(0);
 
 const tabs = ref<TabItem[]>([
   { label: '全部', value: 'all', icon: 'list' },
@@ -183,15 +203,18 @@ const tabs = ref<TabItem[]>([
 
 const INDICATOR_WIDTH_RPX = 50;
 
-// 计算未读消息数量
+// 计算未读消息数量（从当前列表中计算）
 const unreadCount = computed(() => {
-  return list.value.filter(item => !item.isRead).length;
+  return totalUnreadCount.value;
 });
 
 // 计算今日消息数量
 const todayCount = computed(() => {
   const today = new Date().toISOString().split('T')[0];
-  return list.value.filter(item => item.createTime.startsWith(today)).length;
+  return list.value.filter((item) => {
+    const itemDate = item.publishTime || item.createTime;
+    return itemDate && itemDate.startsWith(today);
+  }).length;
 });
 
 const indicatorStyle = computed(() => {
@@ -243,78 +266,121 @@ function formatTime(time: string): string {
 // 处理标签切换
 function handleTabChange(value: 'all' | NoticeType): void {
   activeTab.value = value;
+  pageNum.value = 1;
+  list.value = [];
+  finished.value = false;
   loadData();
 }
 
 // 查看详情
-function handleViewDetail(item: MessageItem) {
+async function handleViewDetail(item: INotice) {
+  // 标记为已读
+  if (item.readCount === 0) {
+    try {
+      await markNoticeReadAPI(item.id!);
+      // 更新本地已读状态
+      item.readCount = 1;
+      // 刷新未读数量
+      await loadUnreadCount();
+    }
+    catch (error) {
+      console.error('标记已读失败', error);
+    }
+  }
+
+  // 跳转详情页
   uni.navigateTo({
     url: `${ROUTE_CONSTANTS.NOTICE_DETAIL}?id=${item.id}`,
   });
 }
 
-// 加载数据
-async function loadData(): Promise<void> {
-  loading.value = true;
+// 加载未读数量
+async function loadUnreadCount() {
   try {
-    await new Promise(resolve => setTimeout(resolve, 1000));
-
-    const mockData: MessageItem[] = [
-      {
-        id: 1,
-        type: NoticeType.SYSTEM,
-        title: '系统维护通知',
-        content: '系统将于本周日凌晨2点进行维护，预计维护时间为2小时，期间服务暂时不可用...',
-        createTime: '2026-01-14 10:30',
-        isRead: false,
-      },
-      {
-        id: 2,
-        type: NoticeType.DORM,
-        title: '宿舍卫生检查',
-        content: '本周五进行宿舍卫生检查，请各位同学提前做好卫生工作，感谢配合...',
-        createTime: '2026-01-13 15:45',
-        isRead: true,
-      },
-      {
-        id: 3,
-        type: NoticeType.SAFETY,
-        title: '安全提示',
-        content: '近期校园周边发生多起诈骗案件，请各位同学提高警惕，不要相信陌生人...',
-        createTime: '2026-01-12 09:20',
-        isRead: true,
-      },
-      {
-        id: 4,
-        type: NoticeType.DORM,
-        title: '宿舍用电安全提醒',
-        content: '禁止在宿舍使用大功率电器，如发现违规使用将进行处罚...',
-        createTime: '2026-01-11 14:00',
-        isRead: true,
-      },
-      {
-        id: 5,
-        type: NoticeType.SYSTEM,
-        title: '新功能上线',
-        content: '宿舍管理系统新增了在线报修功能，欢迎各位同学使用...',
-        createTime: '2026-01-10 11:30',
-        isRead: true,
-      },
-    ];
-
-    list.value = activeTab.value === 'all'
-      ? mockData
-      : mockData.filter(item => item.type === activeTab.value);
+    const count = await getUnreadNoticeCountAPI();
+    totalUnreadCount.value = count;
   }
   catch (error) {
+    console.error('获取未读数量失败', error);
+    // 如果 API 不可用，回退到本地计算
+    totalUnreadCount.value = list.value.filter(item => (item.readCount || 0) === 0).length;
+  }
+}
+
+// 加载数据
+async function loadData(isRefresh = false): Promise<void> {
+  if (loading.value) return;
+
+  loading.value = true;
+  try {
+    const params: INoticeQueryParams = {
+      pageNum: pageNum.value,
+      pageSize,
+      status: 1, // 只查询已发布的通知
+    };
+
+    // 根据选中的标签过滤
+    if (activeTab.value !== 'all') {
+      params.noticeType = activeTab.value as NoticeType;
+    }
+
+    const result = await getNoticePageAPI(params);
+
+    if (isRefresh) {
+      list.value = result.list || [];
+    }
+    else {
+      list.value = [...list.value, ...(result.list || [])];
+    }
+
+    total.value = result.total || 0;
+
+    // 判断是否加载完毕
+    finished.value = list.value.length >= total.value;
+  }
+  catch (error) {
+    console.error('加载通知列表失败', error);
+
+    // 如果是首次加载失败，清空列表
+    if (isRefresh || list.value.length === 0) {
+      list.value = [];
+      total.value = 0;
+    }
+
     uni.showToast({
-      title: '加载失败',
+      title: '加载失败，请稍后重试',
       icon: 'none',
+      duration: 2000,
     });
   }
   finally {
     loading.value = false;
+    refreshing.value = false;
   }
+}
+
+// 下拉刷新
+async function onRefresh() {
+  refreshing.value = true;
+  pageNum.value = 1;
+  finished.value = false;
+  await Promise.all([
+    loadData(true),
+    loadUnreadCount(),
+  ]);
+}
+
+// 上拉加载
+async function onLoadMore() {
+  if (finished.value || loading.value) return;
+
+  pageNum.value += 1;
+  await loadData();
+}
+
+// 判断是否已读
+function isRead(item: INotice): boolean {
+  return (item.readCount || 0) > 0;
 }
 
 onMounted(() => {
@@ -322,7 +388,9 @@ onMounted(() => {
   const systemInfo = uni.getSystemInfoSync();
   statusBarHeight.value = systemInfo.statusBarHeight || 0;
 
-  loadData();
+  // 加载数据
+  loadData(true);
+  loadUnreadCount();
 });
 </script>
 
@@ -538,6 +606,41 @@ onMounted(() => {
   justify-content: center;
   align-items: center;
   padding: 120rpx 0;
+}
+
+// 加载更多状态
+.load-more {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40rpx 0;
+  gap: $spacing-xs;
+
+  .loading-spinner-small {
+    width: 32rpx;
+    height: 32rpx;
+    border: 3rpx solid rgb(243 243 243);
+    border-top-color: $primary;
+    border-radius: 50%;
+    animation: loading-spin 1s linear infinite;
+  }
+
+  .load-more-text {
+    font-size: $font-sm;
+    color: $text-disabled;
+  }
+}
+
+.load-finished {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40rpx 0;
+
+  .load-finished-text {
+    font-size: $font-sm;
+    color: $text-disabled;
+  }
 }
 
 // ========================================

@@ -62,32 +62,17 @@
 
               <!-- 申请详情 -->
               <view class="apply-details">
-                <!-- 目标宿舍 -->
-                <view v-if="detail.targetDorm" class="detail-item">
+                <!-- 动态展示字段 -->
+                <view v-for="(field, index) in detailFields" :key="index" class="detail-item">
                   <view class="detail-icon">
-                    <u-icon name="home-fill" size="18" color="#608a85" />
+                    <u-icon :name="field.icon" size="18" color="#608a85" />
                   </view>
                   <view class="detail-content">
                     <view class="detail-label">
-                      目标宿舍
+                      {{ field.label }}
                     </view>
                     <view class="detail-value">
-                      {{ detail.targetDorm }}
-                    </view>
-                  </view>
-                </view>
-
-                <!-- 申请理由 -->
-                <view v-if="detail.applyReason" class="detail-item">
-                  <view class="detail-icon">
-                    <u-icon name="edit-pen-fill" size="18" color="#608a85" />
-                  </view>
-                  <view class="detail-content">
-                    <view class="detail-label">
-                      申请理由
-                    </view>
-                    <view class="detail-value">
-                      {{ detail.applyReason }}
+                      {{ field.value }}
                     </view>
                   </view>
                 </view>
@@ -220,7 +205,7 @@
       <view class="bottom-actions">
         <view
           v-if="canCancel"
-          class="action-btn cancel-btn"
+          class="cancel-btn action-btn"
           @click="handleCancel"
         >
           撤回申请
@@ -241,45 +226,45 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue';
 import { getApplyTypeName, getStatusText } from '@/utils/apply';
-import { cancelCheckInAPI, getCheckInDetailAPI } from '@/api/accommodation/check-in';
-import { cancelCheckOutAPI, getCheckOutDetailAPI } from '@/api/accommodation/check-out';
-import { cancelTransferAPI, getTransferDetailAPI } from '@/api/accommodation/transfer';
-import { cancelStayAPI, getStayDetailAPI } from '@/api/accommodation/stay';
+import { cancelCheckInAPI } from '@/api/accommodation/check-in';
+import { cancelCheckOutAPI } from '@/api/accommodation/check-out';
+import { cancelTransferAPI } from '@/api/accommodation/transfer';
+import { cancelStayAPI } from '@/api/accommodation/stay';
 import { getApprovalInstanceByBusinessAPI } from '@/api/approval';
-import type { IApprovalInstance } from '@/types/api';
+import { getApplyDetailAPI } from '@/api/statistics';
+import type { IApplyDetail, IApprovalInstance } from '@/types/api';
 
 const defaultAvatar = 'https://via.placeholder.com/150';
 
 // 申请详情
-const detail = ref<any>(null);
+const detail = ref<IApplyDetail | null>(null);
 const applyType = ref('');
 const applyId = ref(0);
 const approvalInstance = ref<IApprovalInstance | null>(null);
 
 // 学生信息
 const studentInfo = computed(() => ({
-  avatar: detail.value?.studentInfo?.avatar || '',
-  name: detail.value?.studentInfo?.name || '张三',
-  grade: detail.value?.studentInfo?.grade || '2021级',
-  department: detail.value?.studentInfo?.department || '计算机系',
-  level: detail.value?.studentInfo?.level || '本科生',
+  avatar: '',
+  name: '学生',
+  grade: '',
+  department: '',
+  level: '',
 }));
 
 // 申请编号
 const applyNo = computed(() => {
-  return detail.value?.applyNo || '20231024001';
+  return detail.value?.id ? String(detail.value.id).padStart(10, '0') : '0000000000';
 });
 
 // 申请类型名称
 const applyTypeName = computed(() => {
-  return getApplyTypeName(applyType.value);
+  return detail.value?.applyTypeText || getApplyTypeName(applyType.value);
 });
 
 // 状态文本
 const statusText = computed(() => {
   if (!detail.value) return '审核中';
-  const status = detail.value.status;
-  return getStatusText(status);
+  return detail.value.statusText || getStatusText(detail.value.status);
 });
 
 // 状态描述
@@ -303,10 +288,10 @@ const statusDesc = computed(() => {
 const currentStep = computed(() => {
   if (!detail.value) return 2;
   const status = detail.value.status;
-  if (status === 1 || status === 'pending') return 2; // 进行中
-  if (status === 2 || status === 'approved') return 3; // 已完成审核，等待完成
-  if (status === 3 || status === 'rejected') return 1; // 已拒绝，在审核阶段
-  if (status === 4 || status === 'done') return 3; // 完成
+  if (status === 1) return 2; // 进行中
+  if (status === 2) return 3; // 已完成审核，等待完成
+  if (status === 3) return 1; // 已拒绝，在审核阶段
+  if (status === 4) return 3; // 完成
   return 2;
 });
 
@@ -314,8 +299,74 @@ const currentStep = computed(() => {
 const canCancel = computed(() => {
   if (!detail.value) return false;
   const status = detail.value.status;
-  // 状态为1或'pending'表示待审批，可以撤回
-  return status === 1 || status === 'pending';
+  // 状态为1表示待审批，可以撤回
+  return status === 1;
+});
+
+// 申请详情展示字段
+const detailFields = computed(() => {
+  if (!detail.value) return [];
+
+  const fields: Array<{ label: string; value: string; icon: string }> = [];
+
+  // 入住申请特有字段
+  if (applyType.value === 'check-in' || applyType.value === 'check_in') {
+    if (detail.value.checkInTypeText) {
+      fields.push({ label: '入住类型', value: detail.value.checkInTypeText, icon: 'home-fill' });
+    }
+    if (detail.value.checkInDate) {
+      fields.push({ label: '入住日期', value: detail.value.checkInDate, icon: 'calendar-fill' });
+    }
+    if (detail.value.expectedCheckOutDate) {
+      fields.push({ label: '预计退宿日期', value: detail.value.expectedCheckOutDate, icon: 'calendar' });
+    }
+  }
+
+  // 调宿申请特有字段
+  if (applyType.value === 'transfer') {
+    if (detail.value.originalDormAddress) {
+      fields.push({ label: '原宿舍', value: detail.value.originalDormAddress, icon: 'home' });
+    }
+    if (detail.value.targetDormAddress) {
+      fields.push({ label: '目标宿舍', value: detail.value.targetDormAddress, icon: 'home-fill' });
+    }
+    if (detail.value.transferDate) {
+      fields.push({ label: '调宿日期', value: detail.value.transferDate, icon: 'calendar-fill' });
+    }
+  }
+
+  // 退宿申请特有字段
+  if (applyType.value === 'check-out' || applyType.value === 'check_out') {
+    if (detail.value.checkOutDate) {
+      fields.push({ label: '退宿日期', value: detail.value.checkOutDate, icon: 'calendar-fill' });
+    }
+  }
+
+  // 留宿申请特有字段
+  if (applyType.value === 'stay') {
+    if (detail.value.stayStartDate) {
+      fields.push({ label: '留宿开始日期', value: detail.value.stayStartDate, icon: 'calendar-fill' });
+    }
+    if (detail.value.stayEndDate) {
+      fields.push({ label: '留宿结束日期', value: detail.value.stayEndDate, icon: 'calendar' });
+    }
+    if (detail.value.parentName) {
+      fields.push({ label: '家长姓名', value: detail.value.parentName, icon: 'account-fill' });
+    }
+    if (detail.value.parentPhone) {
+      fields.push({ label: '家长电话', value: detail.value.parentPhone, icon: 'phone-fill' });
+    }
+    if (detail.value.parentAgreeText) {
+      fields.push({ label: '家长是否同意', value: detail.value.parentAgreeText, icon: 'checkmark-circle-fill' });
+    }
+  }
+
+  // 申请原因（所有类型都有）
+  if (detail.value.reason) {
+    fields.push({ label: '申请理由', value: detail.value.reason, icon: 'edit-pen-fill' });
+  }
+
+  return fields;
 });
 
 // 进度步骤（基于审批记录动态生成）
@@ -380,7 +431,9 @@ async function handleCancel() {
           // 根据申请类型调用对应的撤回API
           const cancelAPIs: Record<string, (id: number) => Promise<any>> = {
             'check-in': cancelCheckInAPI,
+            'check_in': cancelCheckInAPI,
             'check-out': cancelCheckOutAPI,
+            'check_out': cancelCheckOutAPI,
             'transfer': cancelTransferAPI,
             'stay': cancelStayAPI,
           };
@@ -419,44 +472,35 @@ async function loadDetail() {
   try {
     uni.showLoading({ title: '加载中...' });
 
-    // 根据申请类型调用对应的详情API
-    const detailAPIs: Record<string, (id: number) => Promise<any>> = {
-      'check-in': getCheckInDetailAPI,
-      'check-out': getCheckOutDetailAPI,
-      'transfer': getTransferDetailAPI,
-      'stay': getStayDetailAPI,
-    };
-
-    const detailFn = detailAPIs[applyType.value];
-    if (detailFn) {
-      detail.value = await detailFn(applyId.value);
-    }
-
-    // 加载审批实例信息
-    const businessTypeMap: Record<string, string> = {
+    // 类型映射：前端使用 kebab-case，后端使用 snake_case
+    const typeMap: Record<string, string> = {
       'check-in': 'check_in',
       'check-out': 'check_out',
       'transfer': 'transfer',
       'stay': 'stay',
     };
-    const businessType = businessTypeMap[applyType.value];
-    if (businessType) {
-      try {
-        approvalInstance.value = await getApprovalInstanceByBusinessAPI(businessType, applyId.value);
-      }
-      catch {
-        // 可能没有审批实例（如未发起审批流程）
-        approvalInstance.value = null;
-      }
+
+    const backendType = typeMap[applyType.value] || applyType.value;
+
+    // 调用统一的申请详情API
+    detail.value = await getApplyDetailAPI(applyId.value, backendType);
+
+    // 加载审批实例信息
+    try {
+      approvalInstance.value = await getApprovalInstanceByBusinessAPI(backendType, applyId.value);
+    }
+    catch {
+      // 可能没有审批实例（如未发起审批流程）
+      approvalInstance.value = null;
     }
 
     uni.hideLoading();
   }
-  catch (error) {
+  catch (error: any) {
     uni.hideLoading();
     console.error('加载失败:', error);
     uni.showToast({
-      title: '加载失败',
+      title: error?.message || '加载失败',
       icon: 'none',
     });
   }

@@ -155,6 +155,8 @@ import {
   getStatusText,
 } from '@/utils/apply';
 import { ROUTE_CONSTANTS } from '@/constants';
+import { getMyAppliesAPI } from '@/api';
+import { transformMyApplyToListItem } from '@/utils/apply-transform';
 
 /** Tab 项类型 */
 interface TabItem {
@@ -215,55 +217,44 @@ function handleViewDetail(item: IApplyListItem): void {
 async function loadData(): Promise<void> {
   loading.value = true;
   try {
-    // TODO: 调用API加载数据
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    // 调用统一的「我的申请」API
+    // 注意：不要传 status=undefined，否则会被序列化为字符串导致后端报错
+    const params: Record<string, any> = {
+      pageNum: 1,
+      pageSize: 100,
+    };
+    if (activeTab.value !== 'all') {
+      params.status = activeTab.value as number;
+    }
 
-    const mockData: IApplyListItem[] = [
-      {
-        id: 1,
-        type: 'transfer',
-        status: ApplyStatus.PENDING,
-        applyDate: '2026-01-05',
-        createTime: '2026-01-05 10:20',
-        reason: '希望调换到更安静的宿舍',
-      },
-      {
-        id: 2,
-        type: 'checkIn',
-        status: ApplyStatus.APPROVED,
-        applyDate: '2026-01-03',
-        createTime: '2026-01-03 14:30',
-        approveTime: '2026-01-04 09:15',
-        reason: '新生入住申请',
-      },
-      {
-        id: 3,
-        type: 'checkOut',
-        status: ApplyStatus.PENDING,
-        applyDate: '2026-01-07',
-        createTime: '2026-01-07 16:45',
-        reason: '毕业离校',
-      },
-      {
-        id: 4,
-        type: 'stay',
-        status: ApplyStatus.APPROVED,
-        applyDate: '2026-01-01',
-        createTime: '2026-01-01 08:00',
-        approveTime: '2026-01-02 10:30',
-        reason: '寒假留校申请',
-      },
-    ];
+    const result = await getMyAppliesAPI(params);
 
+    // 转换为列表展示类型
+    const allApplies = result.list.map(transformMyApplyToListItem);
+
+    // 根据当前tab过滤数据（如果API已经过滤了则直接使用）
     list.value = activeTab.value === 'all'
-      ? mockData
-      : mockData.filter(item => item.status === activeTab.value);
+      ? allApplies
+      : allApplies.filter(item => item.status === activeTab.value);
 
-    updateTabCounts(mockData);
+    // 更新tab计数（基于全量数据重新统计）
+    // 注意：由于我们传了status参数，返回的数据已被过滤，所以需要重新获取全量数据来统计
+    if (activeTab.value === 'all') {
+      updateTabCounts(allApplies);
+    }
+    else {
+      // 如果当前不是"全部"tab，则需要额外请求全量数据来更新计数
+      const allResult = await getMyAppliesAPI({ pageNum: 1, pageSize: 100 });
+      const allItems = allResult.list.map(transformMyApplyToListItem);
+      updateTabCounts(allItems);
+    }
+
+    console.log('申请列表加载成功:', list.value);
   }
   catch (error) {
     console.error('加载失败:', error);
     uni.showToast({ title: '加载失败', icon: 'none' });
+    list.value = [];
   }
   finally {
     loading.value = false;
@@ -351,6 +342,7 @@ onMounted(() => {
 // ========================================
 
 .apply-tabs {
+  display: flex;
   margin-top: $spacing-md;
 
   .tab-item {

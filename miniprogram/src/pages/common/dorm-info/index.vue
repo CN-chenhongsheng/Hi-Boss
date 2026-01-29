@@ -1,95 +1,104 @@
 <template>
   <view class="dorm-info-page">
-    <!-- 加载状态 -->
-    <view v-if="loading" class="loading-wrapper">
-      <u-loading-icon size="40" />
-      <text class="loading-text">
-        加载中...
-      </text>
+    <!-- 背景装饰 -->
+    <view class="bg-decorations">
+      <view class="blob blob-1" />
+      <view class="blob blob-2" />
+      <view class="blob blob-3" />
     </view>
 
-    <template v-else>
-      <view class="info-card">
-        <view class="card-title">
-          宿舍信息
-        </view>
-        <view class="info-list">
-          <view class="info-item">
-            <text class="label">
-              校区：
-            </text>
-            <text class="value">
-              {{ dormInfo.campusName || '-' }}
-            </text>
-          </view>
-          <view class="info-item">
-            <text class="label">
-              楼栋：
-            </text>
-            <text class="value">
-              {{ dormInfo.buildingName || '-' }}
-            </text>
-          </view>
-          <view class="info-item">
-            <text class="label">
-              楼层：
-            </text>
-            <text class="value">
-              {{ dormInfo.floorName || '-' }}
-            </text>
-          </view>
-          <view class="info-item">
-            <text class="label">
-              房间号：
-            </text>
-            <text class="value">
-              {{ dormInfo.roomCode || '-' }}
-            </text>
-          </view>
-          <view class="info-item">
-            <text class="label">
-              床位号：
-            </text>
-            <text class="value">
-              {{ dormInfo.bedCode || '-' }}
-            </text>
-          </view>
-          <view class="info-item">
-            <text class="label">
-              入住日期：
-            </text>
-            <text class="value">
-              {{ dormInfo.checkInDate || '-' }}
-            </text>
-          </view>
-        </view>
+    <view class="page-container">
+      <!-- 加载状态 -->
+      <view v-if="loading" class="loading-wrapper">
+        <u-loading-icon size="40" />
+        <text class="loading-text">
+          加载中...
+        </text>
       </view>
 
-      <view class="info-card">
-        <view class="card-title">
-          室友信息
-        </view>
-        <view v-if="roommates.length === 0" class="empty-tip">
-          暂无室友信息
-        </view>
-        <view v-else class="roommate-list">
-          <view v-for="item in roommates" :key="item.id" class="roommate-item">
-            <image class="avatar" :src="item.avatar || defaultAvatar" mode="aspectFill" />
-            <view class="info">
-              <view class="name">
-                {{ item.studentName }}
-              </view>
-              <view class="student-no">
-                {{ item.studentNo }}
-              </view>
+      <template v-else>
+        <view class="glass-card info-card">
+          <view class="card-title">
+            宿舍信息
+          </view>
+          <view class="info-list">
+            <view class="info-item">
+              <text class="label">
+                校区：
+              </text>
+              <text class="value">
+                {{ dormInfo.campusName || '-' }}
+              </text>
             </view>
-            <view v-if="item.bedCode" class="bed-code">
-              {{ item.bedCode }}
+            <view class="info-item">
+              <text class="label">
+                楼栋：
+              </text>
+              <text class="value">
+                {{ dormInfo.buildingName || '-' }}
+              </text>
+            </view>
+            <view class="info-item">
+              <text class="label">
+                楼层：
+              </text>
+              <text class="value">
+                {{ dormInfo.floorName || '-' }}
+              </text>
+            </view>
+            <view class="info-item">
+              <text class="label">
+                房间号：
+              </text>
+              <text class="value">
+                {{ dormInfo.roomCode || '-' }}
+              </text>
+            </view>
+            <view class="info-item">
+              <text class="label">
+                床位号：
+              </text>
+              <text class="value">
+                {{ dormInfo.bedCode || '-' }}
+              </text>
+            </view>
+            <view class="info-item">
+              <text class="label">
+                入住日期：
+              </text>
+              <text class="value">
+                {{ dormInfo.checkInDate || '-' }}
+              </text>
             </view>
           </view>
         </view>
-      </view>
-    </template>
+
+        <view class="glass-card info-card">
+          <view class="card-title">
+            室友信息
+          </view>
+          <view v-if="roommates.length === 0" class="empty-tip">
+            暂无室友信息
+          </view>
+          <view v-else class="roommate-list">
+            <view v-for="item in roommates" :key="item.id" class="roommate-item">
+              <image class="avatar" :src="item.avatar || defaultAvatar" mode="aspectFill" />
+              <view class="info">
+                <view class="name">
+                  {{ item.studentName }}
+                </view>
+                <view class="student-no">
+                  {{ item.studentNo }}
+                </view>
+              </view>
+              <view v-if="item.bedCode" class="bed-code">
+                {{ item.bedCode }}
+              </view>
+            </view>
+          </view>
+        </view>
+      </template>
+    </view>
   </view>
 </template>
 
@@ -142,10 +151,21 @@ onMounted(async () => {
 </script>
 
 <style lang="scss" scoped>
+@import '@/styles/variables.scss';
+
 .dorm-info-page {
-  padding: 20rpx;
+  position: relative;
   min-height: 100vh;
-  background-color: #f5f5f5;
+  background: linear-gradient(135deg, $bg-gradient-start 0%, $bg-gradient-end 100%);
+}
+
+.page-container {
+  position: relative;
+  z-index: 1;
+  padding: 24rpx;
+  margin: 0 auto;
+  max-width: 750rpx;
+  min-height: 100vh;
 }
 
 .loading-wrapper {
@@ -158,7 +178,7 @@ onMounted(async () => {
   .loading-text {
     margin-top: 20rpx;
     font-size: 28rpx;
-    color: #999;
+    color: $text-sub;
   }
 }
 
@@ -166,30 +186,27 @@ onMounted(async () => {
   padding: 40rpx;
   font-size: 28rpx;
   text-align: center;
-  color: #999;
+  color: $text-sub;
 }
 
 .info-card {
   padding: 30rpx;
-  margin-bottom: 20rpx;
-  background: #fff;
-  border-radius: 16rpx;
-  box-shadow: 0 2rpx 12rpx rgb(0 0 0 / 5%);
+  margin-bottom: 24rpx;
 
   .card-title {
     padding-bottom: 16rpx;
     margin-bottom: 24rpx;
-    font-size: 32rpx;
-    color: #333;
-    font-weight: 600;
-    border-bottom: 1rpx solid #f0f0f0;
+    font-size: $font-lg;
+    color: $text-main;
+    font-weight: $font-semibold;
+    border-bottom: 1rpx solid rgb(229 231 235 / 50%);
   }
 
   .info-list {
     .info-item {
       display: flex;
       margin-bottom: 20rpx;
-      font-size: 28rpx;
+      font-size: $font-md;
 
       &:last-child {
         margin-bottom: 0;
@@ -197,12 +214,12 @@ onMounted(async () => {
 
       .label {
         min-width: 160rpx;
-        color: #999;
+        color: $text-sub;
       }
 
       .value {
         flex: 1;
-        color: #333;
+        color: $text-main;
       }
     }
   }
@@ -212,7 +229,7 @@ onMounted(async () => {
       display: flex;
       align-items: center;
       padding: 20rpx 0;
-      border-bottom: 1rpx solid #f0f0f0;
+      border-bottom: 1rpx solid rgb(229 231 235 / 50%);
 
       &:last-child {
         border-bottom: none;
@@ -230,22 +247,22 @@ onMounted(async () => {
 
         .name {
           margin-bottom: 8rpx;
-          font-size: 28rpx;
-          color: #333;
+          font-size: $font-md;
+          color: $text-main;
         }
 
         .student-no {
-          font-size: 24rpx;
-          color: #999;
+          font-size: $font-sm;
+          color: $text-sub;
         }
       }
 
       .bed-code {
         padding: 4rpx 12rpx;
-        font-size: 24rpx;
-        color: #0adbc3;
+        font-size: $font-sm;
+        color: $primary;
         background: rgb(10 219 195 / 10%);
-        border-radius: 8rpx;
+        border-radius: $radius-sm;
       }
     }
   }

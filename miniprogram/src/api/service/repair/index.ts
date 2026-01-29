@@ -6,7 +6,6 @@
 import { get, post } from '@/utils/request';
 import type {
   IRepair,
-  IRepairHandleParams,
   IRepairPageResult,
   IRepairQueryParams,
   IRepairRatingParams,
@@ -14,69 +13,49 @@ import type {
 } from '@/types';
 
 /**
- * 获取报修分页列表
+ * 提交报修（小程序端）
  */
-export function getRepairPageAPI(params: IRepairQueryParams) {
+export function submitRepairAPI(data: IRepairSubmitParams) {
+  return post({
+    url: '/api/v1/app/repair/submit',
+    data,
+  });
+}
+
+/**
+ * 获取我的报修列表（小程序端）
+ */
+export function getRepairListAPI(params: IRepairQueryParams) {
   return get<IRepairPageResult>({
-    url: '/api/v1/service/repair/page',
+    url: '/api/v1/app/repair/list',
     data: params,
   });
 }
 
 /**
- * 获取报修详情
+ * 获取报修详情（小程序端）
  */
 export function getRepairDetailAPI(id: number) {
   return get<IRepair>({
-    url: `/api/v1/service/repair/${id}`,
+    url: `/api/v1/app/repair/detail/${id}`,
   });
 }
 
 /**
- * 提交报修
+ * 取消报修（小程序端）
  */
-export function submitRepairAPI(data: IRepairSubmitParams) {
+export function cancelRepairAPI(id: number) {
   return post({
-    url: '/api/v1/service/repair',
-    data,
+    url: `/api/v1/app/repair/cancel/${id}`,
   });
 }
 
 /**
- * 更新报修
+ * 评价报修（小程序端）
  */
-export function updateRepairAPI(id: number, data: Partial<IRepairSubmitParams>) {
+export function rateRepairAPI(id: number, data: IRepairRatingParams) {
   return post({
-    url: `/api/v1/service/repair/${id}`,
-    data,
-  });
-}
-
-/**
- * 删除报修
- */
-export function deleteRepairAPI(id: number) {
-  return post({
-    url: `/api/v1/service/repair/${id}/delete`,
-  });
-}
-
-/**
- * 处理报修
- */
-export function handleRepairAPI(data: IRepairHandleParams) {
-  return post({
-    url: '/api/v1/service/repair/handle',
-    data,
-  });
-}
-
-/**
- * 评价报修
- */
-export function rateRepairAPI(data: IRepairRatingParams) {
-  return post({
-    url: '/api/v1/service/repair/rate',
+    url: `/api/v1/app/repair/rate/${id}`,
     data,
   });
 }

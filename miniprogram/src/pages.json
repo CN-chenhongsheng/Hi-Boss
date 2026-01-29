@@ -106,6 +106,12 @@
           }
         },
         {
+          "path": "repair-detail/index",
+          "style": {
+            "navigationBarTitleText": "报修详情"
+          }
+        },
+        {
           "path": "notice-detail/index",
           "style": {
             "navigationBarTitleText": "公告详情"

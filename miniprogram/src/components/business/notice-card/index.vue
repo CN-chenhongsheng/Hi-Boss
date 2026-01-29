@@ -1,5 +1,5 @@
 <template>
-  <view class="glass-card notice-card glass-card--clickable" @click="handleClick">
+  <view class="glass-card glass-card--clickable notice-card" @click="handleClick">
     <view class="notice-card__bg-icon">
       <u-icon :name="icon || 'volume'" size="80" color="rgba(0,0,0,0.03)" />
     </view>
@@ -45,7 +45,7 @@ function handleClick() {
 </script>
 
 <style lang="scss" scoped>
-@use '@/styles/variables' as *;
+@import '@/styles/variables.scss';
 
 .glass-card {
   padding: 24rpx;

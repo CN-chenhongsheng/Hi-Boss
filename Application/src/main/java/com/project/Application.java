@@ -20,7 +20,9 @@ import org.springframework.context.annotation.ComponentScan;
         "com.project.backend.room.mapper",
         "com.project.backend.organization.mapper",
         "com.project.backend.school.mapper",
-        "com.project.backend.system.mapper"
+        "com.project.backend.system.mapper",
+        "com.project.backend.notice.mapper",
+        "com.project.backend.repair.mapper"
 })
 public class Application {
 

@@ -57,6 +57,11 @@ export class ApplyService {
       stayStartDate: formData.stayStartDate || '',
       stayEndDate: formData.stayEndDate || '',
       stayReason: formData.reason,
+      parentName: formData.parentName || '',
+      parentPhone: formData.parentPhone || '',
+      parentAgree: formData.parentAgree || '',
+      signature: formData.signature ? [formData.signature] : [],
+      images: formData.images || [],
     });
   }
 }
