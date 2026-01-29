@@ -475,14 +475,7 @@ onMounted(() => {
 </script>
 
 <style lang="scss" scoped>
-// 主题变量
-$primary: #0adbc3;
-$primary-dark: #08b09c;
-$bg-light: #f5f8f8;
-$text-main: #111817;
-$text-sub: #608a85;
-$glass-bg: rgb(255 255 255 / 65%);
-$glass-border: rgb(255 255 255 / 60%);
+@import '@/styles/variables.scss';
 
 .detail-page {
   position: relative;
@@ -604,52 +597,33 @@ $glass-border: rgb(255 255 255 / 60%);
   }
 }
 
-@keyframes pulse {
-  0%, 100% {
-    opacity: 0.7;
-  }
-
-  50% {
-    opacity: 1;
-  }
-}
-
-// 毛玻璃卡片
-.glass-card {
-  background: $glass-bg;
-  border: 2rpx solid $glass-border;
-  border-radius: 32rpx;
-  box-shadow: 0 8rpx 12rpx rgb(0 0 0 / 2%), 0 4rpx 8rpx rgb(0 0 0 / 2%);
-  backdrop-filter: blur(32rpx);
-}
-
 // 申请信息卡片
 .info-card {
   .card-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 32rpx 40rpx;
+    padding: $spacing-lg 40rpx;
     background: rgb(255 255 255 / 30%);
     border-bottom: 2rpx solid rgb(255 255 255 / 40%);
 
     .card-header-left {
       display: flex;
       align-items: center;
-      gap: 16rpx;
+      gap: $spacing-sm;
 
       .pulse-dot {
-        width: 16rpx;
-        height: 16rpx;
+        width: $spacing-sm;
+        height: $spacing-sm;
         background: $primary;
         border-radius: 50%;
         animation: pulse-dot 2s ease-in-out infinite;
       }
 
       .apply-no {
-        font-size: 24rpx;
+        font-size: $font-sm;
         color: $text-sub;
-        font-weight: 500;
+        font-weight: $font-medium;
         letter-spacing: 2rpx;
         text-transform: uppercase;
       }
@@ -657,12 +631,12 @@ $glass-border: rgb(255 255 255 / 60%);
 
     .apply-type-tag {
       padding: 8rpx 20rpx;
-      font-size: 24rpx;
+      font-size: $font-sm;
       color: $primary-dark;
       background: rgb(10 219 195 / 10%);
       border: 2rpx solid rgb(10 219 195 / 10%);
       border-radius: 12rpx;
-      font-weight: 700;
+      font-weight: $font-bold;
     }
   }
 
@@ -675,7 +649,7 @@ $glass-border: rgb(255 255 255 / 60%);
 .student-info {
   display: flex;
   align-items: center;
-  gap: 32rpx;
+  gap: $spacing-lg;
   margin-bottom: 48rpx;
 
   .student-avatar {
@@ -693,15 +667,15 @@ $glass-border: rgb(255 255 255 / 60%);
 
     .student-name {
       margin-bottom: 8rpx;
-      font-size: 32rpx;
+      font-size: $font-lg;
       color: $text-main;
-      font-weight: 700;
+      font-weight: $font-bold;
       line-height: 1.2;
     }
 
     .student-meta {
       margin-top: 8rpx;
-      font-size: 24rpx;
+      font-size: $font-sm;
       color: $text-sub;
     }
   }
@@ -716,7 +690,7 @@ $glass-border: rgb(255 255 255 / 60%);
 
 .detail-item {
   display: flex;
-  gap: 32rpx;
+  gap: $spacing-lg;
 
   .detail-icon {
     display: flex;
@@ -738,15 +712,15 @@ $glass-border: rgb(255 255 255 / 60%);
 
     .detail-label {
       margin-bottom: 8rpx;
-      font-size: 24rpx;
+      font-size: $font-sm;
       color: $text-sub;
     }
 
     .detail-value {
-      font-size: 28rpx;
+      font-size: $font-md;
       text-align: justify;
       color: $text-main;
-      font-weight: 500;
+      font-weight: $font-medium;
       line-height: 1.6;
     }
   }
@@ -760,24 +734,24 @@ $glass-border: rgb(255 255 255 / 60%);
     display: flex;
     align-items: center;
     margin-bottom: 48rpx;
-    font-size: 32rpx;
+    font-size: $font-lg;
     color: $text-main;
-    gap: 16rpx;
-    font-weight: 700;
+    gap: $spacing-sm;
+    font-weight: $font-bold;
   }
 }
 
 // 进度时间线
 .progress-timeline {
   position: relative;
-  padding-left: 32rpx;
+  padding-left: $spacing-lg;
 }
 
 .timeline-item {
   position: relative;
   display: flex;
   margin-bottom: 64rpx;
-  gap: 32rpx;
+  gap: $spacing-lg;
 
   &:last-child {
     margin-bottom: 0;
@@ -936,8 +910,8 @@ $glass-border: rgb(255 255 255 / 60%);
     }
 
     .timeline-title {
-      font-size: 32rpx;
-      font-weight: 700;
+      font-size: $font-lg;
+      font-weight: $font-bold;
       color: $text-main;
 
       &.active {
@@ -945,37 +919,37 @@ $glass-border: rgb(255 255 255 / 60%);
       }
 
       &.gray {
-        color: #9ca3af;
-        font-weight: 500;
+        color: $text-disabled;
+        font-weight: $font-medium;
       }
     }
 
     .timeline-time {
-      font-size: 24rpx;
+      font-size: $font-sm;
       color: $text-sub;
-      font-weight: 500;
+      font-weight: $font-medium;
 
       &.gray {
-        color: #9ca3af;
+        color: $text-disabled;
       }
     }
 
     .timeline-status-badge {
-      padding: 4rpx 16rpx;
-      font-size: 24rpx;
+      padding: 4rpx $spacing-sm;
+      font-size: $font-sm;
       color: $primary;
       background: rgb(10 219 195 / 10%);
       border-radius: 9999rpx;
-      font-weight: 500;
+      font-weight: $font-medium;
     }
 
     .timeline-desc {
       margin-top: 8rpx;
-      font-size: 28rpx;
+      font-size: $font-md;
       color: $text-sub;
 
       &.gray {
-        color: #9ca3af;
+        color: $text-disabled;
       }
     }
   }
@@ -997,8 +971,8 @@ $glass-border: rgb(255 255 255 / 60%);
 .timeline-reviewer {
   display: flex;
   align-items: center;
-  gap: 16rpx;
-  margin: 8rpx 0 24rpx;
+  gap: $spacing-sm;
+  margin: 8rpx 0 $spacing-md;
 
   .reviewer-avatar {
     width: 40rpx;
@@ -1012,17 +986,17 @@ $glass-border: rgb(255 255 255 / 60%);
     display: flex;
     align-items: center;
     gap: 12rpx;
-    font-size: 28rpx;
+    font-size: $font-md;
     color: $text-sub;
 
     .reviewer-status {
       padding: 2rpx 8rpx;
       margin-left: 8rpx;
-      font-size: 24rpx;
+      font-size: $font-sm;
       color: $primary;
       background: rgb(10 219 195 / 5%);
       border-radius: 4rpx;
-      font-weight: 500;
+      font-weight: $font-medium;
     }
   }
 }
@@ -1031,10 +1005,10 @@ $glass-border: rgb(255 255 255 / 60%);
 .review-reason-card {
   position: relative;
   padding: 28rpx;
-  margin-top: 16rpx;
+  margin-top: $spacing-sm;
   background: linear-gradient(to bottom right, rgb(10 219 195 / 5%), rgb(255 255 255 / 60%));
   border: 2rpx solid rgb(10 219 195 / 10%);
-  border-radius: 16rpx;
+  border-radius: $spacing-sm;
   box-shadow: 0 2rpx 8rpx rgb(0 0 0 / 5%);
 
   .review-reason-triangle {
@@ -1052,16 +1026,16 @@ $glass-border: rgb(255 255 255 / 60%);
   .review-reason-header {
     display: flex;
     align-items: center;
-    gap: 16rpx;
+    gap: $spacing-sm;
     margin-bottom: 8rpx;
-    font-size: 24rpx;
-    font-weight: 700;
+    font-size: $font-sm;
+    font-weight: $font-bold;
     color: $text-main;
   }
 
   .review-reason-text {
     padding-left: 48rpx;
-    font-size: 28rpx;
+    font-size: $font-md;
     color: #4b5563;
     line-height: 1.6;
   }
@@ -1079,7 +1053,7 @@ $glass-border: rgb(255 255 255 / 60%);
   left: 50%;
   z-index: 50;
   display: flex;
-  padding: 32rpx;
+  padding: $spacing-lg;
   margin: 0 auto;
   width: calc(100% - 64rpx);
   max-width: 750rpx;
@@ -1087,17 +1061,17 @@ $glass-border: rgb(255 255 255 / 60%);
   transform: translateX(-50%);
   backdrop-filter: blur(40rpx);
   border-top: 2rpx solid rgb(229 231 235 / 100%);
-  gap: 24rpx;
+  gap: $spacing-md;
 
   .action-btn {
     display: flex;
     justify-content: center;
     align-items: center;
     height: 86rpx;
-    font-size: 28rpx;
-    border-radius: 24rpx;
-    transition: all 0.2s;
-    font-weight: 700;
+    font-size: $font-md;
+    border-radius: $radius-md;
+    transition: $transition-fast;
+    font-weight: $font-bold;
 
     &:active {
       transform: scale(0.98);
@@ -1120,7 +1094,7 @@ $glass-border: rgb(255 255 255 / 60%);
     background: $primary;
     box-shadow: 0 8rpx 24rpx rgb(10 219 195 / 40%);
     flex: 2;
-    gap: 16rpx;
+    gap: $spacing-sm;
 
     &:active {
       background: $primary-dark;

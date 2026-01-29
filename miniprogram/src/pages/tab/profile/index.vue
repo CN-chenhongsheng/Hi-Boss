@@ -609,7 +609,6 @@ $shadow-page-lg: 0 8rpx 32rpx rgb(0 0 0 / 8%);
   display: flex;
   align-items: center;
   padding-left: 4rpx;
-  margin-bottom: 20rpx;
   gap: 12rpx;
 
   .title-icon {

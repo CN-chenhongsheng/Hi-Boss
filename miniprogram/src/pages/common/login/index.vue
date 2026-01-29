@@ -361,13 +361,15 @@ function handleForgotPassword() {
 </script>
 
 <style lang="scss" scoped>
+@import '@/styles/variables.scss';
+
 .login-page {
   position: relative;
   display: flex;
   overflow: hidden;
-  padding: 32rpx;
+  padding: $spacing-lg;
   padding-top: 43rpx;
-  min-height: calc(100vh - 43rpx - 32rpx);
+  min-height: calc(100vh - 43rpx - $spacing-lg);
   background-color: #f0f9ff;
   box-sizing: content-box;
 }
@@ -456,7 +458,7 @@ function handleForgotPassword() {
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-bottom: 32rpx;
+  margin-bottom: $spacing-lg;
   width: 256rpx;
   height: 256rpx;
 
@@ -547,7 +549,7 @@ function handleForgotPassword() {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 16rpx;
+  gap: $spacing-sm;
 }
 
 .title-main {
@@ -556,9 +558,9 @@ function handleForgotPassword() {
   font-size: 64rpx;
   color: #1e293b;
   filter: drop-shadow(0 2rpx 4rpx rgb(0 0 0 / 5%));
-  font-weight: 700;
+  font-weight: $font-bold;
   letter-spacing: 4rpx;
-  gap: 16rpx;
+  gap: $spacing-sm;
 
   .title-gradient {
     background: linear-gradient(to right, #0d9488, #06b6d4);
@@ -571,7 +573,7 @@ function handleForgotPassword() {
   display: flex;
   align-items: center;
   gap: 24rpx;
-  padding: 12rpx 32rpx;
+  padding: 12rpx $spacing-lg;
   background: rgb(255 255 255 / 40%);
   backdrop-filter: blur(20rpx);
   border: 2rpx solid rgb(255 255 255 / 50%);
@@ -595,9 +597,9 @@ function handleForgotPassword() {
   }
 
   text {
-    font-size: 20rpx;
-    color: #64748b;
-    font-weight: 700;
+    font-size: $font-xs;
+    color: $text-sub;
+    font-weight: $font-bold;
     letter-spacing: 4rpx;
     text-transform: uppercase;
   }
@@ -633,8 +635,8 @@ function handleForgotPassword() {
     top: 0;
     right: 0;
     z-index: 0;
-    margin-top: -32rpx;
-    margin-right: -32rpx;
+    margin-top: -$spacing-lg;
+    margin-right: -$spacing-lg;
     width: 128rpx;
     height: 128rpx;
     background: linear-gradient(to bottom left, rgb(207 250 254 / 50%), transparent);
@@ -651,25 +653,25 @@ function handleForgotPassword() {
 .login-tabs {
   display: flex;
   padding: 8rpx;
-  margin-bottom: 32rpx;
+  margin-bottom: $spacing-lg;
   background: rgb(241 245 249 / 60%);
-  border-radius: 24rpx;
+  border-radius: $radius-lg;
 
   .tab-item {
-    padding: 16rpx;
-    font-size: 28rpx;
+    padding: $spacing-sm;
+    font-size: $font-md;
     text-align: center;
-    color: #64748b;
-    border-radius: 16rpx;
-    transition: all 0.2s;
+    color: $text-sub;
+    border-radius: $radius-md;
+    transition: $transition-normal;
     flex: 1;
-    font-weight: 500;
+    font-weight: $font-medium;
 
     &.active {
       color: #0d9488;
       background: #fff;
       box-shadow: 0 2rpx 8rpx rgb(0 0 0 / 5%);
-      font-weight: 600;
+      font-weight: $font-semibold;
     }
   }
 }
@@ -678,7 +680,7 @@ function handleForgotPassword() {
 .form-fields {
   display: flex;
   flex-direction: column;
-  gap: 32rpx;
+  gap: $spacing-lg;
 }
 
 .field-group {
@@ -689,9 +691,9 @@ function handleForgotPassword() {
 
 .field-label {
   margin-left: 8rpx;
-  font-size: 24rpx;
-  color: #64748b;
-  font-weight: 700;
+  font-size: $font-sm;
+  color: $text-sub;
+  font-weight: $font-bold;
   text-transform: uppercase;
   letter-spacing: 0.4rpx;
 }
@@ -699,12 +701,12 @@ function handleForgotPassword() {
 .input-wrapper {
   display: flex;
   align-items: center;
-  padding: 0 32rpx;
+  padding: 0 $spacing-lg;
   height: 96rpx;
   background: rgb(255 255 255 / 60%);
   border: 2rpx solid #e2e8f0;
-  border-radius: 32rpx;
-  transition: all 0.3s;
+  border-radius: $spacing-lg;
+  transition: $transition-normal;
 
   &:focus-within {
     background: rgb(255 255 255 / 95%);
@@ -716,7 +718,7 @@ function handleForgotPassword() {
     display: flex;
     justify-content: center;
     align-items: center;
-    margin-right: 24rpx;
+    margin-right: $spacing-md;
     width: 40rpx;
     height: 40rpx;
     transition: color 0.3s;
@@ -738,24 +740,24 @@ function handleForgotPassword() {
     background: transparent;
     border: none;
     flex: 1;
-    font-weight: 500;
+    font-weight: $font-medium;
 
     &::placeholder {
-      color: #94a3b8;
+      color: $text-placeholder;
     }
   }
 
   .password-toggle,
   .code-button {
     padding: 8rpx;
-    margin-left: 16rpx;
-    font-size: 28rpx;
-    color: #94a3b8;
+    margin-left: $spacing-sm;
+    font-size: $font-md;
+    color: $text-placeholder;
   }
 
   .code-button {
     color: #06b6d4;
-    font-weight: 600;
+    font-weight: $font-semibold;
     cursor: pointer;
 
     &:active {
@@ -770,23 +772,23 @@ function handleForgotPassword() {
   justify-content: space-between;
   align-items: center;
   margin-top: -8rpx;
-  font-size: 24rpx;
-  font-weight: 500;
+  font-size: $font-sm;
+  font-weight: $font-medium;
 }
 
 .checkbox-wrapper {
   display: flex;
   align-items: center;
-  gap: 16rpx;
-  color: #64748b;
+  gap: $spacing-sm;
+  color: $text-sub;
   cursor: pointer;
 
   .checkbox {
     display: flex;
     justify-content: center;
     align-items: center;
-    width: 32rpx;
-    height: 32rpx;
+    width: $spacing-lg;
+    height: $spacing-lg;
     border: 2rpx solid #cbd5e1;
     border-radius: 8rpx;
     transition: all 0.2s;
@@ -798,12 +800,12 @@ function handleForgotPassword() {
   }
 
   .checkbox-label {
-    font-size: 24rpx;
+    font-size: $font-sm;
   }
 }
 
 .forgot-password {
-  font-size: 24rpx;
+  font-size: $font-sm;
   color: rgb(249 115 22 / 80%);
   cursor: pointer;
 
@@ -819,17 +821,17 @@ function handleForgotPassword() {
   justify-content: center;
   align-items: center;
   overflow: hidden;
-  margin-top: 16rpx;
+  margin-top: $spacing-sm;
   width: 100%;
   height: 96rpx;
-  font-size: 32rpx;
+  font-size: $spacing-lg;
   color: #fff;
   background: linear-gradient(to right, #14b8a6, #06b6d4);
-  border-radius: 32rpx;
+  border-radius: $spacing-lg;
   box-shadow: 0 8rpx 24rpx rgb(20 184 166 / 20%);
-  transition: all 0.3s;
-  gap: 16rpx;
-  font-weight: 700;
+  transition: $transition-normal;
+  gap: $spacing-sm;
+  font-weight: $font-bold;
 
   &:active {
     transform: scale(0.98);
@@ -853,8 +855,8 @@ function handleForgotPassword() {
 .divider {
   display: flex;
   align-items: center;
-  gap: 32rpx;
-  margin: 32rpx 0;
+  gap: $spacing-lg;
+  margin: $spacing-lg 0;
 
   .divider-line {
     flex: 1;
@@ -863,9 +865,9 @@ function handleForgotPassword() {
   }
 
   text {
-    font-size: 20rpx;
-    font-weight: 600;
-    color: #94a3b8;
+    font-size: $font-xs;
+    font-weight: $font-semibold;
+    color: $text-placeholder;
     text-transform: uppercase;
     letter-spacing: 0.4rpx;
   }
@@ -878,15 +880,15 @@ function handleForgotPassword() {
   align-items: center;
   width: 100%;
   height: 88rpx;
-  font-size: 28rpx;
+  font-size: $font-md;
   color: #475569;
   background: #fff;
   border: 2rpx solid #e2e8f0;
-  border-radius: 32rpx;
+  border-radius: $spacing-lg;
   box-shadow: 0 2rpx 8rpx rgb(0 0 0 / 5%);
-  transition: all 0.3s;
+  transition: $transition-normal;
   gap: 20rpx;
-  font-weight: 600;
+  font-weight: $font-semibold;
 
   &:active {
     background: #f8fafc;
@@ -902,8 +904,8 @@ function handleForgotPassword() {
 }
 
 .footer-text {
-  font-size: 24rpx;
-  color: #94a3b8;
+  font-size: $font-sm;
+  color: $text-placeholder;
   font-weight: 300;
   letter-spacing: 0.4rpx;
 }
@@ -912,11 +914,11 @@ function handleForgotPassword() {
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-top: 24rpx;
-  font-size: 20rpx;
+  margin-top: $spacing-md;
+  font-size: $font-xs;
   color: rgb(148 163 184 / 70%);
-  gap: 24rpx;
-  font-weight: 500;
+  gap: $spacing-md;
+  font-weight: $font-medium;
 }
 
 .badge-item {

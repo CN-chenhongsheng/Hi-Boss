@@ -29,6 +29,7 @@ import com.project.backend.system.entity.Role;
 import com.project.backend.system.entity.User;
 import com.project.backend.system.mapper.RoleMapper;
 import com.project.backend.system.mapper.UserMapper;
+import com.project.backend.util.DictUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

@@ -742,12 +742,7 @@ async function handleSubmit(): Promise<void> {
 </script>
 
 <style lang="scss" scoped>
-// 主题变量
-$primary: #0adbc3;
-$primary-dark: #009688;
-$accent: #ff8c42;
-$bg-light: #F0F4F8;
-$text-main: #111817;
+@import '@/styles/variables.scss';
 
 .habits-page {
   position: relative;
@@ -790,15 +785,6 @@ $text-main: #111817;
   }
 }
 
-// 毛玻璃卡片
-.glass-card {
-  background: rgb(255 255 255 / 65%);
-  border: 2rpx solid rgb(255 255 255 / 60%);
-  border-radius: 42rpx;
-  box-shadow: 0 8rpx 60rpx rgb(0 0 0 / 3%);
-  backdrop-filter: blur(32rpx);
-}
-
 // 顶部导航栏
 .top-header {
   position: sticky;
@@ -807,7 +793,7 @@ $text-main: #111817;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: calc(var(--status-bar-height) + 45rpx) 32rpx 25rpx;
+  padding: calc(var(--status-bar-height) + 45rpx) $spacing-lg 25rpx;
 
   .header-back {
     display: flex;
@@ -823,11 +809,11 @@ $text-main: #111817;
   }
 
   .header-title {
-    font-size: 36rpx;
+    font-size: $font-xl;
     text-align: center;
     color: $text-main;
     flex: 1;
-    font-weight: 700;
+    font-weight: $font-bold;
     letter-spacing: 0.5rpx;
   }
 
@@ -849,26 +835,26 @@ $text-main: #111817;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  padding: 200rpx 32rpx;
-  gap: 24rpx;
+  padding: 200rpx $spacing-lg;
+  gap: $spacing-md;
 
   .loading-text {
-    font-size: 28rpx;
-    color: #64748b;
+    font-size: $font-md;
+    color: $text-sub;
   }
 }
 
 // 表单容器
 .form-container {
-  padding: 0 32rpx 32rpx;
+  padding: 0 $spacing-lg $spacing-lg;
 }
 
 // 提示卡片
 .info-card {
   display: flex;
   align-items: flex-start;
-  padding: 32rpx;
-  margin-bottom: 32rpx;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-lg;
   gap: 20rpx;
 
   .info-icon {
@@ -882,29 +868,29 @@ $text-main: #111817;
 
   .info-title {
     margin-bottom: 12rpx;
-    font-size: 28rpx;
-    font-weight: 700;
+    font-size: $font-md;
+    font-weight: $font-bold;
     color: #0f172a;
   }
 
   .info-text {
-    font-size: 24rpx;
-    color: #64748b;
+    font-size: $font-sm;
+    color: $text-sub;
     line-height: 1.6;
   }
 }
 
 // 区块卡片
 .section-card {
-  padding: 32rpx;
-  margin-bottom: 24rpx;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-md;
 }
 
 .section-header {
   display: flex;
   align-items: center;
-  margin-bottom: 32rpx;
-  gap: 16rpx;
+  margin-bottom: $spacing-lg;
+  gap: $spacing-sm;
 }
 
 .section-icon {
@@ -917,8 +903,8 @@ $text-main: #111817;
 }
 
 .section-title {
-  font-size: 32rpx;
-  font-weight: 700;
+  font-size: $font-lg;
+  font-weight: $font-bold;
   color: #0f172a;
 }
 
@@ -937,15 +923,15 @@ $text-main: #111817;
   margin-bottom: 20rpx;
 
   .label-text {
-    font-size: 28rpx;
-    font-weight: 600;
+    font-size: $font-md;
+    font-weight: $font-semibold;
     color: #334155;
   }
 
   .label-hint {
     margin-left: 8rpx;
-    font-size: 24rpx;
-    color: #94a3b8;
+    font-size: $font-sm;
+    color: $text-placeholder;
   }
 }
 
@@ -964,7 +950,7 @@ $text-main: #111817;
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 20rpx 32rpx;
+  padding: 20rpx $spacing-lg;
   padding-bottom: calc(20rpx + env(safe-area-inset-bottom));
   background: linear-gradient(to top, rgb(240 244 248 / 98%), rgb(240 244 248 / 90%));
   backdrop-filter: blur(20rpx);
@@ -979,7 +965,7 @@ $text-main: #111817;
   background: linear-gradient(135deg, #0adbc3 0%, #009688 100%);
   border-radius: 48rpx;
   box-shadow: 0 8rpx 24rpx rgb(10 219 195 / 30%);
-  transition: all 0.3s;
+  transition: $transition-normal;
 
   &:active {
     transform: scale(0.98);
@@ -987,8 +973,8 @@ $text-main: #111817;
   }
 
   .submit-text {
-    font-size: 32rpx;
-    font-weight: 700;
+    font-size: $font-lg;
+    font-weight: $font-bold;
     color: #fff;
   }
 }
