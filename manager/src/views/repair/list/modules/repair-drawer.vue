@@ -20,64 +20,165 @@
 
         <!-- 故障描述 -->
         <ElTabPane label="故障描述" name="fault">
-          <div class="fault-description">
-            <p>{{ repairDetail.faultDescription || '暂无描述' }}</p>
-            <div v-if="faultImages.length > 0" class="image-list">
-              <ElImage
-                v-for="(img, index) in faultImages"
-                :key="index"
-                :src="img"
-                :preview-src-list="faultImages"
-                fit="cover"
-                class="fault-image"
-              />
+          <ElCard class="info-card fault-desc-card" shadow="hover">
+            <template #header>
+              <div class="card-header">
+                <ArtSvgIcon icon="ri:file-warning-line" class="header-icon" />
+                <span class="header-title">故障描述</span>
+              </div>
+            </template>
+            <div class="info-list">
+              <div class="info-row fault-desc-row">
+                <div class="row-label">
+                  <ArtSvgIcon icon="ri:article-line" class="label-icon" />
+                  <span>描述</span>
+                </div>
+                <div class="row-value row-value--wrap">
+                  <div
+                    class="fault-desc-text"
+                    :class="{ 'is-empty': !repairDetail.faultDescription }"
+                  >
+                    {{ repairDetail.faultDescription || '暂无描述' }}
+                  </div>
+                </div>
+              </div>
+              <div v-if="faultImages.length > 0" class="info-row">
+                <div class="row-label">
+                  <ArtSvgIcon icon="ri:image-line" class="label-icon" />
+                  <span>故障图片</span>
+                  <span class="image-count">共 {{ faultImages.length }} 张</span>
+                </div>
+                <div class="row-value row-value--wrap">
+                  <div
+                    class="image-list"
+                    :class="{ 'image-list--compact': faultImages.length > 4 }"
+                  >
+                    <div v-for="(img, index) in faultImages" :key="index" class="image-item">
+                      <ElImage
+                        :src="img"
+                        :preview-src-list="faultImages"
+                        fit="cover"
+                        class="info-card-image"
+                      />
+                      <span class="image-index-badge">{{ Number(index) + 1 }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
-          </div>
+          </ElCard>
         </ElTabPane>
 
         <!-- 维修信息 -->
         <ElTabPane label="维修信息" name="repair">
-          <template v-if="showRepairInfo">
-            <el-descriptions :column="1" border>
-              <el-descriptions-item label="维修人员">
-                {{ repairDetail.repairPersonName || '-' }}
-              </el-descriptions-item>
-              <el-descriptions-item label="预约时间">
-                {{ repairDetail.appointmentTime || '-' }}
-              </el-descriptions-item>
-              <el-descriptions-item v-if="repairDetail.repairResult" label="维修结果">
-                {{ repairDetail.repairResult }}
-              </el-descriptions-item>
-              <el-descriptions-item v-if="repairImages.length > 0" label="维修后图片">
-                <div class="image-list">
-                  <ElImage
-                    v-for="(img, index) in repairImages"
-                    :key="index"
-                    :src="img"
-                    :preview-src-list="repairImages"
-                    fit="cover"
-                    class="fault-image"
-                  />
+          <ElCard v-if="showRepairInfo" class="info-card" shadow="hover">
+            <template #header>
+              <div class="card-header">
+                <ArtSvgIcon icon="ri:tools-line" class="header-icon" />
+                <span class="header-title">维修信息</span>
+              </div>
+            </template>
+            <div class="info-list">
+              <div class="info-row">
+                <div class="row-label">
+                  <ArtSvgIcon icon="ri:user-line" class="label-icon" />
+                  <span>维修人员</span>
                 </div>
-              </el-descriptions-item>
-            </el-descriptions>
-          </template>
-          <p v-else class="empty-placeholder">暂无维修信息</p>
+                <div class="row-value">{{ repairDetail.repairPersonName || '-' }}</div>
+              </div>
+              <div class="info-row">
+                <div class="row-label">
+                  <ArtSvgIcon icon="ri:calendar-line" class="label-icon" />
+                  <span>预约时间</span>
+                </div>
+                <div class="row-value">{{ repairDetail.appointmentTime || '-' }}</div>
+              </div>
+              <div v-if="repairDetail.repairResult" class="info-row">
+                <div class="row-label">
+                  <ArtSvgIcon icon="ri:checkbox-circle-line" class="label-icon" />
+                  <span>维修结果</span>
+                </div>
+                <div class="row-value row-value--wrap">{{ repairDetail.repairResult }}</div>
+              </div>
+              <div v-if="repairImages.length > 0" class="info-row">
+                <div class="row-label">
+                  <ArtSvgIcon icon="ri:image-line" class="label-icon" />
+                  <span>维修后图片</span>
+                  <span class="image-count">共 {{ repairImages.length }} 张</span>
+                </div>
+                <div class="row-value row-value--wrap">
+                  <div
+                    class="image-list"
+                    :class="{ 'image-list--compact': repairImages.length > 4 }"
+                  >
+                    <div v-for="(img, index) in repairImages" :key="index" class="image-item">
+                      <ElImage
+                        :src="img"
+                        :preview-src-list="repairImages"
+                        fit="cover"
+                        class="info-card-image"
+                      />
+                      <span class="image-index-badge">{{ Number(index) + 1 }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </ElCard>
+          <ElCard v-else class="info-card" shadow="hover">
+            <template #header>
+              <div class="card-header">
+                <ArtSvgIcon icon="ri:tools-line" class="header-icon" />
+                <span class="header-title">维修信息</span>
+              </div>
+            </template>
+            <div class="empty-state">
+              <span class="empty-text">暂无维修信息</span>
+            </div>
+          </ElCard>
         </ElTabPane>
 
         <!-- 评价信息 -->
         <ElTabPane label="评价信息" name="rating">
-          <template v-if="repairDetail.rating">
-            <el-descriptions :column="1" border>
-              <el-descriptions-item label="评分">
-                <ElRate v-model="repairDetail.rating" disabled />
-              </el-descriptions-item>
-              <el-descriptions-item label="评价内容">
-                {{ repairDetail.ratingComment || '暂无评价' }}
-              </el-descriptions-item>
-            </el-descriptions>
-          </template>
-          <p v-else class="empty-placeholder">暂无评价</p>
+          <ElCard v-if="repairDetail.rating" class="info-card" shadow="hover">
+            <template #header>
+              <div class="card-header">
+                <ArtSvgIcon icon="ri:star-smile-line" class="header-icon" />
+                <span class="header-title">评价信息</span>
+              </div>
+            </template>
+            <div class="info-list">
+              <div class="info-row">
+                <div class="row-label">
+                  <ArtSvgIcon icon="ri:star-line" class="label-icon" />
+                  <span>评分</span>
+                </div>
+                <div class="row-value">
+                  <ElRate :model-value="repairDetail.rating" disabled />
+                </div>
+              </div>
+              <div class="info-row">
+                <div class="row-label">
+                  <ArtSvgIcon icon="ri:chat-quote-line" class="label-icon" />
+                  <span>评价内容</span>
+                </div>
+                <div class="row-value row-value--wrap">
+                  {{ repairDetail.ratingComment || '暂无评价' }}
+                </div>
+              </div>
+            </div>
+          </ElCard>
+          <ElCard v-else class="info-card" shadow="hover">
+            <template #header>
+              <div class="card-header">
+                <ArtSvgIcon icon="ri:star-smile-line" class="header-icon" />
+                <span class="header-title">评价信息</span>
+              </div>
+            </template>
+            <div class="empty-state">
+              <span class="empty-text">暂无评价</span>
+            </div>
+          </ElCard>
         </ElTabPane>
       </ElTabs>
 
@@ -110,15 +211,15 @@
   import { ref, computed, watch } from 'vue'
   import {
     ElButton,
+    ElCard,
     ElImage,
     ElRate,
-    ElDescriptions,
-    ElDescriptionsItem,
     ElMessage,
     ElMessageBox,
     ElTabs,
     ElTabPane
   } from 'element-plus'
+  import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
   import ArtDrawer from '@/components/core/layouts/art-drawer/index.vue'
   import ArtBasicInfo from '@/components/core/layouts/art-basic-info/index.vue'
   import ArtRepairHeaderCard from '@/components/core/cards/art-repair-header-card/index.vue'
@@ -126,31 +227,7 @@
 
   defineOptions({ name: 'RepairDrawer' })
 
-  type RepairListItem = {
-    id: number
-    studentId?: number
-    studentName?: string
-    studentNo?: string
-    roomCode?: string
-    bedCode?: string
-    repairType: number
-    repairTypeText?: string
-    faultDescription?: string
-    faultImages?: string | string[]
-    urgentLevel: number
-    urgentLevelText?: string
-    status: number
-    statusText?: string
-    repairPersonId?: number
-    repairPersonName?: string
-    appointmentTime?: string
-    completeTime?: string
-    repairResult?: string
-    repairImages?: string | string[]
-    rating?: number
-    ratingComment?: string
-    createTime?: string
-  }
+  type RepairListItem = Api.RepairManage.RepairListItem
 
   interface Props {
     visible: boolean
@@ -377,18 +454,28 @@
     }
   }
 
-  .empty-placeholder {
-    padding: 16px 0;
-    margin: 0;
-    font-size: 14px;
-    color: var(--el-text-color-secondary);
+  .row-value--wrap {
+    flex-wrap: wrap;
+    overflow: visible;
+    white-space: normal;
   }
 
-  .fault-description {
-    p {
-      margin: 0 0 12px;
-      line-height: 1.6;
-      color: var(--el-text-color-primary);
+  .fault-desc-card .fault-desc-row {
+    align-items: flex-start;
+  }
+
+  .fault-desc-text {
+    box-sizing: border-box;
+    margin: 0;
+    font-size: 14px;
+    color: var(--el-text-color-primary);
+    word-break: break-word;
+    white-space: pre-wrap;
+
+    &.is-empty {
+      color: var(--el-text-color-placeholder);
+      background: var(--el-fill-color-lighter);
+      border-left-color: var(--el-border-color-lighter);
     }
   }
 
@@ -396,20 +483,60 @@
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
+
+    &.image-list--compact {
+      display: grid;
+      grid-template-columns: repeat(5, 64px);
+      gap: 6px;
+    }
   }
 
-  .fault-image {
+  .image-item {
+    position: relative;
+    line-height: 0;
+  }
+
+  .image-index-badge {
+    position: absolute;
+    bottom: 4px;
+    left: 4px;
+    padding: 2px 6px;
+    font-size: 11px;
+    font-weight: 500;
+    line-height: 1.2;
+    color: #fff;
+    background: rgba(0 0 0 / 55%);
+    border-radius: 4px;
+  }
+
+  .row-label .image-count {
+    margin-left: 6px;
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--el-text-color-secondary);
+  }
+
+  .info-card-image {
     width: 80px;
     height: 80px;
     cursor: pointer;
     border-radius: 4px;
+
+    .image-list--compact & {
+      width: 64px;
+      height: 64px;
+    }
   }
 
   .action-buttons {
     display: flex;
-    gap: 16px;
-    justify-content: center;
+    flex-direction: column;
+    gap: 12px;
     padding-top: 16px;
     border-top: 1px solid var(--el-border-color-lighter);
+
+    :deep(.el-button) {
+      width: 100%;
+    }
   }
 </style>
