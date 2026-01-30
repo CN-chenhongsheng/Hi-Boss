@@ -1,10 +1,10 @@
-package com.project.backend.accommodation.service.impl;
+package com.project.backend.common.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.project.backend.accommodation.entity.Student;
-import com.project.backend.accommodation.service.StudentInfoEnricher;
+import com.project.backend.common.service.StudentInfoEnricher;
 import com.project.backend.organization.entity.Campus;
 import com.project.backend.organization.entity.Class;
 import com.project.backend.organization.entity.Department;
@@ -27,7 +27,7 @@ import org.springframework.stereotype.Service;
 /**
  * 学生信息填充器实现
  * 用于将学生详细信息填充到 VO 对象中，减少重复代码
- * 
+ *
  * @author 陈鸿昇
  * @since 2026-01-26
  */
@@ -65,6 +65,31 @@ public class StudentInfoEnricherImpl implements StudentInfoEnricher {
             setFieldValue(vo, "enrollmentYear", student.getEnrollmentYear());
             setFieldValue(vo, "currentGrade", student.getCurrentGrade());
             setFieldValue(vo, "academicStatusText", DictUtils.getLabel("academic_status", student.getAcademicStatus(), "未知"));
+
+            // 姓名、学号、编码、学籍状态及 ID 类（与 StudentServiceImpl 对齐）
+            setFieldValue(vo, "studentName", student.getStudentName());
+            setFieldValue(vo, "studentNo", student.getStudentNo());
+            setFieldValue(vo, "campusCode", student.getCampusCode());
+            setFieldValue(vo, "floorCode", student.getFloorCode());
+            setFieldValue(vo, "academicStatus", student.getAcademicStatus());
+            setFieldValue(vo, "deptCode", student.getDeptCode());
+            setFieldValue(vo, "majorCode", student.getMajorCode());
+            setFieldValue(vo, "classId", student.getClassId());
+            setFieldValue(vo, "classCode", student.getClassCode());
+            setFieldValue(vo, "floorId", student.getFloorId());
+            setFieldValue(vo, "roomId", student.getRoomId());
+            setFieldValue(vo, "bedId", student.getBedId());
+
+            // 身份/联系与家庭/紧急联系人（与 StudentVO 基本信息对齐）
+            setFieldValue(vo, "idCard", student.getIdCard());
+            setFieldValue(vo, "email", student.getEmail());
+            setFieldValue(vo, "birthDate", student.getBirthDate());
+            setFieldValue(vo, "schoolingLength", student.getSchoolingLength());
+            setFieldValue(vo, "homeAddress", student.getHomeAddress());
+            setFieldValue(vo, "emergencyContact", student.getEmergencyContact());
+            setFieldValue(vo, "emergencyPhone", student.getEmergencyPhone());
+            setFieldValue(vo, "parentName", student.getParentName());
+            setFieldValue(vo, "parentPhone", student.getParentPhone());
 
             // 如果校区名称为空，从学生的校区编码查询并填充
             String currentCampusName = getFieldValue(vo, campusNameFieldName);
@@ -162,10 +187,8 @@ public class StudentInfoEnricherImpl implements StudentInfoEnricher {
             return;
         }
         try {
-            // 使用 BeanUtil 设置字段值（更安全，支持类型转换）
             BeanUtil.setFieldValue(obj, fieldName, value);
         } catch (Exception e) {
-            // 字段不存在或设置失败时静默忽略
             log.debug("设置字段失败: fieldName={}, value={}, error={}", fieldName, value, e.getMessage());
         }
     }

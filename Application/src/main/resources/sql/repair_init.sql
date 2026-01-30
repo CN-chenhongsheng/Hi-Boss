@@ -1,19 +1,18 @@
 -- =============================================
--- 报修功能数据库初始化脚本
+-- 报修功能数据库初始化脚本（完整 sys_repair 表）
+-- 学生/房间/床位信息通过关联表查询，不冗余存储
 -- @author 陈鸿昇
 -- @since 2026-01-29
 -- =============================================
 
--- 1. 创建报修表
-CREATE TABLE IF NOT EXISTS `sys_repair` (
+-- 1. 报修表（完整 DDL）
+DROP TABLE IF EXISTS `sys_repair`;
+
+CREATE TABLE `sys_repair` (
     `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '主键ID',
-    `student_id` BIGINT NOT NULL COMMENT '学生ID',
-    `student_name` VARCHAR(50) COMMENT '学生姓名（冗余）',
-    `student_no` VARCHAR(20) COMMENT '学号（冗余）',
-    `room_id` BIGINT COMMENT '房间ID',
-    `room_code` VARCHAR(20) COMMENT '房间编码（冗余）',
-    `bed_id` BIGINT COMMENT '床位ID',
-    `bed_code` VARCHAR(20) COMMENT '床位编码（冗余）',
+    `student_id` BIGINT NOT NULL COMMENT '学生ID（关联 sys_student）',
+    `room_id` BIGINT COMMENT '房间ID（关联 sys_room）',
+    `bed_id` BIGINT COMMENT '床位ID（关联 sys_bed）',
     `repair_type` INT NOT NULL COMMENT '维修类型：1-水电 2-门窗 3-家具 4-网络 5-其他',
     `fault_description` TEXT NOT NULL COMMENT '故障描述',
     `fault_images` JSON COMMENT '故障图片（JSON数组）',

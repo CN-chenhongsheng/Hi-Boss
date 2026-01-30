@@ -11,7 +11,7 @@ import com.project.backend.organization.entity.Campus;
 import com.project.backend.organization.mapper.CampusMapper;
 import com.project.backend.accommodation.entity.Student;
 import com.project.backend.accommodation.mapper.StudentMapper;
-import com.project.backend.accommodation.service.StudentInfoEnricher;
+import com.project.backend.common.service.StudentInfoEnricher;
 import com.project.backend.util.DictUtils;
 import com.project.backend.room.dto.bed.BedBatchCreateDTO;
 import com.project.backend.room.dto.bed.BedQueryDTO;

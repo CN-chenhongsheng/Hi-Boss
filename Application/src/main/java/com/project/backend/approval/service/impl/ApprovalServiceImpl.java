@@ -30,7 +30,7 @@ import com.project.backend.system.mapper.RoleMapper;
 import com.project.backend.system.mapper.UserMapper;
 import com.project.backend.accommodation.entity.Student;
 import com.project.backend.accommodation.mapper.StudentMapper;
-import com.project.backend.accommodation.service.StudentInfoEnricher;
+import com.project.backend.common.service.StudentInfoEnricher;
 import com.project.backend.util.DictUtils;
 import com.project.core.exception.BusinessException;
 import com.project.core.result.PageResult;

@@ -21,7 +21,7 @@ import com.project.backend.approval.vo.ApprovalAssigneeVO;
 import com.project.backend.approval.vo.ApprovalRecordVO;
 import com.project.backend.accommodation.entity.Student;
 import com.project.backend.accommodation.mapper.StudentMapper;
-import com.project.backend.accommodation.service.StudentInfoEnricher;
+import com.project.backend.common.service.StudentInfoEnricher;
 import com.project.backend.organization.entity.Campus;
 import com.project.backend.organization.mapper.CampusMapper;
 import com.project.backend.approval.service.ApprovalService;

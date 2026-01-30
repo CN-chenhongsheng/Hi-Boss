@@ -1743,4 +1743,113 @@ declare namespace Api {
       totalPages: number
     }
   }
+
+  /** 报修管理类型 */
+  namespace RepairManage {
+    /** 报修管理查询参数 */
+    interface RepairSearchParams {
+      studentNo?: string
+      studentName?: string
+      repairType?: number
+      status?: number
+      urgentLevel?: number
+      createDateStart?: string
+      createDateEnd?: string
+      pageNum?: number
+      pageSize?: number
+    }
+
+    /** 报修管理保存参数 */
+    interface RepairSaveParams {
+      id?: number
+      studentId?: number
+      roomId?: number
+      roomCode?: string
+      bedId?: number
+      bedCode?: string
+      repairType: number
+      faultDescription: string
+      faultImages?: string
+      urgentLevel: number
+      repairPersonId?: number
+      repairPersonName?: string
+      appointmentTime?: string
+      status?: number
+    }
+
+    /** 完成维修参数 */
+    interface CompleteRepairParams {
+      repairResult: string
+      repairImages?: string[]
+    }
+
+    /**
+     * 报修管理列表项
+     *
+     * @remarks
+     * **后端数据约定**：与 CheckInVO 等接口对齐，当返回 `studentName` 时同时返回以下学生基本信息（用于表格姓名列悬浮卡片与详情）：
+     * - 基本信息：`studentNo`, `gender`/`genderText`, `phone`, `nation`, `politicalStatus`
+     * - 学校信息：`campusCode`, `campusName`, `deptName`, `majorName`, `className`
+     * - 住宿信息：`floorCode`, `floorName`, `roomName`, `bedName`
+     * - 学籍信息：`academicStatus`, `academicStatusText`, `enrollmentYear`, `currentGrade`
+     */
+    interface RepairListItem {
+      id: number
+      studentId?: number
+      studentName?: string
+      studentNo?: string
+      // 学生基本信息（与 CheckInVO/StudentVO 对齐）
+      gender?: number
+      genderText?: string
+      phone?: string
+      nation?: string
+      politicalStatus?: string
+      campusCode?: string
+      campusName?: string
+      deptName?: string
+      majorName?: string
+      className?: string
+      floorCode?: string
+      floorName?: string
+      roomName?: string
+      bedName?: string
+      academicStatus?: number
+      academicStatusText?: string
+      enrollmentYear?: number
+      currentGrade?: string
+      // 报修相关字段
+      roomId?: number
+      roomCode?: string
+      bedId?: number
+      bedCode?: string
+      repairType: number
+      repairTypeText?: string
+      faultDescription?: string
+      faultImages?: string | string[]
+      urgentLevel: number
+      urgentLevelText?: string
+      status: number
+      statusText?: string
+      repairPersonId?: number
+      repairPersonName?: string
+      appointmentTime?: string
+      completeTime?: string
+      repairResult?: string
+      repairImages?: string | string[]
+      rating?: number
+      ratingComment?: string
+      remark?: string
+      createTime?: string
+      updateTime?: string
+    }
+
+    /** 报修管理分页响应 */
+    interface RepairPageResponse {
+      list: RepairListItem[]
+      total: number
+      pageNum: number
+      pageSize: number
+      totalPages: number
+    }
+  }
 }

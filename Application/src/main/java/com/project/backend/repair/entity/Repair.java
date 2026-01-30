@@ -25,29 +25,13 @@ public class Repair extends BaseEntity {
     @TableField("student_id")
     private Long studentId;
 
-    @Schema(description = "学生姓名（冗余）")
-    @TableField("student_name")
-    private String studentName;
-
-    @Schema(description = "学号（冗余）")
-    @TableField("student_no")
-    private String studentNo;
-
     @Schema(description = "房间ID")
     @TableField("room_id")
     private Long roomId;
 
-    @Schema(description = "房间编码（冗余）")
-    @TableField("room_code")
-    private String roomCode;
-
     @Schema(description = "床位ID")
     @TableField("bed_id")
     private Long bedId;
-
-    @Schema(description = "床位编码（冗余）")
-    @TableField("bed_code")
-    private String bedCode;
 
     @Schema(description = "维修类型：1-水电 2-门窗 3-家具 4-网络 5-其他")
     @TableField("repair_type")

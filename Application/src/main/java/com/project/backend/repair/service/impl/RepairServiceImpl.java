@@ -6,12 +6,16 @@ import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.project.backend.accommodation.entity.Student;
+import com.project.backend.accommodation.mapper.StudentMapper;
+import com.project.backend.common.service.StudentInfoEnricher;
 import com.project.backend.repair.dto.RepairQueryDTO;
 import com.project.backend.repair.dto.RepairSaveDTO;
 import com.project.backend.repair.entity.Repair;
 import com.project.backend.repair.mapper.RepairMapper;
 import com.project.backend.repair.service.RepairService;
 import com.project.backend.repair.vo.RepairVO;
+import com.project.backend.room.entity.Room;
 import com.project.backend.util.DictUtils;
 import com.project.core.context.UserContext;
 import com.project.core.exception.BusinessException;
@@ -36,6 +40,11 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class RepairServiceImpl extends ServiceImpl<RepairMapper, Repair> implements RepairService {
+
+    private final StudentMapper studentMapper;
+    private final StudentInfoEnricher studentInfoEnricher;
+    private final com.project.backend.room.mapper.RoomMapper roomMapper;
+    private final com.project.backend.room.mapper.BedMapper bedMapper;
 
     @Override
     public PageResult<RepairVO> pageList(RepairQueryDTO queryDTO) {
@@ -242,15 +251,12 @@ public class RepairServiceImpl extends ServiceImpl<RepairMapper, Repair> impleme
     }
 
     /**
-     * 构建查询条件
+     * 构建查询条件（学生姓名/学号/房间编码通过关联表解析为 ID 再查 repair）
      */
     private LambdaQueryWrapper<Repair> buildQueryWrapper(RepairQueryDTO queryDTO) {
         LambdaQueryWrapper<Repair> wrapper = new LambdaQueryWrapper<>();
 
         wrapper.eq(queryDTO.getStudentId() != null, Repair::getStudentId, queryDTO.getStudentId())
-                .like(StrUtil.isNotBlank(queryDTO.getStudentName()), Repair::getStudentName, queryDTO.getStudentName())
-                .like(StrUtil.isNotBlank(queryDTO.getStudentNo()), Repair::getStudentNo, queryDTO.getStudentNo())
-                .like(StrUtil.isNotBlank(queryDTO.getRoomCode()), Repair::getRoomCode, queryDTO.getRoomCode())
                 .eq(queryDTO.getRepairType() != null, Repair::getRepairType, queryDTO.getRepairType())
                 .eq(queryDTO.getUrgentLevel() != null, Repair::getUrgentLevel, queryDTO.getUrgentLevel())
                 .eq(queryDTO.getStatus() != null, Repair::getStatus, queryDTO.getStatus())
@@ -259,15 +265,69 @@ public class RepairServiceImpl extends ServiceImpl<RepairMapper, Repair> impleme
                 .ge(queryDTO.getStartTime() != null, Repair::getCreateTime, queryDTO.getStartTime())
                 .le(queryDTO.getEndTime() != null, Repair::getCreateTime, queryDTO.getEndTime());
 
-        // 关键词搜索
+        // 学生姓名 -> 查 sys_student 得 studentIds，再 in(Repair::getStudentId)
+        if (StrUtil.isNotBlank(queryDTO.getStudentName())) {
+            List<Long> studentIds = studentMapper.selectList(
+                    new LambdaQueryWrapper<Student>().like(Student::getStudentName, queryDTO.getStudentName()))
+                    .stream().map(Student::getId).collect(Collectors.toList());
+            if (studentIds.isEmpty()) {
+                wrapper.eq(Repair::getId, -1);
+            } else {
+                wrapper.in(Repair::getStudentId, studentIds);
+            }
+        }
+
+        // 学号 -> 查 sys_student 得 studentIds，再 in(Repair::getStudentId)
+        if (StrUtil.isNotBlank(queryDTO.getStudentNo())) {
+            List<Long> studentIds = studentMapper.selectList(
+                    new LambdaQueryWrapper<Student>().like(Student::getStudentNo, queryDTO.getStudentNo()))
+                    .stream().map(Student::getId).collect(Collectors.toList());
+            if (studentIds.isEmpty()) {
+                wrapper.eq(Repair::getId, -1);
+            } else {
+                wrapper.in(Repair::getStudentId, studentIds);
+            }
+        }
+
+        // 房间编码 -> 查 sys_room 得 roomIds，再 in(Repair::getRoomId)
+        if (StrUtil.isNotBlank(queryDTO.getRoomCode())) {
+            List<Long> roomIds = roomMapper.selectList(
+                    new LambdaQueryWrapper<Room>().like(Room::getRoomCode, queryDTO.getRoomCode()))
+                    .stream().map(Room::getId).collect(Collectors.toList());
+            if (roomIds.isEmpty()) {
+                wrapper.eq(Repair::getId, -1);
+            } else {
+                wrapper.in(Repair::getRoomId, roomIds);
+            }
+        }
+
+        // 关键词：学生姓名/学号 或 房间编码 模糊匹配
         if (StrUtil.isNotBlank(queryDTO.getKeyword())) {
-            wrapper.and(w -> w
-                    .like(Repair::getStudentName, queryDTO.getKeyword())
-                    .or()
-                    .like(Repair::getStudentNo, queryDTO.getKeyword())
-                    .or()
-                    .like(Repair::getRoomCode, queryDTO.getKeyword())
-            );
+            String keyword = queryDTO.getKeyword();
+            List<Long> studentIds = studentMapper.selectList(
+                    new LambdaQueryWrapper<Student>()
+                            .like(Student::getStudentName, keyword)
+                            .or()
+                            .like(Student::getStudentNo, keyword))
+                    .stream().map(Student::getId).distinct().collect(Collectors.toList());
+            List<Long> roomIds = roomMapper.selectList(
+                    new LambdaQueryWrapper<Room>().like(Room::getRoomCode, keyword))
+                    .stream().map(Room::getId).collect(Collectors.toList());
+            if (studentIds.isEmpty() && roomIds.isEmpty()) {
+                wrapper.eq(Repair::getId, -1);
+            } else {
+                wrapper.and(w -> {
+                    if (!studentIds.isEmpty()) {
+                        w.in(Repair::getStudentId, studentIds);
+                    }
+                    if (!roomIds.isEmpty()) {
+                        if (!studentIds.isEmpty()) {
+                            w.or();
+                        }
+                        w.in(Repair::getRoomId, roomIds);
+                    }
+                });
+            }
         }
 
         wrapper.orderByDesc(Repair::getCreateTime);
@@ -302,6 +362,30 @@ public class RepairServiceImpl extends ServiceImpl<RepairMapper, Repair> impleme
                 vo.setRepairImages(JSONUtil.toList(repair.getRepairImages(), String.class));
             } catch (Exception e) {
                 log.warn("解析维修图片JSON失败: {}", repair.getRepairImages(), e);
+            }
+        }
+
+        // 填充学生信息（与 CheckInVO 等接口对齐：姓名/学号/编码/学籍状态等，用于表格姓名列悬浮卡片与详情）
+        if (repair.getStudentId() != null) {
+            Student student = studentMapper.selectById(repair.getStudentId());
+            if (student != null) {
+                studentInfoEnricher.enrichStudentInfo(student, vo);
+            }
+        }
+
+        // 填充报修单上的房间/床位名称与编码（repair 表仅存 room_id/bed_id，由关联表查名称与编码）
+        if (repair.getRoomId() != null) {
+            Room room = roomMapper.selectById(repair.getRoomId());
+            if (room != null) {
+                vo.setRoomName(room.getRoomNumber());
+                vo.setRoomCode(room.getRoomCode());
+            }
+        }
+        if (repair.getBedId() != null) {
+            com.project.backend.room.entity.Bed bed = bedMapper.selectById(repair.getBedId());
+            if (bed != null) {
+                vo.setBedName(bed.getBedNumber());
+                vo.setBedCode(bed.getBedCode());
             }
         }
 
