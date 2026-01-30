@@ -353,7 +353,7 @@
         bedPosition: props.editData.bedPosition || undefined,
         bedStatus: props.editData.bedStatus || 1,
         studentId: props.editData.studentId || undefined,
-        studentName: props.editData.studentName || undefined,
+        studentName: props.editData.studentInfo?.studentName || undefined,
         checkInDate: props.editData.checkInDate || undefined,
         checkOutDate: props.editData.checkOutDate || undefined,
         sort: props.editData.sort || 0,

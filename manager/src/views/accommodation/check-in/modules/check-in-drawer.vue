@@ -96,20 +96,17 @@
       const checkInRes = await fetchGetCheckInDetail(props.checkInId)
       checkInDetail.value = checkInRes || null
 
-      // 根据入住申请中的 studentId 获取学生详情
+      // 优先使用详情中的 studentInfo；若无则根据 studentId 拉取学生详情
       if (checkInDetail.value) {
-        const studentId = checkInDetail.value.studentId
-        if (studentId) {
-          const studentRes = await fetchGetStudentDetail(studentId)
+        if (checkInDetail.value.studentInfo) {
+          studentData.value = checkInDetail.value.studentInfo
+        } else if (checkInDetail.value.studentId) {
+          const studentRes = await fetchGetStudentDetail(checkInDetail.value.studentId)
           if (studentRes) {
             studentData.value = studentRes
           }
         } else {
-          // 如果没有 studentId，使用入住申请中的学生基本信息
-          studentData.value = {
-            studentNo: checkInDetail.value.studentNo,
-            studentName: checkInDetail.value.studentName
-          }
+          studentData.value = {}
         }
       }
     } catch (error) {
@@ -117,24 +114,19 @@
       if (props.checkInData) {
         checkInDetail.value = props.checkInData
         if (checkInDetail.value) {
-          const studentId = checkInDetail.value.studentId
-          if (studentId) {
+          if (checkInDetail.value.studentInfo) {
+            studentData.value = checkInDetail.value.studentInfo
+          } else if (checkInDetail.value.studentId) {
             try {
-              const studentRes = await fetchGetStudentDetail(studentId)
+              const studentRes = await fetchGetStudentDetail(checkInDetail.value.studentId)
               if (studentRes) {
                 studentData.value = studentRes
               }
             } catch {
-              studentData.value = {
-                studentNo: checkInDetail.value.studentNo,
-                studentName: checkInDetail.value.studentName
-              }
+              studentData.value = {}
             }
           } else {
-            studentData.value = {
-              studentNo: checkInDetail.value.studentNo,
-              studentName: checkInDetail.value.studentName
-            }
+            studentData.value = {}
           }
         }
       }
@@ -171,9 +163,10 @@
     () => props.checkInData,
     (newVal) => {
       if (props.visible && newVal && !props.checkInId) {
-        // 只有在没有 checkInId 时才使用传入的数据
         checkInDetail.value = newVal
-        if (newVal.studentId) {
+        if (newVal.studentInfo) {
+          studentData.value = newVal.studentInfo
+        } else if (newVal.studentId) {
           fetchGetStudentDetail(newVal.studentId).then((res) => {
             if (res) {
               studentData.value = res

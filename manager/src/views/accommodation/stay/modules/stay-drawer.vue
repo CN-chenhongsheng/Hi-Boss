@@ -96,20 +96,16 @@
       const stayRes = await fetchGetStayDetail(props.stayId)
       stayDetail.value = stayRes || null
 
-      // 根据留宿申请中的 studentId 获取学生详情
       if (stayDetail.value) {
-        const studentId = stayDetail.value.studentId
-        if (studentId) {
-          const studentRes = await fetchGetStudentDetail(studentId)
+        if (stayDetail.value.studentInfo) {
+          studentData.value = stayDetail.value.studentInfo
+        } else if (stayDetail.value.studentId) {
+          const studentRes = await fetchGetStudentDetail(stayDetail.value.studentId)
           if (studentRes) {
             studentData.value = studentRes
           }
         } else {
-          // 如果没有 studentId，使用留宿申请中的学生基本信息
-          studentData.value = {
-            studentNo: stayDetail.value.studentNo,
-            studentName: stayDetail.value.studentName
-          }
+          studentData.value = {}
         }
       }
     } catch (error) {
@@ -117,24 +113,19 @@
       if (props.stayData) {
         stayDetail.value = props.stayData
         if (stayDetail.value) {
-          const studentId = stayDetail.value.studentId
-          if (studentId) {
+          if (stayDetail.value.studentInfo) {
+            studentData.value = stayDetail.value.studentInfo
+          } else if (stayDetail.value.studentId) {
             try {
-              const studentRes = await fetchGetStudentDetail(studentId)
+              const studentRes = await fetchGetStudentDetail(stayDetail.value.studentId)
               if (studentRes) {
                 studentData.value = studentRes
               }
             } catch {
-              studentData.value = {
-                studentNo: stayDetail.value.studentNo,
-                studentName: stayDetail.value.studentName
-              }
+              studentData.value = {}
             }
           } else {
-            studentData.value = {
-              studentNo: stayDetail.value.studentNo,
-              studentName: stayDetail.value.studentName
-            }
+            studentData.value = {}
           }
         }
       }
@@ -171,9 +162,10 @@
     () => props.stayData,
     (newVal) => {
       if (props.visible && newVal && !props.stayId) {
-        // 只有在没有 stayId 时才使用传入的数据
         stayDetail.value = newVal
-        if (newVal.studentId) {
+        if (newVal.studentInfo) {
+          studentData.value = newVal.studentInfo
+        } else if (newVal.studentId) {
           fetchGetStudentDetail(newVal.studentId).then((res) => {
             if (res) {
               studentData.value = res

@@ -15,7 +15,7 @@
       <ElTabs v-model="activeTab" class="repair-detail-tabs">
         <!-- 基本信息 -->
         <ElTabPane label="基本信息" name="basic">
-          <ArtBasicInfo :data="repairDetail" :field-config="fieldConfig" />
+          <ArtBasicInfo :data="repairDetail?.studentInfo ?? {}" />
         </ElTabPane>
 
         <!-- 故障描述 -->
@@ -180,20 +180,6 @@
   const activeTab = ref('basic')
   const loading = ref(false)
   const repairDetail = ref<Partial<RepairListItem>>({})
-
-  // 字段配置
-  const fieldConfig = [
-    { label: '报修编号', key: 'id' },
-    { label: '学生姓名', key: 'studentName' },
-    { label: '学号', key: 'studentNo' },
-    { label: '房间号', key: 'roomCode' },
-    { label: '床位号', key: 'bedCode' },
-    { label: '报修类型', key: 'repairTypeText' },
-    { label: '紧急程度', key: 'urgentLevelText' },
-    { label: '状态', key: 'statusText' },
-    { label: '提交时间', key: 'createTime' },
-    { label: '完成时间', key: 'completeTime' }
-  ]
 
   // 故障图片
   const faultImages = computed(() => {

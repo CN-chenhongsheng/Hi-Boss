@@ -1,6 +1,7 @@
 package com.project.backend.approval.vo;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.project.backend.common.vo.StudentBasicInfoVO;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
@@ -10,7 +11,7 @@ import java.util.List;
 
 /**
  * 审批实例展示VO
- * 
+ *
  * @author 陈鸿昇
  * @since 2026-01-17
  */
@@ -44,53 +45,8 @@ public class ApprovalInstanceVO implements Serializable {
     @Schema(description = "申请人姓名")
     private String applicantName;
 
-    @Schema(description = "学号（当业务类型为学生相关业务时返回）")
-    private String studentNo;
-
-    @Schema(description = "性别（字典sys_user_sex）：0未知 1男 2女（当业务类型为学生相关业务时返回）")
-    private Integer gender;
-
-    @Schema(description = "性别文本（当业务类型为学生相关业务时返回）")
-    private String genderText;
-
-    @Schema(description = "手机号（当业务类型为学生相关业务时返回）")
-    private String phone;
-
-    @Schema(description = "民族（当业务类型为学生相关业务时返回）")
-    private String nation;
-
-    @Schema(description = "政治面貌（当业务类型为学生相关业务时返回）")
-    private String politicalStatus;
-
-    @Schema(description = "校区名称（当业务类型为学生相关业务时返回）")
-    private String campusName;
-
-    @Schema(description = "院系名称（当业务类型为学生相关业务时返回）")
-    private String deptName;
-
-    @Schema(description = "专业名称（当业务类型为学生相关业务时返回）")
-    private String majorName;
-
-    @Schema(description = "班级名称（当业务类型为学生相关业务时返回）")
-    private String className;
-
-    @Schema(description = "楼层名称（当业务类型为学生相关业务时返回）")
-    private String floorName;
-
-    @Schema(description = "房间名称（当业务类型为学生相关业务时返回）")
-    private String roomName;
-
-    @Schema(description = "床位名称（当业务类型为学生相关业务时返回）")
-    private String bedName;
-
-    @Schema(description = "学籍状态文本（当业务类型为学生相关业务时返回）")
-    private String academicStatusText;
-
-    @Schema(description = "入学年份（当业务类型为学生相关业务时返回）")
-    private Integer enrollmentYear;
-
-    @Schema(description = "当前年级（当业务类型为学生相关业务时返回）")
-    private String currentGrade;
+    @Schema(description = "学生基本信息（当业务类型为学生相关业务时返回）")
+    private StudentBasicInfoVO studentInfo;
 
     @Schema(description = "当前节点ID")
     private Long currentNodeId;

@@ -138,14 +138,20 @@
       columnsFactory: () => [
         { type: 'selection', width: 50 },
         { prop: 'id', label: '编号', width: 80 },
-        { prop: 'studentNo', label: '学号', width: 120 },
         {
-          prop: 'studentName',
+          prop: 'studentInfo.studentNo',
+          label: '学号',
+          width: 120,
+          formatter: (row: RepairListItem) => row.studentInfo?.studentNo ?? '--'
+        },
+        {
+          prop: 'studentInfo.studentName',
           label: '学生姓名',
           minWidth: 100,
           formatter: (row: RepairListItem) => {
-            if (!row.studentName) {
-              return h('span', row.studentName || '--')
+            const name = row.studentInfo?.studentName
+            if (!name) {
+              return h('span', name ?? '--')
             }
             return h(
               ElPopover,
@@ -156,7 +162,7 @@
                 popperClass: 'student-info-popover'
               },
               {
-                default: () => h(StudentInfoPopover, { student: row }),
+                default: () => h(StudentInfoPopover, { student: row.studentInfo ?? {} }),
                 reference: () =>
                   h(
                     'span',
@@ -164,7 +170,7 @@
                       class: 'cursor-pointer hover:underline',
                       style: { color: 'var(--el-color-primary)' }
                     },
-                    row.studentName
+                    name
                   )
               }
             )

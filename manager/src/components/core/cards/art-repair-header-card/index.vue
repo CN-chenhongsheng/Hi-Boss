@@ -29,9 +29,9 @@
 
     <!-- 扩展信息 -->
     <div class="extra-info">
-      <div v-if="repair?.studentName" class="info-chip">
+      <div v-if="repair?.studentInfo?.studentName" class="info-chip">
         <ArtSvgIcon icon="ri:user-line" class="chip-icon" />
-        <span>{{ repair.studentName }}</span>
+        <span>{{ repair.studentInfo.studentName }}</span>
       </div>
       <div v-if="repair?.roomCode" class="info-chip">
         <ArtSvgIcon icon="ri:home-4-line" class="chip-icon" />
@@ -57,7 +57,7 @@
 
   type RepairDetail = {
     id?: number
-    studentName?: string
+    studentInfo?: Api.Common.StudentBasicInfo
     roomCode?: string
     bedCode?: string
     repairType?: number

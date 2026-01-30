@@ -305,15 +305,7 @@ public class CheckInServiceImpl extends ServiceImpl<CheckInMapper, CheckIn> impl
         vo.setStatusText(DictUtils.getLabel("check_in_status", checkIn.getStatus(), "未知"));
         vo.setCheckInTypeText(DictUtils.getLabel("check_in_type", checkIn.getCheckInType(), "未知"));
 
-        // 从缓存获取校区信息
-        if (StrUtil.isNotBlank(checkIn.getCampusCode())) {
-            Campus campus = campusMap.get(checkIn.getCampusCode());
-            if (campus != null) {
-                vo.setCampusName(campus.getCampusName());
-            }
-        }
-
-        // 从缓存获取学生信息
+        // 从缓存获取学生信息（studentInfo 中含 campusName 等）
         if (checkIn.getStudentId() != null) {
             Student student = studentMap.get(checkIn.getStudentId());
             if (student != null) {
@@ -339,17 +331,7 @@ public class CheckInServiceImpl extends ServiceImpl<CheckInMapper, CheckIn> impl
         vo.setStatusText(DictUtils.getLabel("check_in_status", checkIn.getStatus(), "未知"));
         vo.setCheckInTypeText(DictUtils.getLabel("check_in_type", checkIn.getCheckInType(), "未知"));
 
-        // 查询校区名称
-        if (StrUtil.isNotBlank(checkIn.getCampusCode())) {
-            LambdaQueryWrapper<Campus> wrapper = new LambdaQueryWrapper<>();
-            wrapper.eq(Campus::getCampusCode, checkIn.getCampusCode());
-            Campus campus = campusMapper.selectOne(wrapper);
-            if (campus != null) {
-                vo.setCampusName(campus.getCampusName());
-            }
-        }
-
-        // 填充学生详细信息
+        // 填充学生详细信息（studentInfo 中含 campusName 等）
         if (checkIn.getStudentId() != null) {
             Student student = studentMapper.selectById(checkIn.getStudentId());
             if (student != null) {

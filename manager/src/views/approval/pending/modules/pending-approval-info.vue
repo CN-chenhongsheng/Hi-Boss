@@ -85,63 +85,63 @@
           </ElTooltip>
         </div>
         <!-- 校区 -->
-        <div v-if="businessData.campusName" class="info-row">
+        <div v-if="businessData.studentInfo?.campusName" class="info-row">
           <div class="row-label">
             <ArtSvgIcon icon="ri:map-pin-line" class="label-icon" />
             <span>校区</span>
           </div>
           <ElTooltip
-            :content="businessData.campusName"
+            :content="businessData.studentInfo?.campusName"
             placement="bottom-end"
             popper-class="info-card-tooltip"
-            :disabled="!isTextOverflow(businessData.campusName)"
+            :disabled="!isTextOverflow(businessData.studentInfo?.campusName)"
           >
-            <div class="row-value">{{ businessData.campusName }}</div>
+            <div class="row-value">{{ businessData.studentInfo?.campusName }}</div>
           </ElTooltip>
         </div>
         <!-- 楼层 -->
-        <div v-if="businessData.floorName" class="info-row">
+        <div v-if="businessData.studentInfo?.floorName" class="info-row">
           <div class="row-label">
             <ArtSvgIcon icon="ri:building-2-line" class="label-icon" />
             <span>楼层</span>
           </div>
           <ElTooltip
-            :content="businessData.floorName"
+            :content="businessData.studentInfo?.floorName"
             placement="bottom-end"
             popper-class="info-card-tooltip"
-            :disabled="!isTextOverflow(businessData.floorName)"
+            :disabled="!isTextOverflow(businessData.studentInfo?.floorName)"
           >
-            <div class="row-value">{{ businessData.floorName }}</div>
+            <div class="row-value">{{ businessData.studentInfo?.floorName }}</div>
           </ElTooltip>
         </div>
         <!-- 房间 -->
-        <div v-if="businessData.roomName" class="info-row">
+        <div v-if="businessData.studentInfo?.roomName" class="info-row">
           <div class="row-label">
             <ArtSvgIcon icon="ri:door-open-line" class="label-icon" />
             <span>房间</span>
           </div>
           <ElTooltip
-            :content="businessData.roomName"
+            :content="businessData.studentInfo?.roomName"
             placement="bottom-end"
             popper-class="info-card-tooltip"
-            :disabled="!isTextOverflow(businessData.roomName)"
+            :disabled="!isTextOverflow(businessData.studentInfo?.roomName)"
           >
-            <div class="row-value">{{ businessData.roomName }}</div>
+            <div class="row-value">{{ businessData.studentInfo?.roomName }}</div>
           </ElTooltip>
         </div>
         <!-- 床位 -->
-        <div v-if="businessData.bedName" class="info-row">
+        <div v-if="businessData.studentInfo?.bedName" class="info-row">
           <div class="row-label">
             <ArtSvgIcon icon="ri:hotel-bed-line" class="label-icon" />
             <span>床位</span>
           </div>
           <ElTooltip
-            :content="businessData.bedName"
+            :content="businessData.studentInfo?.bedName"
             placement="bottom-end"
             popper-class="info-card-tooltip"
-            :disabled="!isTextOverflow(businessData.bedName)"
+            :disabled="!isTextOverflow(businessData.studentInfo?.bedName)"
           >
-            <div class="row-value">{{ businessData.bedName }}</div>
+            <div class="row-value">{{ businessData.studentInfo?.bedName }}</div>
           </ElTooltip>
         </div>
         <!-- 申请日期 -->

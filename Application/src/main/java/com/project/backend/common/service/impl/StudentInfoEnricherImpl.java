@@ -5,6 +5,7 @@ import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.project.backend.accommodation.entity.Student;
 import com.project.backend.common.service.StudentInfoEnricher;
+import com.project.backend.common.vo.StudentBasicInfoVO;
 import com.project.backend.organization.entity.Campus;
 import com.project.backend.organization.entity.Class;
 import com.project.backend.organization.entity.Department;
@@ -26,7 +27,7 @@ import org.springframework.stereotype.Service;
 
 /**
  * 学生信息填充器实现
- * 用于将学生详细信息填充到 VO 对象中，减少重复代码
+ * 构建 StudentBasicInfoVO 并注入到业务 VO 的 studentInfo 字段
  *
  * @author 陈鸿昇
  * @since 2026-01-26
@@ -54,134 +55,133 @@ public class StudentInfoEnricherImpl implements StudentInfoEnricher {
         if (student == null || vo == null) {
             return;
         }
-
         try {
-            // 填充学生基本信息
-            setFieldValue(vo, "gender", student.getGender());
-            setFieldValue(vo, "genderText", DictUtils.getLabel("sys_user_sex", student.getGender(), "未知"));
-            setFieldValue(vo, "phone", student.getPhone());
-            setFieldValue(vo, "nation", student.getNation());
-            setFieldValue(vo, "politicalStatus", student.getPoliticalStatus());
-            setFieldValue(vo, "enrollmentYear", student.getEnrollmentYear());
-            setFieldValue(vo, "currentGrade", student.getCurrentGrade());
-            setFieldValue(vo, "academicStatusText", DictUtils.getLabel("academic_status", student.getAcademicStatus(), "未知"));
-
-            // 姓名、学号、编码、学籍状态及 ID 类（与 StudentServiceImpl 对齐）
-            setFieldValue(vo, "studentName", student.getStudentName());
-            setFieldValue(vo, "studentNo", student.getStudentNo());
-            setFieldValue(vo, "campusCode", student.getCampusCode());
-            setFieldValue(vo, "floorCode", student.getFloorCode());
-            setFieldValue(vo, "academicStatus", student.getAcademicStatus());
-            setFieldValue(vo, "deptCode", student.getDeptCode());
-            setFieldValue(vo, "majorCode", student.getMajorCode());
-            setFieldValue(vo, "classId", student.getClassId());
-            setFieldValue(vo, "classCode", student.getClassCode());
-            setFieldValue(vo, "floorId", student.getFloorId());
-            setFieldValue(vo, "roomId", student.getRoomId());
-            setFieldValue(vo, "bedId", student.getBedId());
-
-            // 身份/联系与家庭/紧急联系人（与 StudentVO 基本信息对齐）
-            setFieldValue(vo, "idCard", student.getIdCard());
-            setFieldValue(vo, "email", student.getEmail());
-            setFieldValue(vo, "birthDate", student.getBirthDate());
-            setFieldValue(vo, "schoolingLength", student.getSchoolingLength());
-            setFieldValue(vo, "homeAddress", student.getHomeAddress());
-            setFieldValue(vo, "emergencyContact", student.getEmergencyContact());
-            setFieldValue(vo, "emergencyPhone", student.getEmergencyPhone());
-            setFieldValue(vo, "parentName", student.getParentName());
-            setFieldValue(vo, "parentPhone", student.getParentPhone());
-
-            // 如果校区名称为空，从学生的校区编码查询并填充
-            String currentCampusName = getFieldValue(vo, campusNameFieldName);
-            if (StrUtil.isBlank(currentCampusName) && StrUtil.isNotBlank(student.getCampusCode())) {
-                LambdaQueryWrapper<Campus> wrapper = new LambdaQueryWrapper<>();
-                wrapper.eq(Campus::getCampusCode, student.getCampusCode());
-                Campus campus = campusMapper.selectOne(wrapper);
-                if (campus != null) {
-                    setFieldValue(vo, campusNameFieldName, campus.getCampusName());
-                }
-            }
-
-            // 查询并填充院系名称
-            if (StrUtil.isNotBlank(student.getDeptCode())) {
-                LambdaQueryWrapper<Department> wrapper = new LambdaQueryWrapper<>();
-                wrapper.eq(Department::getDeptCode, student.getDeptCode());
-                Department department = departmentMapper.selectOne(wrapper);
-                if (department != null) {
-                    setFieldValue(vo, "deptName", department.getDeptName());
-                }
-            }
-
-            // 查询并填充专业名称
-            if (StrUtil.isNotBlank(student.getMajorCode())) {
-                LambdaQueryWrapper<Major> wrapper = new LambdaQueryWrapper<>();
-                wrapper.eq(Major::getMajorCode, student.getMajorCode());
-                Major major = majorMapper.selectOne(wrapper);
-                if (major != null) {
-                    setFieldValue(vo, "majorName", major.getMajorName());
-                }
-            }
-
-            // 查询并填充班级名称
-            if (student.getClassId() != null) {
-                Class classEntity = classMapper.selectById(student.getClassId());
-                if (classEntity != null) {
-                    setFieldValue(vo, "className", classEntity.getClassName());
-                }
-            }
-
-            // 查询并填充楼层名称
-            if (student.getFloorId() != null) {
-                Floor floor = floorMapper.selectById(student.getFloorId());
-                if (floor != null) {
-                    setFieldValue(vo, "floorName", floor.getFloorName());
-                }
-            } else if (StrUtil.isNotBlank(student.getFloorCode())) {
-                LambdaQueryWrapper<Floor> wrapper = new LambdaQueryWrapper<>();
-                wrapper.eq(Floor::getFloorCode, student.getFloorCode());
-                Floor floor = floorMapper.selectOne(wrapper);
-                if (floor != null) {
-                    setFieldValue(vo, "floorName", floor.getFloorName());
-                }
-            }
-
-            // 查询并填充房间名称
-            if (student.getRoomId() != null) {
-                Room room = roomMapper.selectById(student.getRoomId());
-                if (room != null) {
-                    setFieldValue(vo, "roomName", room.getRoomNumber());
-                }
-            } else if (StrUtil.isNotBlank(student.getRoomCode())) {
-                LambdaQueryWrapper<Room> wrapper = new LambdaQueryWrapper<>();
-                wrapper.eq(Room::getRoomCode, student.getRoomCode());
-                Room room = roomMapper.selectOne(wrapper);
-                if (room != null) {
-                    setFieldValue(vo, "roomName", room.getRoomNumber());
-                }
-            }
-
-            // 查询并填充床位名称
-            if (student.getBedId() != null) {
-                Bed bed = bedMapper.selectById(student.getBedId());
-                if (bed != null) {
-                    setFieldValue(vo, "bedName", bed.getBedNumber());
-                }
-            } else if (StrUtil.isNotBlank(student.getBedCode())) {
-                LambdaQueryWrapper<Bed> wrapper = new LambdaQueryWrapper<>();
-                wrapper.eq(Bed::getBedCode, student.getBedCode());
-                Bed bed = bedMapper.selectOne(wrapper);
-                if (bed != null) {
-                    setFieldValue(vo, "bedName", bed.getBedNumber());
-                }
-            }
+            StudentBasicInfoVO built = buildStudentBasicInfo(student);
+            setFieldValue(vo, "studentInfo", built);
         } catch (Exception e) {
             log.error("填充学生信息失败: studentId={}, voClass={}", student.getId(), vo.getClass().getName(), e);
         }
     }
 
     /**
-     * 使用反射设置字段值
+     * 从 Student 实体构建 StudentBasicInfoVO（含查库填充 campusName、deptName 等）
      */
+    private StudentBasicInfoVO buildStudentBasicInfo(Student student) {
+        StudentBasicInfoVO info = new StudentBasicInfoVO();
+
+        info.setStudentName(student.getStudentName());
+        info.setStudentNo(student.getStudentNo());
+        info.setGender(student.getGender());
+        info.setGenderText(DictUtils.getLabel("sys_user_sex", student.getGender(), "未知"));
+        info.setPhone(student.getPhone());
+        info.setIdCard(student.getIdCard());
+        info.setEmail(student.getEmail());
+        info.setBirthDate(student.getBirthDate());
+        info.setSchoolingLength(student.getSchoolingLength());
+        info.setNation(student.getNation());
+        info.setPoliticalStatus(student.getPoliticalStatus());
+        info.setCampusCode(student.getCampusCode());
+        info.setFloorCode(student.getFloorCode());
+        info.setAcademicStatus(student.getAcademicStatus());
+        info.setAcademicStatusText(DictUtils.getLabel("academic_status", student.getAcademicStatus(), "未知"));
+        info.setDeptCode(student.getDeptCode());
+        info.setMajorCode(student.getMajorCode());
+        info.setClassId(student.getClassId());
+        info.setClassCode(student.getClassCode());
+        info.setFloorId(student.getFloorId());
+        info.setRoomId(student.getRoomId());
+        info.setBedId(student.getBedId());
+        info.setEnrollmentYear(student.getEnrollmentYear());
+        info.setCurrentGrade(student.getCurrentGrade());
+        info.setHomeAddress(student.getHomeAddress());
+        info.setEmergencyContact(student.getEmergencyContact());
+        info.setEmergencyPhone(student.getEmergencyPhone());
+        info.setParentName(student.getParentName());
+        info.setParentPhone(student.getParentPhone());
+
+        if (StrUtil.isNotBlank(student.getCampusCode())) {
+            LambdaQueryWrapper<Campus> wrapper = new LambdaQueryWrapper<>();
+            wrapper.eq(Campus::getCampusCode, student.getCampusCode());
+            Campus campus = campusMapper.selectOne(wrapper);
+            if (campus != null) {
+                info.setCampusName(campus.getCampusName());
+            }
+        }
+
+        if (StrUtil.isNotBlank(student.getDeptCode())) {
+            LambdaQueryWrapper<Department> wrapper = new LambdaQueryWrapper<>();
+            wrapper.eq(Department::getDeptCode, student.getDeptCode());
+            Department department = departmentMapper.selectOne(wrapper);
+            if (department != null) {
+                info.setDeptName(department.getDeptName());
+            }
+        }
+
+        if (StrUtil.isNotBlank(student.getMajorCode())) {
+            LambdaQueryWrapper<Major> wrapper = new LambdaQueryWrapper<>();
+            wrapper.eq(Major::getMajorCode, student.getMajorCode());
+            Major major = majorMapper.selectOne(wrapper);
+            if (major != null) {
+                info.setMajorName(major.getMajorName());
+            }
+        }
+
+        if (student.getClassId() != null) {
+            Class classEntity = classMapper.selectById(student.getClassId());
+            if (classEntity != null) {
+                info.setClassName(classEntity.getClassName());
+            }
+        }
+
+        if (student.getFloorId() != null) {
+            Floor floor = floorMapper.selectById(student.getFloorId());
+            if (floor != null) {
+                info.setFloorName(floor.getFloorName());
+            }
+        } else if (StrUtil.isNotBlank(student.getFloorCode())) {
+            LambdaQueryWrapper<Floor> wrapper = new LambdaQueryWrapper<>();
+            wrapper.eq(Floor::getFloorCode, student.getFloorCode());
+            Floor floor = floorMapper.selectOne(wrapper);
+            if (floor != null) {
+                info.setFloorName(floor.getFloorName());
+            }
+        }
+
+        if (student.getRoomId() != null) {
+            Room room = roomMapper.selectById(student.getRoomId());
+            if (room != null) {
+                info.setRoomCode(room.getRoomCode());
+                info.setRoomName(room.getRoomNumber());
+            }
+        } else if (StrUtil.isNotBlank(student.getRoomCode())) {
+            LambdaQueryWrapper<Room> wrapper = new LambdaQueryWrapper<>();
+            wrapper.eq(Room::getRoomCode, student.getRoomCode());
+            Room room = roomMapper.selectOne(wrapper);
+            if (room != null) {
+                info.setRoomCode(room.getRoomCode());
+                info.setRoomName(room.getRoomNumber());
+            }
+        }
+
+        if (student.getBedId() != null) {
+            Bed bed = bedMapper.selectById(student.getBedId());
+            if (bed != null) {
+                info.setBedCode(bed.getBedCode());
+                info.setBedName(bed.getBedNumber());
+            }
+        } else if (StrUtil.isNotBlank(student.getBedCode())) {
+            LambdaQueryWrapper<Bed> wrapper = new LambdaQueryWrapper<>();
+            wrapper.eq(Bed::getBedCode, student.getBedCode());
+            Bed bed = bedMapper.selectOne(wrapper);
+            if (bed != null) {
+                info.setBedCode(bed.getBedCode());
+                info.setBedName(bed.getBedNumber());
+            }
+        }
+
+        return info;
+    }
+
     private void setFieldValue(Object obj, String fieldName, Object value) {
         if (obj == null || StrUtil.isBlank(fieldName)) {
             return;
@@ -190,22 +190,6 @@ public class StudentInfoEnricherImpl implements StudentInfoEnricher {
             BeanUtil.setFieldValue(obj, fieldName, value);
         } catch (Exception e) {
             log.debug("设置字段失败: fieldName={}, value={}, error={}", fieldName, value, e.getMessage());
-        }
-    }
-
-    /**
-     * 使用反射获取字段值
-     */
-    private String getFieldValue(Object obj, String fieldName) {
-        if (obj == null || StrUtil.isBlank(fieldName)) {
-            return null;
-        }
-        try {
-            Object value = BeanUtil.getFieldValue(obj, fieldName);
-            return value != null ? value.toString() : null;
-        } catch (Exception e) {
-            log.debug("获取字段失败: fieldName={}, error={}", fieldName, e.getMessage());
-            return null;
         }
     }
 }

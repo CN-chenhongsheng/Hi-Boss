@@ -146,15 +146,20 @@
       },
       columnsFactory: () => [
         { type: 'selection', width: 50 },
-        { prop: 'studentNo', label: '学号', width: 120 },
         {
-          prop: 'studentName',
+          prop: 'studentInfo.studentNo',
+          label: '学号',
+          width: 120,
+          formatter: (row: TransferListItem) => row.studentInfo?.studentNo ?? '--'
+        },
+        {
+          prop: 'studentInfo.studentName',
           label: '学生姓名',
           minWidth: 100,
           formatter: (row: TransferListItem) => {
-            // 只有当有学生姓名时才显示悬浮卡片
-            if (!row.studentName) {
-              return h('span', row.studentName || '--')
+            const name = row.studentInfo?.studentName
+            if (!name) {
+              return h('span', name ?? '--')
             }
             return h(
               ElPopover,
@@ -165,7 +170,7 @@
                 popperClass: 'student-info-popover'
               },
               {
-                default: () => h(StudentInfoPopover, { student: row }),
+                default: () => h(StudentInfoPopover, { student: row.studentInfo ?? {} }),
                 reference: () =>
                   h(
                     'span',
@@ -173,14 +178,14 @@
                       class: 'cursor-pointer hover:underline',
                       style: { color: 'var(--el-color-primary)' }
                     },
-                    row.studentName
+                    name
                   )
               }
             )
           }
         },
         {
-          prop: 'genderText',
+          prop: 'studentInfo.genderText',
           label: '性别',
           width: 70,
           formatter: (row: TransferListItem) => {
@@ -188,11 +193,13 @@
               1: 'ri-men-line',
               2: 'ri-women-line'
             }
+            const genderText = row.studentInfo?.genderText
+            const gender = row.studentInfo?.gender
             return h('div', { class: 'flex items-center gap-1' }, [
-              h('span', { class: 'text-g-700 text-sm' }, row.genderText as string),
+              h('span', { class: 'text-g-700 text-sm' }, genderText as string),
               h(ArtSvgIcon, {
-                icon: genderIcon[row.gender as number as keyof typeof genderIcon] as string,
-                class: `text-g-700 text-md ${row.gender === 1 ? 'text-primary' : 'text-pink-500'}`
+                icon: genderIcon[gender as number as keyof typeof genderIcon] as string,
+                class: `text-g-700 text-md ${gender === 1 ? 'text-primary' : 'text-pink-500'}`
               })
             ])
           }

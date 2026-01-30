@@ -123,12 +123,10 @@
         if (studentRes) {
           studentData.value = studentRes
         }
-      } else if (businessData) {
-        // 如果没有 studentId，使用业务数据中的学生基本信息
-        studentData.value = {
-          studentNo: businessData.studentNo,
-          studentName: businessData.studentName
-        }
+      } else if (businessData?.studentInfo) {
+        studentData.value = businessData.studentInfo
+      } else if (businessData?.applicantName) {
+        studentData.value = { studentName: businessData.applicantName }
       }
     } catch (error) {
       ElMessage.error('获取详情失败')

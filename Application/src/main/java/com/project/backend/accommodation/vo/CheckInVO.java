@@ -1,6 +1,7 @@
 package com.project.backend.accommodation.vo;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.project.backend.common.vo.StudentBasicInfoVO;
 import com.project.core.vo.ApprovalProgress;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
@@ -11,7 +12,7 @@ import java.time.LocalDateTime;
 
 /**
  * 入住管理展示VO
- * 
+ *
  * @author 陈鸿昇
  * @since 2026-01-06
  */
@@ -27,68 +28,14 @@ public class CheckInVO implements Serializable {
     @Schema(description = "学生ID")
     private Long studentId;
 
-    @Schema(description = "学生姓名（冗余）")
-    private String studentName;
-
-    @Schema(description = "学号（冗余）")
-    private String studentNo;
-
-    @Schema(description = "性别（字典sys_user_sex）：0未知 1男 2女")
-    private Integer gender;
-
-    @Schema(description = "性别文本")
-    private String genderText;
-
-    @Schema(description = "手机号")
-    private String phone;
-
-    @Schema(description = "民族")
-    private String nation;
-
-    @Schema(description = "政治面貌")
-    private String politicalStatus;
-
-    @Schema(description = "院系名称")
-    private String deptName;
-
-    @Schema(description = "专业名称")
-    private String majorName;
-
-    @Schema(description = "班级名称")
-    private String className;
-
-    @Schema(description = "楼层名称")
-    private String floorName;
-
-    @Schema(description = "房间名称")
-    private String roomName;
-
-    @Schema(description = "床位名称")
-    private String bedName;
-
-    @Schema(description = "学籍状态文本")
-    private String academicStatusText;
-
-    @Schema(description = "入学年份")
-    private Integer enrollmentYear;
-
-    @Schema(description = "当前年级")
-    private String currentGrade;
+    @Schema(description = "学生基本信息（嵌套）")
+    private StudentBasicInfoVO studentInfo;
 
     @Schema(description = "入住类型：1长期住宿 2临时住宿")
     private Integer checkInType;
 
     @Schema(description = "入住类型文本")
     private String checkInTypeText;
-
-    @Schema(description = "校区编码")
-    private String campusCode;
-
-    @Schema(description = "校区名称")
-    private String campusName;
-
-    @Schema(description = "楼层编码")
-    private String floorCode;
 
     @Schema(description = "房间ID")
     private Long roomId;

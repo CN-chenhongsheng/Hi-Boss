@@ -495,9 +495,6 @@ public class ApprovalServiceImpl implements ApprovalService {
         if (isStudentBusinessType(instance.getBusinessType()) && instance.getApplicantId() != null) {
             Student student = studentMapper.selectById(instance.getApplicantId());
             if (student != null) {
-                // 先设置学号（ApprovalInstanceVO 特有字段）
-                vo.setStudentNo(student.getStudentNo());
-                // 使用封装的方法填充其他学生信息
                 studentInfoEnricher.enrichStudentInfo(student, vo, "campusName");
             }
         }

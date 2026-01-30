@@ -99,17 +99,15 @@
       // 根据退宿申请中的 studentId 获取学生详情
       if (checkOutDetail.value) {
         const studentId = checkOutDetail.value.studentId
-        if (studentId) {
+        if (checkOutDetail.value.studentInfo) {
+          studentData.value = checkOutDetail.value.studentInfo
+        } else if (studentId) {
           const studentRes = await fetchGetStudentDetail(studentId)
           if (studentRes) {
             studentData.value = studentRes
           }
         } else {
-          // 如果没有 studentId，使用退宿申请中的学生基本信息
-          studentData.value = {
-            studentNo: checkOutDetail.value.studentNo,
-            studentName: checkOutDetail.value.studentName
-          }
+          studentData.value = {}
         }
       }
     } catch (error) {
@@ -117,24 +115,19 @@
       if (props.checkOutData) {
         checkOutDetail.value = props.checkOutData
         if (checkOutDetail.value) {
-          const studentId = checkOutDetail.value.studentId
-          if (studentId) {
+          if (checkOutDetail.value.studentInfo) {
+            studentData.value = checkOutDetail.value.studentInfo
+          } else if (checkOutDetail.value.studentId) {
             try {
-              const studentRes = await fetchGetStudentDetail(studentId)
+              const studentRes = await fetchGetStudentDetail(checkOutDetail.value.studentId)
               if (studentRes) {
                 studentData.value = studentRes
               }
             } catch {
-              studentData.value = {
-                studentNo: checkOutDetail.value.studentNo,
-                studentName: checkOutDetail.value.studentName
-              }
+              studentData.value = {}
             }
           } else {
-            studentData.value = {
-              studentNo: checkOutDetail.value.studentNo,
-              studentName: checkOutDetail.value.studentName
-            }
+            studentData.value = {}
           }
         }
       }
@@ -171,9 +164,10 @@
     () => props.checkOutData,
     (newVal) => {
       if (props.visible && newVal && !props.checkOutId) {
-        // 只有在没有 checkOutId 时才使用传入的数据
         checkOutDetail.value = newVal
-        if (newVal.studentId) {
+        if (newVal.studentInfo) {
+          studentData.value = newVal.studentInfo
+        } else if (newVal.studentId) {
           fetchGetStudentDetail(newVal.studentId).then((res) => {
             if (res) {
               studentData.value = res

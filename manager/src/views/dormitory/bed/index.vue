@@ -193,13 +193,13 @@
           width: 100
         },
         {
-          prop: 'studentName',
+          prop: 'studentInfo.studentName',
           label: '入住学生',
           minWidth: 120,
           formatter: (row: BedListItem) => {
-            // 只有当有学生姓名时才显示悬浮卡片
-            if (!row.studentName) {
-              return h('span', row.studentName || '--')
+            const name = row.studentInfo?.studentName
+            if (!name) {
+              return h('span', name ?? '--')
             }
             return h(
               ElPopover,
@@ -210,7 +210,7 @@
                 popperClass: 'student-info-popover'
               },
               {
-                default: () => h(StudentInfoPopover, { student: row }),
+                default: () => h(StudentInfoPopover, { student: row.studentInfo ?? {} }),
                 reference: () =>
                   h(
                     'span',
@@ -218,7 +218,7 @@
                       class: 'cursor-pointer hover:underline',
                       style: { color: 'var(--el-color-primary)' }
                     },
-                    row.studentName
+                    name
                   )
               }
             )

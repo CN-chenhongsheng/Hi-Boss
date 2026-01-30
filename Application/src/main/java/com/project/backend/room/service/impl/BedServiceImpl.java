@@ -356,7 +356,6 @@ public class BedServiceImpl extends ServiceImpl<BedMapper, Bed> implements BedSe
         if (bed.getStudentId() != null) {
             Student student = studentMap.get(bed.getStudentId());
             if (student != null) {
-                vo.setStudentNo(student.getStudentNo());
                 studentInfoEnricher.enrichStudentInfo(student, vo);
             }
         }
@@ -426,9 +425,6 @@ public class BedServiceImpl extends ServiceImpl<BedMapper, Bed> implements BedSe
         if (bed.getStudentId() != null) {
             Student student = studentMapper.selectById(bed.getStudentId());
             if (student != null) {
-                // 先设置学号（BedVO 特有字段）
-                vo.setStudentNo(student.getStudentNo());
-                // 使用封装的方法填充其他学生信息
                 studentInfoEnricher.enrichStudentInfo(student, vo);
             }
         }

@@ -149,15 +149,20 @@
       },
       columnsFactory: () => [
         { type: 'selection', width: 50 },
-        { prop: 'studentNo', label: '学号', width: 120 },
         {
-          prop: 'studentName',
+          prop: 'studentInfo.studentNo',
+          label: '学号',
+          width: 120,
+          formatter: (row: StayListItem) => row.studentInfo?.studentNo ?? '--'
+        },
+        {
+          prop: 'studentInfo.studentName',
           label: '学生姓名',
           minWidth: 100,
           formatter: (row: StayListItem) => {
-            // 只有当有学生姓名时才显示悬浮卡片
-            if (!row.studentName) {
-              return h('span', row.studentName || '--')
+            const name = row.studentInfo?.studentName
+            if (!name) {
+              return h('span', name ?? '--')
             }
             return h(
               ElPopover,
@@ -168,7 +173,7 @@
                 popperClass: 'student-info-popover'
               },
               {
-                default: () => h(StudentInfoPopover, { student: row }),
+                default: () => h(StudentInfoPopover, { student: row.studentInfo ?? {} }),
                 reference: () =>
                   h(
                     'span',
@@ -176,18 +181,48 @@
                       class: 'cursor-pointer hover:underline',
                       style: { color: 'var(--el-color-primary)' }
                     },
-                    row.studentName
+                    name
                   )
               }
             )
           }
         },
-        { prop: 'campusName', label: '校区', minWidth: 100, showOverflowTooltip: true },
-        { prop: 'deptName', label: '院系', minWidth: 120, showOverflowTooltip: true },
-        { prop: 'majorName', label: '专业', minWidth: 120, showOverflowTooltip: true },
-        { prop: 'className', label: '班级', minWidth: 100, showOverflowTooltip: true },
-        { prop: 'roomName', label: '房间', width: 120, showOverflowTooltip: true },
-        { prop: 'bedName', label: '床位', width: 120, showOverflowTooltip: true },
+        {
+          prop: 'studentInfo.campusName',
+          label: '校区',
+          minWidth: 100,
+          showOverflowTooltip: true
+        },
+        {
+          prop: 'studentInfo.deptName',
+          label: '院系',
+          minWidth: 120,
+          showOverflowTooltip: true
+        },
+        {
+          prop: 'studentInfo.majorName',
+          label: '专业',
+          minWidth: 120,
+          showOverflowTooltip: true
+        },
+        {
+          prop: 'studentInfo.className',
+          label: '班级',
+          minWidth: 100,
+          showOverflowTooltip: true
+        },
+        {
+          prop: 'studentInfo.roomName',
+          label: '房间',
+          width: 120,
+          showOverflowTooltip: true
+        },
+        {
+          prop: 'studentInfo.bedName',
+          label: '床位',
+          width: 120,
+          showOverflowTooltip: true
+        },
         { prop: 'applyDate', label: '申请日期', width: 120, sortable: true },
         { prop: 'stayStartDate', label: '留宿开始日期', width: 120, sortable: true },
         { prop: 'stayEndDate', label: '留宿结束日期', width: 120, sortable: true },

@@ -24,7 +24,7 @@
       </view>
 
       <!-- 基本信息 -->
-      <view class="info-card glass-card">
+      <view class="glass-card info-card">
         <view class="card-title">
           基本信息
         </view>
@@ -50,7 +50,7 @@
             报修人
           </view>
           <view class="value">
-            {{ repairDetail.studentName }}
+            {{ repairDetail.studentInfo?.studentName }}
           </view>
         </view>
       </view>

@@ -96,20 +96,16 @@
       const transferRes = await fetchGetTransferDetail(props.transferId)
       transferDetail.value = transferRes || null
 
-      // 根据调宿申请中的 studentId 获取学生详情
       if (transferDetail.value) {
-        const studentId = transferDetail.value.studentId
-        if (studentId) {
-          const studentRes = await fetchGetStudentDetail(studentId)
+        if (transferDetail.value.studentInfo) {
+          studentData.value = transferDetail.value.studentInfo
+        } else if (transferDetail.value.studentId) {
+          const studentRes = await fetchGetStudentDetail(transferDetail.value.studentId)
           if (studentRes) {
             studentData.value = studentRes
           }
         } else {
-          // 如果没有 studentId，使用调宿申请中的学生基本信息
-          studentData.value = {
-            studentNo: transferDetail.value.studentNo,
-            studentName: transferDetail.value.studentName
-          }
+          studentData.value = {}
         }
       }
     } catch (error) {
@@ -117,24 +113,19 @@
       if (props.transferData) {
         transferDetail.value = props.transferData
         if (transferDetail.value) {
-          const studentId = transferDetail.value.studentId
-          if (studentId) {
+          if (transferDetail.value.studentInfo) {
+            studentData.value = transferDetail.value.studentInfo
+          } else if (transferDetail.value.studentId) {
             try {
-              const studentRes = await fetchGetStudentDetail(studentId)
+              const studentRes = await fetchGetStudentDetail(transferDetail.value.studentId)
               if (studentRes) {
                 studentData.value = studentRes
               }
             } catch {
-              studentData.value = {
-                studentNo: transferDetail.value.studentNo,
-                studentName: transferDetail.value.studentName
-              }
+              studentData.value = {}
             }
           } else {
-            studentData.value = {
-              studentNo: transferDetail.value.studentNo,
-              studentName: transferDetail.value.studentName
-            }
+            studentData.value = {}
           }
         }
       }
@@ -171,9 +162,10 @@
     () => props.transferData,
     (newVal) => {
       if (props.visible && newVal && !props.transferId) {
-        // 只有在没有 transferId 时才使用传入的数据
         transferDetail.value = newVal
-        if (newVal.studentId) {
+        if (newVal.studentInfo) {
+          studentData.value = newVal.studentInfo
+        } else if (newVal.studentId) {
           fetchGetStudentDetail(newVal.studentId).then((res) => {
             if (res) {
               studentData.value = res

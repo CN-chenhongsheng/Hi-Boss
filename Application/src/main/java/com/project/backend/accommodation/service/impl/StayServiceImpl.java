@@ -281,17 +281,7 @@ public class StayServiceImpl extends ServiceImpl<StayMapper, Stay> implements St
         BeanUtil.copyProperties(stay, vo);
         vo.setStatusText(DictUtils.getLabel("stay_status", stay.getStatus(), "未知"));
 
-        // 查询校区名称
-        if (StrUtil.isNotBlank(stay.getCampusCode())) {
-            LambdaQueryWrapper<Campus> wrapper = new LambdaQueryWrapper<>();
-            wrapper.eq(Campus::getCampusCode, stay.getCampusCode());
-            Campus campus = campusMapper.selectOne(wrapper);
-            if (campus != null) {
-                vo.setCampusName(campus.getCampusName());
-            }
-        }
-
-        // 填充学生详细信息
+        // 填充学生详细信息（studentInfo 中含 campusName 等）
         if (stay.getStudentId() != null) {
             Student student = studentMapper.selectById(stay.getStudentId());
             if (student != null) {

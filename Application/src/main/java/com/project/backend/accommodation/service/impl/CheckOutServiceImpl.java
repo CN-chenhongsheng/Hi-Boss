@@ -257,17 +257,7 @@ public class CheckOutServiceImpl extends ServiceImpl<CheckOutMapper, CheckOut> i
         BeanUtil.copyProperties(checkOut, vo);
         vo.setStatusText(DictUtils.getLabel("check_out_status", checkOut.getStatus(), "未知"));
 
-        // 查询校区名称
-        if (StrUtil.isNotBlank(checkOut.getCampusCode())) {
-            LambdaQueryWrapper<Campus> wrapper = new LambdaQueryWrapper<>();
-            wrapper.eq(Campus::getCampusCode, checkOut.getCampusCode());
-            Campus campus = campusMapper.selectOne(wrapper);
-            if (campus != null) {
-                vo.setCampusName(campus.getCampusName());
-            }
-        }
-
-        // 填充学生详细信息
+        // 填充学生详细信息（studentInfo 中含 campusName 等）
         if (checkOut.getStudentId() != null) {
             Student student = studentMapper.selectById(checkOut.getStudentId());
             if (student != null) {

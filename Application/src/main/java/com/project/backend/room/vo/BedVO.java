@@ -1,6 +1,7 @@
 package com.project.backend.room.vo;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.project.backend.common.vo.StudentBasicInfoVO;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
@@ -10,7 +11,7 @@ import java.time.LocalDateTime;
 
 /**
  * 床位展示VO
- * 
+ *
  * @author 陈鸿昇
  * @since 2026-01-03
  */
@@ -68,44 +69,8 @@ public class BedVO implements Serializable {
     @Schema(description = "当前入住学生ID")
     private Long studentId;
 
-    @Schema(description = "当前入住学生姓名")
-    private String studentName;
-
-    @Schema(description = "学号")
-    private String studentNo;
-
-    @Schema(description = "性别（字典sys_user_sex）：0未知 1男 2女")
-    private Integer gender;
-
-    @Schema(description = "性别文本")
-    private String genderText;
-
-    @Schema(description = "手机号")
-    private String phone;
-
-    @Schema(description = "民族")
-    private String nation;
-
-    @Schema(description = "政治面貌")
-    private String politicalStatus;
-
-    @Schema(description = "院系名称")
-    private String deptName;
-
-    @Schema(description = "专业名称")
-    private String majorName;
-
-    @Schema(description = "班级名称")
-    private String className;
-
-    @Schema(description = "学籍状态文本")
-    private String academicStatusText;
-
-    @Schema(description = "入学年份")
-    private Integer enrollmentYear;
-
-    @Schema(description = "当前年级")
-    private String currentGrade;
+    @Schema(description = "学生基本信息（嵌套，有学生入住时返回）")
+    private StudentBasicInfoVO studentInfo;
 
     @Schema(description = "入住日期")
     @JsonFormat(pattern = "yyyy-MM-dd")

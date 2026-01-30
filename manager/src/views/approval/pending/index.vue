@@ -140,7 +140,7 @@
             const isStudentBusiness = ['check_in', 'check_out', 'transfer', 'stay'].includes(
               row.businessType
             )
-            if (!isStudentBusiness || !row.studentNo) {
+            if (!isStudentBusiness || !row.studentInfo) {
               // 非学生业务或没有学生信息，直接显示姓名
               return h('span', row.applicantName)
             }
@@ -155,10 +155,7 @@
               {
                 default: () =>
                   h(StudentInfoPopover, {
-                    student: {
-                      ...row,
-                      studentName: row.applicantName
-                    }
+                    student: row.studentInfo ?? { studentName: row.applicantName }
                   }),
                 reference: () =>
                   h(
