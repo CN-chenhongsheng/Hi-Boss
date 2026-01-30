@@ -1,6 +1,7 @@
 /**
  * 报修管理模块 API
- * 包含报修工单管理、接单、完成等接口
+ * 包含报修工单管理、接单、完成等接口。
+ * 报错由 http 拦截器统一处理，可配置 showErrorMessage / showSuccessMessage。
  *
  * @module api/repair-manage
  * @date 2026-01-29
@@ -45,11 +46,12 @@ export function fetchAddRepair(data: Api.RepairManage.RepairSaveParams) {
 
 /**
  * 更新报修
- * @param data 报修数据
+ * @param id 报修ID
+ * @param data 报修数据（可不带 id，由路径决定）
  */
-export function fetchUpdateRepair(data: Api.RepairManage.RepairSaveParams) {
+export function fetchUpdateRepair(id: number, data: Api.RepairManage.RepairSaveParams) {
   return request.put({
-    url: '/api/v1/system/repair',
+    url: `/api/v1/system/repair/${id}`,
     data,
     showSuccessMessage: true
   })
@@ -94,12 +96,19 @@ export function fetchAcceptRepair(id: number) {
 /**
  * 完成维修
  * @param id 报修ID
- * @param data 完成维修数据
+ * @param data 完成维修数据（repairImages 为数组时会自动转为 JSON 字符串）
  */
 export function fetchCompleteRepair(id: number, data: Api.RepairManage.CompleteRepairParams) {
+  const body: { repairResult: string; repairImages?: string } = {
+    repairResult: data.repairResult
+  }
+  if (data.repairImages !== undefined) {
+    body.repairImages =
+      typeof data.repairImages === 'string' ? data.repairImages : JSON.stringify(data.repairImages)
+  }
   return request.post({
     url: `/api/v1/system/repair/${id}/complete`,
-    data,
+    data: body,
     showSuccessMessage: true
   })
 }

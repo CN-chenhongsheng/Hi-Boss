@@ -128,8 +128,8 @@
         repairType: searchForm.value.repairType,
         status: searchForm.value.status,
         urgentLevel: searchForm.value.urgentLevel,
-        createDateStart: searchForm.value.createDateStart || undefined,
-        createDateEnd: searchForm.value.createDateEnd || undefined
+        startTime: searchForm.value.createDateStart || undefined,
+        endTime: searchForm.value.createDateEnd || undefined
       })),
       paginationKey: {
         current: 'pageNum',
