@@ -63,7 +63,7 @@ public class UserServiceTest {
         testUser.setStatus(1);
         testUser.setCreateTime(LocalDateTime.now());
         testUser.setUpdateTime(LocalDateTime.now());
-        testUser.setDelFlag(0);
+        testUser.setDeleted(0);
 
         userSaveDTO = new UserSaveDTO();
         userSaveDTO.setUsername("testuser");

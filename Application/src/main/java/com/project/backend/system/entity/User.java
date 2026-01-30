@@ -1,7 +1,6 @@
 package com.project.backend.system.entity;
 
 import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.project.core.entity.BaseEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -73,11 +72,6 @@ public class User extends BaseEntity {
     @Schema(description = "微信openid")
     @TableField("openid")
     private String openid;
-
-    @Schema(description = "删除标志：0正常 1删除")
-    @TableField("del_flag")
-    @TableLogic(value = "0", delval = "1")
-    private Integer delFlag;
 
     @Schema(description = "最后登录时间")
     @TableField("last_login_time")

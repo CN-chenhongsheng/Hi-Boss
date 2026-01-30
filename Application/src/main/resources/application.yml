@@ -92,3 +92,7 @@ file:
   upload-dir: ./uploads  # 本地上传目录
   public-path: /v1/common/files  # 公开访问路径前缀
 
+# 系统默认配置
+system:
+  default-password: 123456  # 新建用户默认密码
+

@@ -36,6 +36,7 @@ import com.project.backend.system.vo.UserSimpleVO;
 import com.project.backend.system.vo.UserVO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -62,6 +63,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     private final RoleMenuMapper roleMenuMapper;
     private final MenuMapper menuMapper;
     private final UserOnlineService userOnlineService;
+
+    /**
+     * 系统默认密码（从配置文件读取）
+     */
+    @Value("${system.default-password:123456}")
+    private String defaultPassword;
 
     /**
      * 用户状态常量
@@ -167,14 +174,21 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     /**
      * 创建新用户
+     * 如果密码为空，则使用系统默认密码
      */
     private Long createNewUser(User user, String password) {
-        if (StrUtil.isBlank(password)) {
-            throw new BusinessException("新增用户时密码不能为空");
-        }
-        user.setPassword(BCrypt.hashpw(password));
+        // 如果密码为空，使用系统默认密码
+        String finalPassword = StrUtil.isBlank(password) ? defaultPassword : password;
+
+        user.setPassword(BCrypt.hashpw(finalPassword));
         user.setStatus(STATUS_ENABLED);
         save(user);
+
+        // 如果使用了默认密码，记录日志
+        if (StrUtil.isBlank(password)) {
+            log.info("用户【{}】创建成功，使用系统默认密码", user.getUsername());
+        }
+
         return user.getId();
     }
 

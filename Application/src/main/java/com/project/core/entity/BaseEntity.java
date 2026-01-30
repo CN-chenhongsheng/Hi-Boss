@@ -41,4 +41,13 @@ public abstract class BaseEntity implements Serializable {
     @Schema(description = "更新人ID")
     @TableField(value = "update_by", fill = FieldFill.INSERT_UPDATE)
     private Long updateBy;
+
+    /**
+     * 删除标记：0-未删除 1-已删除
+     * 所有继承 BaseEntity 的实体类自动获得逻辑删除功能
+     */
+    @Schema(description = "删除标记：0-未删除 1-已删除")
+    @TableField("deleted")
+    @com.baomidou.mybatisplus.annotation.TableLogic(value = "0", delval = "1")
+    private Integer deleted;
 }

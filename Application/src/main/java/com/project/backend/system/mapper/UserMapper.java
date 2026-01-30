@@ -20,7 +20,7 @@ public interface UserMapper extends BaseMapper<User> {
 
     /**
      * 根据角色代码列表查询用户列表
-     * 
+     *
      * @param roleCodes 角色代码列表
      * @return 用户列表（包含角色代码）
      */
@@ -35,6 +35,7 @@ public interface UserMapper extends BaseMapper<User> {
             "#{roleCode}" +
             "</foreach> " +
             "AND u.status = 1 AND r.status = 1 " +
+            "AND u.deleted = 0 AND ur.deleted = 0 AND r.deleted = 0 " +
             "ORDER BY REPLACE(REPLACE(TRIM(r.role_code), CHAR(13), ''), CHAR(10), ''), u.id" +
             "</script>")
     List<UserWithRoleCodeDTO> selectUsersByRoleCodes(@Param("roleCodes") List<String> roleCodes);

@@ -24,7 +24,8 @@ public interface RoleMapper extends BaseMapper<Role> {
      */
     @Select("SELECT r.role_code FROM sys_role r " +
             "INNER JOIN sys_user_role ur ON r.id = ur.role_id " +
-            "WHERE ur.user_id = #{userId} AND r.status = 1")
+            "WHERE ur.user_id = #{userId} AND r.status = 1 " +
+            "AND r.deleted = 0 AND ur.deleted = 0")
     List<String> selectRoleCodesByUserId(Long userId);
 
     /**
@@ -35,7 +36,8 @@ public interface RoleMapper extends BaseMapper<Role> {
      */
     @Select("SELECT r.id FROM sys_role r " +
             "INNER JOIN sys_user_role ur ON r.id = ur.role_id " +
-            "WHERE ur.user_id = #{userId}")
+            "WHERE ur.user_id = #{userId} " +
+            "AND r.deleted = 0 AND ur.deleted = 0")
     List<Long> selectRoleIdsByUserId(Long userId);
 
     /**
@@ -46,6 +48,7 @@ public interface RoleMapper extends BaseMapper<Role> {
      */
     @Select("SELECT r.role_name FROM sys_role r " +
             "INNER JOIN sys_user_role ur ON r.id = ur.role_id " +
-            "WHERE ur.user_id = #{userId} AND r.status = 1")
+            "WHERE ur.user_id = #{userId} AND r.status = 1 " +
+            "AND r.deleted = 0 AND ur.deleted = 0")
     List<String> selectRoleNamesByUserId(Long userId);
 }

@@ -20,7 +20,7 @@ public interface ApprovalFlowBindingMapper extends BaseMapper<ApprovalFlowBindin
      * @param businessType 业务类型
      * @return 绑定信息
      */
-    @Select("SELECT * FROM sys_approval_flow_binding WHERE business_type = #{businessType}")
+    @Select("SELECT * FROM sys_approval_flow_binding WHERE business_type = #{businessType} AND deleted = 0")
     ApprovalFlowBinding selectByBusinessType(String businessType);
 
     /**
@@ -29,6 +29,6 @@ public interface ApprovalFlowBindingMapper extends BaseMapper<ApprovalFlowBindin
      * @param flowId 流程ID
      * @return 绑定数量
      */
-    @Select("SELECT COUNT(*) FROM sys_approval_flow_binding WHERE flow_id = #{flowId}")
+    @Select("SELECT COUNT(*) FROM sys_approval_flow_binding WHERE flow_id = #{flowId} AND deleted = 0")
     int countByFlowId(Long flowId);
 }

@@ -25,7 +25,8 @@ public interface MenuMapper extends BaseMapper<Menu> {
      */
     @Select("SELECT DISTINCT m.permission FROM sys_menu m " +
             "INNER JOIN sys_user_menu um ON m.id = um.menu_id " +
-            "WHERE um.user_id = #{userId} AND m.status = 1 AND m.permission IS NOT NULL AND m.permission != ''")
+            "WHERE um.user_id = #{userId} AND m.status = 1 AND m.permission IS NOT NULL AND m.permission != '' " +
+            "AND m.deleted = 0 AND um.deleted = 0")
     List<String> selectPermissionsByUserId(Long userId);
 
     /**
@@ -40,6 +41,7 @@ public interface MenuMapper extends BaseMapper<Menu> {
     @Select("SELECT DISTINCT m.* FROM sys_menu m " +
             "INNER JOIN sys_user_menu um ON m.id = um.menu_id " +
             "WHERE um.user_id = #{userId} AND m.status = 1 " +
+            "AND m.deleted = 0 AND um.deleted = 0 " +
             "ORDER BY m.sort ASC, m.id ASC")
     List<Menu> selectMenusByUserId(Long userId);
 }

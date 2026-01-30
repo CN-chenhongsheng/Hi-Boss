@@ -24,7 +24,7 @@ public interface ApprovalInstanceMapper extends BaseMapper<ApprovalInstance> {
      * @param businessId 业务ID
      * @return 审批实例
      */
-    @Select("SELECT * FROM sys_approval_instance WHERE business_type = #{businessType} AND business_id = #{businessId}")
+    @Select("SELECT * FROM sys_approval_instance WHERE business_type = #{businessType} AND business_id = #{businessId} AND deleted = 0")
     ApprovalInstance selectByBusiness(@Param("businessType") String businessType, @Param("businessId") Long businessId);
 
     /**
@@ -33,7 +33,7 @@ public interface ApprovalInstanceMapper extends BaseMapper<ApprovalInstance> {
      * @param applicantId 申请人ID
      * @return 审批实例列表
      */
-    @Select("SELECT * FROM sys_approval_instance WHERE applicant_id = #{applicantId} ORDER BY create_time DESC")
+    @Select("SELECT * FROM sys_approval_instance WHERE applicant_id = #{applicantId} AND deleted = 0 ORDER BY create_time DESC")
     List<ApprovalInstance> selectByApplicantId(Long applicantId);
 
     /**
@@ -50,6 +50,6 @@ public interface ApprovalInstanceMapper extends BaseMapper<ApprovalInstance> {
      * @param businessType 业务类型
      * @return 实例数量
      */
-    @Select("SELECT COUNT(*) FROM sys_approval_instance WHERE business_type = #{businessType} AND status = 1")
+    @Select("SELECT COUNT(*) FROM sys_approval_instance WHERE business_type = #{businessType} AND status = 1 AND deleted = 0")
     int countPendingByBusinessType(String businessType);
 }
