@@ -548,3 +548,74 @@ export function fetchDeleteDictData(id: number) {
     showSuccessMessage: true
   })
 }
+
+/** ==================== 通知管理 ==================== */
+
+/**
+ * 获取通知分页列表
+ * @param params 查询参数
+ */
+export function fetchGetNoticePage(params: Api.SystemManage.NoticeSearchParams) {
+  return request.get<Api.SystemManage.NoticePageResponse>({
+    url: '/api/v1/system/notice/page',
+    params
+  })
+}
+
+/**
+ * 获取通知详情
+ * @param id 通知ID
+ */
+export function fetchGetNoticeDetail(id: number) {
+  return request.get<Api.SystemManage.NoticeListItem>({
+    url: `/api/v1/system/notice/${id}`
+  })
+}
+
+/**
+ * 新增通知
+ * @param data 通知数据
+ */
+export function fetchAddNotice(data: Api.SystemManage.NoticeSaveParams) {
+  return request.post({
+    url: '/api/v1/system/notice',
+    data,
+    showSuccessMessage: true
+  })
+}
+
+/**
+ * 编辑通知
+ * @param id 通知ID
+ * @param data 通知数据
+ */
+export function fetchUpdateNotice(id: number, data: Api.SystemManage.NoticeSaveParams) {
+  return request.put({
+    url: `/api/v1/system/notice/${id}`,
+    data,
+    showSuccessMessage: true
+  })
+}
+
+/**
+ * 删除通知
+ * @param id 通知ID
+ */
+export function fetchDeleteNotice(id: number) {
+  return request.del({
+    url: `/api/v1/system/notice/${id}`,
+    showSuccessMessage: true
+  })
+}
+
+/**
+ * 批量删除通知
+ * @param ids 通知ID列表
+ */
+export function fetchBatchDeleteNotice(ids: number[]) {
+  return request.del({
+    url: '/api/v1/system/notice/batch',
+    data: ids,
+    showSuccessMessage: true
+  })
+}

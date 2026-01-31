@@ -224,12 +224,16 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements Ro
             throw new BusinessException("角色ID不能为空");
         }
 
-        // 1. 删除角色原有的菜单权限
+        // 1. 先物理删除该角色所有已软删除的旧记录（避免唯一索引冲突）
+        // 使用原生 SQL 直接删除 deleted=1 的记录
+        roleMenuMapper.deletePhysicallyByRoleId(roleId);
+
+        // 2. 软删除该角色当前活跃的菜单权限
         LambdaQueryWrapper<RoleMenu> deleteWrapper = new LambdaQueryWrapper<>();
         deleteWrapper.eq(RoleMenu::getRoleId, roleId);
         roleMenuMapper.delete(deleteWrapper);
 
-        // 2. 批量插入新的菜单权限
+        // 3. 批量插入新的菜单权限
         if (menuIds != null && menuIds.length > 0) {
             for (Long menuId : menuIds) {
                 RoleMenu roleMenu = new RoleMenu();

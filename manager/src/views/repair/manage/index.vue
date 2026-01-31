@@ -71,7 +71,7 @@
     fetchDeleteRepair,
     fetchBatchDeleteRepair
   } from '@/api/repair-manage'
-  import { ElMessageBox, ElTag, ElPopover } from 'element-plus'
+  import { ElMessageBox, ElTag, ElPopover, ElRate } from 'element-plus'
   import RepairSearch from './modules/repair-search.vue'
   import RepairDrawer from './modules/repair-drawer.vue'
   import StudentInfoPopover from '@/components/core/cards/art-student-info-popover/index.vue'
@@ -182,16 +182,15 @@
         {
           prop: 'urgentLevelText',
           label: '紧急程度',
-          width: 100,
+          width: 120,
           formatter: (row: RepairListItem) => {
-            const level = row.urgentLevel
-            const colors: Record<number, 'info' | 'warning' | 'danger'> = {
-              1: 'info',
-              2: 'warning',
-              3: 'danger'
-            }
-            const color = colors[level] || 'info'
-            return h(ElTag, { type: color, size: 'small' }, () => row.urgentLevelText || '--')
+            return h(ElRate, {
+              modelValue: row.urgentLevel || 0,
+              disabled: true,
+              showText: false,
+              max: 3,
+              size: 'small'
+            })
           }
         },
         {

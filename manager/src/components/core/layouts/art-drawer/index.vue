@@ -16,6 +16,7 @@
     @open="handleOpen"
     @close="handleClose"
     class="art-drawer"
+    resizable
   >
     <template v-if="withHeader" #header>
       <slot name="header">

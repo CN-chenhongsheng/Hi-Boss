@@ -1044,13 +1044,13 @@ INSERT INTO `sys_menu` VALUES (143, 142, '流程配置', 'C', 'flow-config', '/a
 INSERT INTO `sys_menu` VALUES (144, 142, '待办审批', 'C', 'pending', '/approval/pending', NULL, '', 2, 1, 1, 1, '2026-01-17 16:30:53', NULL, '2026-01-17 16:35:15', NULL, 0);
 INSERT INTO `sys_menu` VALUES (145, 142, '审批记录', 'C', 'history', '/approval/history', NULL, '', 3, 1, 1, 1, '2026-01-17 16:30:53', NULL, '2026-01-17 16:35:18', NULL, 0);
 INSERT INTO `sys_menu` VALUES (146, 0, '通知管理', 'M', '/notice', '/index/index', '', 'ri:notification-3-line', 5, 1, 1, 1, '2026-01-29 18:38:02', 1, '2026-01-29 18:40:43', NULL, 0);
-INSERT INTO `sys_menu` VALUES (147, 146, '通知列表', 'C', 'list', '/notice/list', 'notice:list:view', '', 1, 1, 1, 1, '2026-01-29 18:38:02', 1, '2026-01-29 18:38:02', NULL, 0);
+INSERT INTO `sys_menu` VALUES (147, 146, '通知管理', 'C', 'manage', '/notice/manage', 'notice:manage:view', '', 1, 1, 1, 1, '2026-01-29 18:38:02', 1, '2026-01-29 18:38:02', NULL, 0);
 INSERT INTO `sys_menu` VALUES (148, 147, '新增通知', 'F', NULL, NULL, 'notice:add', NULL, 1, 1, 1, 1, '2026-01-29 18:38:02', 1, '2026-01-29 18:38:02', NULL, 0);
 INSERT INTO `sys_menu` VALUES (149, 147, '编辑通知', 'F', NULL, NULL, 'notice:edit', NULL, 2, 1, 1, 1, '2026-01-29 18:38:02', 1, '2026-01-29 18:38:02', NULL, 0);
 INSERT INTO `sys_menu` VALUES (150, 147, '删除通知', 'F', NULL, NULL, 'notice:delete', NULL, 3, 1, 1, 1, '2026-01-29 18:38:02', 1, '2026-01-29 18:38:02', NULL, 0);
 INSERT INTO `sys_menu` VALUES (151, 147, '发布/下架', 'F', NULL, NULL, 'notice:publish', NULL, 4, 1, 1, 1, '2026-01-29 18:38:02', 1, '2026-01-29 18:38:02', NULL, 0);
 INSERT INTO `sys_menu` VALUES (152, 0, '报修管理', 'M', '/repair', '/index/index', '', 'ri:tools-line', 4, 1, 1, 1, '2026-01-29 18:38:02', 1, '2026-01-29 18:40:43', NULL, 0);
-INSERT INTO `sys_menu` VALUES (153, 152, '报修工单', 'C', 'list', '/repair/list', 'repair:list:view', '', 1, 1, 1, 1, '2026-01-29 18:38:02', 1, '2026-01-29 18:38:02', NULL, 0);
+INSERT INTO `sys_menu` VALUES (153, 152, '报修工单', 'C', 'manage', '/repair/manage', 'repair:manage:view', '', 1, 1, 1, 1, '2026-01-29 18:38:02', 1, '2026-01-29 18:38:02', NULL, 0);
 INSERT INTO `sys_menu` VALUES (154, 153, '接单', 'F', NULL, NULL, 'repair:accept', NULL, 1, 1, 1, 1, '2026-01-29 18:38:02', 1, '2026-01-29 18:38:02', NULL, 0);
 INSERT INTO `sys_menu` VALUES (155, 153, '完成维修', 'F', NULL, NULL, 'repair:complete', NULL, 2, 1, 1, 1, '2026-01-29 18:38:02', 1, '2026-01-29 18:38:02', NULL, 0);
 INSERT INTO `sys_menu` VALUES (156, 153, '删除工单', 'F', NULL, NULL, 'repair:delete', NULL, 3, 1, 1, 1, '2026-01-29 18:38:02', 1, '2026-01-29 18:38:02', NULL, 0);
