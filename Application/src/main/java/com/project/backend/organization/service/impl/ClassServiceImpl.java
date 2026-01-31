@@ -77,7 +77,8 @@ public class ClassServiceImpl extends ServiceImpl<ClassMapper, Class> implements
     public boolean saveClass(ClassSaveDTO saveDTO) {
         // 检查编码是否重复
         LambdaQueryWrapper<Class> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(Class::getClassCode, saveDTO.getClassCode());
+        wrapper.eq(Class::getClassCode, saveDTO.getClassCode())
+               .eq(Class::getDeleted, 0);
         if (saveDTO.getId() != null) {
             wrapper.ne(Class::getId, saveDTO.getId());
         }

@@ -94,7 +94,8 @@ public class DepartmentServiceImpl extends ServiceImpl<DepartmentMapper, Departm
     public boolean saveDepartment(DepartmentSaveDTO saveDTO) {
         // 检查编码是否重复
         LambdaQueryWrapper<Department> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(Department::getDeptCode, saveDTO.getDeptCode());
+        wrapper.eq(Department::getDeptCode, saveDTO.getDeptCode())
+               .eq(Department::getDeleted, 0);
         if (saveDTO.getId() != null) {
             wrapper.ne(Department::getId, saveDTO.getId());
         }

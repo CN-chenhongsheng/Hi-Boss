@@ -126,9 +126,10 @@ public class ApprovalFlowServiceImpl extends ServiceImpl<ApprovalFlowMapper, App
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean saveFlow(ApprovalFlowSaveDTO saveDTO) {
-        // 检查流程编码是否重�?
+        // 检查流程编码是否重复
         LambdaQueryWrapper<ApprovalFlow> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(ApprovalFlow::getFlowCode, saveDTO.getFlowCode());
+        wrapper.eq(ApprovalFlow::getFlowCode, saveDTO.getFlowCode())
+               .eq(ApprovalFlow::getDeleted, 0);
         if (saveDTO.getId() != null) {
             wrapper.ne(ApprovalFlow::getId, saveDTO.getId());
         }

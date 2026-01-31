@@ -75,7 +75,8 @@ public class DictTypeServiceImpl extends ServiceImpl<DictTypeMapper, DictType> i
     public boolean saveDictType(DictTypeSaveDTO saveDTO) {
         // 检查字典编码是否重复
         LambdaQueryWrapper<DictType> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(DictType::getDictCode, saveDTO.getDictCode());
+        wrapper.eq(DictType::getDictCode, saveDTO.getDictCode())
+               .eq(DictType::getDeleted, 0);
         if (saveDTO.getId() != null) {
             wrapper.ne(DictType::getId, saveDTO.getId());
         }

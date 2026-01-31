@@ -98,7 +98,8 @@ public class BedServiceImpl extends ServiceImpl<BedMapper, Bed> implements BedSe
     public boolean saveBed(BedSaveDTO saveDTO) {
         // 检查编码是否重复
         LambdaQueryWrapper<Bed> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(Bed::getBedCode, saveDTO.getBedCode());
+        wrapper.eq(Bed::getBedCode, saveDTO.getBedCode())
+               .eq(Bed::getDeleted, 0);
         if (saveDTO.getId() != null) {
             wrapper.ne(Bed::getId, saveDTO.getId());
         }
@@ -485,7 +486,8 @@ public class BedServiceImpl extends ServiceImpl<BedMapper, Bed> implements BedSe
             // 检查编码是否已存在（在同一房间内）
             LambdaQueryWrapper<Bed> checkWrapper = new LambdaQueryWrapper<>();
             checkWrapper.eq(Bed::getRoomId, dto.getRoomId())
-                       .eq(Bed::getBedCode, bedCode);
+                       .eq(Bed::getBedCode, bedCode)
+                       .eq(Bed::getDeleted, 0);
             if (count(checkWrapper) > 0) {
                 throw new BusinessException("床位编码 " + bedCode + " 已存在");
             }

@@ -97,7 +97,8 @@ public class StudentServiceImpl extends ServiceImpl<StudentMapper, Student> impl
     public boolean saveStudent(StudentSaveDTO saveDTO) {
         // 检查学号是否重复
         LambdaQueryWrapper<Student> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(Student::getStudentNo, saveDTO.getStudentNo());
+        wrapper.eq(Student::getStudentNo, saveDTO.getStudentNo())
+               .eq(Student::getDeleted, 0);
         if (saveDTO.getId() != null) {
             wrapper.ne(Student::getId, saveDTO.getId());
         }

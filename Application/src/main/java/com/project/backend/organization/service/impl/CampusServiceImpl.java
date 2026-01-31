@@ -100,7 +100,8 @@ public class CampusServiceImpl extends ServiceImpl<CampusMapper, Campus> impleme
     public boolean saveCampus(CampusSaveDTO saveDTO) {
         // 检查编码是否重复
         LambdaQueryWrapper<Campus> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(Campus::getCampusCode, saveDTO.getCampusCode());
+        wrapper.eq(Campus::getCampusCode, saveDTO.getCampusCode())
+               .eq(Campus::getDeleted, 0);
         if (saveDTO.getId() != null) {
             wrapper.ne(Campus::getId, saveDTO.getId());
         }

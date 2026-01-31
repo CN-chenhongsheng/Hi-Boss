@@ -151,7 +151,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      */
     private void validateUsername(UserSaveDTO saveDTO) {
         LambdaQueryWrapper<User> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(User::getUsername, saveDTO.getUsername());
+        wrapper.eq(User::getUsername, saveDTO.getUsername())
+               .eq(User::getDeleted, 0);
         if (saveDTO.getId() != null) {
             wrapper.ne(User::getId, saveDTO.getId());
         }

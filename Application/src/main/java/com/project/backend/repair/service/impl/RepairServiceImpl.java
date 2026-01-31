@@ -268,7 +268,9 @@ public class RepairServiceImpl extends ServiceImpl<RepairMapper, Repair> impleme
         // 学生姓名 -> 查 sys_student 得 studentIds，再 in(Repair::getStudentId)
         if (StrUtil.isNotBlank(queryDTO.getStudentName())) {
             List<Long> studentIds = studentMapper.selectList(
-                    new LambdaQueryWrapper<Student>().like(Student::getStudentName, queryDTO.getStudentName()))
+                    new LambdaQueryWrapper<Student>()
+                            .like(Student::getStudentName, queryDTO.getStudentName())
+                            .eq(Student::getDeleted, 0))
                     .stream().map(Student::getId).collect(Collectors.toList());
             if (studentIds.isEmpty()) {
                 wrapper.eq(Repair::getId, -1);
@@ -280,7 +282,9 @@ public class RepairServiceImpl extends ServiceImpl<RepairMapper, Repair> impleme
         // 学号 -> 查 sys_student 得 studentIds，再 in(Repair::getStudentId)
         if (StrUtil.isNotBlank(queryDTO.getStudentNo())) {
             List<Long> studentIds = studentMapper.selectList(
-                    new LambdaQueryWrapper<Student>().like(Student::getStudentNo, queryDTO.getStudentNo()))
+                    new LambdaQueryWrapper<Student>()
+                            .like(Student::getStudentNo, queryDTO.getStudentNo())
+                            .eq(Student::getDeleted, 0))
                     .stream().map(Student::getId).collect(Collectors.toList());
             if (studentIds.isEmpty()) {
                 wrapper.eq(Repair::getId, -1);
@@ -292,7 +296,9 @@ public class RepairServiceImpl extends ServiceImpl<RepairMapper, Repair> impleme
         // 房间编码 -> 查 sys_room 得 roomIds，再 in(Repair::getRoomId)
         if (StrUtil.isNotBlank(queryDTO.getRoomCode())) {
             List<Long> roomIds = roomMapper.selectList(
-                    new LambdaQueryWrapper<Room>().like(Room::getRoomCode, queryDTO.getRoomCode()))
+                    new LambdaQueryWrapper<Room>()
+                            .like(Room::getRoomCode, queryDTO.getRoomCode())
+                            .eq(Room::getDeleted, 0))
                     .stream().map(Room::getId).collect(Collectors.toList());
             if (roomIds.isEmpty()) {
                 wrapper.eq(Repair::getId, -1);
@@ -308,10 +314,13 @@ public class RepairServiceImpl extends ServiceImpl<RepairMapper, Repair> impleme
                     new LambdaQueryWrapper<Student>()
                             .like(Student::getStudentName, keyword)
                             .or()
-                            .like(Student::getStudentNo, keyword))
+                            .like(Student::getStudentNo, keyword)
+                            .and(w -> w.eq(Student::getDeleted, 0)))
                     .stream().map(Student::getId).distinct().collect(Collectors.toList());
             List<Long> roomIds = roomMapper.selectList(
-                    new LambdaQueryWrapper<Room>().like(Room::getRoomCode, keyword))
+                    new LambdaQueryWrapper<Room>()
+                            .like(Room::getRoomCode, keyword)
+                            .eq(Room::getDeleted, 0))
                     .stream().map(Room::getId).collect(Collectors.toList());
             if (studentIds.isEmpty() && roomIds.isEmpty()) {
                 wrapper.eq(Repair::getId, -1);

@@ -120,7 +120,8 @@ public class DictDataServiceImpl extends ServiceImpl<DictDataMapper, DictData> i
         // 检查同一字典编码下，字典值是否重复
         LambdaQueryWrapper<DictData> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(DictData::getDictCode, saveDTO.getDictCode())
-               .eq(DictData::getValue, saveDTO.getValue());
+               .eq(DictData::getValue, saveDTO.getValue())
+               .eq(DictData::getDeleted, 0);
         if (saveDTO.getId() != null) {
             wrapper.ne(DictData::getId, saveDTO.getId());
         }

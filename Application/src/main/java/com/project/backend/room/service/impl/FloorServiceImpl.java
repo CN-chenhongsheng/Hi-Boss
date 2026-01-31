@@ -78,7 +78,8 @@ public class FloorServiceImpl extends ServiceImpl<FloorMapper, Floor> implements
     public boolean saveFloor(FloorSaveDTO saveDTO) {
         // 检查编码是否重复
         LambdaQueryWrapper<Floor> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(Floor::getFloorCode, saveDTO.getFloorCode());
+        wrapper.eq(Floor::getFloorCode, saveDTO.getFloorCode())
+               .eq(Floor::getDeleted, 0);
         if (saveDTO.getId() != null) {
             wrapper.ne(Floor::getId, saveDTO.getId());
         }

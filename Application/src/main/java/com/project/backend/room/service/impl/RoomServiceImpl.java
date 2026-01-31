@@ -92,7 +92,8 @@ public class RoomServiceImpl extends ServiceImpl<RoomMapper, Room> implements Ro
     public boolean saveRoom(RoomSaveDTO saveDTO) {
         // 检查编码是否重复
         LambdaQueryWrapper<Room> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(Room::getRoomCode, saveDTO.getRoomCode());
+        wrapper.eq(Room::getRoomCode, saveDTO.getRoomCode())
+               .eq(Room::getDeleted, 0);
         if (saveDTO.getId() != null) {
             wrapper.ne(Room::getId, saveDTO.getId());
         }
@@ -428,7 +429,8 @@ public class RoomServiceImpl extends ServiceImpl<RoomMapper, Room> implements Ro
 
                 // 检查编码是否已存在
                 LambdaQueryWrapper<Room> checkWrapper = new LambdaQueryWrapper<>();
-                checkWrapper.eq(Room::getRoomCode, roomCode);
+                checkWrapper.eq(Room::getRoomCode, roomCode)
+                           .eq(Room::getDeleted, 0);
                 if (count(checkWrapper) > 0) {
                     throw new BusinessException("房间编码 " + roomCode + " 已存在");
                 }
