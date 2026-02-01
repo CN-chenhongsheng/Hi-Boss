@@ -1,5 +1,0 @@
-source database_optimization_01_deleted_field.sql;
-source database_optimization_02_status_type.sql;
-source database_optimization_03_indexes.sql;
-source database_optimization_04_comments.sql;
-source database_optimization_verify.sql;
