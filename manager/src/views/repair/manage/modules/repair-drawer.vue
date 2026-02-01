@@ -189,7 +189,7 @@
           type="primary"
           @click="handleAccept"
           v-ripple
-          v-permission="'repair:accept'"
+          v-permission="'system:repair:accept'"
         >
           接单
         </ElButton>
@@ -198,7 +198,7 @@
           type="success"
           @click="handleComplete"
           v-ripple
-          v-permission="'repair:complete'"
+          v-permission="'system:repair:complete'"
         >
           完成维修
         </ElButton>
@@ -532,8 +532,6 @@
     display: flex;
     flex-direction: column;
     gap: 12px;
-    padding-top: 16px;
-    border-top: 1px solid var(--el-border-color-lighter);
 
     :deep(.el-button) {
       width: 100%;

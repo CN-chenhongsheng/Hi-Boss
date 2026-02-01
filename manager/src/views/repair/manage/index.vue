@@ -28,7 +28,7 @@
               :disabled="selectedCount === 0"
               @click="handleBatchDelete"
               v-ripple
-              v-permission="'repair:delete'"
+              v-permission="'system:repair:delete'"
             >
               批量删除{{ selectedCount > 0 ? `(${selectedCount})` : '' }}
             </ElButton>
@@ -224,7 +224,7 @@
                 label: '删除',
                 onClick: () => handleDelete(row),
                 danger: true,
-                auth: 'repair:delete'
+                auth: 'system:repair:delete'
               }
             ]
           }
