@@ -144,18 +144,34 @@ function responseInterceptors(http: HttpRequestAbstract) {
               ? '多次登录失败，请稍后重试'
               : '登录已过期，请重新登录';
 
+            // 显示提示后跳转
             uni.showToast({
               title: message,
               icon: 'none',
-              duration: 2000,
+              duration: 1500,
+              mask: true,
+              success() {
+                // Toast 显示成功后立即跳转
+                setTimeout(() => {
+                  // 重置计数
+                  refreshFailCount = 0;
+                  // 跳转到登录页
+                  uni.reLaunch({
+                    url: ROUTE_CONSTANTS.LOGIN,
+                    fail(err) {
+                      console.error('[Interceptor] 跳转登录页失败:', err);
+                      // 尝试使用 redirectTo
+                      uni.redirectTo({
+                        url: ROUTE_CONSTANTS.LOGIN,
+                        fail(err2) {
+                          console.error('[Interceptor] redirectTo 也失败:', err2);
+                        },
+                      });
+                    },
+                  });
+                }, 100);
+              },
             });
-
-            // 延迟跳转，让用户看到提示
-            setTimeout(() => {
-              uni.reLaunch({ url: ROUTE_CONSTANTS.LOGIN });
-              // 重置计数
-              refreshFailCount = 0;
-            }, 1500);
 
             return Promise.reject(error);
           }
@@ -225,18 +241,34 @@ function responseInterceptors(http: HttpRequestAbstract) {
               ? '多次登录失败，请稍后重试'
               : '登录已过期，请重新登录';
 
+            // 显示提示后跳转
             uni.showToast({
               title: message,
               icon: 'none',
-              duration: 2000,
+              duration: 1500,
+              mask: true,
+              success() {
+                // Toast 显示成功后立即跳转
+                setTimeout(() => {
+                  // 重置计数
+                  refreshFailCount = 0;
+                  // 跳转到登录页
+                  uni.reLaunch({
+                    url: ROUTE_CONSTANTS.LOGIN,
+                    fail(err) {
+                      console.error('[Interceptor] 跳转登录页失败:', err);
+                      // 尝试使用 redirectTo
+                      uni.redirectTo({
+                        url: ROUTE_CONSTANTS.LOGIN,
+                        fail(err2) {
+                          console.error('[Interceptor] redirectTo 也失败:', err2);
+                        },
+                      });
+                    },
+                  });
+                }, 100);
+              },
             });
-
-            // 延迟跳转，让用户看到提示
-            setTimeout(() => {
-              uni.reLaunch({ url: ROUTE_CONSTANTS.LOGIN });
-              // 重置计数
-              refreshFailCount = 0;
-            }, 1500);
 
             return Promise.reject(error);
           }

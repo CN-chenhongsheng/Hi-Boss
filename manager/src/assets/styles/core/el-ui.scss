@@ -78,6 +78,7 @@ html.dark .el-card {
 .el-sub-menu__title,
 .el-menu-item {
   transition: background-color 0s !important;
+  cursor: var(--cursor-pointer) !important;
 }
 
 // -------------------------------- 修改 el-size=default 组件默认高度 start --------------------------------

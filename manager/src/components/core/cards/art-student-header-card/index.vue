@@ -94,13 +94,13 @@
       box-shadow 0.2s ease;
 
     &:hover {
-      border-color: var(--el-color-primary-light-7);
-      box-shadow: 0 2px 5px rgb(0 0 0 / 4%);
       background: linear-gradient(
         0deg,
-        #ffffff00 0%,
+        #fff0 0%,
         color-mix(in srgb, var(--el-color-primary) 3%, var(--el-bg-color)) 100%
       );
+      border-color: var(--el-color-primary-light-7);
+      box-shadow: 0 2px 5px rgb(0 0 0 / 4%);
     }
 
     // 主信息区
@@ -205,6 +205,7 @@
       .student-no {
         display: inline-flex;
         align-items: center;
+        padding-right: 4px;
         padding-left: 4px;
         font-family: 'SF Mono', Menlo, monospace;
         font-size: 13px;
