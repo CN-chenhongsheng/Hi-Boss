@@ -64,6 +64,7 @@ public class StudentServiceImpl extends ServiceImpl<StudentMapper, Student> impl
         wrapper.like(StrUtil.isNotBlank(queryDTO.getStudentNo()), Student::getStudentNo, queryDTO.getStudentNo())
                .like(StrUtil.isNotBlank(queryDTO.getStudentName()), Student::getStudentName, queryDTO.getStudentName())
                .like(StrUtil.isNotBlank(queryDTO.getPhone()), Student::getPhone, queryDTO.getPhone())
+               .eq(queryDTO.getGender() != null, Student::getGender, queryDTO.getGender())
                .eq(StrUtil.isNotBlank(queryDTO.getCampusCode()), Student::getCampusCode, queryDTO.getCampusCode())
                .eq(StrUtil.isNotBlank(queryDTO.getDeptCode()), Student::getDeptCode, queryDTO.getDeptCode())
                .eq(StrUtil.isNotBlank(queryDTO.getMajorCode()), Student::getMajorCode, queryDTO.getMajorCode())

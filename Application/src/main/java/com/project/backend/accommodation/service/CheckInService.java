@@ -62,4 +62,13 @@ public interface CheckInService extends IService<CheckIn> {
      * @return 是否成功
      */
     boolean cancelCheckIn(Long id);
+
+    /**
+     * 管理员直接分配床位（跳过审批流程）
+     * 用于可视化视图中管理员直接将学生分配到空床位
+     *
+     * @param saveDTO 入住信息
+     * @return 是否成功
+     */
+    boolean adminAssignBed(CheckInSaveDTO saveDTO);
 }

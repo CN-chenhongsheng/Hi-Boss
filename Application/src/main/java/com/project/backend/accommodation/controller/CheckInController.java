@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -67,5 +68,16 @@ public class CheckInController extends BaseCrudController<CheckInVO, CheckInQuer
     public R<Void> cancel(@PathVariable Long id) {
         boolean success = checkInService.cancelCheckIn(id);
         return success ? R.ok() : R.fail("撤回失败");
+    }
+
+    /**
+     * 管理员直接分配床位（跳过审批流程）
+     * 用于可视化视图中管理员直接将学生分配到空床位
+     */
+    @Operation(summary = "管理员直接分配床位", description = "管理员直接将学生分配到空床位，跳过审批流程")
+    @PostMapping("/admin-assign")
+    public R<Void> adminAssignBed(@RequestBody CheckInSaveDTO saveDTO) {
+        boolean success = checkInService.adminAssignBed(saveDTO);
+        return success ? R.ok() : R.fail("分配失败");
     }
 }

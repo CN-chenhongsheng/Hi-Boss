@@ -10,6 +10,9 @@ import com.project.backend.room.dto.room.RoomQueryDTO;
 import com.project.backend.room.dto.room.RoomSaveDTO;
 import com.project.backend.room.service.RoomService;
 import com.project.backend.room.vo.RoomVO;
+import com.project.backend.room.vo.RoomVisualVO;
+
+import java.util.List;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -21,6 +24,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -92,5 +96,20 @@ public class RoomController extends BaseCrudController<RoomVO, RoomQueryDTO, Roo
     public R<Boolean> checkRoomHasBeds(@PathVariable Long id) {
         boolean hasBeds = roomService.checkRoomHasBeds(id);
         return R.ok(hasBeds);
+    }
+
+    /**
+     * 获取房间可视化列表（含床位和学生信息）
+     * 用于可视化平面图展示
+     * 
+     * @param floorId 楼层ID
+     * @return 房间列表（含床位信息）
+     */
+    @GetMapping("/visual/list")
+    @Operation(summary = "获取房间可视化列表", description = "获取指定楼层的房间列表，包含床位和学生信息，用于可视化平面图展示")
+    @Parameter(name = "floorId", description = "楼层ID", required = true)
+    public R<List<RoomVisualVO>> getVisualRoomList(@RequestParam Long floorId) {
+        List<RoomVisualVO> result = roomService.getVisualRoomList(floorId);
+        return R.ok(result);
     }
 }

@@ -102,6 +102,17 @@ export function fetchCheckFloorHasRooms(id: number) {
   })
 }
 
+/**
+ * 获取楼层列表（非分页，用于下拉选择）
+ * @param params 查询参数
+ */
+export function fetchGetFloorList(params?: { status?: number; campusCode?: string }) {
+  return request.get<Api.SystemManage.FloorPageResponse>({
+    url: '/api/v1/system/floor/page',
+    params: { ...params, pageSize: 1000 }
+  })
+}
+
 /** ==================== 房间管理 ==================== */
 
 /**
@@ -112,6 +123,17 @@ export function fetchGetRoomPage(params: Api.SystemManage.RoomSearchParams) {
   return request.get<Api.SystemManage.RoomPageResponse>({
     url: '/api/v1/system/room/page',
     params
+  })
+}
+
+/**
+ * 获取房间列表（含床位和学生信息，用于可视化视图）
+ * @param floorId 楼层ID
+ */
+export function fetchGetRoomListWithBeds(floorId: number) {
+  return request.get<Api.SystemManage.RoomWithBeds[]>({
+    url: '/api/v1/system/room/visual/list',
+    params: { floorId }
   })
 }
 

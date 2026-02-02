@@ -28,6 +28,7 @@ import com.project.backend.approval.service.ApprovalService;
 import com.project.backend.approval.mapper.ApprovalInstanceMapper;
 import com.project.backend.approval.mapper.ApprovalRecordMapper;
 import com.project.backend.approval.entity.ApprovalRecord;
+import com.project.backend.room.mapper.BedMapper;
 import com.project.backend.util.DictUtils;
 import com.project.core.context.UserContext;
 import lombok.RequiredArgsConstructor;
@@ -61,6 +62,7 @@ public class CheckInServiceImpl extends ServiceImpl<CheckInMapper, CheckIn> impl
     private final ApprovalService approvalService;
     private final ApprovalInstanceMapper approvalInstanceMapper;
     private final ApprovalRecordMapper approvalRecordMapper;
+    private final BedMapper bedMapper;
 
     @Override
     @Transactional(readOnly = true)
@@ -501,5 +503,68 @@ public class CheckInServiceImpl extends ServiceImpl<CheckInMapper, CheckIn> impl
                 .map(ApprovalAssigneeVO::getAssigneeName)
                 .filter(StrUtil::isNotBlank)
                 .collect(Collectors.joining("、"));
+    }
+
+    /**
+     * 管理员直接分配床位（跳过审批流程）
+     * 用于可视化视图中管理员直接将学生分配到空床位
+     *
+     * @param saveDTO 入住信息
+     * @return 是否成功
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public boolean adminAssignBed(CheckInSaveDTO saveDTO) {
+        Long studentId = saveDTO.getStudentId();
+        Long bedId = saveDTO.getBedId();
+
+        if (studentId == null) {
+            throw new BusinessException("学生ID不能为空");
+        }
+        if (bedId == null) {
+            throw new BusinessException("床位ID不能为空");
+        }
+
+        // 检查学生是否存在
+        Student student = studentMapper.selectById(studentId);
+        if (student == null) {
+            throw new BusinessException("学生不存在");
+        }
+
+        // 检查学生是否已分配床位
+        if (student.getBedId() != null) {
+            throw new BusinessException("该学生已分配床位，请先退宿后再分配");
+        }
+
+        // 检查床位是否存在并可用
+        com.project.backend.room.entity.Bed bed = bedMapper.selectById(bedId);
+        if (bed == null) {
+            throw new BusinessException("床位不存在");
+        }
+        if (bed.getStudentId() != null) {
+            throw new BusinessException("该床位已被占用");
+        }
+
+        // 创建入住记录
+        CheckIn checkIn = new CheckIn();
+        BeanUtil.copyProperties(saveDTO, checkIn);
+        checkIn.setStudentName(student.getStudentName());
+        checkIn.setStudentNo(student.getStudentNo());
+        checkIn.setStatus(2); // 状态设为"已通过"（跳过审批）
+        checkIn.setRemark("管理员直接分配");
+        save(checkIn);
+
+        // 更新学生的床位ID
+        student.setBedId(bedId);
+        studentMapper.updateById(student);
+
+        // 更新床位的学生信息
+        bed.setStudentId(studentId);
+        bed.setStudentName(student.getStudentName());
+        bed.setBedStatus(2); // 状态改为"已入住"
+        bedMapper.updateById(bed);
+
+        log.info("管理员直接分配床位成功，学生ID：{}，床位ID：{}", studentId, bedId);
+        return true;
     }
 }

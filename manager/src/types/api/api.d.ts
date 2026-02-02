@@ -1045,6 +1045,15 @@ declare namespace Api {
       totalPages: number
     }
 
+    /**
+     * 房间（含床位和学生信息）- 用于可视化视图
+     * @description 房间列表含床位详情和入住学生信息
+     */
+    interface RoomWithBeds extends RoomListItem {
+      /** 床位列表（含学生信息） */
+      beds: BedListItem[]
+    }
+
     /** ==================== 床位管理 ==================== */
     /** 床位查询参数 */
     interface BedSearchParams {
@@ -1183,6 +1192,7 @@ declare namespace Api {
       studentNo?: string
       studentName?: string
       phone?: string
+      gender?: number
       campusCode?: string
       deptCode?: string
       majorCode?: string

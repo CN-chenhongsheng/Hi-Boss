@@ -320,3 +320,64 @@
     -webkit-tap-highlight-color: transparent;
   }
 }
+
+// ==================== 视图切换器样式 ====================
+.art-view-switcher {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 8px;
+  background-color: var(--art-gray-100);
+  border: 1px solid var(--art-gray-200);
+
+  &__btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+    background: transparent;
+    color: var(--art-gray-600);
+
+    &:hover:not(.is-active) {
+      color: var(--art-gray-800);
+      background-color: var(--art-gray-200);
+    }
+
+    &.is-active {
+      color: var(--theme-color);
+      background-color: var(--default-box-color);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    }
+
+    .iconify {
+      font-size: 16px;
+    }
+  }
+}
+
+// 暗黑模式适配
+.dark .art-view-switcher {
+  background-color: var(--art-gray-200);
+  border-color: var(--art-gray-300);
+
+  &__btn {
+    color: var(--art-gray-600);
+
+    &:hover:not(.is-active) {
+      color: var(--art-gray-700);
+      background-color: var(--art-gray-300);
+    }
+
+    &.is-active {
+      color: var(--theme-color);
+      background-color: var(--default-box-color);
+    }
+  }
+}

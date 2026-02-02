@@ -127,6 +127,19 @@ export function fetchAddCheckIn(data: Api.AccommodationManage.CheckInSaveParams)
 }
 
 /**
+ * 管理员直接分配床位（跳过审批流程）
+ * 用于可视化视图中管理员直接将学生分配到空床位
+ * @param data 入住管理数据
+ */
+export function fetchAdminAssignBed(data: Api.AccommodationManage.CheckInSaveParams) {
+  return request.post({
+    url: '/api/v1/system/check-in/admin-assign',
+    data,
+    showSuccessMessage: true
+  })
+}
+
+/**
  * 更新入住管理
  * @param data 入住管理数据
  */

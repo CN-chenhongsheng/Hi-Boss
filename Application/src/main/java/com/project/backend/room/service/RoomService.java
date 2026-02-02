@@ -7,6 +7,9 @@ import com.project.backend.room.dto.room.RoomQueryDTO;
 import com.project.backend.room.dto.room.RoomSaveDTO;
 import com.project.backend.room.entity.Room;
 import com.project.backend.room.vo.RoomVO;
+import com.project.backend.room.vo.RoomVisualVO;
+
+import java.util.List;
 
 /**
  * 房间Service
@@ -80,4 +83,13 @@ public interface RoomService extends IService<Room> {
      * @return true-有床位关联，false-无床位关联
      */
     boolean checkRoomHasBeds(Long roomId);
+
+    /**
+     * 获取房间可视化列表（含床位和学生信息）
+     * 用于可视化平面图展示
+     * 
+     * @param floorId 楼层ID
+     * @return 房间列表（含床位信息）
+     */
+    List<RoomVisualVO> getVisualRoomList(Long floorId);
 }

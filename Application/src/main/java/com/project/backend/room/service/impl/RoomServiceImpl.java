@@ -18,10 +18,14 @@ import com.project.backend.room.entity.Room;
 import com.project.backend.room.mapper.BedMapper;
 import com.project.backend.room.mapper.FloorMapper;
 import com.project.backend.room.mapper.RoomMapper;
+import com.project.backend.room.service.BedService;
 import com.project.backend.room.service.RoomService;
 import com.project.backend.room.service.StatisticsService;
+import com.project.backend.room.vo.BedVO;
 import com.project.backend.room.vo.RoomVO;
+import com.project.backend.room.vo.RoomVisualVO;
 import com.project.backend.util.DictUtils;
+import com.project.backend.room.dto.bed.BedQueryDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -50,6 +54,7 @@ public class RoomServiceImpl extends ServiceImpl<RoomMapper, Room> implements Ro
     private final BedMapper bedMapper;
     private final CampusMapper campusMapper;
     private final StatisticsService statisticsService;
+    private final BedService bedService;
 
     @Override
     @Transactional(readOnly = true)
@@ -476,6 +481,7 @@ public class RoomServiceImpl extends ServiceImpl<RoomMapper, Room> implements Ro
      * @param roomId 房间ID
      * @return true-有床位关联，false-无床位关联
      */
+    @Override
     @Transactional(readOnly = true)
     public boolean checkRoomHasBeds(Long roomId) {
         if (roomId == null) {
@@ -485,5 +491,121 @@ public class RoomServiceImpl extends ServiceImpl<RoomMapper, Room> implements Ro
         bedWrapper.eq(Bed::getRoomId, roomId);
         long bedCount = bedMapper.selectCount(bedWrapper);
         return bedCount > 0;
+    }
+
+    /**
+     * 获取房间可视化列表（含床位和学生信息）
+     * 用于可视化平面图展示
+     *
+     * @param floorId 楼层ID
+     * @return 房间列表（含床位信息）
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public List<RoomVisualVO> getVisualRoomList(Long floorId) {
+        if (floorId == null) {
+            return new ArrayList<>();
+        }
+
+        // 查询该楼层下所有启用状态的房间
+        LambdaQueryWrapper<Room> roomWrapper = new LambdaQueryWrapper<>();
+        roomWrapper.eq(Room::getFloorId, floorId)
+                   .eq(Room::getStatus, 1)  // 只查询启用状态的房间
+                   .orderByAsc(Room::getFloorNumber)
+                   .orderByAsc(Room::getSort)
+                   .orderByAsc(Room::getRoomNumber);
+        List<Room> rooms = list(roomWrapper);
+
+        if (rooms.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        // 获取所有房间ID
+        Set<Long> roomIds = rooms.stream()
+                .map(Room::getId)
+                .collect(Collectors.toSet());
+
+        // 批量查询所有床位（含学生信息）
+        // 使用 BedService 的 pageList 方法获取完整的 BedVO（包含学生信息）
+        Map<Long, List<BedVO>> bedsByRoomId = new HashMap<>();
+        for (Long roomId : roomIds) {
+            BedQueryDTO bedQuery = new BedQueryDTO();
+            bedQuery.setRoomId(roomId);
+            bedQuery.setPageNum(1L);
+            bedQuery.setPageSize(100L);  // 假设每个房间最多100个床位
+            PageResult<BedVO> bedResult = bedService.pageList(bedQuery);
+            if (bedResult != null && bedResult.getList() != null) {
+                bedsByRoomId.put(roomId, bedResult.getList());
+            }
+        }
+
+        // 批量加载楼层信息
+        Set<Long> floorIds = rooms.stream()
+                .map(Room::getFloorId)
+                .filter(id -> id != null)
+                .collect(Collectors.toSet());
+        Map<Long, Floor> floorMap = floorIds.isEmpty() ? Map.of() :
+                floorMapper.selectBatchIds(floorIds).stream()
+                        .collect(Collectors.toMap(Floor::getId, f -> f));
+
+        // 批量加载校区信息
+        Set<String> campusCodes = rooms.stream()
+                .map(Room::getCampusCode)
+                .filter(code -> StrUtil.isNotBlank(code))
+                .collect(Collectors.toSet());
+        Map<String, Campus> campusMap = campusCodes.isEmpty() ? Map.of() :
+                campusCodes.stream()
+                        .map(campusMapper::selectByCampusCode)
+                        .filter(campus -> campus != null)
+                        .collect(Collectors.toMap(Campus::getCampusCode, c -> c));
+
+        // 转换为 RoomVisualVO
+        return rooms.stream()
+                .map(room -> convertToVisualVO(room, floorMap, campusMap, bedsByRoomId))
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * 转换为可视化VO
+     */
+    private RoomVisualVO convertToVisualVO(Room room, Map<Long, Floor> floorMap,
+                                          Map<String, Campus> campusMap,
+                                          Map<Long, List<BedVO>> bedsByRoomId) {
+        RoomVisualVO vo = new RoomVisualVO();
+        BeanUtil.copyProperties(room, vo);
+        vo.setStatusText(DictUtils.getLabel("sys_common_status", room.getStatus(), "未知"));
+        vo.setRoomTypeText(DictUtils.getLabel("dormitory_room_type", room.getRoomType(), "未知"));
+        vo.setRoomStatusText(DictUtils.getLabel("dormitory_room_status", room.getRoomStatus(), "未知"));
+
+        // 从缓存获取楼层信息
+        if (room.getFloorId() != null) {
+            Floor floor = floorMap.get(room.getFloorId());
+            if (floor != null) {
+                vo.setFloorName(floor.getFloorName());
+                // 设置楼层的性别类型
+                vo.setGenderType(floor.getGenderType());
+                vo.setGenderTypeText(DictUtils.getLabel("dormitory_gender_type", floor.getGenderType(), "未知"));
+            }
+        }
+
+        // 从缓存获取校区信息
+        if (StrUtil.isNotBlank(room.getCampusCode())) {
+            Campus campus = campusMap.get(room.getCampusCode());
+            if (campus != null) {
+                vo.setCampusName(campus.getCampusName());
+            }
+        }
+
+        // 设置床位列表
+        List<BedVO> beds = bedsByRoomId.getOrDefault(room.getId(), new ArrayList<>());
+        vo.setBeds(beds);
+        vo.setTotalBeds(beds.size());
+
+        // 动态计算当前入住人数（床位中有学生的数量）
+        // 数据库中的 currentOccupancy 字段未被同步更新，所以这里根据床位数据实时计算
+        int calculatedOccupancy = (int) beds.stream().filter(bed -> bed.getStudentId() != null).count();
+        vo.setCurrentOccupancy(calculatedOccupancy);
+
+        return vo;
     }
 }

@@ -7,7 +7,7 @@
 
     <div class="flex-c md:justify-end max-md:mt-3 max-sm:!hidden">
       <div
-        v-if="showSearchBar != null"
+        v-if="showSearchBar != null && shouldShow('search')"
         class="button"
         @click="search"
         :class="showSearchBar ? 'active !bg-theme hover:!bg-theme/80' : ''"

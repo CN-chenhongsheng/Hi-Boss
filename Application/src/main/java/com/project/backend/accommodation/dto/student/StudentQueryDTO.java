@@ -22,6 +22,9 @@ public class StudentQueryDTO {
     @Schema(description = "手机号（模糊查询）")
     private String phone;
 
+    @Schema(description = "性别：1男 2女")
+    private Integer gender;
+
     @Schema(description = "校区编码")
     private String campusCode;
 
