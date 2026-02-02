@@ -397,11 +397,21 @@ public class RoomServiceImpl extends ServiceImpl<RoomMapper, Room> implements Ro
             int maxSeq = 0;
             for (Room existingRoom : existingRooms) {
                 String roomCode = existingRoom.getRoomCode();
-                if (roomCode != null && roomCode.length() >= 3) {
+                if (roomCode != null) {
                     try {
-                        // 尝试解析最后两位作为序号
-                        int seq = Integer.parseInt(roomCode.substring(roomCode.length() - 2));
-                        maxSeq = Math.max(maxSeq, seq);
+                        // 新格式：{楼栋编码}-{楼层(2位)}{序号(2位)}，如 F1-0101
+                        if (roomCode.contains("-")) {
+                            String numPart = roomCode.substring(roomCode.lastIndexOf("-") + 1);
+                            if (numPart.length() >= 4) {
+                                // 后两位为序号
+                                int seq = Integer.parseInt(numPart.substring(numPart.length() - 2));
+                                maxSeq = Math.max(maxSeq, seq);
+                            }
+                        } else if (roomCode.length() >= 3) {
+                            // 兼容旧格式：楼层数 * 100 + 序号，如 101
+                            int seq = Integer.parseInt(roomCode.substring(roomCode.length() - 2));
+                            maxSeq = Math.max(maxSeq, seq);
+                        }
                     } catch (NumberFormatException e) {
                         // 忽略解析失败的编码
                     }
@@ -428,9 +438,10 @@ public class RoomServiceImpl extends ServiceImpl<RoomMapper, Room> implements Ro
 
             for (int i = 0; i < dto.getGenerateCount(); i++) {
                 int seq = startSeq + i;
-                // 生成房间编码：楼层数 * 100 + 序号，如 1层第1个房间= 101
-                String roomCode = String.valueOf(floorNum * 100 + seq);
-                String roomNumber = roomCode; // 房间号与编码相同
+                // 生成房间编码：{楼栋编码}-{楼层(2位)}{序号(2位)}，如 F1-0101
+                String roomCode = String.format("%s-%02d%02d", floor.getFloorCode(), floorNum, seq);
+                // 房间号为纯数字版本：{楼层(2位)}{序号(2位)}
+                String roomNumber = String.format("%02d%02d", floorNum, seq);
 
                 // 检查编码是否已存在
                 LambdaQueryWrapper<Room> checkWrapper = new LambdaQueryWrapper<>();

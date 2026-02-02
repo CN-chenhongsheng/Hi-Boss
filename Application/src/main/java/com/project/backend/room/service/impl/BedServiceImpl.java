@@ -460,8 +460,16 @@ public class BedServiceImpl extends ServiceImpl<BedMapper, Bed> implements BedSe
             String bedCode = existingBed.getBedCode();
             if (bedCode != null) {
                 try {
-                    int seq = Integer.parseInt(bedCode);
-                    maxSeq = Math.max(maxSeq, seq);
+                    // 新格式：{房间编号}-{床位序号}，如 F1-0101-1
+                    if (bedCode.contains("-")) {
+                        String lastPart = bedCode.substring(bedCode.lastIndexOf("-") + 1);
+                        int seq = Integer.parseInt(lastPart);
+                        maxSeq = Math.max(maxSeq, seq);
+                    } else {
+                        // 兼容旧格式：纯数字
+                        int seq = Integer.parseInt(bedCode);
+                        maxSeq = Math.max(maxSeq, seq);
+                    }
                 } catch (NumberFormatException e) {
                     // 忽略解析失败的编码
                 }
@@ -480,8 +488,10 @@ public class BedServiceImpl extends ServiceImpl<BedMapper, Bed> implements BedSe
         List<Bed> bedsToCreate = new ArrayList<>();
         for (int i = 0; i < dto.getGenerateCount(); i++) {
             int seq = maxSeq + i + 1;
-            String bedCode = String.valueOf(seq);
-            String bedNumber = bedCode;
+            // 生成床位编码：{房间编号}-{床位序号}，如 F1-0101-1
+            String bedCode = String.format("%s-%d", room.getRoomCode(), seq);
+            // 床位号为纯数字
+            String bedNumber = String.valueOf(seq);
 
             // 检查编码是否已存在（在同一房间内）
             LambdaQueryWrapper<Bed> checkWrapper = new LambdaQueryWrapper<>();
