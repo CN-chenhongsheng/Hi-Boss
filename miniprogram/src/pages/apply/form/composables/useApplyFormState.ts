@@ -54,6 +54,12 @@ export function useApplyFormState() {
     repairType: undefined,
     phone: '',
     description: '',
+    // 调宿申请字段
+    transferDate: '',
+    targetCampusCode: '',
+    targetFloorCode: '',
+    targetRoomId: undefined,
+    targetBedId: undefined,
   });
 
   const applyTypeIndex = ref(0);

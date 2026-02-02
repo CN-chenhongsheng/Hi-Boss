@@ -58,6 +58,12 @@ export interface IApplyFormData {
   phone?: string;
   description?: string;
   urgentLevel?: number;
+  // 调宿申请字段
+  transferDate?: string;
+  targetCampusCode?: string;
+  targetFloorCode?: string;
+  targetRoomId?: number;
+  targetBedId?: number;
 }
 
 /** 首页快捷服务入口 */

@@ -40,17 +40,26 @@ public class TransferVO implements Serializable {
     @Schema(description = "原楼层编码")
     private String originalFloorCode;
 
+    @Schema(description = "原楼层名称")
+    private String originalFloorName;
+
     @Schema(description = "原房间ID")
     private Long originalRoomId;
 
     @Schema(description = "原房间编码")
     private String originalRoomCode;
 
+    @Schema(description = "原房间名称")
+    private String originalRoomName;
+
     @Schema(description = "原床位ID")
     private Long originalBedId;
 
     @Schema(description = "原床位编码")
     private String originalBedCode;
+
+    @Schema(description = "原床位名称")
+    private String originalBedName;
 
     @Schema(description = "目标校区编码")
     private String targetCampusCode;
@@ -61,17 +70,26 @@ public class TransferVO implements Serializable {
     @Schema(description = "目标楼层编码")
     private String targetFloorCode;
 
+    @Schema(description = "目标楼层名称")
+    private String targetFloorName;
+
     @Schema(description = "目标房间ID")
     private Long targetRoomId;
 
     @Schema(description = "目标房间编码")
     private String targetRoomCode;
 
+    @Schema(description = "目标房间名称")
+    private String targetRoomName;
+
     @Schema(description = "目标床位ID")
     private Long targetBedId;
 
     @Schema(description = "目标床位编码")
     private String targetBedCode;
+
+    @Schema(description = "目标床位名称")
+    private String targetBedName;
 
     @Schema(description = "申请日期")
     @JsonFormat(pattern = "yyyy-MM-dd")

@@ -97,6 +97,42 @@
 
     <SignaturePicker ref="signaturePickerRef" />
 
+    <!-- 调宿申请 - 校区选择器 -->
+    <u-picker
+      :show="showCampusPicker"
+      :columns="[campusPickerOptions]"
+      @confirm="handleCampusConfirm"
+      @cancel="closeCampusPickerWithAnimation"
+      @close="closeCampusPickerWithAnimation"
+    />
+
+    <!-- 调宿申请 - 楼栋选择器 -->
+    <u-picker
+      :show="showFloorPicker"
+      :columns="[floorPickerOptions]"
+      @confirm="handleFloorConfirm"
+      @cancel="closeFloorPickerWithAnimation"
+      @close="closeFloorPickerWithAnimation"
+    />
+
+    <!-- 调宿申请 - 房间选择器 -->
+    <u-picker
+      :show="showRoomPicker"
+      :columns="[roomPickerOptions]"
+      @confirm="handleRoomConfirm"
+      @cancel="closeRoomPickerWithAnimation"
+      @close="closeRoomPickerWithAnimation"
+    />
+
+    <!-- 调宿申请 - 床位选择器 -->
+    <u-picker
+      :show="showBedPicker"
+      :columns="[bedPickerOptions]"
+      @confirm="handleBedConfirm"
+      @cancel="closeBedPickerWithAnimation"
+      @close="closeBedPickerWithAnimation"
+    />
+
     <FormLayout
       title="业务填报"
       submit-text="提交申请"
@@ -131,7 +167,7 @@
 </template>
 
 <script setup lang="ts">
-import { provide, ref } from 'vue';
+import { computed, provide, ref } from 'vue';
 import { onLoad } from '@dcloudio/uni-app';
 // 小程序不支持 barrel export，必须直接导入 .vue 文件
 import DateRangePicker from './components/pickers/DateRangePicker.vue';
@@ -144,6 +180,7 @@ import TitleSection from './sections/TitleSection.vue';
 import { repairTypeOptions, useApplyFormState } from './composables/useApplyFormState';
 import { useApplyFormPickers } from './composables/useApplyFormPickers';
 import { useApplyFormActions } from './composables/useApplyFormActions';
+import { useTransferPickers } from './composables/useTransferPickers';
 
 // 关闭动画状态
 const isClosingApplyTypePicker = ref(false);
@@ -193,6 +230,49 @@ const {
 // 表单提交
 const { handleSubmit } = useApplyFormActions(formData);
 
+// 调宿申请 Picker 状态与行为
+const transferFormDataRef = computed(() => ({
+  targetCampusCode: formData.targetCampusCode,
+  targetFloorCode: formData.targetFloorCode,
+  targetRoomId: formData.targetRoomId,
+  targetBedId: formData.targetBedId,
+}));
+
+const {
+  // OptionPicker 选项
+  campusOptions,
+  floorOptions,
+  roomOptions,
+  bedOptions,
+  // u-picker 选项
+  campusPickerOptions,
+  floorPickerOptions,
+  roomPickerOptions,
+  bedPickerOptions,
+  // 选择器显示状态
+  showCampusPicker,
+  showFloorPicker,
+  showRoomPicker,
+  showBedPicker,
+  // 打开选择器
+  openCampusPicker,
+  openFloorPicker,
+  openRoomPicker,
+  openBedPicker,
+  // 关闭选择器（带动画）
+  closeCampusPickerWithAnimation,
+  closeFloorPickerWithAnimation,
+  closeRoomPickerWithAnimation,
+  closeBedPickerWithAnimation,
+  // 确认选择
+  handleCampusConfirm,
+  handleFloorConfirm,
+  handleRoomConfirm,
+  handleBedConfirm,
+  // 初始化
+  init: initTransferPickers,
+} = useTransferPickers({ formData: transferFormDataRef });
+
 // 带动画的关闭函数
 function closeApplyTypePickerWithAnimation() {
   isClosingApplyTypePicker.value = true;
@@ -225,9 +305,23 @@ provide('openSignaturePicker', openSignaturePicker);
 provide('openApplyTypePicker', openApplyTypePicker);
 provide('openRepairTypePicker', openRepairTypePicker);
 
+// 调宿申请 Picker - provide 给子组件
+provide('transferPickerOptions', {
+  campusOptions,
+  floorOptions,
+  roomOptions,
+  bedOptions,
+});
+provide('openTransferCampusPicker', openCampusPicker);
+provide('openTransferFloorPicker', openFloorPicker);
+provide('openTransferRoomPicker', openRoomPicker);
+provide('openTransferBedPicker', openBedPicker);
+
 // 页面加载时接收参数
 onLoad((options: any) => {
   initApplyType(options?.type);
+  // 初始化调宿申请选择器数据
+  initTransferPickers();
 });
 </script>
 

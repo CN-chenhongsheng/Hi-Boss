@@ -24,6 +24,12 @@ import com.project.backend.accommodation.mapper.StudentMapper;
 import com.project.backend.common.service.StudentInfoEnricher;
 import com.project.backend.organization.entity.Campus;
 import com.project.backend.organization.mapper.CampusMapper;
+import com.project.backend.room.entity.Floor;
+import com.project.backend.room.entity.Room;
+import com.project.backend.room.entity.Bed;
+import com.project.backend.room.mapper.FloorMapper;
+import com.project.backend.room.mapper.RoomMapper;
+import com.project.backend.room.mapper.BedMapper;
 import com.project.backend.approval.service.ApprovalService;
 import com.project.backend.approval.mapper.ApprovalInstanceMapper;
 import com.project.backend.approval.mapper.ApprovalRecordMapper;
@@ -35,6 +41,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
@@ -55,6 +62,9 @@ public class TransferServiceImpl extends ServiceImpl<TransferMapper, Transfer> i
 
     private final StudentMapper studentMapper;
     private final CampusMapper campusMapper;
+    private final FloorMapper floorMapper;
+    private final RoomMapper roomMapper;
+    private final BedMapper bedMapper;
     private final StudentInfoEnricher studentInfoEnricher;
     private final ApprovalService approvalService;
     private final ApprovalInstanceMapper approvalInstanceMapper;
@@ -121,6 +131,38 @@ public class TransferServiceImpl extends ServiceImpl<TransferMapper, Transfer> i
         boolean isNew = saveDTO.getId() == null;
 
         if (isNew) {
+            // 自动设置申请日期为当前日期
+            if (transfer.getApplyDate() == null) {
+                transfer.setApplyDate(LocalDate.now());
+            }
+
+            // 自动填充原住宿信息（从学生表中获取当前住宿信息）
+            if (student.getBedId() != null) {
+                transfer.setOriginalCampusCode(student.getCampusCode());
+                transfer.setOriginalFloorCode(student.getFloorCode());
+                transfer.setOriginalRoomId(student.getRoomId());
+                transfer.setOriginalRoomCode(student.getRoomCode());
+                transfer.setOriginalBedId(student.getBedId());
+                transfer.setOriginalBedCode(student.getBedCode());
+                log.info("自动填充原住宿信息，学生ID：{}，原床位ID：{}", studentId, student.getBedId());
+            } else {
+                log.warn("学生当前无住宿信息，学生ID：{}", studentId);
+            }
+
+            // 自动填充目标房间编码和床位编码（根据ID查询）
+            if (transfer.getTargetRoomId() != null && StrUtil.isBlank(transfer.getTargetRoomCode())) {
+                Room targetRoom = roomMapper.selectById(transfer.getTargetRoomId());
+                if (targetRoom != null) {
+                    transfer.setTargetRoomCode(targetRoom.getRoomNumber());
+                }
+            }
+            if (transfer.getTargetBedId() != null && StrUtil.isBlank(transfer.getTargetBedCode())) {
+                Bed targetBed = bedMapper.selectById(transfer.getTargetBedId());
+                if (targetBed != null) {
+                    transfer.setTargetBedCode(targetBed.getBedNumber());
+                }
+            }
+
             // 新增时先保存记录（需要获取ID）
             if (transfer.getStatus() == null) {
                 transfer.setStatus(1); // 临时状态，后续会根据审批结果更新
@@ -267,6 +309,34 @@ public class TransferServiceImpl extends ServiceImpl<TransferMapper, Transfer> i
             }
         }
 
+        // 查询原楼栋名称
+        if (StrUtil.isNotBlank(transfer.getOriginalFloorCode())) {
+            LambdaQueryWrapper<Floor> wrapper = new LambdaQueryWrapper<>();
+            wrapper.eq(Floor::getFloorCode, transfer.getOriginalFloorCode());
+            Floor floor = floorMapper.selectOne(wrapper);
+            if (floor != null) {
+                vo.setOriginalFloorName(floor.getFloorName());
+            }
+        }
+
+        // 查询原房间信息
+        if (transfer.getOriginalRoomId() != null) {
+            Room room = roomMapper.selectById(transfer.getOriginalRoomId());
+            if (room != null) {
+                vo.setOriginalRoomCode(room.getRoomNumber());
+                vo.setOriginalRoomName(room.getRoomNumber());
+            }
+        }
+
+        // 查询原床位信息
+        if (transfer.getOriginalBedId() != null) {
+            Bed bed = bedMapper.selectById(transfer.getOriginalBedId());
+            if (bed != null) {
+                vo.setOriginalBedCode(bed.getBedNumber());
+                vo.setOriginalBedName(bed.getBedNumber());
+            }
+        }
+
         // 查询目标校区名称
         if (StrUtil.isNotBlank(transfer.getTargetCampusCode())) {
             LambdaQueryWrapper<Campus> wrapper = new LambdaQueryWrapper<>();
@@ -274,6 +344,34 @@ public class TransferServiceImpl extends ServiceImpl<TransferMapper, Transfer> i
             Campus campus = campusMapper.selectOne(wrapper);
             if (campus != null) {
                 vo.setTargetCampusName(campus.getCampusName());
+            }
+        }
+
+        // 查询目标楼栋名称
+        if (StrUtil.isNotBlank(transfer.getTargetFloorCode())) {
+            LambdaQueryWrapper<Floor> wrapper = new LambdaQueryWrapper<>();
+            wrapper.eq(Floor::getFloorCode, transfer.getTargetFloorCode());
+            Floor floor = floorMapper.selectOne(wrapper);
+            if (floor != null) {
+                vo.setTargetFloorName(floor.getFloorName());
+            }
+        }
+
+        // 查询目标房间信息
+        if (transfer.getTargetRoomId() != null) {
+            Room room = roomMapper.selectById(transfer.getTargetRoomId());
+            if (room != null) {
+                vo.setTargetRoomCode(room.getRoomNumber());
+                vo.setTargetRoomName(room.getRoomNumber());
+            }
+        }
+
+        // 查询目标床位信息
+        if (transfer.getTargetBedId() != null) {
+            Bed bed = bedMapper.selectById(transfer.getTargetBedId());
+            if (bed != null) {
+                vo.setTargetBedCode(bed.getBedNumber());
+                vo.setTargetBedName(bed.getBedNumber());
             }
         }
 

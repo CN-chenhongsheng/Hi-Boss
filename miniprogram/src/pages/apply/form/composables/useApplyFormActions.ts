@@ -39,8 +39,90 @@ export function useApplyFormActions(formData: IApplyFormData) {
       }
       else if (applyType === 'transfer') {
         // 调宿申请
+        // 验证调宿日期
+        if (!formData.transferDate) {
+          uni.hideLoading();
+          uni.showToast({
+            title: '请选择调宿日期',
+            icon: 'none',
+            duration: 2000,
+          });
+          return;
+        }
+
+        // 验证调宿日期不早于今天
+        const today = getCurrentDate();
+        if (formData.transferDate < today) {
+          uni.hideLoading();
+          uni.showToast({
+            title: '调宿日期不能早于今天',
+            icon: 'none',
+            duration: 2000,
+          });
+          return;
+        }
+
+        // 验证目标校区
+        if (!formData.targetCampusCode) {
+          uni.hideLoading();
+          uni.showToast({
+            title: '请选择目标校区',
+            icon: 'none',
+            duration: 2000,
+          });
+          return;
+        }
+
+        // 验证目标楼栋
+        if (!formData.targetFloorCode) {
+          uni.hideLoading();
+          uni.showToast({
+            title: '请选择目标楼栋',
+            icon: 'none',
+            duration: 2000,
+          });
+          return;
+        }
+
+        // 验证目标房间
+        if (!formData.targetRoomId) {
+          uni.hideLoading();
+          uni.showToast({
+            title: '请选择目标房间',
+            icon: 'none',
+            duration: 2000,
+          });
+          return;
+        }
+
+        // 验证目标床位
+        if (!formData.targetBedId) {
+          uni.hideLoading();
+          uni.showToast({
+            title: '请选择目标床位',
+            icon: 'none',
+            duration: 2000,
+          });
+          return;
+        }
+
+        // 验证调宿原因
+        if (!formData.reason) {
+          uni.hideLoading();
+          uni.showToast({
+            title: '请输入调宿原因',
+            icon: 'none',
+            duration: 2000,
+          });
+          return;
+        }
+
         await submitTransferAPI({
-          transferDate: getCurrentDate(),
+          transferDate: formData.transferDate,
+          targetCampusCode: formData.targetCampusCode,
+          targetFloorCode: formData.targetFloorCode,
+          targetRoomId: formData.targetRoomId,
+          targetBedId: formData.targetBedId,
           transferReason: formData.reason,
         });
       }
