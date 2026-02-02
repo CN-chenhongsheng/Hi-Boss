@@ -138,8 +138,8 @@
   defineOptions({ name: 'StudentInfoPopover' })
 
   interface Props {
-    /** 学生数据 */
-    student: Partial<Api.AccommodationManage.StudentListItem>
+    /** 学生数据（支持 StudentListItem 或 StudentBasicInfo 类型） */
+    student: Partial<Api.Common.StudentBasicInfo>
   }
 
   withDefaults(defineProps<Props>(), {

@@ -185,6 +185,7 @@ export interface RoomWithBeds {
 
 /**
  * 楼层选项（用于级联选择器）
+ * @description 添加索引签名以兼容 Element Plus CascaderOption 类型
  */
 export interface FloorOption {
   /** ID */
@@ -197,10 +198,13 @@ export interface FloorOption {
   floorNumber?: number
   /** 子楼层（用于楼栋-楼层级联） */
   children?: FloorOption[]
+  /** 索引签名，兼容 CascaderOption */
+  [key: string]: unknown
 }
 
 /**
  * 楼栋选项（含楼层列表）
+ * @description 添加索引签名以兼容 Element Plus CascaderOption 类型
  */
 export interface BuildingOption {
   /** 楼栋ID（通常使用楼栋编码，便于级联选择稳定） */
@@ -213,6 +217,8 @@ export interface BuildingOption {
   campusCode?: string
   /** 楼层列表 */
   floors: FloorOption[]
+  /** 索引签名，兼容 CascaderOption */
+  [key: string]: unknown
 }
 
 // ==================== 统计数据 ====================

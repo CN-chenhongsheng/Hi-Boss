@@ -12,7 +12,7 @@
       </div>
     </template>
     <template v-if="hasStudent" #default>
-      <ArtStudentInfoPopover :student="bed.studentInfo" />
+      <ArtStudentInfoPopover :student="bed.studentInfo ?? {}" />
     </template>
     <!-- 非入住状态直接渲染 -->
     <div v-if="!hasStudent" :class="slotClasses" @click.stop="handleClick">

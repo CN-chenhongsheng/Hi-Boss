@@ -109,9 +109,9 @@
   // ==================== Methods ====================
 
   /** 选择变更处理 */
-  const handleChange = (value: Array<string | number> | null) => {
-    const newValue =
-      value && value.length >= 2 ? (value[value.length - 1] as FloorSelectValue) : null
+  const handleChange = (value: unknown) => {
+    const arr = value as Array<string | number> | null | undefined
+    const newValue = arr && arr.length >= 2 ? (arr[arr.length - 1] as FloorSelectValue) : null
     emit('update:modelValue', newValue)
     emit('change', newValue)
   }

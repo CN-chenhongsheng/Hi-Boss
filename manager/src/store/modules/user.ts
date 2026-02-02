@@ -247,7 +247,7 @@ export const useUserStore = defineStore(
       // 排除 accessToken 和 refreshToken，使其仅存储在内存中
       // accessToken 存储在内存中，页面刷新后丢失，需要通过 Refresh Token 重新获取
       // refreshToken 存储在 HttpOnly Cookie 中，由后端管理
-      paths: ['language', 'isLogin', 'isLock', 'lockPassword', 'info', 'searchHistory']
+      pick: ['language', 'isLogin', 'isLock', 'lockPassword', 'info', 'searchHistory']
     }
   }
 )

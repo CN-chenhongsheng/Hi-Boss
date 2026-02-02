@@ -36,6 +36,7 @@
     fetchUpdateMajor
   } from '@/api/school-manage'
   import { useDictStore } from '@/store/modules/dict'
+  import { ElInputNumber } from 'element-plus'
   import type { FormRules } from 'element-plus'
   import ArtForm from '@/components/core/forms/art-form/index.vue'
   import type { FormItem } from '@/components/core/forms/art-form/index.vue'
@@ -147,9 +148,9 @@
       render: () =>
         h(ElInputNumber, {
           modelValue: durationNumber.value,
-          'onUpdate:modelValue': (val: number | null) => {
-            durationNumber.value = val
-            form.duration = formatDuration(val)
+          'onUpdate:modelValue': (val: number | undefined) => {
+            durationNumber.value = val ?? null
+            form.duration = formatDuration(val ?? null)
           },
           min: 1,
           max: 10,

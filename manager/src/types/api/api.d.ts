@@ -700,6 +700,8 @@ declare namespace Api {
       statusText?: string
       createTime?: string
       updateTime?: string
+      /** 子院系列表（树形结构时使用） */
+      children?: DepartmentListItem[]
     }
 
     /** 院系分页响应 */
