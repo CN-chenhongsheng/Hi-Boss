@@ -88,108 +88,100 @@
             </view>
 
             <view class="progress-timeline">
-              <!-- 提交申请 -->
-              <view class="timeline-item">
+              <view
+                v-for="(step, index) in progressSteps"
+                :key="index"
+                class="timeline-item"
+              >
                 <view class="timeline-icon-wrapper">
-                  <u-icon name="checkmark-circle" size="24" color="#0adbc3" />
-                  <view v-if="currentStep > 0" class="timeline-line timeline-line-active" />
-                </view>
-                <view class="timeline-content">
-                  <view class="timeline-header">
-                    <view class="timeline-title">
-                      提交申请
-                    </view>
-                    <view class="timeline-time">
-                      {{ progressSteps[0].time }}
-                    </view>
-                  </view>
-                  <view class="timeline-desc">
-                    {{ progressSteps[0].desc }}
-                  </view>
-                </view>
-              </view>
+                  <!-- 已完成步骤：绿色对勾 -->
+                  <template v-if="step.completed">
+                    <u-icon name="checkmark-circle" size="24" color="#0adbc3" />
+                    <view
+                      v-if="index < progressSteps.length - 1"
+                      class="timeline-line"
+                      :class="currentStep > index ? 'timeline-line-active' : 'timeline-line-gray'"
+                    />
+                  </template>
 
-              <!-- 辅导员审核 -->
-              <view class="timeline-item">
-                <view class="timeline-icon-wrapper">
-                  <u-icon name="checkmark-circle" size="24" color="#0adbc3" />
-                  <view v-if="currentStep > 1" class="timeline-line timeline-line-active" />
+                  <!-- 当前步骤：脉冲单选按钮 -->
+                  <template v-else-if="currentStep === index">
+                    <view class="timeline-icon-pulse">
+                      <view class="pulse-circle-bg" />
+                      <view class="custom-radio-icon custom-radio-icon-active" />
+                    </view>
+                    <view
+                      v-if="index < progressSteps.length - 1"
+                      class="timeline-line timeline-line-gray"
+                    />
+                  </template>
+
+                  <!-- 待处理步骤：灰色单选按钮 -->
+                  <template v-else>
+                    <view class="custom-radio-icon custom-radio-icon-gray" />
+                    <view
+                      v-if="index < progressSteps.length - 1"
+                      class="timeline-line timeline-line-gray"
+                    />
+                  </template>
                 </view>
+
                 <view class="timeline-content">
                   <view class="timeline-header">
-                    <view class="timeline-title">
-                      辅导员审核
+                    <view
+                      class="timeline-title"
+                      :class="{
+                        active: currentStep === index,
+                        gray: currentStep < index,
+                      }"
+                    >
+                      {{ step.title }}
                     </view>
-                    <view class="timeline-time">
-                      {{ progressSteps[1].time }}
+
+                    <!-- 当前步骤显示"进行中"徽章 -->
+                    <view v-if="currentStep === index && !step.completed" class="timeline-status-badge">
+                      进行中
+                    </view>
+
+                    <!-- 已完成步骤显示时间 -->
+                    <view v-else-if="step.time" class="timeline-time" :class="{ gray: currentStep < index }">
+                      {{ step.time }}
                     </view>
                   </view>
-                  <view v-if="progressSteps[1].reviewer" class="timeline-reviewer">
-                    <image class="reviewer-avatar" :src="progressSteps[1].reviewer.avatar" mode="aspectFill" />
+
+                  <view class="timeline-desc" :class="{ gray: currentStep < index }">
+                    {{ step.desc }}
+                  </view>
+
+                  <!-- 审核人信息（仅已完成且有审核人的步骤显示） -->
+                  <view v-if="step.reviewer" class="timeline-reviewer">
+                    <image
+                      class="reviewer-avatar"
+                      :src="step.reviewer.avatar"
+                      mode="aspectFill"
+                    />
                     <view class="reviewer-info">
-                      <text>{{ progressSteps[1].reviewer.name }}</text>
-                      <view class="reviewer-status">
-                        通过
+                      <text>{{ step.reviewer.name }}</text>
+                      <view class="reviewer-status" :class="step.action === 1 ? 'status-approved' : 'status-rejected'">
+                        {{ step.action === 1 ? '通过' : '拒绝' }}
                       </view>
                     </view>
                   </view>
-                  <view v-if="progressSteps[1].reviewReason" class="review-reason-card">
+
+                  <!-- 审核原因卡片（仅已完成且有意见的步骤显示） -->
+                  <view v-if="step.reviewReason" class="review-reason-card">
                     <view class="review-reason-triangle" />
                     <view class="review-reason-header">
-                      <u-icon name="checkmark-circle-fill" size="16" color="#0adbc3" />
+                      <u-icon
+                        :name="step.action === 1 ? 'checkmark-circle-fill' : 'close-circle-fill'"
+                        size="16"
+                        :color="step.action === 1 ? '#0adbc3' : '#ff6b6b'"
+                      />
                       <text>审核原因</text>
                     </view>
                     <view class="review-reason-text">
-                      {{ progressSteps[1].reviewReason }}
+                      {{ step.reviewReason }}
                     </view>
-                  </view>
-                </view>
-              </view>
-
-              <!-- 宿管站确认 -->
-              <view class="timeline-item">
-                <view class="timeline-icon-wrapper">
-                  <view v-if="currentStep === 2" class="timeline-icon-pulse">
-                    <view class="pulse-circle-bg" />
-                    <view class="custom-radio-icon custom-radio-icon-active" />
-                  </view>
-                  <view v-else class="custom-radio-icon" :class="currentStep > 2 ? 'custom-radio-icon-active' : 'custom-radio-icon-gray'" />
-                  <view class="timeline-line" :class="currentStep > 2 ? 'timeline-line-active' : 'timeline-line-gray'" />
-                </view>
-                <view class="timeline-content">
-                  <view class="timeline-header">
-                    <view class="timeline-title" :class="{ active: currentStep === 2, gray: currentStep < 2 }">
-                      宿管站确认
-                    </view>
-                    <view v-if="currentStep === 2" class="timeline-status-badge">
-                      进行中
-                    </view>
-                    <view v-else-if="progressSteps[2].time" class="timeline-time">
-                      {{ progressSteps[2].time }}
-                    </view>
-                  </view>
-                  <view class="timeline-desc" :class="{ gray: currentStep < 2 }">
-                    {{ progressSteps[2].desc }}
-                  </view>
-                </view>
-              </view>
-
-              <!-- 完成 -->
-              <view class="timeline-item">
-                <view class="timeline-icon-wrapper">
-                  <view class="custom-radio-icon custom-radio-icon-unchecked" :class="currentStep > 3 ? 'custom-radio-icon-active' : ''" />
-                </view>
-                <view class="timeline-content">
-                  <view class="timeline-header">
-                    <view class="timeline-title" :class="{ gray: currentStep < 3 }">
-                      完成
-                    </view>
-                    <view class="timeline-time" :class="{ gray: currentStep < 3 }">
-                      {{ progressSteps[3].time || '--' }}
-                    </view>
-                  </view>
-                  <view class="timeline-desc" :class="{ gray: currentStep < 3 }">
-                    {{ progressSteps[3].desc }}
                   </view>
                 </view>
               </view>
@@ -284,15 +276,74 @@ const statusDesc = computed(() => {
   return '';
 });
 
-// 当前步骤（0: 提交申请, 1: 辅导员审核, 2: 宿管站确认, 3: 完成）
+// 进度步骤（基于审批记录动态生成，需在 currentStep 前定义）
+const progressSteps = computed(() => {
+  const records = approvalInstance.value?.records || [];
+  const nodes = approvalInstance.value?.nodes || [];
+
+  const steps: any[] = [
+    {
+      title: '提交申请',
+      time: detail.value?.applyDate || approvalInstance.value?.startTime || '--',
+      desc: '申请已成功提交至系统',
+      completed: true,
+    },
+  ];
+
+  nodes.forEach((node) => {
+    const record = records.find(r => r.nodeId === node.id);
+    steps.push({
+      nodeId: node.id,
+      title: node.nodeName,
+      time: record?.approveTime || '',
+      desc: record ? (record.action === 1 ? '审批通过' : '审批拒绝') : '等待审批',
+      completed: !!record,
+      reviewer: record
+        ? { avatar: 'https://via.placeholder.com/40', name: record.approverName }
+        : null,
+      reviewReason: record?.opinion || '',
+      action: record?.action,
+    });
+  });
+
+  steps.push({
+    title: '完成',
+    time: approvalInstance.value?.endTime || '--',
+    desc: '流程结束',
+    completed: approvalInstance.value?.status === 2,
+  });
+
+  return steps;
+});
+
+// 当前步骤（动态计算，基于审批记录）
 const currentStep = computed(() => {
-  if (!detail.value) return 2;
-  const status = detail.value.status;
-  if (status === 1) return 2; // 进行中
-  if (status === 2) return 3; // 已完成审核，等待完成
-  if (status === 3) return 1; // 已拒绝，在审核阶段
-  if (status === 4) return 3; // 完成
-  return 2;
+  if (!approvalInstance.value) return 0;
+
+  const records = approvalInstance.value.records || [];
+  const nodes = approvalInstance.value.nodes || [];
+  const status = approvalInstance.value.status;
+
+  if (status === 2) {
+    return progressSteps.value.length - 1;
+  }
+
+  // 查找第一个未完成的节点
+  // 步骤 0 始终是"提交申请"（已完成）
+  // 步骤 1 到 N 是工作流节点
+  // 最后一步是"完成"
+
+  for (let i = 0; i < nodes.length; i++) {
+    const node = nodes[i];
+    const hasRecord = records.some(r => r.nodeId === node.id);
+    if (!hasRecord) {
+      // 此节点未完成，因此是当前步骤
+      return i + 1; // +1 是因为步骤 0 是"提交申请"
+    }
+  }
+
+  // 所有节点已完成，当前步骤是最后一步（"完成"）
+  return progressSteps.value.length - 1;
 });
 
 // 是否可以撤回（只有待审批状态才能撤回）
@@ -367,51 +418,6 @@ const detailFields = computed(() => {
   }
 
   return fields;
-});
-
-// 进度步骤（基于审批记录动态生成）
-const progressSteps = computed(() => {
-  const records = approvalInstance.value?.records || [];
-  const nodes = approvalInstance.value?.nodes || [];
-
-  // 基础步骤：提交申请
-  const steps: any[] = [
-    {
-      title: '提交申请',
-      time: detail.value?.applyDate || approvalInstance.value?.startTime || '--',
-      desc: '申请已成功提交至系统',
-      completed: true,
-    },
-  ];
-
-  // 根据流程节点添加步骤
-  nodes.forEach((node) => {
-    const record = records.find(r => r.nodeId === node.id);
-    steps.push({
-      title: node.nodeName,
-      time: record?.approveTime || '',
-      desc: record ? (record.action === 1 ? '审批通过' : '审批拒绝') : '等待审批',
-      completed: !!record,
-      reviewer: record
-        ? {
-            avatar: 'https://via.placeholder.com/40',
-            name: record.approverName,
-          }
-        : null,
-      reviewReason: record?.opinion || '',
-      action: record?.action,
-    });
-  });
-
-  // 添加完成步骤
-  steps.push({
-    title: '完成',
-    time: approvalInstance.value?.endTime || '--',
-    desc: '流程结束',
-    completed: approvalInstance.value?.status === 2, // 2表示已通过
-  });
-
-  return steps;
 });
 
 // 撤回申请
@@ -557,7 +563,6 @@ onMounted(() => {
 .content-scroll {
   position: relative;
   z-index: 10;
-  height: calc(100vh - var(--status-bar-height) - 84rpx);
 }
 
 // 顶部导航
@@ -1042,6 +1047,11 @@ onMounted(() => {
       border-radius: 4rpx;
       font-weight: $font-medium;
     }
+
+    .status-rejected {
+      color: #fff;
+      background: linear-gradient(135deg, #ff6b6b 0%, #ff5252 100%);
+    }
   }
 }
 
@@ -1083,11 +1093,6 @@ onMounted(() => {
     color: #4b5563;
     line-height: 1.6;
   }
-}
-
-// 底部安全区域
-.safe-bottom {
-  height: calc(env(safe-area-inset-bottom) + 250rpx);
 }
 
 // 底部操作栏

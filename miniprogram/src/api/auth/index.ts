@@ -42,11 +42,17 @@ export function logoutAPI() {
 
 /**
  * 刷新token
+ * 注意：refresh token 通过 HttpOnly Cookie 自动发送，无需传参
+ * 后端返回新的 access token（字符串）
  */
-export function refreshTokenAPI(refreshToken: string) {
-  return post<IBackendLoginResponse>({
+export function refreshTokenAPI() {
+  return post<string>({
     url: '/api/v1/auth/refresh',
-    data: { refreshToken },
+    data: {},
+    custom: {
+      auth: false, // 刷新接口不添加 Authorization 头（防止循环）
+      skipErrorHandler: true, // 跳过统一错误处理（由拦截器处理）
+    },
   });
 }
 

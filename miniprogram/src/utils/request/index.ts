@@ -27,6 +27,12 @@ export function setupRequest() {
     }
 
     defaultConfig.baseURL = baseURL;
+
+    // 启用 Cookie 支持（用于自动发送 HttpOnly refresh token）
+    // WeChat miniprogram 会自动处理 Cookie，无需额外配置
+    // 但需要确保后端 CORS 配置允许 credentials
+    defaultConfig.withCredentials = true;
+
     return defaultConfig;
   });
 

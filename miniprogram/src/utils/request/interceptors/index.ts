@@ -15,6 +15,9 @@ import { ROUTE_CONSTANTS } from '@/constants';
 let isRefreshing: boolean = false;
 // 重试队列，每一项将是一个待执行的函数形式
 let requestQueue: (() => void)[] = [];
+// 刷新失败次数
+let refreshFailCount: number = 0;
+const MAX_REFRESH_FAIL_COUNT = 3; // 最大失败次数
 
 function requestInterceptors(http: HttpRequestAbstract) {
   /**
@@ -110,35 +113,50 @@ function responseInterceptors(http: HttpRequestAbstract) {
           const userStore = useUserStore();
 
           try {
-            // 如果有 refreshToken，尝试刷新
-            if (userStore.refreshToken) {
-              const refreshRes = await refreshTokenAPI(userStore.refreshToken);
-              const transformed = userStore.transformLoginResponse(refreshRes);
-              userStore.setToken(transformed.accessToken, transformed.refreshToken);
-              userStore.setUserInfo(transformed.userInfo);
+            // 调用刷新接口（refresh token 通过 HttpOnly Cookie 自动发送）
+            const newAccessToken = await refreshTokenAPI();
 
-              // 刷新成功，执行队列请求
-              requestQueue.forEach(cb => cb());
-              requestQueue = [];
-              isRefreshing = false;
+            // 更新 access token（refresh token 由后端通过 Cookie 管理，前端无需处理）
+            userStore.setToken(newAccessToken, '');
 
-              // 重新执行本次请求
-              return http.request(config);
-            }
-            else {
-              // 没有 refreshToken，清除登录状态并跳转登录页
-              userStore.resetInfo();
-              uni.reLaunch({ url: ROUTE_CONSTANTS.LOGIN });
-              isRefreshing = false;
-              return Promise.reject(new Error('登录已过期，请重新登录'));
-            }
-          }
-          catch (error) {
-            // 刷新token失败，清除登录状态并跳转登录页
-            userStore.resetInfo();
-            uni.reLaunch({ url: ROUTE_CONSTANTS.LOGIN });
+            // 刷新成功，重置失败计数
+            refreshFailCount = 0;
+
+            // 刷新成功，执行队列请求
+            requestQueue.forEach(cb => cb());
             requestQueue = [];
             isRefreshing = false;
+
+            // 重新执行本次请求
+            return http.request(config);
+          }
+          catch (error) {
+            // 增加失败计数
+            refreshFailCount += 1;
+
+            // 刷新token失败，清除登录状态并跳转登录页
+            userStore.resetInfo();
+            requestQueue = [];
+            isRefreshing = false;
+
+            // 根据失败次数显示不同提示
+            const message = refreshFailCount >= MAX_REFRESH_FAIL_COUNT
+              ? '多次登录失败，请稍后重试'
+              : '登录已过期，请重新登录';
+
+            uni.showToast({
+              title: message,
+              icon: 'none',
+              duration: 2000,
+            });
+
+            // 延迟跳转，让用户看到提示
+            setTimeout(() => {
+              uni.reLaunch({ url: ROUTE_CONSTANTS.LOGIN });
+              // 重置计数
+              refreshFailCount = 0;
+            }, 1500);
+
             return Promise.reject(error);
           }
         }
@@ -165,7 +183,75 @@ function responseInterceptors(http: HttpRequestAbstract) {
         return new Promise(() => { });
       }
     },
-    (response: HttpError) => {
+    async (response: HttpError) => {
+      // 处理 HTTP 401 状态码（Token 无效或过期）
+      if (response.statusCode === 401) {
+        const config = response.config;
+
+        // 是否在刷新token中,防止重复刷新
+        if (!isRefreshing) {
+          isRefreshing = true;
+          const userStore = useUserStore();
+
+          try {
+            // 调用刷新接口（refresh token 通过 HttpOnly Cookie 自动发送）
+            const newAccessToken = await refreshTokenAPI();
+
+            // 更新 access token（refresh token 由后端通过 Cookie 管理，前端无需处理）
+            userStore.setToken(newAccessToken, '');
+
+            // 刷新成功，重置失败计数
+            refreshFailCount = 0;
+
+            // 刷新成功，执行队列请求
+            requestQueue.forEach(cb => cb());
+            requestQueue = [];
+            isRefreshing = false;
+
+            // 重新执行本次请求
+            return http.request(config);
+          }
+          catch (error) {
+            // 增加失败计数
+            refreshFailCount += 1;
+
+            // 刷新token失败，清除登录状态并跳转登录页
+            userStore.resetInfo();
+            requestQueue = [];
+            isRefreshing = false;
+
+            // 根据失败次数显示不同提示
+            const message = refreshFailCount >= MAX_REFRESH_FAIL_COUNT
+              ? '多次登录失败，请稍后重试'
+              : '登录已过期，请重新登录';
+
+            uni.showToast({
+              title: message,
+              icon: 'none',
+              duration: 2000,
+            });
+
+            // 延迟跳转，让用户看到提示
+            setTimeout(() => {
+              uni.reLaunch({ url: ROUTE_CONSTANTS.LOGIN });
+              // 重置计数
+              refreshFailCount = 0;
+            }, 1500);
+
+            return Promise.reject(error);
+          }
+        }
+        else {
+          // 正在刷新中，将请求加入队列
+          return new Promise((resolve, reject) => {
+            requestQueue.push(() => {
+              http.request(config).then(resolve).catch(reject);
+            });
+          });
+        }
+      }
+
+      // 处理其他 HTTP 错误状态码
       if (response.statusCode) {
         // 请求已发出，但是不在2xx的范围
         showMessage(response.statusCode);
