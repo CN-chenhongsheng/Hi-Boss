@@ -319,20 +319,18 @@ public class TransferServiceImpl extends ServiceImpl<TransferMapper, Transfer> i
             }
         }
 
-        // 查询原房间信息
+        // 查询原房间名称（不覆盖历史 roomCode，保留创建时的值）
         if (transfer.getOriginalRoomId() != null) {
             Room room = roomMapper.selectById(transfer.getOriginalRoomId());
             if (room != null) {
-                vo.setOriginalRoomCode(room.getRoomNumber());
                 vo.setOriginalRoomName(room.getRoomNumber());
             }
         }
 
-        // 查询原床位信息
+        // 查询原床位名称（不覆盖历史 bedCode，保留创建时的值）
         if (transfer.getOriginalBedId() != null) {
             Bed bed = bedMapper.selectById(transfer.getOriginalBedId());
             if (bed != null) {
-                vo.setOriginalBedCode(bed.getBedNumber());
                 vo.setOriginalBedName(bed.getBedNumber());
             }
         }
@@ -357,20 +355,18 @@ public class TransferServiceImpl extends ServiceImpl<TransferMapper, Transfer> i
             }
         }
 
-        // 查询目标房间信息
+        // 查询目标房间名称（不覆盖历史 roomCode，保留创建时的值）
         if (transfer.getTargetRoomId() != null) {
             Room room = roomMapper.selectById(transfer.getTargetRoomId());
             if (room != null) {
-                vo.setTargetRoomCode(room.getRoomNumber());
                 vo.setTargetRoomName(room.getRoomNumber());
             }
         }
 
-        // 查询目标床位信息
+        // 查询目标床位名称（不覆盖历史 bedCode，保留创建时的值）
         if (transfer.getTargetBedId() != null) {
             Bed bed = bedMapper.selectById(transfer.getTargetBedId());
             if (bed != null) {
-                vo.setTargetBedCode(bed.getBedNumber());
                 vo.setTargetBedName(bed.getBedNumber());
             }
         }
