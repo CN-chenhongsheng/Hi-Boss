@@ -1,6 +1,6 @@
 package com.project.backend.common.service;
 
-import com.project.backend.accommodation.entity.Student;
+import com.project.backend.student.entity.Student;
 
 /**
  * 学生信息填充器接口

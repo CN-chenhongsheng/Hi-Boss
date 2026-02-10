@@ -1,69 +1,49 @@
 <!--
   ViewSwitcher 视图切换器组件
-  @description 表格/平面图视图切换
+  @description 表格/平面图视图切换（基于 ArtViewSwitcher 封装）
   @author 陈鸿昇
 -->
 <template>
-  <div class="art-view-switcher">
-    <button
-      type="button"
-      class="art-view-switcher__btn"
-      :class="{ 'is-active': isTableView }"
-      @click="switchView('table')"
-    >
-      <ArtSvgIcon icon="ri:table-line" />
-      <span>表格</span>
-    </button>
-    <button
-      type="button"
-      class="art-view-switcher__btn"
-      :class="{ 'is-active': isVisualView }"
-      @click="switchView('visual')"
-    >
-      <ArtSvgIcon icon="ri:map-2-line" />
-      <span>平面图</span>
-    </button>
-  </div>
+  <ArtViewSwitcher
+    :model-value="modelValue"
+    :options="viewOptions"
+    @update:model-value="handleChange"
+  />
 </template>
 
 <script setup lang="ts">
-  import { computed } from 'vue'
-  import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
+  import ArtViewSwitcher from '@/components/core/base/art-view-switcher/index.vue'
   import type { ViewType } from '../types'
 
   defineOptions({ name: 'ViewSwitcher' })
 
   // ==================== Props ====================
+
   interface Props {
     /** 当前视图类型 */
     modelValue: ViewType
   }
 
-  const props = defineProps<Props>()
+  defineProps<Props>()
 
   // ==================== Emits ====================
+
   const emit = defineEmits<{
     (e: 'update:modelValue', value: ViewType): void
   }>()
 
-  // ==================== Computed ====================
+  // ==================== Constants ====================
 
-  /** 是否为表格视图 */
-  const isTableView = computed(() => props.modelValue === 'table')
-
-  /** 是否为可视化视图 */
-  const isVisualView = computed(() => props.modelValue === 'visual')
+  /** 视图选项配置 */
+  const viewOptions = [
+    { value: 'table', label: '表格', icon: 'ri:table-line' },
+    { value: 'visual', label: '平面图', icon: 'ri:map-2-line' }
+  ]
 
   // ==================== Methods ====================
 
-  /** 切换视图 */
-  const switchView = (view: ViewType) => {
-    if (props.modelValue !== view) {
-      emit('update:modelValue', view)
-    }
+  /** 处理视图切换 */
+  const handleChange = (value: string) => {
+    emit('update:modelValue', value as ViewType)
   }
 </script>
-
-<style lang="scss" scoped>
-  // 样式通过全局类 .art-view-switcher 实现，见 app.scss
-</style>

@@ -15,9 +15,9 @@ import request from '@/utils/http'
  * 获取用户分页列表
  * @param params 查询参数
  */
-export function fetchGetUserList(params: Api.SystemManage.UserSearchParams) {
+export function fetchGetUserPage(params: Api.SystemManage.UserSearchParams) {
   return request.get<Api.SystemManage.UserPageResponse>({
-    url: '/api/v1/system/user/list',
+    url: '/api/v1/system/user/page',
     params
   })
 }
@@ -113,7 +113,7 @@ export function fetchUpdateUserStatus(id: number, status: number) {
  */
 export function fetchGetRoleList(params: Api.SystemManage.RoleSearchParams) {
   return request.get<Api.SystemManage.RoleList>({
-    url: '/api/v1/system/role/list',
+    url: '/api/v1/system/role/page',
     params: {
       pageNum: params.pageNum || 1,
       pageSize: params.pageSize || 10,

@@ -14,11 +14,18 @@ spring:
   profiles:
     active: dev
 
+  # 文件上传大小限制配置
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 10MB
+      max-request-size: 50MB
+
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/project_management?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
-    username: root
-    password: root123
+    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:project_management}?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&rewriteBatchedStatements=true
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:root123}
     hikari:
       minimum-idle: 5
       maximum-pool-size: 20
@@ -54,7 +61,6 @@ mybatis-plus:
   type-aliases-package: com.project.backend,com.project.core.entity
   configuration:
     map-underscore-to-camel-case: true
-    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
     call-setters-on-nulls: true
   global-config:
     db-config:
@@ -69,7 +75,7 @@ mybatis-plus:
 sa-token:
   token-name: Authorization
   token-prefix: Bearer  # 支持 Bearer 前缀格式
-  timeout: 2592000  # Access Token有效期，单位秒，30天 (30 * 24 * 60 * 60 = 2592000秒)
+  timeout: 7200  # Access Token有效期，单位秒，2小时（依赖 Refresh Token 续期）
   active-timeout: -1  # token临时有效期 (指定时间内无操作就视为token过期) 单位: 秒
   is-concurrent: true  # 是否允许同一账号并发登录 (为true时允许一起登录, 为false时新登录挤掉旧登录)
   is-share: true  # 在多人登录同一账号时，是否共用一个token (为true时所有登录共用一个token, 为false时每次登录新建一个token)
@@ -92,7 +98,29 @@ file:
   upload-dir: ./uploads  # 本地上传目录
   public-path: /v1/common/files  # 公开访问路径前缀
 
+# 分片上传配置
+chunk-upload:
+  temp-dir: ./uploads/temp  # 临时分片存储目录
+  final-dir: ./uploads/files  # 最终文件存储目录
+  max-chunk-size: 10485760  # 最大分片大小（10MB）
+  expired-days: 7  # 过期天数
+  public-path: /v1/common/files  # 文件公开访问路径前缀
+  cleanup-enabled: true  # 是否启用定时清理
+  cleanup-cron: 0 0 3 * * ?  # 定时清理 cron 表达式（每天凌晨 3 点）
+
 # 系统默认配置
 system:
   default-password: 123456  # 新建用户默认密码
+
+# 全局导入配置（大文件导入并行度等，可被多个模块复用）
+import:
+  global:
+    max-worker-count: 8     # 并行解析的最大 worker 线程数上限（<=0 时按 CPU 自动推算）
+    queue-capacity: 5000    # DTO 队列容量（用于平衡生产/消费速度，避免内存暴涨）
+    batch-save-size: 2000   # 单次批量写库的条数
+
+# 学生导入配置（学生模块自身的业务阈值）
+student:
+  import:
+    sync-threshold: 5000    # 行数小于等于此值同步导入，大于则异步
 

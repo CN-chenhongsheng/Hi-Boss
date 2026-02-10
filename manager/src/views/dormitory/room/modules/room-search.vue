@@ -11,6 +11,9 @@
 </template>
 
 <script setup lang="ts">
+  import { useDictStore } from '@/store/modules/dict'
+  import { useReferenceStore } from '@/store/modules/reference'
+
   interface Props {
     modelValue: Record<string, any>
   }
@@ -26,6 +29,11 @@
 
   const searchBarRef = ref()
 
+  // 字典 store
+  const dictStore = useDictStore()
+  // 参考数据 store
+  const referenceStore = useReferenceStore()
+
   /**
    * 表单数据双向绑定
    */
@@ -40,22 +48,43 @@
   const rules = {}
 
   /**
-   * 状态选项
+   * 房间类型选项（从字典加载）
    */
-  const statusOptions = ref([
-    { label: '正常', value: 1 },
-    { label: '停用', value: 0 }
-  ])
+  const roomTypeOptions = ref<Array<{ label: string; value: string }>>([])
 
   /**
-   * 房间状态选项
+   * 房间状态选项（从字典加载）
    */
-  const roomStatusOptions = ref([
-    { label: '空闲', value: 1 },
-    { label: '已满', value: 2 },
-    { label: '维修中', value: 3 },
-    { label: '已预订', value: 4 }
-  ])
+  const roomStatusOptions = ref<Array<{ label: string; value: number }>>([])
+
+  /**
+   * 系统状态选项（从字典加载）
+   */
+  const statusOptions = ref<Array<{ label: string; value: number }>>([])
+
+  /**
+   * 级联选择器配置
+   */
+  const cascaderProps = {
+    lazy: true,
+    checkStrictly: true, // 允许选择任意一级
+    lazyLoad: (node: any, resolve: any) => {
+      referenceStore.cascaderLazyLoad(node, resolve, 2) // 校区 → 楼层（2级）
+    }
+  }
+
+  /**
+   * 级联选择器值变化处理
+   */
+  const handleCascaderChange = (value: string[]) => {
+    if (value && value.length > 0) {
+      formData.value.campusCode = value[0] || ''
+      formData.value.floorCode = value[1] || ''
+    } else {
+      formData.value.campusCode = ''
+      formData.value.floorCode = ''
+    }
+  }
 
   /**
    * 搜索表单配置项
@@ -74,19 +103,25 @@
       props: { clearable: true, placeholder: '请输入房间号' }
     },
     {
-      label: '楼层',
-      key: 'floorCode',
-      type: 'input',
-      props: { clearable: true, placeholder: '请输入楼层编码' }
+      label: '位置',
+      key: 'locationCascader',
+      type: 'cascader',
+      props: {
+        class: 'w-full',
+        clearable: true,
+        placeholder: '请选择位置',
+        props: cascaderProps,
+        onChange: handleCascaderChange
+      }
     },
     {
-      label: '校区',
-      key: 'campusCode',
+      label: '房间类型',
+      key: 'roomType',
       type: 'select',
       props: {
         clearable: true,
-        placeholder: '请选择校区',
-        options: [] // 需要从API获取校区列表
+        placeholder: '请选择房间类型',
+        options: roomTypeOptions.value
       }
     },
     {
@@ -112,9 +147,51 @@
   ])
 
   /**
+   * 加载字典数据
+   */
+  const loadDictData = async () => {
+    try {
+      const dictRes = await dictStore.loadDictDataBatch([
+        'dormitory_room_type',
+        'dormitory_room_status',
+        'sys_common_status'
+      ])
+
+      // 解析房间类型字典
+      roomTypeOptions.value = (dictRes.dormitory_room_type || []).map(
+        (item: Api.SystemManage.DictDataListItem) => ({
+          label: item.label,
+          value: item.value
+        })
+      )
+
+      // 解析房间状态字典
+      roomStatusOptions.value = (dictRes.dormitory_room_status || []).map(
+        (item: Api.SystemManage.DictDataListItem) => ({
+          label: item.label,
+          value: Number(item.value)
+        })
+      )
+
+      // 解析系统状态字典
+      statusOptions.value = (dictRes.sys_common_status || []).map(
+        (item: Api.SystemManage.DictDataListItem) => ({
+          label: item.label,
+          value: Number(item.value)
+        })
+      )
+    } catch (error) {
+      console.error('加载字典数据失败:', error)
+    }
+  }
+
+  /**
    * 处理重置事件
    */
   const handleReset = () => {
+    // 清空级联选择器关联的字段
+    formData.value.campusCode = ''
+    formData.value.floorCode = ''
     emit('reset')
   }
 
@@ -125,4 +202,11 @@
     await searchBarRef.value.validate()
     emit('search', formData.value)
   }
+
+  /**
+   * 组件挂载时加载数据
+   */
+  onMounted(async () => {
+    await loadDictData()
+  })
 </script>

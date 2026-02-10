@@ -1,5 +1,6 @@
 package com.project.backend.system.dto;
 
+import com.project.core.constant.RegexConstants;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Pattern;
@@ -28,7 +29,7 @@ public class UserProfileDTO {
     private String email;
 
     @Schema(description = "手机号")
-    @Pattern(regexp = "^1[3-9]\\d{9}$", message = "手机号格式不正确")
+    @Pattern(regexp = RegexConstants.MOBILE, message = "手机号格式不正确")
     private String phone;
 
     @Schema(description = "性别（字典sys_user_sex）：0未知 1男 2女")

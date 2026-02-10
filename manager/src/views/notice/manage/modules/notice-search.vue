@@ -36,31 +36,38 @@
   // 通知类型选项
   const noticeTypeOptions = ref<Array<{ label: string; value: number }>>([])
 
-  // 加载通知类型字典
-  const loadNoticeTypeOptions = async () => {
+  // 通知状态选项
+  const statusOptions = ref<Array<{ label: string; value: number }>>([])
+
+  // 加载字典数据
+  const loadDictData = async () => {
     try {
-      const data = await dictStore.loadDictData('notice_type')
-      if (data && data.length > 0) {
-        noticeTypeOptions.value = data.map((item) => ({
+      const dictRes = await dictStore.loadDictDataBatch(['notice_type', 'notice_status'])
+
+      // 解析通知类型字典
+      noticeTypeOptions.value = (dictRes.notice_type || []).map(
+        (item: Api.SystemManage.DictDataListItem) => ({
           label: item.label,
           value: Number(item.value)
-        }))
-      }
+        })
+      )
+
+      // 解析通知状态字典
+      statusOptions.value = (dictRes.notice_status || []).map(
+        (item: Api.SystemManage.DictDataListItem) => ({
+          label: item.label,
+          value: Number(item.value)
+        })
+      )
     } catch (error) {
-      console.error('加载通知类型字典失败:', error)
+      console.error('加载字典数据失败:', error)
     }
   }
 
   // 初始化加载字典
   onMounted(() => {
-    loadNoticeTypeOptions()
+    loadDictData()
   })
-
-  // 状态选项
-  const statusOptions = [
-    { label: '草稿', value: 1 },
-    { label: '已发布', value: 2 }
-  ]
 
   // 表单配置
   const formItems = computed(() => [
@@ -95,7 +102,7 @@
       props: {
         placeholder: '请选择状态',
         clearable: true,
-        options: statusOptions
+        options: statusOptions.value
       }
     },
     {

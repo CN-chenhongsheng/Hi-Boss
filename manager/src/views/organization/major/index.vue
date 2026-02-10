@@ -85,7 +85,6 @@
   import ArtSwitch from '@/components/core/forms/art-switch/index.vue'
   import MajorDialog from './modules/major-dialog.vue'
   import MajorSearch from './modules/major-search.vue'
-  import { ElMessageBox, ElMessage } from 'element-plus'
   import { DialogType } from '@/types'
   import { h } from 'vue'
 
@@ -115,6 +114,8 @@
     pageNum: 1,
     majorCode: undefined,
     majorName: undefined,
+    locationCascader: [] as string[], // 级联选择器值 [校区, 院系]
+    campusCode: undefined,
     deptCode: undefined,
     status: undefined
   })
@@ -255,6 +256,8 @@
       pageNum: 1,
       majorCode: undefined,
       majorName: undefined,
+      locationCascader: [],
+      campusCode: undefined,
       deptCode: undefined,
       status: undefined
     }

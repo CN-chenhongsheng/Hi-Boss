@@ -1082,6 +1082,125 @@ export const useReferenceStore = defineStore('referenceStore', () => {
     refreshMenuTreeSelect,
 
     // 通用方法
-    clearCache
+    clearCache,
+
+    /**
+     * 级联选择器懒加载方法（校区 → 楼层 → 房间）
+     * @param node 当前节点
+     * @param resolve 解析回调
+     * @param maxLevel 最大层级（1: 仅校区, 2: 校区+楼层, 3: 校区+楼层+房间）
+     */
+    async cascaderLazyLoad(
+      node: { level: number; value?: string | number; data?: any },
+      resolve: (nodes: any[]) => void,
+      maxLevel: 1 | 2 | 3 = 3
+    ) {
+      const { level, data } = node
+
+      // 第一级：加载校区
+      if (level === 0) {
+        const campusList = await loadCampusTree()
+        const nodes = campusList.map((campus) => ({
+          value: campus.campusCode,
+          label: campus.campusName,
+          leaf: maxLevel === 1
+        }))
+        resolve(nodes)
+        return
+      }
+
+      // 第二级：加载楼层
+      if (level === 1 && maxLevel >= 2) {
+        const campusCode = data.value
+        const floorList = await loadFloorList(campusCode)
+        const nodes = floorList.map((floor) => ({
+          value: floor.floorCode,
+          label: floor.floorName,
+          floorId: floor.id,
+          leaf: maxLevel === 2
+        }))
+        resolve(nodes)
+        return
+      }
+
+      // 第三级：加载房间
+      if (level === 2 && maxLevel >= 3) {
+        const floorId = data.floorId
+        if (floorId) {
+          const roomList = await loadRoomList(floorId)
+          const nodes = roomList.map((room) => ({
+            value: room.roomCode,
+            label: room.roomNumber || room.roomCode,
+            leaf: true
+          }))
+          resolve(nodes)
+        } else {
+          resolve([])
+        }
+        return
+      }
+
+      // 默认返回空
+      resolve([])
+    },
+
+    /**
+     * 组织管理级联选择器懒加载方法（校区 → 院系 → 专业）
+     * @param node 当前节点
+     * @param resolve 解析回调
+     * @param maxLevel 最大层级（1: 仅校区, 2: 校区+院系, 3: 校区+院系+专业）
+     */
+    async orgCascaderLazyLoad(
+      node: { level: number; value?: string | number; data?: any },
+      resolve: (nodes: any[]) => void,
+      maxLevel: 1 | 2 | 3 = 3
+    ) {
+      const { level, data } = node
+
+      // 第一级：加载校区
+      if (level === 0) {
+        const campusList = await loadCampusTree()
+        const nodes = campusList.map((campus) => ({
+          value: campus.campusCode,
+          label: campus.campusName,
+          leaf: maxLevel === 1
+        }))
+        resolve(nodes)
+        return
+      }
+
+      // 第二级：加载院系（按校区过滤）
+      if (level === 1 && maxLevel >= 2) {
+        const campusCode = data.value
+        const deptList = await loadDepartmentTree()
+        // 过滤出属于该校区的院系
+        const filteredDepts = deptList.filter((dept) => dept.campusCode === campusCode)
+        const nodes = filteredDepts.map((dept) => ({
+          value: dept.deptCode,
+          label: dept.deptName,
+          leaf: maxLevel === 2
+        }))
+        resolve(nodes)
+        return
+      }
+
+      // 第三级：加载专业（按院系过滤）
+      if (level === 2 && maxLevel >= 3) {
+        const deptCode = data.value
+        const majorList = await loadMajorList()
+        // 过滤出属于该院系的专业
+        const filteredMajors = majorList.filter((major) => major.deptCode === deptCode)
+        const nodes = filteredMajors.map((major) => ({
+          value: major.majorCode,
+          label: major.majorName,
+          leaf: true
+        }))
+        resolve(nodes)
+        return
+      }
+
+      // 默认返回空
+      resolve([])
+    }
   }
 })

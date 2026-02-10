@@ -5,9 +5,9 @@ import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.project.core.context.UserContext;
 import com.project.core.exception.BusinessException;
-import com.project.backend.accommodation.dto.student.StudentLifestyleDTO;
-import com.project.backend.accommodation.entity.Student;
-import com.project.backend.accommodation.mapper.StudentMapper;
+import com.project.backend.student.dto.student.StudentLifestyleDTO;
+import com.project.backend.student.entity.Student;
+import com.project.backend.student.mapper.StudentMapper;
 import com.project.app.service.StudentService;
 import com.project.backend.accommodation.vo.student.DormInfoVO;
 import com.project.backend.accommodation.vo.student.RoommateVO;
@@ -40,7 +40,7 @@ public class StudentServiceImpl implements StudentService {
     private final CampusMapper campusMapper;
     private final FloorMapper floorMapper;
     private final BedMapper bedMapper;
-    private final com.project.backend.accommodation.service.StudentService accommodationStudentService;
+    private final com.project.backend.student.service.StudentService studentService;
 
     @Override
     public DormInfoVO getCurrentStudentDormInfo() {
@@ -181,6 +181,6 @@ public class StudentServiceImpl implements StudentService {
         }
 
         // 调用更新方法
-        return accommodationStudentService.updateLifestyle(student.getId(), dto);
+        return studentService.updateLifestyle(student.getId(), dto);
     }
 }

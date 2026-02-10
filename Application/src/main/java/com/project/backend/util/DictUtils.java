@@ -44,11 +44,13 @@ public class DictUtils implements ApplicationContextAware {
             "sys_common_status",
             "sys_oper_business_type",
             "sys_device_type",
+            "academic_status",
             // 审批相关字典
             "check_in_type",
             "approval_business_type",
             "approval_action",
-            "approval_instance_status"
+            "approval_instance_status",
+            "approval_assignee_type"
     };
 
     @Override
@@ -109,6 +111,52 @@ public class DictUtils implements ApplicationContextAware {
      */
     public static Map<String, String> getDictMap(String dictCode) {
         return dictCode != null ? getOrLoadDictMap(dictCode) : Map.of();
+    }
+
+    /**
+     * 根据字典编码和标签获取值（用于 Excel 导入：label -> value）
+     *
+     * @param dictCode 字典编码
+     * @param label    字典标签（如「男」「在读」）
+     * @return 字典值，未找到返回 null
+     */
+    public static String getValueByLabel(String dictCode, String label) {
+        return getValueByLabel(dictCode, label, null);
+    }
+
+    /**
+     * 根据字典编码和标签获取值（带默认值）
+     *
+     * @param dictCode    字典编码
+     * @param label       字典标签
+     * @param defaultValue 未找到时返回的默认值
+     * @return 字典值
+     */
+    public static String getValueByLabel(String dictCode, String label, String defaultValue) {
+        if (dictCode == null || label == null || label.isBlank()) {
+            return defaultValue;
+        }
+        Map<String, String> valueToLabel = getOrLoadDictMap(dictCode);
+        for (Map.Entry<String, String> e : valueToLabel.entrySet()) {
+            if (label.trim().equals(e.getValue())) {
+                return e.getKey();
+            }
+        }
+        return defaultValue;
+    }
+
+    /**
+     * 获取某字典编码的所有 value 列表
+     *
+     * @param dictCode 字典编码
+     * @return 所有字典值列表
+     */
+    public static List<String> getValues(String dictCode) {
+        if (dictCode == null) {
+            return List.of();
+        }
+        Map<String, String> dictMap = getOrLoadDictMap(dictCode);
+        return List.copyOf(dictMap.keySet());
     }
 
     /**

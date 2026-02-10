@@ -45,8 +45,6 @@
                 批量删除{{ selectedCount > 0 ? `(${selectedCount})` : '' }}
               </ElButton>
             </template>
-
-            <!-- 可视化视图：无需额外按钮，楼层导航在左侧 -->
           </ElSpace>
         </template>
       </ArtTableHeader>
@@ -150,7 +148,6 @@
   } from '@/api/dormitory-manage'
   import { useReferenceStore } from '@/store/modules/reference'
   import DrillDownDialog from '@/components/school/DrillDownDialog.vue'
-  import { ElMessageBox, ElMessage } from 'element-plus'
   import ArtSwitch from '@/components/core/forms/art-switch/index.vue'
   import { h, onMounted, watch } from 'vue'
   import {
@@ -214,6 +211,7 @@
   const formFilters = ref({
     roomCode: '',
     roomNumber: '',
+    locationCascader: [] as string[], // 级联选择器值 [校区, 楼层]
     floorCode: '',
     campusCode: '',
     roomType: '',
@@ -407,6 +405,7 @@
     formFilters.value = {
       roomCode: '',
       roomNumber: '',
+      locationCascader: [],
       floorCode: '',
       campusCode: '',
       roomType: '',

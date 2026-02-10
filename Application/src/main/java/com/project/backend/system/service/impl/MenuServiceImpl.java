@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.project.core.context.UserContext;
 import com.project.core.exception.BusinessException;
+import com.project.core.util.TreeUtils;
 import com.project.backend.system.dto.MenuQueryDTO;
 import com.project.backend.system.dto.MenuSaveDTO;
 import com.project.backend.system.entity.Menu;
@@ -60,7 +61,13 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements Me
                 .map(this::convertToVO)
                 .collect(Collectors.toList());
 
-        return buildMenuTree(allMenuVOs, 0L);
+        return TreeUtils.buildTree(
+                allMenuVOs,
+                0L,
+                MenuVO::getParentId,
+                MenuVO::getId,
+                MenuVO::setChildren
+        );
     }
 
     /**
@@ -95,7 +102,18 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements Me
             if (menu.getId().equals(menu.getParentId())) {
                 throw new BusinessException("不能将父菜单设置为自身");
             }
-            return updateById(menu);
+            boolean result = updateById(menu);
+            // 当显示状态、菜单状态或页面缓存为关闭时，级联更新所有子菜单
+            if (result && (Integer.valueOf(0).equals(saveDTO.getVisible())
+                    || Integer.valueOf(0).equals(saveDTO.getStatus())
+                    || Integer.valueOf(0).equals(saveDTO.getKeepAlive()))) {
+                cascadeUpdateChildrenVisibleStatusKeepAlive(
+                        menu.getId(),
+                        saveDTO.getVisible(),
+                        saveDTO.getStatus(),
+                        saveDTO.getKeepAlive());
+            }
+            return result;
         }
     }
 
@@ -178,7 +196,13 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements Me
         topMenu.setParentId(-1L);
         topMenu.setMenuName("顶级菜单");
 
-        List<MenuVO> tree = buildMenuTree(allMenuVOs, 0L);
+        List<MenuVO> tree = TreeUtils.buildTree(
+                allMenuVOs,
+                0L,
+                MenuVO::getParentId,
+                MenuVO::getId,
+                MenuVO::setChildren
+        );
 
         List<MenuVO> result = new ArrayList<>();
         result.add(topMenu);
@@ -205,7 +229,13 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements Me
                 .collect(Collectors.toList());
 
         // 构建菜单树（不包含顶级菜单节点）
-        return buildMenuTree(allMenuVOs, 0L);
+        return TreeUtils.buildTree(
+                allMenuVOs,
+                0L,
+                MenuVO::getParentId,
+                MenuVO::getId,
+                MenuVO::setChildren
+        );
     }
 
     /**
@@ -227,25 +257,13 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements Me
                 .map(this::convertToVO)
                 .collect(Collectors.toList());
 
-        return buildMenuTree(menuVOs, 0L);
-    }
-
-    /**
-     * 构建菜单树
-     */
-    private List<MenuVO> buildMenuTree(List<MenuVO> allMenus, Long parentId) {
-        List<MenuVO> tree = new ArrayList<>();
-
-        for (MenuVO menu : allMenus) {
-            if (parentId.equals(menu.getParentId())) {
-                // 递归查找子菜单
-                List<MenuVO> children = buildMenuTree(allMenus, menu.getId());
-                menu.setChildren(children);
-                tree.add(menu);
-            }
-        }
-
-        return tree;
+        return TreeUtils.buildTree(
+                menuVOs,
+                0L,
+                MenuVO::getParentId,
+                MenuVO::getId,
+                MenuVO::setChildren
+        );
     }
 
     /**
@@ -331,6 +349,48 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements Me
 
                 // 递归处理子菜单的子菜单
                 cascadeUpdateChildrenStatus(child.getId(), status);
+            }
+        }
+    }
+
+    /**
+     * 递归级联更新子菜单的显示状态、菜单状态、页面缓存（仅当父级为关闭时向下传递）
+     * 当 status 为 0 时同时删除子菜单的角色菜单关联
+     *
+     * @param parentId  父菜单ID
+     * @param visible   显示状态（仅当为 0 时覆盖子级）
+     * @param status    菜单状态（仅当为 0 时覆盖子级）
+     * @param keepAlive 页面缓存（仅当为 0 时覆盖子级）
+     */
+    private void cascadeUpdateChildrenVisibleStatusKeepAlive(
+            Long parentId, Integer visible, Integer status, Integer keepAlive) {
+        LambdaQueryWrapper<Menu> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(Menu::getParentId, parentId);
+        List<Menu> children = list(wrapper);
+
+        if (children != null && !children.isEmpty()) {
+            for (Menu child : children) {
+                boolean changed = false;
+                if (visible != null && visible == 0) {
+                    child.setVisible(0);
+                    changed = true;
+                }
+                if (status != null && status == 0) {
+                    child.setStatus(0);
+                    changed = true;
+                }
+                if (keepAlive != null && keepAlive == 0) {
+                    child.setKeepAlive(0);
+                    changed = true;
+                }
+                if (changed) {
+                    updateById(child);
+                    if (status != null && status == 0) {
+                        deleteRoleMenuRelations(child.getId());
+                    }
+                }
+                cascadeUpdateChildrenVisibleStatusKeepAlive(
+                        child.getId(), visible, status, keepAlive);
             }
         }
     }

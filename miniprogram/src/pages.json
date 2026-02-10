@@ -125,6 +125,32 @@
           }
         }
       ]
+    },
+    {
+      "root": "pages/allocation",
+      "pages": [
+        {
+          "path": "survey/index",
+          "style": {
+            "navigationBarTitleText": "生活习惯问卷",
+            "navigationStyle": "custom"
+          }
+        },
+        {
+          "path": "result/index",
+          "style": {
+            "navigationBarTitleText": "分配结果",
+            "navigationStyle": "custom"
+          }
+        },
+        {
+          "path": "recommend/index",
+          "style": {
+            "navigationBarTitleText": "床位推荐",
+            "navigationStyle": "custom"
+          }
+        }
+      ]
     }
   ],
   "preloadRule": {

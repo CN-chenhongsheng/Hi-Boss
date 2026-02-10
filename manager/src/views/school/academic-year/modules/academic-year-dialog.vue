@@ -4,6 +4,8 @@
     v-model="dialogVisible"
     :title="dialogTitle"
     width="800px"
+    top="5vh"
+    align-center
     :close-on-click-modal="false"
     @close="handleClose"
   >
@@ -346,25 +348,30 @@
         overflow: hidden;
         background-color: var(--el-bg-color);
         border: 1px solid var(--el-border-color-lighter);
-        border-radius: 8px;
+        border-radius: 6px;
         transition: all 0.3s ease;
 
         &:hover {
           border-color: var(--el-color-primary-light-7);
           box-shadow: 0 2px 8px 0 rgb(0 0 0 / 6%);
+
+          .semester-header {
+            background: linear-gradient(
+              135deg,
+              rgb(249 245 255 / 80%) 0%,
+              var(--el-fill-color-lighter) 100%
+            );
+          }
         }
 
         .semester-header {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          padding: 12px 16px;
-          background: linear-gradient(
-            135deg,
-            var(--el-color-primary-light-9) 0%,
-            var(--el-fill-color-lighter) 100%
-          );
+          padding: 10px 14px;
+          background-color: var(--el-fill-color-lighter);
           border-bottom: 1px solid var(--el-border-color-lighter);
+          transition: background 0.3s ease;
 
           .semester-index {
             display: flex;
@@ -372,7 +379,7 @@
             align-items: center;
 
             .index-icon {
-              font-size: 18px;
+              font-size: 16px;
               color: var(--el-color-primary);
             }
 
@@ -396,10 +403,10 @@
         }
 
         .semester-content {
-          padding: 16px;
+          padding: 12px 14px;
 
           .form-field {
-            margin-bottom: 12px;
+            margin-bottom: 8px;
 
             &:last-child {
               margin-bottom: 0;
@@ -408,7 +415,7 @@
             .field-label {
               display: block;
               padding-left: 2px;
-              margin-bottom: 6px;
+              margin-bottom: 4px;
               font-size: 13px;
               font-weight: 500;
               color: var(--el-text-color-secondary);

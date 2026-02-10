@@ -1,5 +1,6 @@
 package com.project.backend.system.dto;
 
+import com.project.core.constant.RegexConstants;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -21,7 +22,7 @@ public class UserSaveDTO {
 
     @Schema(description = "用户名", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "用户名不能为空")
-    @Pattern(regexp = "^[a-zA-Z0-9_]{4,20}$", message = "用户名只能包含字母、数字、下划线，长度应在4-20个字符之间")
+    @Pattern(regexp = RegexConstants.USERNAME, message = "用户名只能包含字母、数字、下划线，长度应在4-20个字符之间")
     private String username;
 
     @Schema(description = "密码（新增时必传，编辑时不传则不修改）")
@@ -39,7 +40,7 @@ public class UserSaveDTO {
     private String email;
 
     @Schema(description = "手机号")
-    @Pattern(regexp = "^1[3-9]\\d{9}$", message = "手机号格式不正确")
+    @Pattern(regexp = RegexConstants.MOBILE, message = "手机号格式不正确")
     private String phone;
 
     @Schema(description = "管理范围")

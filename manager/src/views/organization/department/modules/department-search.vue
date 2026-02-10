@@ -11,6 +11,9 @@
 </template>
 
 <script setup lang="ts">
+  import { useDictStore } from '@/store/modules/dict'
+  import { useReferenceStore } from '@/store/modules/reference'
+
   interface Props {
     modelValue: Record<string, any>
   }
@@ -26,6 +29,11 @@
 
   const searchBarRef = ref()
 
+  // 字典 store
+  const dictStore = useDictStore()
+  // 参考数据 store
+  const referenceStore = useReferenceStore()
+
   /**
    * 表单数据双向绑定
    */
@@ -40,12 +48,24 @@
   const rules = {}
 
   /**
-   * 状态选项
+   * 校区列表
    */
-  const statusOptions = ref([
-    { label: '正常', value: 1 },
-    { label: '停用', value: 0 }
-  ])
+  const campusList = ref<Api.SystemManage.CampusListItem[]>([])
+
+  /**
+   * 系统状态选项（从字典加载）
+   */
+  const statusOptions = ref<Array<{ label: string; value: number }>>([])
+
+  /**
+   * 校区选项
+   */
+  const campusOptions = computed(() =>
+    campusList.value.map((item) => ({
+      label: item.campusName,
+      value: item.campusCode
+    }))
+  )
 
   /**
    * 搜索表单配置项
@@ -64,10 +84,14 @@
       props: { clearable: true, placeholder: '请输入院系名称' }
     },
     {
-      label: '所属校区',
+      label: '位置',
       key: 'campusCode',
-      type: 'input',
-      props: { clearable: true, placeholder: '请输入校区编码' }
+      type: 'select',
+      props: {
+        clearable: true,
+        placeholder: '请选择位置',
+        options: campusOptions.value
+      }
     },
     {
       label: '状态',
@@ -80,6 +104,36 @@
       }
     }
   ])
+
+  /**
+   * 加载字典数据
+   */
+  const loadDictData = async () => {
+    try {
+      const dictRes = await dictStore.loadDictDataBatch(['sys_common_status'])
+
+      // 解析系统状态字典
+      statusOptions.value = (dictRes.sys_common_status || []).map(
+        (item: Api.SystemManage.DictDataListItem) => ({
+          label: item.label,
+          value: Number(item.value)
+        })
+      )
+    } catch (error) {
+      console.error('加载字典数据失败:', error)
+    }
+  }
+
+  /**
+   * 加载校区列表
+   */
+  const loadCampusList = async () => {
+    try {
+      campusList.value = await referenceStore.loadCampusTree()
+    } catch (error) {
+      console.error('加载校区列表失败:', error)
+    }
+  }
 
   /**
    * 处理重置事件
@@ -95,4 +149,11 @@
     await searchBarRef.value.validate()
     emit('search', formData.value)
   }
+
+  /**
+   * 组件挂载时加载数据
+   */
+  onMounted(async () => {
+    await Promise.all([loadDictData(), loadCampusList()])
+  })
 </script>

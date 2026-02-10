@@ -14,13 +14,9 @@ import com.project.backend.accommodation.vo.CheckInVO;
 import com.project.core.exception.BusinessException;
 import com.project.core.result.PageResult;
 import com.project.core.vo.ApprovalProgress;
-import com.project.core.vo.ApprovalProgressNode;
-import com.project.backend.approval.vo.ApprovalInstanceVO;
-import com.project.backend.approval.vo.ApprovalNodeVO;
-import com.project.backend.approval.vo.ApprovalAssigneeVO;
-import com.project.backend.approval.vo.ApprovalRecordVO;
-import com.project.backend.accommodation.entity.Student;
-import com.project.backend.accommodation.mapper.StudentMapper;
+import com.project.backend.student.entity.Student;
+import com.project.backend.student.mapper.StudentMapper;
+import com.project.backend.common.service.ApprovalProgressBuilder;
 import com.project.backend.common.service.StudentInfoEnricher;
 import com.project.backend.organization.entity.Campus;
 import com.project.backend.organization.mapper.CampusMapper;
@@ -31,6 +27,7 @@ import com.project.backend.approval.entity.ApprovalRecord;
 import com.project.backend.room.mapper.BedMapper;
 import com.project.backend.util.DictUtils;
 import com.project.core.context.UserContext;
+import com.project.core.util.EntityUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -38,7 +35,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -63,6 +59,7 @@ public class CheckInServiceImpl extends ServiceImpl<CheckInMapper, CheckIn> impl
     private final ApprovalInstanceMapper approvalInstanceMapper;
     private final ApprovalRecordMapper approvalRecordMapper;
     private final BedMapper bedMapper;
+    private final ApprovalProgressBuilder approvalProgressBuilder;
 
     @Override
     @Transactional(readOnly = true)
@@ -91,10 +88,7 @@ public class CheckInServiceImpl extends ServiceImpl<CheckInMapper, CheckIn> impl
     @Override
     @Transactional(readOnly = true)
     public CheckInVO getDetailById(Long id) {
-        CheckIn checkIn = getById(id);
-        if (checkIn == null) {
-            throw new BusinessException("入住记录不存在");
-        }
+        CheckIn checkIn = EntityUtils.requireNonNull(getById(id), "入住记录");
         // 使用批量转换方法，即使只有一个元素也能保持一致性
         List<CheckInVO> voList = convertToVOList(List.of(checkIn));
         return voList.isEmpty() ? null : voList.get(0);
@@ -114,10 +108,7 @@ public class CheckInServiceImpl extends ServiceImpl<CheckInMapper, CheckIn> impl
         }
 
         // 检查学生是否存在
-        Student student = studentMapper.selectById(studentId);
-        if (student == null) {
-            throw new BusinessException("学生不存在");
-        }
+        Student student = EntityUtils.requireNonNull(studentMapper.selectById(studentId), "学生");
 
         CheckIn checkIn = new CheckIn();
         BeanUtil.copyProperties(saveDTO, checkIn);
@@ -168,10 +159,7 @@ public class CheckInServiceImpl extends ServiceImpl<CheckInMapper, CheckIn> impl
         }
 
         // 查询入住记录
-        CheckIn checkIn = getById(id);
-        if (checkIn == null) {
-            throw new BusinessException("入住记录不存在");
-        }
+        CheckIn checkIn = EntityUtils.requireNonNull(getById(id), "入住记录");
 
         // 如果存在审批实例，删除关联的审批记录和审批实例
         if (checkIn.getApprovalInstanceId() != null) {
@@ -219,10 +207,8 @@ public class CheckInServiceImpl extends ServiceImpl<CheckInMapper, CheckIn> impl
             recordWrapper.in(ApprovalRecord::getInstanceId, instanceIds);
             approvalRecordMapper.delete(recordWrapper);
 
-            // 删除审批实例（循环删除，因为 BaseMapper 没有批量删除方法）
-            for (Long instanceId : instanceIds) {
-                approvalInstanceMapper.deleteById(instanceId);
-            }
+            // 批量删除审批实例
+            approvalInstanceMapper.deleteBatchIds(instanceIds);
 
             log.info("批量删除入住记录时同步删除审批实例，入住记录数量：{}，审批实例数量：{}",
                     checkInList.size(), instanceIds.size());
@@ -242,10 +228,7 @@ public class CheckInServiceImpl extends ServiceImpl<CheckInMapper, CheckIn> impl
             throw new BusinessException("入住记录ID不能为空");
         }
 
-        CheckIn checkIn = getById(id);
-        if (checkIn == null) {
-            throw new BusinessException("入住记录不存在");
-        }
+        CheckIn checkIn = EntityUtils.requireNonNull(getById(id), "入住记录");
 
         // 只有待审核状态才能撤回
         if (checkIn.getStatus() != 1) {
@@ -318,191 +301,10 @@ public class CheckInServiceImpl extends ServiceImpl<CheckInMapper, CheckIn> impl
         // 填充审批进度信息
         if (checkIn.getApprovalInstanceId() != null) {
             vo.setApprovalInstanceId(checkIn.getApprovalInstanceId());
-            vo.setApprovalProgress(buildApprovalProgress(checkIn.getApprovalInstanceId(), checkIn.getStatus()));
+            vo.setApprovalProgress(approvalProgressBuilder.buildProgress(checkIn.getApprovalInstanceId(), checkIn.getStatus(), "check_in_status"));
         }
 
         return vo;
-    }
-
-    /**
-     * 实体转VO（保留原方法用于单个对象转换）
-     */
-    private CheckInVO convertToVO(CheckIn checkIn) {
-        CheckInVO vo = new CheckInVO();
-        BeanUtil.copyProperties(checkIn, vo);
-        vo.setStatusText(DictUtils.getLabel("check_in_status", checkIn.getStatus(), "未知"));
-        vo.setCheckInTypeText(DictUtils.getLabel("check_in_type", checkIn.getCheckInType(), "未知"));
-
-        // 填充学生详细信息（studentInfo 中含 campusName 等）
-        if (checkIn.getStudentId() != null) {
-            Student student = studentMapper.selectById(checkIn.getStudentId());
-            if (student != null) {
-                studentInfoEnricher.enrichStudentInfo(student, vo, "campusName");
-            }
-        }
-
-        // 填充审批进度信息
-        if (checkIn.getApprovalInstanceId() != null) {
-            vo.setApprovalInstanceId(checkIn.getApprovalInstanceId());
-            vo.setApprovalProgress(buildApprovalProgress(checkIn.getApprovalInstanceId(), checkIn.getStatus()));
-        }
-
-        return vo;
-    }
-
-    /**
-     * 构建审批进度信息
-     */
-    private ApprovalProgress buildApprovalProgress(Long approvalInstanceId, Integer status) {
-        ApprovalProgress progress = new ApprovalProgress();
-        progress.setStatus(status);
-        progress.setStatusText(DictUtils.getLabel("check_in_status", status, "未知"));
-
-        ApprovalInstanceVO instance = null;
-        try {
-            instance = approvalService.getInstanceDetail(approvalInstanceId);
-        } catch (Exception e) {
-            log.error("获取审批实例详情失败: {}", e.getMessage());
-        }
-
-        if (instance != null) {
-            progress.setApplicantName(instance.getApplicantName());
-            progress.setStartTime(instance.getStartTime());
-            progress.setCurrentNodeName(instance.getCurrentNodeName());
-
-            List<ApprovalProgressNode> nodeTimeline = buildNodeTimeline(instance);
-            progress.setNodeTimeline(nodeTimeline);
-            progress.setTotalNodes(nodeTimeline.size());
-            progress.setCompletedNodes((int) nodeTimeline.stream()
-                    .filter(node -> node.getStatus() != null && node.getStatus() == 2)
-                    .count());
-
-            if (status != null && status != 1) {
-                progress.setProgressPercent(100);
-            } else if (nodeTimeline.isEmpty()) {
-                progress.setProgressPercent(0);
-            } else {
-                int percent = (int) Math.round(progress.getCompletedNodes() * 100.0 / nodeTimeline.size());
-                progress.setProgressPercent(Math.min(100, Math.max(0, percent)));
-            }
-
-            if (status != null && status == 1) {
-                String nextApproverName = getNextApproverName(instance);
-                progress.setNextApproverName(nextApproverName);
-
-                String nodeName = instance.getCurrentNodeName() != null ? instance.getCurrentNodeName() : "待审批";
-                String approverName = nextApproverName != null ? nextApproverName : "未指定";
-                progress.setProgressText(String.format("%s(%s)", nodeName, approverName));
-            } else {
-                progress.setProgressText(DictUtils.getLabel("check_in_status", status, "未知进度"));
-            }
-        } else {
-            if (status != null && status != 1) {
-                progress.setProgressPercent(100);
-            } else {
-                progress.setProgressPercent(0);
-            }
-            progress.setProgressText("未知进度");
-        }
-
-        return progress;
-    }
-
-    /**
-     * 获取下一审批人姓名
-     */
-    private String getNextApproverName(ApprovalInstanceVO instance) {
-        if (instance.getNodes() == null || instance.getNodes().isEmpty()) {
-            return null;
-        }
-
-        // 查找当前节点
-        ApprovalNodeVO currentNode = instance.getNodes().stream()
-                .filter(node -> node.getId().equals(instance.getCurrentNodeId()))
-                .findFirst()
-                .orElse(null);
-
-        if (currentNode != null && currentNode.getAssignees() != null && !currentNode.getAssignees().isEmpty()) {
-            // 返回第一个审批人姓名（如果是多人会签，可以展示多个）
-            List<String> approverNames = currentNode.getAssignees().stream()
-                    .map(ApprovalAssigneeVO::getAssigneeName)
-                    .collect(Collectors.toList());
-            return String.join("、", approverNames);
-        }
-
-        return null;
-    }
-
-    private List<ApprovalProgressNode> buildNodeTimeline(ApprovalInstanceVO instance) {
-        if (instance.getNodes() == null || instance.getNodes().isEmpty()) {
-            return Collections.emptyList();
-        }
-
-        Map<Long, ApprovalRecordVO> recordMap = buildRecordMap(instance.getRecords());
-
-        return instance.getNodes().stream()
-                .sorted(Comparator.comparing(
-                        ApprovalNodeVO::getNodeOrder,
-                        Comparator.nullsLast(Integer::compareTo)
-                ))
-                .map(node -> {
-                    ApprovalProgressNode timelineNode = new ApprovalProgressNode();
-                    timelineNode.setNodeId(node.getId());
-                    timelineNode.setNodeName(node.getNodeName());
-                    timelineNode.setAssigneeNames(getNodeAssigneeNames(node));
-
-                    ApprovalRecordVO record = recordMap.get(node.getId());
-                    if (record != null) {
-                        if (record.getAction() != null && record.getAction() == 2) {
-                            timelineNode.setStatus(3);
-                            timelineNode.setStatusText(DictUtils.getLabel("approval_action", 2, "已拒绝"));
-                        } else {
-                            timelineNode.setStatus(2);
-                            timelineNode.setStatusText(DictUtils.getLabel("approval_action", 1, "已通过"));
-                        }
-                        timelineNode.setActionText(record.getActionText());
-                        timelineNode.setApproveTime(record.getApproveTime());
-                    } else {
-                        timelineNode.setStatus(1);
-                        timelineNode.setStatusText("待处理");
-                    }
-
-                    return timelineNode;
-                })
-                .collect(Collectors.toList());
-    }
-
-    private Map<Long, ApprovalRecordVO> buildRecordMap(List<ApprovalRecordVO> records) {
-        if (records == null || records.isEmpty()) {
-            return Collections.emptyMap();
-        }
-
-        return records.stream()
-                .filter(record -> record.getNodeId() != null)
-                .collect(Collectors.toMap(
-                        ApprovalRecordVO::getNodeId,
-                        record -> record,
-                        (first, second) -> {
-                            if (first.getApproveTime() == null) {
-                                return second;
-                            }
-                            if (second.getApproveTime() == null) {
-                                return first;
-                            }
-                            return second.getApproveTime().isAfter(first.getApproveTime()) ? second : first;
-                        }
-                ));
-    }
-
-    private String getNodeAssigneeNames(ApprovalNodeVO node) {
-        if (node.getAssignees() == null || node.getAssignees().isEmpty()) {
-            return "未指定";
-        }
-
-        return node.getAssignees().stream()
-                .map(ApprovalAssigneeVO::getAssigneeName)
-                .filter(StrUtil::isNotBlank)
-                .collect(Collectors.joining("、"));
     }
 
     /**
@@ -526,10 +328,7 @@ public class CheckInServiceImpl extends ServiceImpl<CheckInMapper, CheckIn> impl
         }
 
         // 检查学生是否存在
-        Student student = studentMapper.selectById(studentId);
-        if (student == null) {
-            throw new BusinessException("学生不存在");
-        }
+        Student student = EntityUtils.requireNonNull(studentMapper.selectById(studentId), "学生");
 
         // 检查学生是否已分配床位
         if (student.getBedId() != null) {
@@ -537,10 +336,7 @@ public class CheckInServiceImpl extends ServiceImpl<CheckInMapper, CheckIn> impl
         }
 
         // 检查床位是否存在并可用
-        com.project.backend.room.entity.Bed bed = bedMapper.selectById(bedId);
-        if (bed == null) {
-            throw new BusinessException("床位不存在");
-        }
+        com.project.backend.room.entity.Bed bed = EntityUtils.requireNonNull(bedMapper.selectById(bedId), "床位");
         if (bed.getStudentId() != null) {
             throw new BusinessException("该床位已被占用");
         }

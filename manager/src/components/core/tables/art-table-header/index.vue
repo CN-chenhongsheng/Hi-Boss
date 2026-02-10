@@ -14,17 +14,23 @@
       >
         <ArtSvgIcon icon="ri:search-line" :class="showSearchBar ? 'text-white' : 'text-g-700'" />
       </div>
-      <div
-        v-if="shouldShow('refresh')"
-        class="button"
-        @click="refresh"
-        :class="{ loading: loading && isManualRefresh }"
-      >
-        <ArtSvgIcon
-          icon="ri:refresh-line"
-          :class="loading && isManualRefresh ? 'animate-spin text-g-600' : ''"
-        />
-      </div>
+      <ElTooltip v-if="shouldShow('refresh')" :content="refreshTooltip" placement="top-start">
+        <div
+          class="button relative"
+          @click.left="refresh"
+          @click.right.prevent="toggleAutoRefresh"
+          :class="{ loading: loading && isManualRefresh }"
+        >
+          <ArtSvgIcon
+            icon="ri:refresh-line"
+            :class="loading && isManualRefresh ? 'animate-spin text-g-600' : ''"
+          />
+          <span
+            class="pointer-events-none absolute right-1 top-1 h-1.5 w-1.5 rounded-full"
+            :class="autoRefreshEnabled ? 'bg-primary shadow-[0_0_0_2px_rgba(59,130,246,0.35)]' : 'bg-g-400 opacity-60'"
+          />
+        </div>
+      </ElTooltip>
 
       <ElDropdown v-if="shouldShow('size')" @command="handleTableSizeChange">
         <div class="button">
@@ -123,14 +129,14 @@
 </template>
 
 <script lang="ts" setup>
-  import { computed, ref, onMounted, onUnmounted } from 'vue'
+  import { computed, ref, onMounted, onUnmounted, onActivated, onDeactivated } from 'vue'
   import { storeToRefs } from 'pinia'
   import { TableSizeEnum } from '@/enums/formEnum'
   import { useTableStore } from '@/store/modules/table'
   import { VueDraggable } from 'vue-draggable-plus'
   import { useI18n } from 'vue-i18n'
   import type { ColumnOption } from '@/types/component'
-  import { ElScrollbar } from 'element-plus'
+  import { ElScrollbar, ElTooltip } from 'element-plus'
 
   defineOptions({ name: 'ArtTableHeader' })
 
@@ -172,6 +178,50 @@
     (e: 'search'): void
     (e: 'update:showSearchBar', value: boolean): void
   }>()
+
+  const AUTO_REFRESH_INTERVAL = 30 * 1000
+  const autoRefreshEnabled = ref(false)
+  let autoRefreshTimer: ReturnType<typeof setInterval> | null = null
+
+  const getAutoRefreshStorageKey = (): string => {
+    // 基于路由名称或路径生成页面唯一 key（使用 location.pathname 作为兜底）
+    if (typeof window === 'undefined') return 'auto-refresh:unknown'
+    const pathname = window.location.pathname || 'unknown'
+    return `auto-refresh:${pathname}`
+  }
+
+  const stopAutoRefresh = (): void => {
+    if (autoRefreshTimer) {
+      clearInterval(autoRefreshTimer)
+      autoRefreshTimer = null
+    }
+  }
+
+  const startAutoRefresh = (): void => {
+    stopAutoRefresh()
+    if (!autoRefreshEnabled.value) return
+
+    autoRefreshTimer = setInterval(() => {
+      // 避免在加载中重复触发刷新
+      if (!props.loading) {
+        emit('refresh')
+      }
+    }, AUTO_REFRESH_INTERVAL)
+  }
+
+  // 初始化自动刷新状态（基于当前路径）
+  if (typeof window !== 'undefined') {
+    const stored = window.localStorage.getItem(getAutoRefreshStorageKey())
+    if (stored === '1' || stored === 'true') {
+      autoRefreshEnabled.value = true
+    }
+  }
+
+  const refreshTooltip = computed(() =>
+    autoRefreshEnabled.value
+      ? '左键：刷新表格；右键：关闭自动刷新'
+      : '左键：刷新表格；右键：开启自动刷新'
+  )
 
   /**
    * 获取列的显示状态
@@ -259,6 +309,22 @@
     emit('refresh')
   }
 
+  /** 自动刷新开关切换（右键触发，由父组件处理具体逻辑） */
+  const toggleAutoRefresh = () => {
+    autoRefreshEnabled.value = !autoRefreshEnabled.value
+
+    if (typeof window !== 'undefined') {
+      const key = getAutoRefreshStorageKey()
+      if (autoRefreshEnabled.value) {
+        window.localStorage.setItem(key, '1')
+      } else {
+        window.localStorage.removeItem(key)
+      }
+    }
+
+    startAutoRefresh()
+  }
+
   /**
    * 表格大小变化处理
    * @param command 表格大小枚举值
@@ -328,6 +394,19 @@
         el.classList.remove('el-full-screen')
       }
     }
+
+    stopAutoRefresh()
+  })
+
+  // 组件激活/失活时控制自动刷新定时器，避免切换菜单后继续请求接口
+  onActivated(() => {
+    if (autoRefreshEnabled.value) {
+      startAutoRefresh()
+    }
+  })
+
+  onDeactivated(() => {
+    stopAutoRefresh()
   })
 </script>
 

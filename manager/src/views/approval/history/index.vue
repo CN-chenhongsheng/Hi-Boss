@@ -21,10 +21,11 @@
         @refresh="refreshData"
       >
         <template #left>
-          <ElRadioGroup v-model="viewMode" @change="handleViewModeChange">
-            <ElRadioButton value="all">全部记录</ElRadioButton>
-            <ElRadioButton value="my">我的审批</ElRadioButton>
-          </ElRadioGroup>
+          <ArtViewSwitcher
+            v-model="viewMode"
+            :options="viewModeOptions"
+            @update:model-value="handleViewModeChange"
+          />
         </template>
       </ArtTableHeader>
 
@@ -50,7 +51,7 @@
     type ApprovalRecordQueryParams
   } from '@/api/approval-manage'
   import HistorySearch from './modules/history-search.vue'
-  import { ElTag } from 'element-plus'
+  import ArtViewSwitcher from '@/components/core/base/art-view-switcher/index.vue'
 
   defineOptions({ name: 'ApprovalHistory' })
 
@@ -64,6 +65,12 @@
   })
   const showSearchBar = ref(false)
   const viewMode = ref<'all' | 'my'>('all')
+
+  /** 视图模式选项 */
+  const viewModeOptions = [
+    { value: 'all', label: '全部记录' },
+    { value: 'my', label: '我的审批' }
+  ]
 
   // 动态API函数
   const getApiFn = () => {
@@ -104,7 +111,7 @@
           label: '业务类型',
           width: 120,
           formatter: (row: ApprovalRecord) => {
-            return h(ElTag, { type: 'info', size: 'small' }, () => row.businessTypeText)
+            return h(ElTag, { type: 'primary', size: 'small' }, () => row.businessTypeText)
           }
         },
         {

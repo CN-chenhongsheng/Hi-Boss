@@ -68,7 +68,7 @@
   import ApprovalDrawer from './modules/approval-drawer.vue'
   import BatchApprovalDialog from './modules/batch-approval-dialog.vue'
   import PendingSearch from './modules/pending-search.vue'
-  import { ElTag, ElMessage, ElPopover } from 'element-plus'
+  import { ElPopover } from 'element-plus'
   import StudentInfoPopover from '@/components/core/cards/art-student-info-popover/index.vue'
   import { enrichStudentInfo } from '@/utils/student/enrichStudentInfo'
 
@@ -124,7 +124,7 @@
           label: '业务类型',
           width: 120,
           formatter: (row: ApprovalInstance) => {
-            return h(ElTag, { type: 'info', size: 'small' }, () => row.businessTypeText)
+            return h(ElTag, { type: 'primary', size: 'small' }, () => row.businessTypeText)
           }
         },
         {

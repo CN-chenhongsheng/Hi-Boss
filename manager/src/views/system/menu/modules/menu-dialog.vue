@@ -92,7 +92,7 @@
       </ElRow>
 
       <ElRow :gutter="20">
-        <ElCol :span="8">
+        <ElCol :span="12">
           <ElFormItem label="显示状态">
             <ArtSwitch
               v-model="form.visible"
@@ -104,19 +104,7 @@
             />
           </ElFormItem>
         </ElCol>
-        <ElCol :span="8">
-          <ElFormItem label="菜单状态">
-            <ArtSwitch
-              v-model="form.status"
-              :active-value="1"
-              :inactive-value="0"
-              active-text="正常"
-              inactive-text="停用"
-              inline-prompt
-            />
-          </ElFormItem>
-        </ElCol>
-        <ElCol :span="8" v-if="form.menuType !== 'F'">
+        <ElCol :span="12" v-if="form.menuType !== 'F'">
           <ElFormItem label="页面缓存">
             <ArtSwitch
               v-model="form.keepAlive"
@@ -433,7 +421,7 @@
   }
 
   :deep(.el-form-item__content) {
-    justify-content: space-evenly;
+    justify-content: flex-start;
   }
 
   :deep(.icon-link-btn) {

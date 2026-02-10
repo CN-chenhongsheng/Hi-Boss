@@ -45,3 +45,17 @@ export type { OnlineStatusUpdate } from './core/useUserOnlineStatus'
 // 业务类型管理
 export { useBusinessType } from './core/useBusinessType'
 export type { BusinessTypeOption } from './core/useBusinessType'
+
+// 导入进度管理
+export { useImportProgress } from './core/useImportProgress'
+export type {
+  UseImportProgressOptions,
+  UseImportProgressReturn,
+  ImportProgressState,
+  ImportResult,
+  ImportTaskVO,
+  SSEStageData,
+  SSEProgressData,
+  SSECompleteData,
+  SSEImportCallbacks
+} from './core/useImportProgress'

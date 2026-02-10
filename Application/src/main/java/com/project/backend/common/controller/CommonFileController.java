@@ -16,7 +16,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -107,7 +106,7 @@ public class CommonFileController {
                 String relativePath = "uploads/" + dateDir + "/" + filename;
 
                 // 6. 创建目录并保存文件
-                Path baseDir = Paths.get(uploadDir).toAbsolutePath();
+                Path baseDir = com.project.core.util.FileUtils.resolveUploadDir(uploadDir);
                 Path targetDir = baseDir.resolve("uploads").resolve(dateDir);
 
                 if (!Files.exists(targetDir)) {

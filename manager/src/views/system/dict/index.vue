@@ -8,7 +8,7 @@
           <template #header>
             <div class="panel-header">
               <span class="panel-title">
-                <ArtSvgIcon icon="ri:bookmark-line" class="text-primary text-lg" />
+                <ArtSvgIcon icon="ri:bookmark-line" class="text-lg" />
                 字典类型
               </span>
               <ElButton
@@ -26,17 +26,30 @@
 
           <!-- 类型搜索 -->
           <div class="search-bar">
-            <ElInput
-              v-model="typeSearchForm.dictName"
-              placeholder="搜索字典名称"
-              clearable
-              @clear="handleTypeSearch"
-              @keyup.enter="handleTypeSearch"
-            >
-              <template #prefix>
-                <i class="i-carbon-search" />
-              </template>
-            </ElInput>
+            <div class="search-inputs">
+              <ElInput
+                v-model="typeSearchForm.dictName"
+                placeholder="搜索字典名称"
+                clearable
+                @clear="handleTypeSearch"
+                @keyup.enter="handleTypeSearch"
+              >
+                <template #prefix>
+                  <ArtSvgIcon icon="ri:search-line" class="text-main-color" />
+                </template>
+              </ElInput>
+              <ElInput
+                v-model="typeSearchForm.dictCode"
+                placeholder="搜索字典编码"
+                clearable
+                @clear="handleTypeSearch"
+                @keyup.enter="handleTypeSearch"
+              >
+                <template #prefix>
+                  <ArtSvgIcon icon="ri:code-line" class="text-main-color" />
+                </template>
+              </ElInput>
+            </div>
           </div>
 
           <!-- 类型表格 -->
@@ -62,7 +75,7 @@
           <template #header>
             <div class="panel-header">
               <span class="panel-title">
-                <ArtSvgIcon icon="ri:list-check" class="text-primary text-lg" />
+                <ArtSvgIcon icon="ri:list-check" class="text-lg" />
                 字典数据
               </span>
               <ElButton
@@ -94,7 +107,7 @@
                 @keyup.enter="handleDataSearch"
               >
                 <template #prefix>
-                  <i class="i-carbon-search" />
+                  <ArtSvgIcon icon="ri:search-line" class="text-main-color" />
                 </template>
               </ElInput>
             </div>
@@ -150,7 +163,6 @@
   } from '@/api/system-manage'
   import DictTypeDialog from './modules/dict-type-dialog.vue'
   import DictDataDialog from './modules/dict-data-dialog.vue'
-  import { ElTag, ElMessageBox } from 'element-plus'
   import { h } from 'vue'
   import ArtSwitch from '@/components/core/forms/art-switch/index.vue'
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
@@ -584,10 +596,20 @@
   .panel-title {
     font-size: 14px;
     font-weight: 500;
+    color: var(--main-color);
   }
 
   .search-bar {
     margin-bottom: 12px;
+
+    .search-inputs {
+      display: flex;
+      gap: 8px;
+
+      .el-input {
+        flex: 1;
+      }
+    }
   }
 
   .empty-tip {

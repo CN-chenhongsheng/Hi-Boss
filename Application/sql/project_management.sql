@@ -11,7 +11,7 @@
  Target Server Version : 80042 (8.0.42)
  File Encoding         : 65001
 
- Date: 02/02/2026 21:55:33
+ Date: 06/02/2026 15:55:07
 */
 
 SET NAMES utf8mb4;
@@ -36,10 +36,148 @@ CREATE TABLE `sys_academic_year`  (
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `uk_year_code`(`year_code` ASC, `deleted` ASC) USING BTREE,
   INDEX `idx_status`(`status` ASC) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '学年表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 16 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '学年表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_academic_year
+-- ----------------------------
+INSERT INTO `sys_academic_year` VALUES (11, '2021-2022', '2021-2022学年', '2021-09-01', '2022-08-31', 2, '2026-02-03 20:51:44', NULL, '2026-02-03 20:51:44', NULL, 0);
+INSERT INTO `sys_academic_year` VALUES (12, '2022-2023', '2022-2023学年', '2022-09-01', '2023-08-31', 2, '2026-02-03 20:51:44', NULL, '2026-02-03 20:51:44', NULL, 0);
+INSERT INTO `sys_academic_year` VALUES (13, '2023-2024', '2023-2024学年', '2023-09-01', '2024-08-31', 2, '2026-02-03 20:51:44', NULL, '2026-02-03 20:51:44', NULL, 0);
+INSERT INTO `sys_academic_year` VALUES (14, '2024-2025', '2024-2025学年', '2024-09-01', '2025-08-31', 0, '2026-02-03 20:51:44', NULL, '2026-02-03 20:51:44', 1, 0);
+INSERT INTO `sys_academic_year` VALUES (15, '2025-2026', '2025-2026学年', '2025-09-01', '2026-08-31', 1, '2026-02-03 20:51:44', NULL, '2026-02-03 20:51:44', NULL, 0);
+
+-- ----------------------------
+-- Table structure for sys_allocation_config
+-- ----------------------------
+DROP TABLE IF EXISTS `sys_allocation_config`;
+CREATE TABLE `sys_allocation_config`  (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `config_name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '配置名称',
+  `smoking_constraint` tinyint NULL DEFAULT 1 COMMENT '吸烟硬约束：吸烟者不能与不接受吸烟者同住',
+  `gender_constraint` tinyint NULL DEFAULT 1 COMMENT '性别硬约束：不同性别不能同住',
+  `sleep_hard_constraint` tinyint NULL DEFAULT 0 COMMENT '作息硬约束：作息差异≥3档不能同住',
+  `sleep_weight` int NULL DEFAULT 30 COMMENT '睡眠维度权重（作息、打呼噜、睡眠敏感等）',
+  `smoking_weight` int NULL DEFAULT 20 COMMENT '吸烟维度权重',
+  `cleanliness_weight` int NULL DEFAULT 15 COMMENT '整洁维度权重',
+  `social_weight` int NULL DEFAULT 15 COMMENT '社交维度权重（社交偏好、访客、电话等）',
+  `study_weight` int NULL DEFAULT 10 COMMENT '学习维度权重',
+  `entertainment_weight` int NULL DEFAULT 10 COMMENT '娱乐维度权重（电脑、游戏、音乐等）',
+  `algorithm_type` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT 'kmeans' COMMENT '算法类型：greedy-贪心算法 kmeans-聚类算法 annealing-模拟退火',
+  `same_dept_bonus` int NULL DEFAULT 5 COMMENT '同院系加分',
+  `same_major_bonus` int NULL DEFAULT 10 COMMENT '同专业加分',
+  `same_class_bonus` int NULL DEFAULT 15 COMMENT '同班级加分',
+  `min_match_score` int NULL DEFAULT 60 COMMENT '最低匹配分阈值（低于此分需人工审核）',
+  `status` tinyint NULL DEFAULT 1 COMMENT '状态：1-启用 0-停用',
+  `remark` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '备注',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `create_by` bigint NULL DEFAULT NULL COMMENT '创建人ID',
+  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `update_by` bigint NULL DEFAULT NULL COMMENT '更新人ID',
+  `deleted` tinyint NOT NULL DEFAULT 0 COMMENT '删除标记：0-未删除 1-已删除',
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `idx_status`(`status` ASC) USING BTREE,
+  INDEX `idx_algorithm`(`algorithm_type` ASC) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 4 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '分配规则配置表' ROW_FORMAT = DYNAMIC;
+
+-- ----------------------------
+-- Records of sys_allocation_config
+-- ----------------------------
+INSERT INTO `sys_allocation_config` VALUES (1, '默认配置模板', 1, 1, 0, 30, 20, 15, 15, 10, 10, 'kmeans', 5, 10, 15, 60, 1, '系统默认配置，可作为创建新配置的模板', '2026-02-02 22:49:37', NULL, '2026-02-02 22:49:37', 1, 0);
+INSERT INTO `sys_allocation_config` VALUES (2, '严格匹配配置', 1, 1, 1, 35, 25, 15, 10, 10, 5, 'annealing', 5, 10, 15, 70, 1, '启用作息硬约束，追求更高匹配度', '2026-02-02 22:49:37', NULL, '2026-02-02 22:49:37', NULL, 0);
+INSERT INTO `sys_allocation_config` VALUES (3, '快速分配配置', 1, 1, 0, 25, 20, 15, 15, 15, 10, 'greedy', 5, 10, 15, 50, 1, '使用贪心算法，适合时间紧迫场景', '2026-02-02 22:49:37', NULL, '2026-02-02 22:49:37', NULL, 0);
+
+-- ----------------------------
+-- Table structure for sys_allocation_result
+-- ----------------------------
+DROP TABLE IF EXISTS `sys_allocation_result`;
+CREATE TABLE `sys_allocation_result`  (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `task_id` bigint NOT NULL COMMENT '任务ID',
+  `student_id` bigint NOT NULL COMMENT '学生ID',
+  `student_no` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '学号',
+  `student_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '学生姓名',
+  `gender` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '性别',
+  `dept_code` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '院系编码',
+  `major_code` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '专业编码',
+  `class_code` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '班级编码',
+  `allocated_bed_id` bigint NULL DEFAULT NULL COMMENT '分配的床位ID',
+  `allocated_room_id` bigint NULL DEFAULT NULL COMMENT '分配的房间ID',
+  `allocated_room_code` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '房间编码',
+  `allocated_floor_id` bigint NULL DEFAULT NULL COMMENT '楼层ID',
+  `allocated_floor_code` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '楼层编码',
+  `match_score` decimal(5, 2) NULL DEFAULT NULL COMMENT '匹配分数(0-100)',
+  `match_details` json NULL COMMENT '匹配详情（各维度得分）',
+  `conflict_reasons` json NULL COMMENT '不匹配/冲突原因列表',
+  `advantages` json NULL COMMENT '匹配优势列表',
+  `roommate_ids` json NULL COMMENT '室友ID列表',
+  `roommate_names` json NULL COMMENT '室友姓名列表',
+  `status` tinyint NULL DEFAULT 0 COMMENT '状态：0-待确认 1-已确认 2-已拒绝 3-已调整',
+  `adjusted_bed_id` bigint NULL DEFAULT NULL COMMENT '调整后的床位ID',
+  `adjust_reason` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '调整原因',
+  `confirm_time` datetime NULL DEFAULT NULL COMMENT '确认时间',
+  `confirm_by` bigint NULL DEFAULT NULL COMMENT '确认人ID',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `idx_task_id`(`task_id` ASC) USING BTREE,
+  INDEX `idx_student_id`(`student_id` ASC) USING BTREE,
+  INDEX `idx_status`(`status` ASC) USING BTREE,
+  INDEX `idx_match_score`(`match_score` ASC) USING BTREE,
+  INDEX `idx_room_id`(`allocated_room_id` ASC) USING BTREE,
+  INDEX `idx_task_status`(`task_id` ASC, `status` ASC) USING BTREE,
+  INDEX `idx_bed_id`(`allocated_bed_id` ASC) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '分配结果表' ROW_FORMAT = DYNAMIC;
+
+-- ----------------------------
+-- Records of sys_allocation_result
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for sys_allocation_task
+-- ----------------------------
+DROP TABLE IF EXISTS `sys_allocation_task`;
+CREATE TABLE `sys_allocation_task`  (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `task_name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '任务名称',
+  `task_type` tinyint NOT NULL COMMENT '任务类型：1-批量分配 2-单个推荐 3-调宿优化',
+  `config_id` bigint NOT NULL COMMENT '使用的配置ID',
+  `target_enrollment_year` int NULL DEFAULT NULL COMMENT '目标入学年份',
+  `target_gender` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '目标性别：male/female/不限则为空',
+  `target_campus_code` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '目标校区编码',
+  `target_dept_code` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '目标院系编码',
+  `target_major_code` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '目标专业编码',
+  `target_floor_ids` json NULL COMMENT '目标楼层ID列表',
+  `target_building_codes` json NULL COMMENT '目标楼栋编码列表',
+  `status` tinyint NULL DEFAULT 0 COMMENT '状态：0-待执行 1-执行中 2-已完成 3-部分确认 4-全部确认 5-已取消',
+  `total_students` int NULL DEFAULT 0 COMMENT '待分配学生总数',
+  `total_beds` int NULL DEFAULT 0 COMMENT '可用床位总数',
+  `allocated_count` int NULL DEFAULT 0 COMMENT '已分配数',
+  `confirmed_count` int NULL DEFAULT 0 COMMENT '已确认数',
+  `failed_count` int NULL DEFAULT 0 COMMENT '分配失败数（无法匹配）',
+  `low_score_count` int NULL DEFAULT 0 COMMENT '低于阈值数',
+  `avg_match_score` decimal(5, 2) NULL DEFAULT NULL COMMENT '平均匹配分',
+  `min_match_score` decimal(5, 2) NULL DEFAULT NULL COMMENT '最低匹配分',
+  `max_match_score` decimal(5, 2) NULL DEFAULT NULL COMMENT '最高匹配分',
+  `start_time` datetime NULL DEFAULT NULL COMMENT '开始执行时间',
+  `end_time` datetime NULL DEFAULT NULL COMMENT '执行完成时间',
+  `execute_duration` int NULL DEFAULT NULL COMMENT '执行耗时（秒）',
+  `remark` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '备注',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `create_by` bigint NULL DEFAULT NULL COMMENT '创建人ID',
+  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `update_by` bigint NULL DEFAULT NULL COMMENT '更新人ID',
+  `deleted` tinyint NOT NULL DEFAULT 0 COMMENT '删除标记：0-未删除 1-已删除',
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `idx_config_id`(`config_id` ASC) USING BTREE,
+  INDEX `idx_status`(`status` ASC) USING BTREE,
+  INDEX `idx_task_type`(`task_type` ASC) USING BTREE,
+  INDEX `idx_create_time`(`create_time` ASC) USING BTREE,
+  INDEX `idx_enrollment_year`(`target_enrollment_year` ASC) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '分配任务表' ROW_FORMAT = DYNAMIC;
+
+-- ----------------------------
+-- Records of sys_allocation_task
 -- ----------------------------
 
 -- ----------------------------
@@ -134,7 +272,7 @@ CREATE TABLE `sys_approval_instance`  (
   INDEX `idx_current_node`(`current_node_id` ASC) USING BTREE,
   INDEX `idx_applicant_status`(`applicant_id` ASC, `status` ASC) USING BTREE,
   INDEX `idx_flow`(`flow_id` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 21 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '审批实例表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '审批实例表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_approval_instance
@@ -232,7 +370,7 @@ CREATE TABLE `sys_approval_record`  (
   INDEX `idx_approve_time`(`approve_time` ASC) USING BTREE,
   INDEX `idx_instance`(`instance_id` ASC) USING BTREE,
   INDEX `idx_approver_status`(`approver_id` ASC, `action` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 3 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '审批记录表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '审批记录表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_approval_record
@@ -275,11 +413,45 @@ CREATE TABLE `sys_bed`  (
   INDEX `idx_student_id`(`student_id` ASC) USING BTREE,
   INDEX `idx_room_status`(`room_id` ASC, `bed_status` ASC) USING BTREE,
   INDEX `idx_student`(`student_id` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 17 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '床位表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 35 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '床位表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_bed
 -- ----------------------------
+INSERT INTO `sys_bed` VALUES (1, 'F1-0101-1', '1', 1, 'F1-0101', 1, 'F1', 'CAMPUS001', NULL, 1, NULL, NULL, NULL, NULL, 1, 1, NULL, 0, '2026-02-04 10:51:56', 1, '2026-02-04 10:51:56', 1);
+INSERT INTO `sys_bed` VALUES (2, 'F1-0101-2', '2', 1, 'F1-0101', 1, 'F1', 'CAMPUS001', NULL, 1, NULL, NULL, NULL, NULL, 2, 1, NULL, 0, '2026-02-04 10:51:56', 1, '2026-02-04 10:51:56', 1);
+INSERT INTO `sys_bed` VALUES (3, 'F1-0101-3', '3', 1, 'F1-0101', 1, 'F1', 'CAMPUS001', NULL, 1, NULL, NULL, NULL, NULL, 3, 1, NULL, 0, '2026-02-04 10:51:56', 1, '2026-02-04 10:51:56', 1);
+INSERT INTO `sys_bed` VALUES (4, 'F1-0101-4', '4', 1, 'F1-0101', 1, 'F1', 'CAMPUS001', NULL, 1, NULL, NULL, NULL, NULL, 4, 1, NULL, 0, '2026-02-04 10:51:56', 1, '2026-02-04 10:51:56', 1);
+INSERT INTO `sys_bed` VALUES (5, 'F1-0101-5', '5', 1, 'F1-0101', 1, 'F1', 'CAMPUS001', NULL, 1, NULL, NULL, NULL, NULL, 5, 1, NULL, 0, '2026-02-04 10:51:56', 1, '2026-02-04 10:51:56', 1);
+INSERT INTO `sys_bed` VALUES (6, 'F1-0101-6', '6', 1, 'F1-0101', 1, 'F1', 'CAMPUS001', NULL, 1, NULL, NULL, NULL, NULL, 6, 1, NULL, 0, '2026-02-04 10:51:56', 1, '2026-02-04 10:51:56', 1);
+INSERT INTO `sys_bed` VALUES (7, 'F2-0101-1', '1', 31, 'F2-0101', 2, 'F2', 'CAMPUS001', NULL, 1, NULL, NULL, NULL, NULL, 1, 1, NULL, 0, '2026-02-04 10:51:59', 1, '2026-02-04 10:51:59', 1);
+INSERT INTO `sys_bed` VALUES (8, 'F2-0101-2', '2', 31, 'F2-0101', 2, 'F2', 'CAMPUS001', NULL, 1, NULL, NULL, NULL, NULL, 2, 1, NULL, 0, '2026-02-04 10:51:59', 1, '2026-02-04 10:51:59', 1);
+INSERT INTO `sys_bed` VALUES (9, 'F2-0101-3', '3', 31, 'F2-0101', 2, 'F2', 'CAMPUS001', NULL, 1, NULL, NULL, NULL, NULL, 3, 1, NULL, 0, '2026-02-04 10:51:59', 1, '2026-02-04 10:51:59', 1);
+INSERT INTO `sys_bed` VALUES (10, 'F2-0101-4', '4', 31, 'F2-0101', 2, 'F2', 'CAMPUS001', NULL, 1, NULL, NULL, NULL, NULL, 4, 1, NULL, 0, '2026-02-04 10:51:59', 1, '2026-02-04 10:51:59', 1);
+INSERT INTO `sys_bed` VALUES (11, 'F3-0101-1', '1', 56, 'F3-0101', 3, 'F3', 'CAMPUS001', NULL, 1, NULL, NULL, NULL, NULL, 1, 1, NULL, 0, '2026-02-04 10:52:01', 1, '2026-02-04 10:52:01', 1);
+INSERT INTO `sys_bed` VALUES (12, 'F3-0101-2', '2', 56, 'F3-0101', 3, 'F3', 'CAMPUS001', NULL, 1, NULL, NULL, NULL, NULL, 2, 1, NULL, 0, '2026-02-04 10:52:01', 1, '2026-02-04 10:52:01', 1);
+INSERT INTO `sys_bed` VALUES (13, 'F3-0101-3', '3', 56, 'F3-0101', 3, 'F3', 'CAMPUS001', NULL, 1, NULL, NULL, NULL, NULL, 3, 1, NULL, 0, '2026-02-04 10:52:01', 1, '2026-02-04 10:52:01', 1);
+INSERT INTO `sys_bed` VALUES (14, 'F3-0101-4', '4', 56, 'F3-0101', 3, 'F3', 'CAMPUS001', NULL, 1, NULL, NULL, NULL, NULL, 4, 1, NULL, 0, '2026-02-04 10:52:01', 1, '2026-02-04 10:52:01', 1);
+INSERT INTO `sys_bed` VALUES (15, 'F1-0102-1', '1', 2, 'F1-0102', 1, 'F1', 'CAMPUS001', NULL, 1, NULL, NULL, NULL, NULL, 1, 1, NULL, 0, '2026-02-04 10:52:04', 1, '2026-02-04 10:52:04', 1);
+INSERT INTO `sys_bed` VALUES (16, 'F1-0102-2', '2', 2, 'F1-0102', 1, 'F1', 'CAMPUS001', NULL, 1, NULL, NULL, NULL, NULL, 2, 1, NULL, 0, '2026-02-04 10:52:04', 1, '2026-02-04 10:52:04', 1);
+INSERT INTO `sys_bed` VALUES (17, 'F1-0102-3', '3', 2, 'F1-0102', 1, 'F1', 'CAMPUS001', NULL, 1, NULL, NULL, NULL, NULL, 3, 1, NULL, 0, '2026-02-04 10:52:04', 1, '2026-02-04 10:52:04', 1);
+INSERT INTO `sys_bed` VALUES (18, 'F1-0102-4', '4', 2, 'F1-0102', 1, 'F1', 'CAMPUS001', NULL, 1, NULL, NULL, NULL, NULL, 4, 1, NULL, 0, '2026-02-04 10:52:04', 1, '2026-02-04 10:52:04', 1);
+INSERT INTO `sys_bed` VALUES (19, 'F1-0102-5', '5', 2, 'F1-0102', 1, 'F1', 'CAMPUS001', NULL, 1, NULL, NULL, NULL, NULL, 5, 1, NULL, 0, '2026-02-04 10:52:04', 1, '2026-02-04 10:52:04', 1);
+INSERT INTO `sys_bed` VALUES (20, 'F1-0102-6', '6', 2, 'F1-0102', 1, 'F1', 'CAMPUS001', NULL, 1, NULL, NULL, NULL, NULL, 6, 1, NULL, 0, '2026-02-04 10:52:04', 1, '2026-02-04 10:52:04', 1);
+INSERT INTO `sys_bed` VALUES (21, 'F3-0102-1', '1', 57, 'F3-0102', 3, 'F3', 'CAMPUS001', NULL, 1, NULL, NULL, NULL, NULL, 1, 1, NULL, 0, '2026-02-04 10:52:06', 1, '2026-02-04 10:52:06', 1);
+INSERT INTO `sys_bed` VALUES (22, 'F3-0102-2', '2', 57, 'F3-0102', 3, 'F3', 'CAMPUS001', NULL, 1, NULL, NULL, NULL, NULL, 2, 1, NULL, 0, '2026-02-04 10:52:06', 1, '2026-02-04 10:52:06', 1);
+INSERT INTO `sys_bed` VALUES (23, 'F3-0102-3', '3', 57, 'F3-0102', 3, 'F3', 'CAMPUS001', NULL, 1, NULL, NULL, NULL, NULL, 3, 1, NULL, 0, '2026-02-04 10:52:06', 1, '2026-02-04 10:52:06', 1);
+INSERT INTO `sys_bed` VALUES (24, 'F3-0102-4', '4', 57, 'F3-0102', 3, 'F3', 'CAMPUS001', NULL, 1, NULL, NULL, NULL, NULL, 4, 1, NULL, 0, '2026-02-04 10:52:06', 1, '2026-02-04 10:52:06', 1);
+INSERT INTO `sys_bed` VALUES (25, 'F2-0103-1', '1', 33, 'F2-0103', 2, 'F2', 'CAMPUS001', NULL, 1, NULL, NULL, NULL, NULL, 1, 1, NULL, 0, '2026-02-04 10:52:09', 1, '2026-02-04 10:52:09', 1);
+INSERT INTO `sys_bed` VALUES (26, 'F2-0103-2', '2', 33, 'F2-0103', 2, 'F2', 'CAMPUS001', NULL, 1, NULL, NULL, NULL, NULL, 2, 1, NULL, 0, '2026-02-04 10:52:09', 1, '2026-02-04 10:52:09', 1);
+INSERT INTO `sys_bed` VALUES (27, 'F2-0103-3', '3', 33, 'F2-0103', 2, 'F2', 'CAMPUS001', NULL, 1, NULL, NULL, NULL, NULL, 3, 1, NULL, 0, '2026-02-04 10:52:09', 1, '2026-02-04 10:52:09', 1);
+INSERT INTO `sys_bed` VALUES (28, 'F2-0103-4', '4', 33, 'F2-0103', 2, 'F2', 'CAMPUS001', NULL, 1, NULL, NULL, NULL, NULL, 4, 1, NULL, 0, '2026-02-04 10:52:09', 1, '2026-02-04 10:52:09', 1);
+INSERT INTO `sys_bed` VALUES (29, 'F1-0104-1', '1', 4, 'F1-0104', 1, 'F1', 'CAMPUS001', NULL, 1, NULL, NULL, NULL, NULL, 1, 1, NULL, 0, '2026-02-04 10:52:11', 1, '2026-02-04 10:52:11', 1);
+INSERT INTO `sys_bed` VALUES (30, 'F1-0104-2', '2', 4, 'F1-0104', 1, 'F1', 'CAMPUS001', NULL, 1, NULL, NULL, NULL, NULL, 2, 1, NULL, 0, '2026-02-04 10:52:11', 1, '2026-02-04 10:52:11', 1);
+INSERT INTO `sys_bed` VALUES (31, 'F1-0104-3', '3', 4, 'F1-0104', 1, 'F1', 'CAMPUS001', NULL, 1, NULL, NULL, NULL, NULL, 3, 1, NULL, 0, '2026-02-04 10:52:11', 1, '2026-02-04 10:52:11', 1);
+INSERT INTO `sys_bed` VALUES (32, 'F1-0104-4', '4', 4, 'F1-0104', 1, 'F1', 'CAMPUS001', NULL, 1, NULL, NULL, NULL, NULL, 4, 1, NULL, 0, '2026-02-04 10:52:11', 1, '2026-02-04 10:52:11', 1);
+INSERT INTO `sys_bed` VALUES (33, 'F1-0104-5', '5', 4, 'F1-0104', 1, 'F1', 'CAMPUS001', NULL, 1, NULL, NULL, NULL, NULL, 5, 1, NULL, 0, '2026-02-04 10:52:11', 1, '2026-02-04 10:52:11', 1);
+INSERT INTO `sys_bed` VALUES (34, 'F1-0104-6', '6', 4, 'F1-0104', 1, 'F1', 'CAMPUS001', NULL, 1, NULL, NULL, NULL, NULL, 6, 1, NULL, 0, '2026-02-04 10:52:11', 1, '2026-02-04 10:52:11', 1);
 
 -- ----------------------------
 -- Table structure for sys_campus
@@ -349,7 +521,7 @@ CREATE TABLE `sys_check_in`  (
   INDEX `idx_student_status`(`student_id` ASC, `status` ASC) USING BTREE,
   INDEX `idx_apply_date`(`apply_date` ASC) USING BTREE,
   INDEX `idx_bed`(`bed_id` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 5 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '入住管理表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '入住管理表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_check_in
@@ -395,7 +567,7 @@ CREATE TABLE `sys_check_out`  (
   INDEX `idx_student_status`(`student_id` ASC, `status` ASC) USING BTREE,
   INDEX `idx_apply_date`(`apply_date` ASC) USING BTREE,
   INDEX `idx_bed`(`bed_id` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '退宿管理表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '退宿管理表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_check_out
@@ -490,7 +662,7 @@ CREATE TABLE `sys_dict_data`  (
   INDEX `idx_sort`(`sort` ASC) USING BTREE,
   INDEX `idx_type_sort`(`dict_code` ASC, `sort` ASC) USING BTREE,
   INDEX `idx_dict_value`(`value` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 319 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '字典数据表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 323 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '字典数据表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_dict_data
@@ -744,6 +916,10 @@ INSERT INTO `sys_dict_data` VALUES (315, 'repair_rating', '2星', '2', NULL, NUL
 INSERT INTO `sys_dict_data` VALUES (316, 'repair_rating', '3星', '3', NULL, NULL, 3, 0, 1, '一般', '2026-01-29 19:33:18', NULL, '2026-01-29 19:33:18', NULL, 0);
 INSERT INTO `sys_dict_data` VALUES (317, 'repair_rating', '4星', '4', NULL, NULL, 4, 0, 1, '满意', '2026-01-29 19:33:18', NULL, '2026-01-29 19:33:18', NULL, 0);
 INSERT INTO `sys_dict_data` VALUES (318, 'repair_rating', '5星', '5', NULL, NULL, 5, 0, 1, '非常满意', '2026-01-29 19:33:18', NULL, '2026-01-29 19:33:18', NULL, 0);
+INSERT INTO `sys_dict_data` VALUES (319, 'table_button_config', '复制', 'copy', 'bg-theme/12 text-theme', '', 9, 0, 1, 'ri:file-copy-2-line', '2026-02-03 11:08:29', 1, '2026-02-03 11:08:46', 1, 0);
+INSERT INTO `sys_dict_data` VALUES (320, 'student_study_environment', '不需要安静', '0', NULL, NULL, 0, 0, 1, NULL, '2026-02-03 17:14:37', NULL, '2026-02-03 17:14:37', NULL, 0);
+INSERT INTO `sys_dict_data` VALUES (321, 'sys_common_status', '正常', '1', NULL, 'success', 1, 1, 1, '正常/启用状态', '2026-02-03 20:00:00', NULL, '2026-02-03 20:00:00', NULL, 0);
+INSERT INTO `sys_dict_data` VALUES (322, 'sys_common_status', '停用', '0', NULL, 'danger', 2, 0, 1, '停用/禁用状态', '2026-02-03 20:00:00', NULL, '2026-02-03 20:00:00', NULL, 0);
 
 -- ----------------------------
 -- Table structure for sys_dict_type
@@ -763,7 +939,7 @@ CREATE TABLE `sys_dict_type`  (
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `uk_dict_code`(`dict_code` ASC, `deleted` ASC) USING BTREE,
   INDEX `idx_status`(`status` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 72 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '字典类型表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 73 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '字典类型表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_dict_type
@@ -822,6 +998,7 @@ INSERT INTO `sys_dict_type` VALUES (68, '维修类型', 'repair_type', 1, '报�
 INSERT INTO `sys_dict_type` VALUES (69, '报修状态', 'repair_status', 1, '报修单的状态：1-待接单 2-已接单 3-维修中 4-已完成 5-已取消', '2026-01-29 19:33:18', NULL, '2026-01-29 19:33:18', NULL, 0);
 INSERT INTO `sys_dict_type` VALUES (70, '紧急程度', 'repair_urgent_level', 1, '报修的紧急程度：1-一般 2-紧急 3-非常紧急', '2026-01-29 19:33:18', NULL, '2026-01-29 19:33:18', NULL, 0);
 INSERT INTO `sys_dict_type` VALUES (71, '维修评分', 'repair_rating', 1, '报修完成后的评分：1-5星', '2026-01-29 19:33:18', NULL, '2026-01-29 19:33:18', NULL, 0);
+INSERT INTO `sys_dict_type` VALUES (72, '系统状态', 'sys_common_status', 1, '通用的启用/停用状态，用于系统各模块', '2026-02-03 20:00:00', NULL, '2026-02-03 20:00:00', NULL, 0);
 
 -- ----------------------------
 -- Table structure for sys_floor
@@ -851,10 +1028,36 @@ CREATE TABLE `sys_floor`  (
   INDEX `idx_floor_code`(`floor_code` ASC) USING BTREE,
   INDEX `idx_campus`(`campus_code` ASC) USING BTREE,
   INDEX `idx_gender`(`gender_type` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '楼层表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 4 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '楼层表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_floor
+-- ----------------------------
+INSERT INTO `sys_floor` VALUES (1, 'F1', '1号楼', 6, 'CAMPUS001', 3, 30, 180, 0, 1, 1, '学生宿舍楼，共6层', 0, '2026-02-03 21:36:50', 1, '2026-02-03 21:36:50', 1);
+INSERT INTO `sys_floor` VALUES (2, 'F2', '2号楼', 5, 'CAMPUS001', 1, 25, 100, 0, 2, 1, '男生宿舍楼', 0, '2026-02-03 21:37:30', 1, '2026-02-03 21:37:30', 1);
+INSERT INTO `sys_floor` VALUES (3, 'F3', '3号楼', 5, 'CAMPUS001', 2, 25, 100, 0, 3, 1, '女生宿舍', 0, '2026-02-03 21:37:54', 1, '2026-02-03 21:37:54', 1);
+
+-- ----------------------------
+-- Table structure for sys_lifestyle_survey
+-- ----------------------------
+DROP TABLE IF EXISTS `sys_lifestyle_survey`;
+CREATE TABLE `sys_lifestyle_survey`  (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `student_id` bigint NOT NULL COMMENT '学生ID',
+  `survey_status` tinyint NULL DEFAULT 0 COMMENT '状态：0-未填写 1-已填写 2-已锁定（分配后）',
+  `submit_time` datetime NULL DEFAULT NULL COMMENT '首次提交时间',
+  `last_update_time` datetime NULL DEFAULT NULL COMMENT '最后修改时间',
+  `lock_time` datetime NULL DEFAULT NULL COMMENT '锁定时间（分配确认后锁定）',
+  `survey_version` int NULL DEFAULT 1 COMMENT '问卷版本号',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE INDEX `uk_student_id`(`student_id` ASC) USING BTREE,
+  INDEX `idx_survey_status`(`survey_status` ASC) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '生活习惯问卷状态表' ROW_FORMAT = DYNAMIC;
+
+-- ----------------------------
+-- Records of sys_lifestyle_survey
 -- ----------------------------
 
 -- ----------------------------
@@ -912,23 +1115,23 @@ CREATE TABLE `sys_menu`  (
   `deleted` tinyint NOT NULL DEFAULT 0 COMMENT '删除标记：0-未删除 1-已删除',
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `idx_parent_id`(`parent_id` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 157 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '系统菜单表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 178 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '系统菜单表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_menu
 -- ----------------------------
-INSERT INTO `sys_menu` VALUES (1, 0, '工作台', 'M', '/dashboard', '/index/index', '', 'ri:pie-chart-line', 1, 1, 1, 1, '2025-12-30 11:16:38', NULL, '2026-01-21 16:51:11', 1, 0);
+INSERT INTO `sys_menu` VALUES (1, 0, '工作台', 'M', '/dashboard', '/index/index', '', 'ri:pie-chart-line', 1, 1, 1, 1, '2025-12-30 11:16:38', NULL, '2026-02-03 23:16:47', 1, 0);
 INSERT INTO `sys_menu` VALUES (2, 1, '控制台', 'C', 'console', '/dashboard/console', 'dashboard:console:view', '', 1, 1, 1, 1, '2025-12-30 11:16:38', NULL, '2026-01-21 16:52:13', 1, 0);
-INSERT INTO `sys_menu` VALUES (3, 0, '系统管理', 'M', '/system', '/index/index', '', 'ri:user-3-line', 9, 1, 1, 1, '2025-12-30 11:16:38', NULL, '2026-01-29 18:40:43', 1, 0);
+INSERT INTO `sys_menu` VALUES (3, 0, '系统管理', 'M', '/system', '/index/index', '', 'ri:user-3-line', 11, 1, 1, 1, '2025-12-30 11:16:38', NULL, '2026-02-03 23:16:47', 1, 0);
 INSERT INTO `sys_menu` VALUES (4, 3, '用户管理', 'C', 'user', '/system/user', 'system:user:view', NULL, 1, 1, 1, 1, '2025-12-30 11:16:38', NULL, '2025-12-30 11:16:38', NULL, 0);
 INSERT INTO `sys_menu` VALUES (5, 3, '角色管理', 'C', 'role', '/system/role', 'system:role:view', NULL, 2, 1, 1, 1, '2025-12-30 11:16:38', NULL, '2025-12-30 11:16:38', NULL, 0);
 INSERT INTO `sys_menu` VALUES (6, 3, '菜单管理', 'C', 'menu', '/system/menu', 'system:menu:view', NULL, 3, 1, 1, 1, '2025-12-30 11:16:38', NULL, '2025-12-30 11:16:38', NULL, 0);
 INSERT INTO `sys_menu` VALUES (7, 3, '个人中心', 'C', 'user-center', '/system/user-center', 'system:user-center:view', '', 5, 0, 1, 1, '2025-12-30 11:16:38', NULL, '2025-12-31 14:44:02', NULL, 0);
-INSERT INTO `sys_menu` VALUES (8, 0, '异常页面', 'M', '/exception', '/index/index', '', 'ri:error-warning-line', 11, 1, 1, 1, '2025-12-30 11:16:38', NULL, '2026-01-29 19:02:33', 1, 0);
-INSERT INTO `sys_menu` VALUES (9, 8, '403', 'C', '403', '/exception/403', 'exception:403:view', NULL, 1, 1, 1, 1, '2025-12-30 11:16:38', NULL, '2025-12-30 11:16:38', NULL, 0);
-INSERT INTO `sys_menu` VALUES (10, 8, '404', 'C', '404', '/exception/404', 'exception:404:view', NULL, 2, 1, 1, 1, '2025-12-30 11:16:38', NULL, '2025-12-30 11:16:38', NULL, 0);
-INSERT INTO `sys_menu` VALUES (11, 8, '500', 'C', '500', '/exception/500', 'exception:500:view', NULL, 3, 1, 1, 1, '2025-12-30 11:16:38', NULL, '2025-12-30 11:16:38', NULL, 0);
-INSERT INTO `sys_menu` VALUES (12, 0, '结果页面', 'M', '/result', '/index/index', '', 'ri:checkbox-circle-line', 12, 1, 1, 1, '2025-12-30 11:16:38', NULL, '2026-01-29 19:02:36', 1, 0);
+INSERT INTO `sys_menu` VALUES (8, 0, '异常页面', 'M', '/exception', '/index/index', '', 'ri:error-warning-line', 12, 1, 1, 1, '2025-12-30 11:16:38', NULL, '2026-02-06 15:23:04', 1, 0);
+INSERT INTO `sys_menu` VALUES (9, 8, '403', 'C', '403', '/exception/403', 'exception:403:view', '', 1, 1, 1, 1, '2025-12-30 11:16:38', NULL, '2026-02-06 15:23:07', 1, 0);
+INSERT INTO `sys_menu` VALUES (10, 8, '404', 'C', '404', '/exception/404', 'exception:404:view', '', 2, 1, 1, 1, '2025-12-30 11:16:38', NULL, '2026-02-06 15:23:10', 1, 0);
+INSERT INTO `sys_menu` VALUES (11, 8, '500', 'C', '500', '/exception/500', 'exception:500:view', '', 3, 1, 1, 1, '2025-12-30 11:16:38', NULL, '2026-02-06 15:23:13', 1, 0);
+INSERT INTO `sys_menu` VALUES (12, 0, '结果页面', 'M', '/result', '/index/index', '', 'ri:checkbox-circle-line', 13, 1, 1, 1, '2025-12-30 11:16:38', NULL, '2026-02-03 23:16:47', 1, 0);
 INSERT INTO `sys_menu` VALUES (13, 12, '成功页', 'C', 'success', '/result/success', 'result:success:view', NULL, 1, 1, 1, 1, '2025-12-30 11:16:38', NULL, '2025-12-30 11:16:38', NULL, 0);
 INSERT INTO `sys_menu` VALUES (14, 12, '失败页', 'C', 'fail', '/result/fail', 'result:fail:view', NULL, 2, 1, 1, 1, '2025-12-30 11:16:38', NULL, '2025-12-30 11:16:38', NULL, 0);
 INSERT INTO `sys_menu` VALUES (15, 3, '字典管理', 'C', 'dict', '/system/dict', 'system:dict:view', NULL, 4, 1, 1, 1, '2025-12-31 14:42:15', NULL, '2025-12-31 14:42:15', NULL, 0);
@@ -949,7 +1152,7 @@ INSERT INTO `sys_menu` VALUES (46, 15, '删除字典类型', 'F', NULL, NULL, 's
 INSERT INTO `sys_menu` VALUES (47, 15, '新增字典数据', 'F', NULL, NULL, 'system:dict:data:add', NULL, 4, 1, 1, 1, '2025-12-31 17:12:12', NULL, '2025-12-31 17:12:12', NULL, 0);
 INSERT INTO `sys_menu` VALUES (48, 15, '编辑字典数据', 'F', NULL, NULL, 'system:dict:data:edit', NULL, 5, 1, 1, 1, '2025-12-31 17:12:12', NULL, '2025-12-31 17:12:12', NULL, 0);
 INSERT INTO `sys_menu` VALUES (49, 15, '删除字典数据', 'F', NULL, NULL, 'system:dict:data:delete', NULL, 6, 1, 1, 1, '2025-12-31 17:12:12', NULL, '2025-12-31 17:12:12', NULL, 0);
-INSERT INTO `sys_menu` VALUES (50, 0, '学校管理', 'M', '/school', '/index/index', '', 'ri:school-line', 7, 1, 1, 1, '2025-12-31 20:01:27', NULL, '2026-01-29 18:40:43', 1, 0);
+INSERT INTO `sys_menu` VALUES (50, 0, '学校管理', 'M', '/school', '/index/index', '', 'ri:school-line', 9, 1, 1, 1, '2025-12-31 20:01:27', NULL, '2026-02-03 23:16:47', 1, 0);
 INSERT INTO `sys_menu` VALUES (55, 67, '新增校区', 'F', NULL, NULL, 'system:campus:add', NULL, 1, 1, 1, 1, '2025-12-31 20:01:27', NULL, '2026-01-01 16:08:18', NULL, 0);
 INSERT INTO `sys_menu` VALUES (56, 67, '编辑校区', 'F', NULL, NULL, 'system:campus:edit', NULL, 2, 1, 1, 1, '2025-12-31 20:01:27', NULL, '2026-01-01 16:08:20', NULL, 0);
 INSERT INTO `sys_menu` VALUES (57, 67, '删除校区', 'F', NULL, NULL, 'system:campus:delete', NULL, 3, 1, 1, 1, '2025-12-31 20:01:27', NULL, '2026-01-01 16:08:29', NULL, 0);
@@ -971,9 +1174,9 @@ INSERT INTO `sys_menu` VALUES (84, 83, '查看详情', 'F', NULL, NULL, 'system:
 INSERT INTO `sys_menu` VALUES (85, 83, '删除日志', 'F', NULL, NULL, 'system:operlog:delete', NULL, 2, 1, 1, 1, '2026-01-01 19:53:03', NULL, '2026-01-01 19:53:03', NULL, 0);
 INSERT INTO `sys_menu` VALUES (86, 83, '清空日志', 'F', NULL, NULL, 'system:operlog:clean', NULL, 3, 1, 1, 1, '2026-01-01 19:53:03', NULL, '2026-01-01 19:53:03', NULL, 0);
 INSERT INTO `sys_menu` VALUES (87, 4, '分配管理', 'F', '', '', 'system:user:assign-scope', '', 5, 1, 1, 1, '2026-01-02 17:57:21', 1, '2026-01-02 17:57:21', 1, 0);
-INSERT INTO `sys_menu` VALUES (88, 0, '组织管理', 'M', '/organization', '/index/index', NULL, 'ri:organization-chart', 8, 1, 1, 1, '2026-01-03 12:45:25', NULL, '2026-01-29 18:40:43', NULL, 0);
+INSERT INTO `sys_menu` VALUES (88, 0, '组织管理', 'M', '/organization', '/index/index', NULL, 'ri:organization-chart', 10, 1, 1, 1, '2026-01-03 12:45:25', NULL, '2026-02-03 23:16:47', NULL, 0);
 INSERT INTO `sys_menu` VALUES (89, 50, '学年管理', 'C', 'academic-year', '/school/academic-year', NULL, '', 2, 1, 1, 1, '2026-01-03 12:45:29', NULL, '2026-01-03 20:56:04', NULL, 0);
-INSERT INTO `sys_menu` VALUES (90, 0, '宿舍管理', 'M', '/dormitory', '/index/index', '', 'ri:building-line', 3, 1, 1, 1, '2026-01-03 12:45:30', NULL, '2026-01-06 18:12:29', 1, 0);
+INSERT INTO `sys_menu` VALUES (90, 0, '宿舍管理', 'M', '/dormitory', '/index/index', '', 'ri:building-line', 4, 1, 1, 1, '2026-01-03 12:45:30', NULL, '2026-02-03 23:16:47', 1, 0);
 INSERT INTO `sys_menu` VALUES (94, 89, '新增学年', 'F', NULL, NULL, 'system:academic-year:add', NULL, 1, 1, 1, 1, '2026-01-03 20:51:45', NULL, '2026-01-03 20:51:45', NULL, 0);
 INSERT INTO `sys_menu` VALUES (95, 89, '编辑学年', 'F', NULL, NULL, 'system:academic-year:edit', NULL, 2, 1, 1, 1, '2026-01-03 20:51:45', NULL, '2026-01-03 20:51:45', NULL, 0);
 INSERT INTO `sys_menu` VALUES (96, 89, '删除学年', 'F', NULL, NULL, 'system:academic-year:delete', NULL, 3, 1, 1, 1, '2026-01-03 20:51:45', NULL, '2026-01-03 20:51:45', NULL, 0);
@@ -1001,38 +1204,57 @@ INSERT INTO `sys_menu` VALUES (117, 99, '导出', 'F', NULL, NULL, 'system:bed:e
 INSERT INTO `sys_menu` VALUES (118, 97, '批量增加房间', 'F', NULL, NULL, 'system:floor:batchAdd', NULL, 7, 1, 1, 1, '2026-01-06 04:01:38', NULL, '2026-01-06 04:01:38', NULL, 0);
 INSERT INTO `sys_menu` VALUES (119, 98, '批量增加床位', 'F', NULL, NULL, 'system:room:batchAdd', NULL, 7, 1, 1, 1, '2026-01-06 04:01:39', NULL, '2026-01-06 04:01:39', NULL, 0);
 INSERT INTO `sys_menu` VALUES (124, 4, '分配权限', 'F', '', '', 'system:user:assign-permission', '', 6, 1, 1, 1, '2026-01-06 14:29:02', 1, '2026-01-06 14:29:08', 1, 0);
-INSERT INTO `sys_menu` VALUES (125, 0, '住宿管理', 'M', '/accommodation', '/index/index', '', 'ri:community-line', 2, 1, 1, 1, '2026-01-06 17:55:18', NULL, '2026-01-06 18:18:50', 1, 0);
-INSERT INTO `sys_menu` VALUES (126, 125, '人员管理', 'C', 'student', '/accommodation/student', '', '', 1, 1, 1, 1, '2026-01-06 17:55:18', NULL, '2026-01-06 18:25:40', 1, 0);
-INSERT INTO `sys_menu` VALUES (127, 126, '新增学生', 'F', '', '', 'system:student:add', '', 1, 1, 1, 1, '2026-01-06 17:55:19', NULL, '2026-01-06 17:55:19', NULL, 0);
-INSERT INTO `sys_menu` VALUES (128, 126, '编辑学生', 'F', '', '', 'system:student:edit', '', 2, 1, 1, 1, '2026-01-06 17:55:19', NULL, '2026-01-06 17:55:19', NULL, 0);
-INSERT INTO `sys_menu` VALUES (129, 126, '删除学生', 'F', '', '', 'system:student:delete', '', 3, 1, 1, 1, '2026-01-06 17:55:19', NULL, '2026-01-06 17:55:19', NULL, 0);
-INSERT INTO `sys_menu` VALUES (130, 125, '入住管理', 'C', 'check-in', '/accommodation/check-in', '', '', 2, 1, 1, 1, '2026-01-06 17:55:19', NULL, '2026-01-06 18:25:46', 1, 0);
+INSERT INTO `sys_menu` VALUES (125, 0, '住宿管理', 'M', '/accommodation', '/index/index', '', 'ri:community-line', 2, 1, 1, 1, '2026-01-06 17:55:18', NULL, '2026-02-03 23:16:47', 1, 0);
+INSERT INTO `sys_menu` VALUES (126, 0, '学生管理', 'M', '/student', '/index/index', '', 'ri:user-follow-line', 3, 1, 1, 1, '2026-01-06 17:55:18', NULL, '2026-02-03 23:16:47', 1, 0);
+INSERT INTO `sys_menu` VALUES (127, 177, '新增学生', 'F', '', '', 'student:add', '', 1, 1, 1, 1, '2026-01-06 17:55:19', NULL, '2026-02-03 23:16:47', NULL, 0);
+INSERT INTO `sys_menu` VALUES (128, 177, '编辑学生', 'F', '', '', 'student:edit', '', 2, 1, 1, 1, '2026-01-06 17:55:19', NULL, '2026-02-03 23:16:47', NULL, 0);
+INSERT INTO `sys_menu` VALUES (129, 177, '删除学生', 'F', '', '', 'student:delete', '', 3, 1, 1, 1, '2026-01-06 17:55:19', NULL, '2026-02-03 23:16:47', NULL, 0);
+INSERT INTO `sys_menu` VALUES (130, 125, '入住管理', 'C', 'check-in', '/accommodation/check-in', '', '', 1, 1, 1, 1, '2026-01-06 17:55:19', NULL, '2026-02-03 23:16:47', 1, 0);
 INSERT INTO `sys_menu` VALUES (131, 130, '新增入住', 'F', '', '', 'system:checkIn:add', '', 1, 1, 1, 1, '2026-01-06 17:55:19', NULL, '2026-01-06 17:55:19', NULL, 0);
 INSERT INTO `sys_menu` VALUES (132, 130, '删除入住', 'F', '', '', 'system:checkIn:delete', '', 2, 1, 1, 1, '2026-01-06 17:55:19', NULL, '2026-01-06 17:55:19', NULL, 0);
-INSERT INTO `sys_menu` VALUES (133, 125, '调宿管理', 'C', 'transfer', '/accommodation/transfer', '', '', 3, 1, 1, 1, '2026-01-06 17:55:19', NULL, '2026-01-06 18:25:53', 1, 0);
+INSERT INTO `sys_menu` VALUES (133, 125, '调宿管理', 'C', 'transfer', '/accommodation/transfer', '', '', 2, 1, 1, 1, '2026-01-06 17:55:19', NULL, '2026-02-03 23:16:47', 1, 0);
 INSERT INTO `sys_menu` VALUES (134, 133, '新增调宿', 'F', '', '', 'system:transfer:add', '', 1, 1, 1, 1, '2026-01-06 17:55:19', NULL, '2026-01-06 17:55:19', NULL, 0);
 INSERT INTO `sys_menu` VALUES (135, 133, '删除调宿', 'F', '', '', 'system:transfer:delete', '', 2, 1, 1, 1, '2026-01-06 17:55:19', NULL, '2026-01-06 17:55:19', NULL, 0);
-INSERT INTO `sys_menu` VALUES (136, 125, '退宿管理', 'C', 'check-out', '/accommodation/check-out', '', '', 4, 1, 1, 1, '2026-01-06 17:55:19', NULL, '2026-01-06 18:26:01', 1, 0);
+INSERT INTO `sys_menu` VALUES (136, 125, '退宿管理', 'C', 'check-out', '/accommodation/check-out', '', '', 3, 1, 1, 1, '2026-01-06 17:55:19', NULL, '2026-02-03 23:16:47', 1, 0);
 INSERT INTO `sys_menu` VALUES (137, 136, '新增退宿', 'F', '', '', 'system:checkOut:add', '', 1, 1, 1, 1, '2026-01-06 17:55:19', NULL, '2026-01-06 17:55:19', NULL, 0);
 INSERT INTO `sys_menu` VALUES (138, 136, '删除退宿', 'F', '', '', 'system:checkOut:delete', '', 2, 1, 1, 1, '2026-01-06 17:55:19', NULL, '2026-01-06 17:55:19', NULL, 0);
-INSERT INTO `sys_menu` VALUES (139, 125, '留宿管理', 'C', 'stay', '/accommodation/stay', '', '', 5, 1, 1, 1, '2026-01-06 17:55:19', NULL, '2026-01-06 18:26:11', 1, 0);
+INSERT INTO `sys_menu` VALUES (139, 125, '留宿管理', 'C', 'stay', '/accommodation/stay', '', '', 4, 1, 1, 1, '2026-01-06 17:55:19', NULL, '2026-02-03 23:16:47', 1, 0);
 INSERT INTO `sys_menu` VALUES (140, 139, '新增留宿', 'F', '', '', 'system:stay:add', '', 1, 1, 1, 1, '2026-01-06 17:55:19', NULL, '2026-01-06 17:55:19', NULL, 0);
 INSERT INTO `sys_menu` VALUES (141, 139, '删除留宿', 'F', '', '', 'system:stay:delete', '', 2, 1, 1, 1, '2026-01-06 17:55:19', NULL, '2026-01-06 17:55:19', NULL, 0);
-INSERT INTO `sys_menu` VALUES (142, 0, '审批管理', 'M', '/approval', '/index/index', '', 'ri:flow-chart', 6, 1, 1, 1, '2026-01-17 16:30:53', NULL, '2026-01-25 22:24:46', 1, 0);
+INSERT INTO `sys_menu` VALUES (142, 0, '审批管理', 'M', '/approval', '/index/index', '', 'ri:flow-chart', 8, 1, 1, 1, '2026-01-17 16:30:53', NULL, '2026-02-03 23:16:47', 1, 0);
 INSERT INTO `sys_menu` VALUES (143, 142, '流程配置', 'C', 'flow-config', '/approval/flow-config', NULL, '', 1, 1, 1, 1, '2026-01-17 16:30:53', NULL, '2026-01-17 16:35:12', NULL, 0);
 INSERT INTO `sys_menu` VALUES (144, 142, '待办审批', 'C', 'pending', '/approval/pending', NULL, '', 2, 1, 1, 1, '2026-01-17 16:30:53', NULL, '2026-01-17 16:35:15', NULL, 0);
 INSERT INTO `sys_menu` VALUES (145, 142, '审批记录', 'C', 'history', '/approval/history', NULL, '', 3, 1, 1, 1, '2026-01-17 16:30:53', NULL, '2026-01-17 16:35:18', NULL, 0);
-INSERT INTO `sys_menu` VALUES (146, 0, '通知管理', 'M', '/notice', '/index/index', '', 'ri:notification-3-line', 5, 1, 1, 1, '2026-01-29 18:38:02', 1, '2026-01-29 18:40:43', NULL, 0);
+INSERT INTO `sys_menu` VALUES (146, 0, '通知管理', 'M', '/notice', '/index/index', '', 'ri:notification-3-line', 7, 1, 1, 1, '2026-01-29 18:38:02', 1, '2026-02-03 23:16:47', NULL, 0);
 INSERT INTO `sys_menu` VALUES (147, 146, '通知管理', 'C', 'manage', '/notice/manage', 'notice:manage:view', '', 1, 1, 1, 1, '2026-01-29 18:38:02', 1, '2026-01-31 15:49:55', NULL, 0);
 INSERT INTO `sys_menu` VALUES (148, 147, '新增通知', 'F', NULL, NULL, 'system:notice:add', NULL, 1, 1, 1, 1, '2026-01-29 18:38:02', 1, '2026-01-31 18:12:31', NULL, 0);
 INSERT INTO `sys_menu` VALUES (149, 147, '编辑通知', 'F', NULL, NULL, 'system:notice:edit', NULL, 2, 1, 1, 1, '2026-01-29 18:38:02', 1, '2026-01-31 18:12:33', NULL, 0);
 INSERT INTO `sys_menu` VALUES (150, 147, '删除通知', 'F', NULL, NULL, 'system:notice:delete', NULL, 3, 1, 1, 1, '2026-01-29 18:38:02', 1, '2026-01-31 18:12:35', NULL, 0);
 INSERT INTO `sys_menu` VALUES (151, 147, '发布/下架', 'F', NULL, NULL, 'system:notice:publish', NULL, 4, 1, 1, 1, '2026-01-29 18:38:02', 1, '2026-01-31 18:12:37', NULL, 0);
-INSERT INTO `sys_menu` VALUES (152, 0, '报修管理', 'M', '/repair', '/index/index', '', 'ri:tools-line', 4, 1, 1, 1, '2026-01-29 18:38:02', 1, '2026-01-29 18:40:43', NULL, 0);
+INSERT INTO `sys_menu` VALUES (152, 0, '报修管理', 'M', '/repair', '/index/index', '', 'ri:tools-line', 5, 1, 1, 1, '2026-01-29 18:38:02', 1, '2026-02-03 23:16:47', NULL, 0);
 INSERT INTO `sys_menu` VALUES (153, 152, '报修工单', 'C', 'manage', '/repair/manage', 'repair:manage:view', '', 1, 1, 1, 1, '2026-01-29 18:38:02', 1, '2026-01-31 15:49:55', NULL, 0);
 INSERT INTO `sys_menu` VALUES (154, 153, '接单', 'F', NULL, NULL, 'system:repair:accept', NULL, 1, 1, 1, 1, '2026-01-29 18:38:02', 1, '2026-01-31 18:12:41', NULL, 0);
 INSERT INTO `sys_menu` VALUES (155, 153, '完成维修', 'F', NULL, NULL, 'system:repair:complete', NULL, 2, 1, 1, 1, '2026-01-29 18:38:02', 1, '2026-01-31 18:12:42', NULL, 0);
 INSERT INTO `sys_menu` VALUES (156, 153, '删除工单', 'F', NULL, NULL, 'system:repair:delete', NULL, 3, 1, 1, 1, '2026-01-29 18:38:02', 1, '2026-01-31 18:12:45', NULL, 0);
+INSERT INTO `sys_menu` VALUES (157, 0, '智能分配', 'M', '/allocation', '/index/index', '', 'ri:robot-line', 6, 1, 1, 1, '2026-02-02 23:03:29', 1, '2026-02-03 23:16:47', 1, 0);
+INSERT INTO `sys_menu` VALUES (158, 157, '分配配置', 'C', 'config', '/allocation/config', 'allocation:config:view', '', 1, 1, 1, 1, '2026-02-02 23:03:29', 1, '2026-02-03 15:05:59', 1, 0);
+INSERT INTO `sys_menu` VALUES (159, 158, '新增配置', 'F', NULL, NULL, 'allocation:config:add', NULL, 1, 1, 1, 1, '2026-02-02 23:03:29', 1, '2026-02-02 23:03:29', NULL, 0);
+INSERT INTO `sys_menu` VALUES (160, 158, '编辑配置', 'F', NULL, NULL, 'allocation:config:edit', NULL, 2, 1, 1, 1, '2026-02-02 23:03:29', 1, '2026-02-02 23:03:29', NULL, 0);
+INSERT INTO `sys_menu` VALUES (161, 158, '删除配置', 'F', NULL, NULL, 'allocation:config:delete', NULL, 3, 1, 1, 1, '2026-02-02 23:03:29', 1, '2026-02-02 23:03:29', NULL, 0);
+INSERT INTO `sys_menu` VALUES (162, 157, '分配任务', 'C', 'task', '/allocation/task', 'allocation:task:view', '', 2, 1, 1, 1, '2026-02-02 23:03:29', 1, '2026-02-03 15:06:04', 1, 0);
+INSERT INTO `sys_menu` VALUES (163, 162, '创建任务', 'F', NULL, NULL, 'allocation:task:add', NULL, 1, 1, 1, 1, '2026-02-02 23:03:29', 1, '2026-02-02 23:03:29', NULL, 0);
+INSERT INTO `sys_menu` VALUES (164, 162, '执行分配', 'F', NULL, NULL, 'allocation:task:execute', NULL, 2, 1, 1, 1, '2026-02-02 23:03:29', 1, '2026-02-02 23:03:29', NULL, 0);
+INSERT INTO `sys_menu` VALUES (165, 162, '取消任务', 'F', NULL, NULL, 'allocation:task:cancel', NULL, 3, 1, 1, 1, '2026-02-02 23:03:29', 1, '2026-02-02 23:03:29', NULL, 0);
+INSERT INTO `sys_menu` VALUES (166, 162, '删除任务', 'F', NULL, NULL, 'allocation:task:delete', NULL, 4, 1, 1, 1, '2026-02-02 23:03:29', 1, '2026-02-02 23:03:29', NULL, 0);
+INSERT INTO `sys_menu` VALUES (167, 157, '分配结果', 'C', 'result', '/allocation/result', 'allocation:result:view', '', 3, 1, 1, 1, '2026-02-02 23:03:29', 1, '2026-02-03 15:06:08', 1, 0);
+INSERT INTO `sys_menu` VALUES (168, 167, '查看详情', 'F', NULL, NULL, 'allocation:result:detail', NULL, 1, 1, 1, 1, '2026-02-02 23:03:29', 1, '2026-02-02 23:03:29', NULL, 0);
+INSERT INTO `sys_menu` VALUES (169, 167, '导出结果', 'F', NULL, NULL, 'allocation:result:export', NULL, 2, 1, 1, 1, '2026-02-02 23:03:29', 1, '2026-02-02 23:03:29', NULL, 0);
+INSERT INTO `sys_menu` VALUES (170, 167, '调整分配', 'F', NULL, NULL, 'allocation:result:adjust', NULL, 3, 1, 1, 1, '2026-02-02 23:03:29', 1, '2026-02-02 23:03:29', NULL, 0);
+INSERT INTO `sys_menu` VALUES (171, 167, '确认分配', 'F', NULL, NULL, 'allocation:result:confirm', NULL, 4, 1, 1, 1, '2026-02-02 23:03:29', 1, '2026-02-02 23:03:29', NULL, 0);
+INSERT INTO `sys_menu` VALUES (172, 157, '问卷管理', 'C', 'survey', '/allocation/survey', 'allocation:survey:view', '', 4, 1, 1, 1, '2026-02-02 23:03:29', 1, '2026-02-03 15:06:12', 1, 0);
+INSERT INTO `sys_menu` VALUES (173, 172, '查看问卷', 'F', NULL, NULL, 'allocation:survey:detail', NULL, 1, 1, 1, 1, '2026-02-02 23:03:29', 1, '2026-02-02 23:03:29', NULL, 0);
+INSERT INTO `sys_menu` VALUES (174, 172, '统计分析', 'F', NULL, NULL, 'allocation:survey:statistics', NULL, 2, 1, 1, 1, '2026-02-02 23:03:29', 1, '2026-02-02 23:03:29', NULL, 0);
+INSERT INTO `sys_menu` VALUES (177, 126, '学生管理', 'C', 'manage', '/student/manage', 'student:manage:view', '', 1, 1, 1, 1, '2026-02-03 23:16:47', NULL, '2026-02-03 23:16:47', NULL, 0);
 
 -- ----------------------------
 -- Table structure for sys_notice
@@ -1064,7 +1286,7 @@ CREATE TABLE `sys_notice`  (
   INDEX `idx_publish_time`(`publish_time` ASC) USING BTREE,
   INDEX `idx_is_top`(`is_top` ASC) USING BTREE,
   INDEX `idx_type_status_top`(`notice_type` ASC, `status` ASC, `is_top` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 4 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '通知公告表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '通知公告表' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of sys_notice
@@ -1126,11 +1348,54 @@ CREATE TABLE `sys_oper_log`  (
   INDEX `idx_oper_name`(`oper_name` ASC) USING BTREE,
   INDEX `idx_status_time`(`status` ASC, `oper_time` ASC) USING BTREE,
   INDEX `idx_title`(`title` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 333 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '操作日志记录表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 44 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '操作日志记录表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_oper_log
 -- ----------------------------
+INSERT INTO `sys_oper_log` VALUES (1, '分配角色权限', 0, 'com.project.backend.system.controller.RoleController.assignPermissions()', 'PUT', 1, 'superAdmin', 1, '/api/v1/system/role/1/permissions', '0:0:0:0:0:0:0:1', '', '1 [1,2,125,126,127,128,129,130,131,132,133,134,135,136,137,138,139,140,141,90,97,100,101,102,103,104,105,118,98,106,107,108,109,110,111,119,99,112,113,114,115,116,117,152,153,154,155,156,146,147,148,149,150,151,157,158,159,160,161,162,163,164,165,166,167,168,169,170,171,172,173,174,142,143,144,145,50,67,55,56,57,89,94,95,96,88,68,58,59,60,69,61,62,63,70,64,65,66,3,4,16,17,18,19,87,124,5,37,38,39,40,6,41,42,43,15,44,45,46,47,48,49,7,83,84,85,86,8,9,10,11,12,13,14]', '{\"code\":200,\"message\":\"权限分配成功\",\"data\":null,\"timestamp\":1770044895971}', 0, '', '2026-02-02 23:08:16', 150);
+INSERT INTO `sys_oper_log` VALUES (2, '分配用户权限', 0, 'com.project.backend.system.controller.UserController.assignUserPermissions()', 'PUT', 1, 'superAdmin', 1, '/api/v1/system/user/1/permissions', '0:0:0:0:0:0:0:1', '', '1 [1,2,125,126,127,128,129,130,131,132,133,134,135,136,137,138,139,140,141,90,97,100,101,102,103,104,105,118,98,106,107,108,109,110,111,119,99,112,113,114,115,116,117,152,153,154,155,156,146,147,148,149,150,151,157,158,159,160,161,162,163,164,165,166,167,168,169,170,171,172,173,174,142,143,144,145,50,67,55,56,57,89,94,95,96,88,68,58,59,60,69,61,62,63,70,64,65,66,3,4,16,17,18,19,87,124,5,37,38,39,40,6,41,42,43,15,44,45,46,47,48,49,7,83,84,85,86,8,9,10,11,12,13,14]', '{\"code\":200,\"message\":\"权限分配成功\",\"data\":null,\"timestamp\":1770044903681}', 0, '', '2026-02-02 23:08:24', 112);
+INSERT INTO `sys_oper_log` VALUES (3, '修改状态', 2, 'com.project.backend.allocation.controller.AllocationConfigController.updateStatus()', 'PUT', 1, 'superAdmin', 1, '/api/v1/system/allocation/config/1/status/0', '0:0:0:0:0:0:0:1', '', '1 0', '{\"code\":200,\"message\":\"分配配置已停用\",\"data\":null,\"timestamp\":1770047378747}', 0, '', '2026-02-02 23:49:39', 10);
+INSERT INTO `sys_oper_log` VALUES (4, '修改状态', 2, 'com.project.backend.allocation.controller.AllocationConfigController.updateStatus()', 'PUT', 1, 'superAdmin', 1, '/api/v1/system/allocation/config/1/status/1', '0:0:0:0:0:0:0:1', '', '1 1', '{\"code\":200,\"message\":\"分配配置已启用\",\"data\":null,\"timestamp\":1770047379313}', 0, '', '2026-02-02 23:49:39', 6);
+INSERT INTO `sys_oper_log` VALUES (5, '新增字典数据', 1, 'com.project.backend.system.controller.DictDataController.add()', 'POST', 1, 'superAdmin', 1, '/api/v1/system/dict/data', '0:0:0:0:0:0:0:1', '', '{\"id\":null,\"dictCode\":\"table_button_config\",\"label\":\"复制\",\"value\":\"copy\",\"cssClass\":\"\",\"listClass\":\"\",\"sort\":9,\"isDefault\":0,\"status\":1,\"remark\":\"ri:file-copy-2-line\"}', '{\"code\":200,\"message\":\"字典数据新增成功\",\"data\":null,\"timestamp\":1770088109152}', 0, '', '2026-02-03 11:08:29', 25);
+INSERT INTO `sys_oper_log` VALUES (6, '编辑字典数据', 2, 'com.project.backend.system.controller.DictDataController.update()', 'PUT', 1, 'superAdmin', 1, '/api/v1/system/dict/data/319', '0:0:0:0:0:0:0:1', '', '319 {\"id\":319,\"dictCode\":\"table_button_config\",\"label\":\"复制\",\"value\":\"copy\",\"cssClass\":\"bg-theme/12 text-theme\",\"listClass\":\"\",\"sort\":9,\"isDefault\":0,\"status\":1,\"remark\":\"ri:file-copy-2-line\"}', '{\"code\":200,\"message\":\"字典数据编辑成功\",\"data\":null,\"timestamp\":1770088126485}', 0, '', '2026-02-03 11:08:46', 11);
+INSERT INTO `sys_oper_log` VALUES (7, '分配角色权限', 0, 'com.project.backend.system.controller.RoleController.assignPermissions()', 'PUT', 1, 'superAdmin', 1, '/api/v1/system/role/1/permissions', '0:0:0:0:0:0:0:1', '', '1 [1,2,125,126,127,128,129,130,131,132,133,134,135,136,137,138,139,140,141,90,97,100,101,102,103,104,105,118,98,106,107,108,109,110,111,119,99,112,113,114,115,116,117,152,153,154,155,156,146,147,148,149,150,151,157,158,159,160,161,162,163,164,165,166,167,168,169,170,171,172,173,174,175,142,143,144,145,50,67,55,56,57,89,94,95,96,88,68,58,59,60,69,61,62,63,70,64,65,66,3,4,16,17,18,19,87,124,5,37,38,39,40,6,41,42,43,15,44,45,46,47,48,49,7,83,84,85,86,8,9,10,11,12,13,14]', '{\"code\":200,\"message\":\"权限分配成功\",\"data\":null,\"timestamp\":1770100999590}', 0, '', '2026-02-03 14:43:20', 142);
+INSERT INTO `sys_oper_log` VALUES (8, '分配用户权限', 0, 'com.project.backend.system.controller.UserController.assignUserPermissions()', 'PUT', 1, 'superAdmin', 1, '/api/v1/system/user/1/permissions', '0:0:0:0:0:0:0:1', '', '1 [1,2,125,126,127,128,129,130,131,132,133,134,135,136,137,138,139,140,141,90,97,100,101,102,103,104,105,118,98,106,107,108,109,110,111,119,99,112,113,114,115,116,117,152,153,154,155,156,146,147,148,149,150,151,157,158,159,160,161,162,163,164,165,166,167,168,169,170,171,172,173,174,175,142,143,144,145,50,67,55,56,57,89,94,95,96,88,68,58,59,60,69,61,62,63,70,64,65,66,3,4,16,17,18,19,87,124,5,37,38,39,40,6,41,42,43,15,44,45,46,47,48,49,7,83,84,85,86,8,9,10,11,12,13,14]', '{\"code\":200,\"message\":\"权限分配成功\",\"data\":null,\"timestamp\":1770101009117}', 0, '', '2026-02-03 14:43:29', 101);
+INSERT INTO `sys_oper_log` VALUES (9, '编辑菜单', 2, 'com.project.backend.system.controller.MenuController.update()', 'PUT', 1, 'superAdmin', 1, '/api/v1/system/menu/157', '0:0:0:0:0:0:0:1', '', '157 {\"id\":157,\"parentId\":0,\"menuName\":\"智能分配\",\"menuType\":\"M\",\"path\":\"/allocation\",\"component\":\"/index/index\",\"permission\":\"\",\"icon\":\"ri:robot-line\",\"sort\":5,\"visible\":1,\"status\":1,\"keepAlive\":1}', '{\"code\":200,\"message\":\"菜单编辑成功\",\"data\":null,\"timestamp\":1770102322837}', 0, '', '2026-02-03 15:05:23', 11);
+INSERT INTO `sys_oper_log` VALUES (10, '编辑菜单', 2, 'com.project.backend.system.controller.MenuController.update()', 'PUT', 1, 'superAdmin', 1, '/api/v1/system/menu/158', '0:0:0:0:0:0:0:1', '', '158 {\"id\":158,\"parentId\":157,\"menuName\":\"分配配置\",\"menuType\":\"C\",\"path\":\"config\",\"component\":\"/allocation/config\",\"permission\":\"allocation:config:view\",\"icon\":\"\",\"sort\":1,\"visible\":1,\"status\":1,\"keepAlive\":1}', '{\"code\":200,\"message\":\"菜单编辑成功\",\"data\":null,\"timestamp\":1770102359154}', 0, '', '2026-02-03 15:05:59', 3);
+INSERT INTO `sys_oper_log` VALUES (11, '编辑菜单', 2, 'com.project.backend.system.controller.MenuController.update()', 'PUT', 1, 'superAdmin', 1, '/api/v1/system/menu/162', '0:0:0:0:0:0:0:1', '', '162 {\"id\":162,\"parentId\":157,\"menuName\":\"分配任务\",\"menuType\":\"C\",\"path\":\"task\",\"component\":\"/allocation/task\",\"permission\":\"allocation:task:view\",\"icon\":\"\",\"sort\":2,\"visible\":1,\"status\":1,\"keepAlive\":1}', '{\"code\":200,\"message\":\"菜单编辑成功\",\"data\":null,\"timestamp\":1770102363543}', 0, '', '2026-02-03 15:06:04', 4);
+INSERT INTO `sys_oper_log` VALUES (12, '编辑菜单', 2, 'com.project.backend.system.controller.MenuController.update()', 'PUT', 1, 'superAdmin', 1, '/api/v1/system/menu/167', '0:0:0:0:0:0:0:1', '', '167 {\"id\":167,\"parentId\":157,\"menuName\":\"分配结果\",\"menuType\":\"C\",\"path\":\"result\",\"component\":\"/allocation/result\",\"permission\":\"allocation:result:view\",\"icon\":\"\",\"sort\":3,\"visible\":1,\"status\":1,\"keepAlive\":1}', '{\"code\":200,\"message\":\"菜单编辑成功\",\"data\":null,\"timestamp\":1770102367920}', 0, '', '2026-02-03 15:06:08', 4);
+INSERT INTO `sys_oper_log` VALUES (13, '编辑菜单', 2, 'com.project.backend.system.controller.MenuController.update()', 'PUT', 1, 'superAdmin', 1, '/api/v1/system/menu/172', '0:0:0:0:0:0:0:1', '', '172 {\"id\":172,\"parentId\":157,\"menuName\":\"问卷管理\",\"menuType\":\"C\",\"path\":\"survey\",\"component\":\"/allocation/survey\",\"permission\":\"allocation:survey:view\",\"icon\":\"\",\"sort\":4,\"visible\":1,\"status\":1,\"keepAlive\":1}', '{\"code\":200,\"message\":\"菜单编辑成功\",\"data\":null,\"timestamp\":1770102372495}', 0, '', '2026-02-03 15:06:12', 4);
+INSERT INTO `sys_oper_log` VALUES (14, '分配角色权限', 0, 'com.project.backend.system.controller.RoleController.assignPermissions()', 'PUT', 1, 'superAdmin', 1, '/api/v1/system/role/1/permissions', '0:0:0:0:0:0:0:1', '', '1 []', '{\"code\":200,\"message\":\"权限分配成功\",\"data\":null,\"timestamp\":1770102399054}', 0, '', '2026-02-03 15:06:39', 14);
+INSERT INTO `sys_oper_log` VALUES (15, '分配角色权限', 0, 'com.project.backend.system.controller.RoleController.assignPermissions()', 'PUT', 1, 'superAdmin', 1, '/api/v1/system/role/1/permissions', '0:0:0:0:0:0:0:1', '', '1 [1,2,125,126,127,128,129,130,131,132,133,134,135,136,137,138,139,140,141,90,97,100,101,102,103,104,105,118,98,106,107,108,109,110,111,119,99,112,113,114,115,116,117,152,153,154,155,156,146,147,148,149,150,151,157,158,159,160,161,162,163,164,165,166,167,168,169,170,171,172,173,174,142,143,144,145,50,67,55,56,57,89,94,95,96,88,68,58,59,60,69,61,62,63,70,64,65,66,3,4,16,17,18,19,87,124,5,37,38,39,40,6,41,42,43,15,44,45,46,47,48,49,7,83,84,85,86,8,9,10,11,12,13,14]', '{\"code\":200,\"message\":\"权限分配成功\",\"data\":null,\"timestamp\":1770102401740}', 0, '', '2026-02-03 15:06:42', 84);
+INSERT INTO `sys_oper_log` VALUES (16, '分配用户权限', 0, 'com.project.backend.system.controller.UserController.assignUserPermissions()', 'PUT', 1, 'superAdmin', 1, '/api/v1/system/user/1/permissions', '0:0:0:0:0:0:0:1', '', '1 [1,2,125,126,127,128,129,130,131,132,133,134,135,136,137,138,139,140,141,90,97,100,101,102,103,104,105,118,98,106,107,108,109,110,111,119,99,112,113,114,115,116,117,152,153,154,155,156,146,147,148,149,150,151,157,158,159,160,161,162,163,164,165,166,167,168,169,170,171,172,173,174,142,143,144,145,50,67,55,56,57,89,94,95,96,88,68,58,59,60,69,61,62,63,70,64,65,66,3,4,16,17,18,19,87,124,5,37,38,39,40,6,41,42,43,15,44,45,46,47,48,49,7,83,84,85,86,8,9,10,11,12,13,14]', '{\"code\":200,\"message\":\"权限分配成功\",\"data\":null,\"timestamp\":1770102408869}', 0, '', '2026-02-03 15:06:49', 124);
+INSERT INTO `sys_oper_log` VALUES (17, '分配配置管理-编辑分配配置(ID:1)', 2, 'com.project.backend.allocation.controller.AllocationConfigController.update()', 'PUT', 1, 'superAdmin', 1, '/api/v1/system/allocation/config/1', '0:0:0:0:0:0:0:1', '', '1 {\"id\":1,\"configName\":\"默认配置模板\",\"smokingConstraint\":1,\"genderConstraint\":1,\"sleepHardConstraint\":0,\"sleepWeight\":30,\"smokingWeight\":20,\"cleanlinessWeight\":15,\"socialWeight\":15,\"studyWeight\":10,\"entertainmentWeight\":10,\"algorithmType\":\"kmeans\",\"sameDeptBonus\":5,\"sameMajorBonus\":10,\"sameClassBonus\":15,\"minMatchScore\":60,\"remark\":\"系统默认配置，可作为创建新配置的模板\"}', '{\"code\":200,\"message\":\"分配配置编辑成功\",\"data\":null,\"timestamp\":1770118258379}', 0, '', '2026-02-03 19:30:58', 20);
+INSERT INTO `sys_oper_log` VALUES (18, '修改状态', 2, 'com.project.backend.school.controller.AcademicYearController.updateStatus()', 'PUT', 1, 'superAdmin', 1, '/api/v1/system/academic-year/14/status/1', '0:0:0:0:0:0:0:1', '', '14 1', '{\"code\":200,\"message\":\"学年已启用\",\"data\":null,\"timestamp\":1770123679525}', 0, '', '2026-02-03 21:01:20', 13);
+INSERT INTO `sys_oper_log` VALUES (19, '修改状态', 2, 'com.project.backend.school.controller.AcademicYearController.updateStatus()', 'PUT', 1, 'superAdmin', 1, '/api/v1/system/academic-year/14/status/0', '0:0:0:0:0:0:0:1', '', '14 0', '{\"code\":200,\"message\":\"学年已停用\",\"data\":null,\"timestamp\":1770123680298}', 0, '', '2026-02-03 21:01:20', 20);
+INSERT INTO `sys_oper_log` VALUES (20, '楼层管理-新增楼层', 1, 'com.project.backend.room.controller.FloorController.add()', 'POST', 1, 'superAdmin', 1, '/api/v1/system/floor', '0:0:0:0:0:0:0:1', '', '{\"id\":null,\"floorCode\":\"F1\",\"floorName\":\"1号楼\",\"floorNumber\":6,\"campusCode\":\"CAMPUS001\",\"genderType\":3,\"sort\":1,\"status\":1,\"remark\":\"学生宿舍楼，共6层\"}', '{\"code\":200,\"message\":\"楼层新增成功\",\"data\":null,\"timestamp\":1770125809861}', 0, '', '2026-02-03 21:36:50', 3);
+INSERT INTO `sys_oper_log` VALUES (21, '楼层管理-新增楼层', 1, 'com.project.backend.room.controller.FloorController.add()', 'POST', 1, 'superAdmin', 1, '/api/v1/system/floor', '0:0:0:0:0:0:0:1', '', '{\"id\":null,\"floorCode\":\"F2\",\"floorName\":\"2号楼\",\"floorNumber\":5,\"campusCode\":\"CAMPUS001\",\"genderType\":1,\"sort\":2,\"status\":1,\"remark\":\"男生宿舍楼\"}', '{\"code\":200,\"message\":\"楼层新增成功\",\"data\":null,\"timestamp\":1770125849896}', 0, '', '2026-02-03 21:37:30', 18);
+INSERT INTO `sys_oper_log` VALUES (22, '楼层管理-新增楼层', 1, 'com.project.backend.room.controller.FloorController.add()', 'POST', 1, 'superAdmin', 1, '/api/v1/system/floor', '0:0:0:0:0:0:0:1', '', '{\"id\":null,\"floorCode\":\"F3\",\"floorName\":\"3号楼\",\"floorNumber\":5,\"campusCode\":\"CAMPUS001\",\"genderType\":2,\"sort\":3,\"status\":1,\"remark\":\"女生宿舍\"}', '{\"code\":200,\"message\":\"楼层新增成功\",\"data\":null,\"timestamp\":1770125873761}', 0, '', '2026-02-03 21:37:54', 0);
+INSERT INTO `sys_oper_log` VALUES (23, '分配用户权限', 0, 'com.project.backend.system.controller.UserController.assignUserPermissions()', 'PUT', 1, 'superAdmin', 1, '/api/v1/system/user/1/permissions', '0:0:0:0:0:0:0:1', '', '1 [1,2,125,130,131,132,133,134,135,136,137,138,139,140,141,126,90,97,100,101,102,103,104,105,118,98,106,107,108,109,110,111,119,99,112,113,114,115,116,117,152,153,154,155,156,157,158,159,160,161,162,163,164,165,166,167,168,169,170,171,172,173,174,146,147,148,149,150,151,142,143,144,145,50,67,55,56,57,89,94,95,96,88,68,58,59,60,69,61,62,63,70,64,65,66,3,4,16,17,18,19,87,124,5,37,38,39,40,6,41,42,43,15,44,45,46,47,48,49,7,83,84,85,86,8,9,10,11,12,13,14]', '{\"code\":200,\"message\":\"权限分配成功\",\"data\":null,\"timestamp\":1770132206903}', 0, '', '2026-02-03 23:23:27', 132);
+INSERT INTO `sys_oper_log` VALUES (24, '分配角色权限', 0, 'com.project.backend.system.controller.RoleController.assignPermissions()', 'PUT', 1, 'superAdmin', 1, '/api/v1/system/role/1/permissions', '0:0:0:0:0:0:0:1', '', '1 [1,2,125,130,131,132,133,134,135,136,137,138,139,140,141,126,177,127,128,129,90,97,100,101,102,103,104,105,118,98,106,107,108,109,110,111,119,99,112,113,114,115,116,117,152,153,154,155,156,157,158,159,160,161,162,163,164,165,166,167,168,169,170,171,172,173,174,146,147,148,149,150,151,142,143,144,145,50,67,55,56,57,89,94,95,96,88,68,58,59,60,69,61,62,63,70,64,65,66,3,4,16,17,18,19,87,124,5,37,38,39,40,6,41,42,43,15,44,45,46,47,48,49,7,83,84,85,86,8,9,10,11,12,13,14]', '{\"code\":200,\"message\":\"权限分配成功\",\"data\":null,\"timestamp\":1770132225756}', 0, '', '2026-02-03 23:23:46', 96);
+INSERT INTO `sys_oper_log` VALUES (25, '分配用户权限', 0, 'com.project.backend.system.controller.UserController.assignUserPermissions()', 'PUT', 1, 'superAdmin', 1, '/api/v1/system/user/1/permissions', '0:0:0:0:0:0:0:1', '', '1 [1,2,125,130,131,132,133,134,135,136,137,138,139,140,141,126,177,127,128,129,90,97,100,101,102,103,104,105,118,98,106,107,108,109,110,111,119,99,112,113,114,115,116,117,152,153,154,155,156,157,158,159,160,161,162,163,164,165,166,167,168,169,170,171,172,173,174,146,147,148,149,150,151,142,143,144,145,50,67,55,56,57,89,94,95,96,88,68,58,59,60,69,61,62,63,70,64,65,66,3,4,16,17,18,19,87,124,5,37,38,39,40,6,41,42,43,15,44,45,46,47,48,49,7,83,84,85,86,8,9,10,11,12,13,14]', '{\"code\":200,\"message\":\"权限分配成功\",\"data\":null,\"timestamp\":1770132233864}', 0, '', '2026-02-03 23:23:54', 90);
+INSERT INTO `sys_oper_log` VALUES (26, '编辑菜单', 2, 'com.project.backend.system.controller.MenuController.update()', 'PUT', 1, 'superAdmin', 1, '/api/v1/system/menu/8', '0:0:0:0:0:0:0:1', '', '8 {\"id\":8,\"parentId\":0,\"menuName\":\"异常页面\",\"menuType\":\"M\",\"path\":\"/exception\",\"component\":\"/index/index\",\"permission\":\"\",\"icon\":\"ri:error-warning-line\",\"sort\":12,\"visible\":0,\"status\":1,\"keepAlive\":1}', '{\"code\":200,\"message\":\"菜单编辑成功\",\"data\":null,\"timestamp\":1770174481611}', 0, '', '2026-02-04 11:08:02', 25);
+INSERT INTO `sys_oper_log` VALUES (27, '编辑菜单', 2, 'com.project.backend.system.controller.MenuController.update()', 'PUT', 1, 'superAdmin', 1, '/api/v1/system/menu/8', '0:0:0:0:0:0:0:1', '', '8 {\"id\":8,\"parentId\":0,\"menuName\":\"异常页面\",\"menuType\":\"M\",\"path\":\"/exception\",\"component\":\"/index/index\",\"permission\":\"\",\"icon\":\"ri:error-warning-line\",\"sort\":12,\"visible\":1,\"status\":1,\"keepAlive\":1}', '{\"code\":200,\"message\":\"菜单编辑成功\",\"data\":null,\"timestamp\":1770174486227}', 0, '', '2026-02-04 11:08:06', 5);
+INSERT INTO `sys_oper_log` VALUES (28, '编辑菜单', 2, 'com.project.backend.system.controller.MenuController.update()', 'PUT', 1, 'superAdmin', 1, '/api/v1/system/menu/8', '0:0:0:0:0:0:0:1', '', '8 {\"id\":8,\"parentId\":0,\"menuName\":\"异常页面\",\"menuType\":\"M\",\"path\":\"/exception\",\"component\":\"/index/index\",\"permission\":\"\",\"icon\":\"ri:error-warning-line\",\"sort\":12,\"visible\":0,\"status\":1,\"keepAlive\":1}', '{\"code\":200,\"message\":\"菜单编辑成功\",\"data\":null,\"timestamp\":1770359292150}', 0, '', '2026-02-06 14:28:12', 202);
+INSERT INTO `sys_oper_log` VALUES (29, '编辑菜单', 2, 'com.project.backend.system.controller.MenuController.update()', 'PUT', 1, 'superAdmin', 1, '/api/v1/system/menu/8', '0:0:0:0:0:0:0:1', '', '8 {\"id\":8,\"parentId\":0,\"menuName\":\"异常页面\",\"menuType\":\"M\",\"path\":\"/exception\",\"component\":\"/index/index\",\"permission\":\"\",\"icon\":\"ri:error-warning-line\",\"sort\":12,\"visible\":1,\"status\":1,\"keepAlive\":1}', '{\"code\":200,\"message\":\"菜单编辑成功\",\"data\":null,\"timestamp\":1770359305275}', 0, '', '2026-02-06 14:28:25', 8);
+INSERT INTO `sys_oper_log` VALUES (30, '编辑菜单', 2, 'com.project.backend.system.controller.MenuController.update()', 'PUT', 1, 'superAdmin', 1, '/api/v1/system/menu/8', '0:0:0:0:0:0:0:1', '', '8 {\"id\":8,\"parentId\":0,\"menuName\":\"异常页面\",\"menuType\":\"M\",\"path\":\"/exception\",\"component\":\"/index/index\",\"permission\":\"\",\"icon\":\"ri:error-warning-line\",\"sort\":12,\"visible\":0,\"status\":1,\"keepAlive\":1}', '{\"code\":200,\"message\":\"菜单编辑成功\",\"data\":null,\"timestamp\":1770359319370}', 0, '', '2026-02-06 14:28:39', 5);
+INSERT INTO `sys_oper_log` VALUES (31, '编辑菜单', 2, 'com.project.backend.system.controller.MenuController.update()', 'PUT', 1, 'superAdmin', 1, '/api/v1/system/menu/9', '0:0:0:0:0:0:0:1', '', '9 {\"id\":9,\"parentId\":8,\"menuName\":\"403\",\"menuType\":\"C\",\"path\":\"403\",\"component\":\"/exception/403\",\"permission\":\"exception:403:view\",\"icon\":\"\",\"sort\":1,\"visible\":0,\"status\":1,\"keepAlive\":1}', '{\"code\":200,\"message\":\"菜单编辑成功\",\"data\":null,\"timestamp\":1770359351684}', 0, '', '2026-02-06 14:29:12', 6);
+INSERT INTO `sys_oper_log` VALUES (32, '编辑菜单', 2, 'com.project.backend.system.controller.MenuController.update()', 'PUT', 1, 'superAdmin', 1, '/api/v1/system/menu/10', '0:0:0:0:0:0:0:1', '', '10 {\"id\":10,\"parentId\":8,\"menuName\":\"404\",\"menuType\":\"C\",\"path\":\"404\",\"component\":\"/exception/404\",\"permission\":\"exception:404:view\",\"icon\":\"\",\"sort\":2,\"visible\":0,\"status\":1,\"keepAlive\":1}', '{\"code\":200,\"message\":\"菜单编辑成功\",\"data\":null,\"timestamp\":1770359354923}', 0, '', '2026-02-06 14:29:15', 6);
+INSERT INTO `sys_oper_log` VALUES (33, '编辑菜单', 2, 'com.project.backend.system.controller.MenuController.update()', 'PUT', 1, 'superAdmin', 1, '/api/v1/system/menu/11', '0:0:0:0:0:0:0:1', '', '11 {\"id\":11,\"parentId\":8,\"menuName\":\"500\",\"menuType\":\"C\",\"path\":\"500\",\"component\":\"/exception/500\",\"permission\":\"exception:500:view\",\"icon\":\"\",\"sort\":3,\"visible\":0,\"status\":1,\"keepAlive\":1}', '{\"code\":200,\"message\":\"菜单编辑成功\",\"data\":null,\"timestamp\":1770359358153}', 0, '', '2026-02-06 14:29:18', 4);
+INSERT INTO `sys_oper_log` VALUES (34, '编辑菜单', 2, 'com.project.backend.system.controller.MenuController.update()', 'PUT', 1, 'superAdmin', 1, '/api/v1/system/menu/8', '0:0:0:0:0:0:0:1', '', '8 {\"id\":8,\"parentId\":0,\"menuName\":\"异常页面\",\"menuType\":\"M\",\"path\":\"/exception\",\"component\":\"/index/index\",\"permission\":\"\",\"icon\":\"ri:error-warning-line\",\"sort\":12,\"visible\":1,\"status\":1,\"keepAlive\":1}', '{\"code\":200,\"message\":\"菜单编辑成功\",\"data\":null,\"timestamp\":1770359374481}', 0, '', '2026-02-06 14:29:34', 4);
+INSERT INTO `sys_oper_log` VALUES (35, '编辑菜单', 2, 'com.project.backend.system.controller.MenuController.update()', 'PUT', 1, 'superAdmin', 1, '/api/v1/system/menu/9', '0:0:0:0:0:0:0:1', '', '9 {\"id\":9,\"parentId\":8,\"menuName\":\"403\",\"menuType\":\"C\",\"path\":\"403\",\"component\":\"/exception/403\",\"permission\":\"exception:403:view\",\"icon\":\"\",\"sort\":1,\"visible\":1,\"status\":1,\"keepAlive\":1}', '{\"code\":200,\"message\":\"菜单编辑成功\",\"data\":null,\"timestamp\":1770359386145}', 0, '', '2026-02-06 14:29:46', 4);
+INSERT INTO `sys_oper_log` VALUES (36, '编辑菜单', 2, 'com.project.backend.system.controller.MenuController.update()', 'PUT', 1, 'superAdmin', 1, '/api/v1/system/menu/10', '0:0:0:0:0:0:0:1', '', '10 {\"id\":10,\"parentId\":8,\"menuName\":\"404\",\"menuType\":\"C\",\"path\":\"404\",\"component\":\"/exception/404\",\"permission\":\"exception:404:view\",\"icon\":\"\",\"sort\":2,\"visible\":1,\"status\":1,\"keepAlive\":1}', '{\"code\":200,\"message\":\"菜单编辑成功\",\"data\":null,\"timestamp\":1770359400860}', 0, '', '2026-02-06 14:30:01', 0);
+INSERT INTO `sys_oper_log` VALUES (37, '编辑菜单', 2, 'com.project.backend.system.controller.MenuController.update()', 'PUT', 1, 'superAdmin', 1, '/api/v1/system/menu/11', '0:0:0:0:0:0:0:1', '', '11 {\"id\":11,\"parentId\":8,\"menuName\":\"500\",\"menuType\":\"C\",\"path\":\"500\",\"component\":\"/exception/500\",\"permission\":\"exception:500:view\",\"icon\":\"\",\"sort\":3,\"visible\":1,\"status\":1,\"keepAlive\":1}', '{\"code\":200,\"message\":\"菜单编辑成功\",\"data\":null,\"timestamp\":1770359403610}', 0, '', '2026-02-06 14:30:04', 4);
+INSERT INTO `sys_oper_log` VALUES (38, '编辑菜单', 2, 'com.project.backend.system.controller.MenuController.update()', 'PUT', 1, 'superAdmin', 1, '/api/v1/system/menu/9', '0:0:0:0:0:0:0:1', '', '9 {\"id\":9,\"parentId\":8,\"menuName\":\"403\",\"menuType\":\"C\",\"path\":\"403\",\"component\":\"/exception/403\",\"permission\":\"exception:403:view\",\"icon\":\"\",\"sort\":1,\"visible\":1,\"status\":1,\"keepAlive\":1}', '{\"code\":200,\"message\":\"菜单编辑成功\",\"data\":null,\"timestamp\":1770359747154}', 0, '', '2026-02-06 14:35:47', 8);
+INSERT INTO `sys_oper_log` VALUES (39, '编辑菜单', 2, 'com.project.backend.system.controller.MenuController.update()', 'PUT', 1, 'superAdmin', 1, '/api/v1/system/menu/8', '0:0:0:0:0:0:0:1', '', '8 {\"id\":8,\"parentId\":0,\"menuName\":\"异常页面\",\"menuType\":\"M\",\"path\":\"/exception\",\"component\":\"/index/index\",\"permission\":\"\",\"icon\":\"ri:error-warning-line\",\"sort\":12,\"visible\":0,\"status\":1,\"keepAlive\":1}', '{\"code\":200,\"message\":\"菜单编辑成功\",\"data\":null,\"timestamp\":1770362580589}', 0, '', '2026-02-06 15:23:01', 86);
+INSERT INTO `sys_oper_log` VALUES (40, '编辑菜单', 2, 'com.project.backend.system.controller.MenuController.update()', 'PUT', 1, 'superAdmin', 1, '/api/v1/system/menu/8', '0:0:0:0:0:0:0:1', '', '8 {\"id\":8,\"parentId\":0,\"menuName\":\"异常页面\",\"menuType\":\"M\",\"path\":\"/exception\",\"component\":\"/index/index\",\"permission\":\"\",\"icon\":\"ri:error-warning-line\",\"sort\":12,\"visible\":1,\"status\":1,\"keepAlive\":1}', '{\"code\":200,\"message\":\"菜单编辑成功\",\"data\":null,\"timestamp\":1770362583995}', 0, '', '2026-02-06 15:23:04', 6);
+INSERT INTO `sys_oper_log` VALUES (41, '编辑菜单', 2, 'com.project.backend.system.controller.MenuController.update()', 'PUT', 1, 'superAdmin', 1, '/api/v1/system/menu/9', '0:0:0:0:0:0:0:1', '', '9 {\"id\":9,\"parentId\":8,\"menuName\":\"403\",\"menuType\":\"C\",\"path\":\"403\",\"component\":\"/exception/403\",\"permission\":\"exception:403:view\",\"icon\":\"\",\"sort\":1,\"visible\":1,\"status\":1,\"keepAlive\":1}', '{\"code\":200,\"message\":\"菜单编辑成功\",\"data\":null,\"timestamp\":1770362587074}', 0, '', '2026-02-06 15:23:07', 7);
+INSERT INTO `sys_oper_log` VALUES (42, '编辑菜单', 2, 'com.project.backend.system.controller.MenuController.update()', 'PUT', 1, 'superAdmin', 1, '/api/v1/system/menu/10', '0:0:0:0:0:0:0:1', '', '10 {\"id\":10,\"parentId\":8,\"menuName\":\"404\",\"menuType\":\"C\",\"path\":\"404\",\"component\":\"/exception/404\",\"permission\":\"exception:404:view\",\"icon\":\"\",\"sort\":2,\"visible\":1,\"status\":1,\"keepAlive\":1}', '{\"code\":200,\"message\":\"菜单编辑成功\",\"data\":null,\"timestamp\":1770362589998}', 0, '', '2026-02-06 15:23:10', 5);
+INSERT INTO `sys_oper_log` VALUES (43, '编辑菜单', 2, 'com.project.backend.system.controller.MenuController.update()', 'PUT', 1, 'superAdmin', 1, '/api/v1/system/menu/11', '0:0:0:0:0:0:0:1', '', '11 {\"id\":11,\"parentId\":8,\"menuName\":\"500\",\"menuType\":\"C\",\"path\":\"500\",\"component\":\"/exception/500\",\"permission\":\"exception:500:view\",\"icon\":\"\",\"sort\":3,\"visible\":1,\"status\":1,\"keepAlive\":1}', '{\"code\":200,\"message\":\"菜单编辑成功\",\"data\":null,\"timestamp\":1770362592619}', 0, '', '2026-02-06 15:23:13', 6);
 
 -- ----------------------------
 -- Table structure for sys_repair
@@ -1172,7 +1437,7 @@ CREATE TABLE `sys_repair`  (
   INDEX `idx_room`(`room_id` ASC) USING BTREE,
   INDEX `idx_type_urgent`(`repair_type` ASC, `urgent_level` ASC) USING BTREE,
   INDEX `idx_repair_time`(`create_time` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '报修管理表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '报修管理表' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of sys_repair
@@ -1230,7 +1495,7 @@ CREATE TABLE `sys_role_menu`  (
   INDEX `idx_deleted`(`deleted` ASC) USING BTREE,
   INDEX `idx_role_deleted`(`role_id` ASC, `deleted` ASC) USING BTREE,
   INDEX `idx_menu_deleted`(`menu_id` ASC, `deleted` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 2414 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '角色菜单关联表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 2952 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '角色菜单关联表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_role_menu
@@ -1340,238 +1605,275 @@ INSERT INTO `sys_role_menu` VALUES (2055, 6, 11, '2026-01-17 22:54:57', NULL, NU
 INSERT INTO `sys_role_menu` VALUES (2056, 6, 12, '2026-01-17 22:54:57', NULL, NULL, NULL, 0);
 INSERT INTO `sys_role_menu` VALUES (2057, 6, 13, '2026-01-17 22:54:57', NULL, NULL, NULL, 0);
 INSERT INTO `sys_role_menu` VALUES (2058, 6, 14, '2026-01-17 22:54:57', NULL, NULL, NULL, 0);
-INSERT INTO `sys_role_menu` VALUES (2182, 1, 1, '2026-01-31 15:51:25', '2026-01-31 15:51:25', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2183, 1, 2, '2026-01-31 15:51:25', '2026-01-31 15:51:25', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2184, 1, 125, '2026-01-31 15:51:25', '2026-01-31 15:51:25', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2185, 1, 126, '2026-01-31 15:51:25', '2026-01-31 15:51:25', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2186, 1, 127, '2026-01-31 15:51:25', '2026-01-31 15:51:25', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2187, 1, 128, '2026-01-31 15:51:25', '2026-01-31 15:51:25', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2188, 1, 129, '2026-01-31 15:51:25', '2026-01-31 15:51:25', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2189, 1, 130, '2026-01-31 15:51:25', '2026-01-31 15:51:25', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2190, 1, 131, '2026-01-31 15:51:25', '2026-01-31 15:51:25', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2191, 1, 132, '2026-01-31 15:51:25', '2026-01-31 15:51:25', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2192, 1, 133, '2026-01-31 15:51:25', '2026-01-31 15:51:25', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2193, 1, 134, '2026-01-31 15:51:25', '2026-01-31 15:51:25', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2194, 1, 135, '2026-01-31 15:51:25', '2026-01-31 15:51:25', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2195, 1, 136, '2026-01-31 15:51:25', '2026-01-31 15:51:25', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2196, 1, 137, '2026-01-31 15:51:25', '2026-01-31 15:51:25', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2197, 1, 138, '2026-01-31 15:51:25', '2026-01-31 15:51:25', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2198, 1, 139, '2026-01-31 15:51:25', '2026-01-31 15:51:25', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2199, 1, 140, '2026-01-31 15:51:25', '2026-01-31 15:51:25', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2200, 1, 141, '2026-01-31 15:51:25', '2026-01-31 15:51:25', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2201, 1, 90, '2026-01-31 15:51:25', '2026-01-31 15:51:25', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2202, 1, 97, '2026-01-31 15:51:25', '2026-01-31 15:51:25', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2203, 1, 100, '2026-01-31 15:51:25', '2026-01-31 15:51:25', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2204, 1, 101, '2026-01-31 15:51:25', '2026-01-31 15:51:25', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2205, 1, 102, '2026-01-31 15:51:25', '2026-01-31 15:51:25', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2206, 1, 103, '2026-01-31 15:51:25', '2026-01-31 15:51:25', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2207, 1, 104, '2026-01-31 15:51:25', '2026-01-31 15:51:25', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2208, 1, 105, '2026-01-31 15:51:25', '2026-01-31 15:51:25', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2209, 1, 118, '2026-01-31 15:51:25', '2026-01-31 15:51:25', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2210, 1, 98, '2026-01-31 15:51:25', '2026-01-31 15:51:25', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2211, 1, 106, '2026-01-31 15:51:25', '2026-01-31 15:51:25', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2212, 1, 107, '2026-01-31 15:51:25', '2026-01-31 15:51:25', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2213, 1, 108, '2026-01-31 15:51:25', '2026-01-31 15:51:25', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2214, 1, 109, '2026-01-31 15:51:25', '2026-01-31 15:51:25', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2215, 1, 110, '2026-01-31 15:51:25', '2026-01-31 15:51:25', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2216, 1, 111, '2026-01-31 15:51:25', '2026-01-31 15:51:25', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2217, 1, 119, '2026-01-31 15:51:25', '2026-01-31 15:51:25', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2218, 1, 99, '2026-01-31 15:51:25', '2026-01-31 15:51:25', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2219, 1, 112, '2026-01-31 15:51:25', '2026-01-31 15:51:25', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2220, 1, 113, '2026-01-31 15:51:25', '2026-01-31 15:51:25', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2221, 1, 114, '2026-01-31 15:51:25', '2026-01-31 15:51:25', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2222, 1, 115, '2026-01-31 15:51:25', '2026-01-31 15:51:25', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2223, 1, 116, '2026-01-31 15:51:25', '2026-01-31 15:51:25', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2224, 1, 117, '2026-01-31 15:51:25', '2026-01-31 15:51:25', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2225, 1, 152, '2026-01-31 15:51:25', '2026-01-31 15:51:25', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2226, 1, 153, '2026-01-31 15:51:25', '2026-01-31 15:51:25', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2227, 1, 154, '2026-01-31 15:51:25', '2026-01-31 15:51:25', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2228, 1, 155, '2026-01-31 15:51:25', '2026-01-31 15:51:25', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2229, 1, 156, '2026-01-31 15:51:25', '2026-01-31 15:51:25', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2230, 1, 146, '2026-01-31 15:51:25', '2026-01-31 15:51:25', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2231, 1, 147, '2026-01-31 15:51:25', '2026-01-31 15:51:25', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2232, 1, 148, '2026-01-31 15:51:25', '2026-01-31 15:51:25', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2233, 1, 149, '2026-01-31 15:51:25', '2026-01-31 15:51:25', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2234, 1, 150, '2026-01-31 15:51:25', '2026-01-31 15:51:25', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2235, 1, 151, '2026-01-31 15:51:25', '2026-01-31 15:51:25', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2236, 1, 142, '2026-01-31 15:51:25', '2026-01-31 15:51:25', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2237, 1, 143, '2026-01-31 15:51:25', '2026-01-31 15:51:25', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2238, 1, 144, '2026-01-31 15:51:25', '2026-01-31 15:51:25', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2239, 1, 145, '2026-01-31 15:51:25', '2026-01-31 15:51:25', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2240, 1, 50, '2026-01-31 15:51:25', '2026-01-31 15:51:25', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2241, 1, 67, '2026-01-31 15:51:25', '2026-01-31 15:51:25', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2242, 1, 55, '2026-01-31 15:51:25', '2026-01-31 15:51:25', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2243, 1, 56, '2026-01-31 15:51:25', '2026-01-31 15:51:25', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2244, 1, 57, '2026-01-31 15:51:25', '2026-01-31 15:51:25', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2245, 1, 89, '2026-01-31 15:51:25', '2026-01-31 15:51:25', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2246, 1, 94, '2026-01-31 15:51:25', '2026-01-31 15:51:25', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2247, 1, 95, '2026-01-31 15:51:25', '2026-01-31 15:51:25', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2248, 1, 96, '2026-01-31 15:51:25', '2026-01-31 15:51:25', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2249, 1, 88, '2026-01-31 15:51:25', '2026-01-31 15:51:25', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2250, 1, 68, '2026-01-31 15:51:25', '2026-01-31 15:51:25', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2251, 1, 58, '2026-01-31 15:51:25', '2026-01-31 15:51:25', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2252, 1, 59, '2026-01-31 15:51:25', '2026-01-31 15:51:25', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2253, 1, 60, '2026-01-31 15:51:25', '2026-01-31 15:51:25', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2254, 1, 69, '2026-01-31 15:51:25', '2026-01-31 15:51:25', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2255, 1, 61, '2026-01-31 15:51:25', '2026-01-31 15:51:25', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2256, 1, 62, '2026-01-31 15:51:25', '2026-01-31 15:51:25', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2257, 1, 63, '2026-01-31 15:51:25', '2026-01-31 15:51:25', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2258, 1, 70, '2026-01-31 15:51:25', '2026-01-31 15:51:25', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2259, 1, 64, '2026-01-31 15:51:25', '2026-01-31 15:51:25', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2260, 1, 65, '2026-01-31 15:51:25', '2026-01-31 15:51:25', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2261, 1, 66, '2026-01-31 15:51:25', '2026-01-31 15:51:25', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2262, 1, 3, '2026-01-31 15:51:25', '2026-01-31 15:51:25', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2263, 1, 4, '2026-01-31 15:51:25', '2026-01-31 15:51:25', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2264, 1, 16, '2026-01-31 15:51:25', '2026-01-31 15:51:25', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2265, 1, 17, '2026-01-31 15:51:25', '2026-01-31 15:51:25', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2266, 1, 18, '2026-01-31 15:51:25', '2026-01-31 15:51:25', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2267, 1, 19, '2026-01-31 15:51:25', '2026-01-31 15:51:25', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2268, 1, 87, '2026-01-31 15:51:25', '2026-01-31 15:51:25', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2269, 1, 124, '2026-01-31 15:51:25', '2026-01-31 15:51:25', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2270, 1, 5, '2026-01-31 15:51:25', '2026-01-31 15:51:25', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2271, 1, 37, '2026-01-31 15:51:25', '2026-01-31 15:51:25', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2272, 1, 38, '2026-01-31 15:51:26', '2026-01-31 15:51:26', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2273, 1, 39, '2026-01-31 15:51:26', '2026-01-31 15:51:26', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2274, 1, 40, '2026-01-31 15:51:26', '2026-01-31 15:51:26', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2275, 1, 6, '2026-01-31 15:51:26', '2026-01-31 15:51:26', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2276, 1, 41, '2026-01-31 15:51:26', '2026-01-31 15:51:26', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2277, 1, 42, '2026-01-31 15:51:26', '2026-01-31 15:51:26', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2278, 1, 43, '2026-01-31 15:51:26', '2026-01-31 15:51:26', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2279, 1, 15, '2026-01-31 15:51:26', '2026-01-31 15:51:26', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2280, 1, 44, '2026-01-31 15:51:26', '2026-01-31 15:51:26', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2281, 1, 45, '2026-01-31 15:51:26', '2026-01-31 15:51:26', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2282, 1, 46, '2026-01-31 15:51:26', '2026-01-31 15:51:26', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2283, 1, 47, '2026-01-31 15:51:26', '2026-01-31 15:51:26', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2284, 1, 48, '2026-01-31 15:51:26', '2026-01-31 15:51:26', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2285, 1, 49, '2026-01-31 15:51:26', '2026-01-31 15:51:26', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2286, 1, 7, '2026-01-31 15:51:26', '2026-01-31 15:51:26', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2287, 1, 83, '2026-01-31 15:51:26', '2026-01-31 15:51:26', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2288, 1, 84, '2026-01-31 15:51:26', '2026-01-31 15:51:26', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2289, 1, 85, '2026-01-31 15:51:26', '2026-01-31 15:51:26', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2290, 1, 86, '2026-01-31 15:51:26', '2026-01-31 15:51:26', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2291, 1, 8, '2026-01-31 15:51:26', '2026-01-31 15:51:26', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2292, 1, 9, '2026-01-31 15:51:26', '2026-01-31 15:51:26', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2293, 1, 10, '2026-01-31 15:51:26', '2026-01-31 15:51:26', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2294, 1, 11, '2026-01-31 15:51:26', '2026-01-31 15:51:26', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2295, 1, 12, '2026-01-31 15:51:26', '2026-01-31 15:51:26', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2296, 1, 13, '2026-01-31 15:51:26', '2026-01-31 15:51:26', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2297, 1, 14, '2026-01-31 15:51:26', '2026-01-31 15:51:26', 1, 1, 1);
-INSERT INTO `sys_role_menu` VALUES (2298, 1, 1, '2026-01-31 17:56:39', '2026-01-31 17:56:39', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2299, 1, 2, '2026-01-31 17:56:39', '2026-01-31 17:56:39', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2300, 1, 125, '2026-01-31 17:56:39', '2026-01-31 17:56:39', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2301, 1, 126, '2026-01-31 17:56:39', '2026-01-31 17:56:39', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2302, 1, 127, '2026-01-31 17:56:39', '2026-01-31 17:56:39', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2303, 1, 128, '2026-01-31 17:56:39', '2026-01-31 17:56:39', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2304, 1, 129, '2026-01-31 17:56:39', '2026-01-31 17:56:39', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2305, 1, 130, '2026-01-31 17:56:39', '2026-01-31 17:56:39', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2306, 1, 131, '2026-01-31 17:56:39', '2026-01-31 17:56:39', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2307, 1, 132, '2026-01-31 17:56:39', '2026-01-31 17:56:39', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2308, 1, 133, '2026-01-31 17:56:39', '2026-01-31 17:56:39', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2309, 1, 134, '2026-01-31 17:56:39', '2026-01-31 17:56:39', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2310, 1, 135, '2026-01-31 17:56:39', '2026-01-31 17:56:39', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2311, 1, 136, '2026-01-31 17:56:39', '2026-01-31 17:56:39', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2312, 1, 137, '2026-01-31 17:56:39', '2026-01-31 17:56:39', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2313, 1, 138, '2026-01-31 17:56:39', '2026-01-31 17:56:39', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2314, 1, 139, '2026-01-31 17:56:39', '2026-01-31 17:56:39', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2315, 1, 140, '2026-01-31 17:56:39', '2026-01-31 17:56:39', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2316, 1, 141, '2026-01-31 17:56:39', '2026-01-31 17:56:39', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2317, 1, 90, '2026-01-31 17:56:39', '2026-01-31 17:56:39', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2318, 1, 97, '2026-01-31 17:56:39', '2026-01-31 17:56:39', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2319, 1, 100, '2026-01-31 17:56:39', '2026-01-31 17:56:39', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2320, 1, 101, '2026-01-31 17:56:39', '2026-01-31 17:56:39', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2321, 1, 102, '2026-01-31 17:56:39', '2026-01-31 17:56:39', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2322, 1, 103, '2026-01-31 17:56:39', '2026-01-31 17:56:39', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2323, 1, 104, '2026-01-31 17:56:39', '2026-01-31 17:56:39', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2324, 1, 105, '2026-01-31 17:56:39', '2026-01-31 17:56:39', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2325, 1, 118, '2026-01-31 17:56:39', '2026-01-31 17:56:39', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2326, 1, 98, '2026-01-31 17:56:39', '2026-01-31 17:56:39', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2327, 1, 106, '2026-01-31 17:56:39', '2026-01-31 17:56:39', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2328, 1, 107, '2026-01-31 17:56:39', '2026-01-31 17:56:39', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2329, 1, 108, '2026-01-31 17:56:39', '2026-01-31 17:56:39', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2330, 1, 109, '2026-01-31 17:56:39', '2026-01-31 17:56:39', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2331, 1, 110, '2026-01-31 17:56:39', '2026-01-31 17:56:39', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2332, 1, 111, '2026-01-31 17:56:39', '2026-01-31 17:56:39', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2333, 1, 119, '2026-01-31 17:56:39', '2026-01-31 17:56:39', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2334, 1, 99, '2026-01-31 17:56:39', '2026-01-31 17:56:39', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2335, 1, 112, '2026-01-31 17:56:39', '2026-01-31 17:56:39', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2336, 1, 113, '2026-01-31 17:56:39', '2026-01-31 17:56:39', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2337, 1, 114, '2026-01-31 17:56:39', '2026-01-31 17:56:39', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2338, 1, 115, '2026-01-31 17:56:39', '2026-01-31 17:56:39', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2339, 1, 116, '2026-01-31 17:56:39', '2026-01-31 17:56:39', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2340, 1, 117, '2026-01-31 17:56:39', '2026-01-31 17:56:39', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2341, 1, 152, '2026-01-31 17:56:39', '2026-01-31 17:56:39', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2342, 1, 153, '2026-01-31 17:56:39', '2026-01-31 17:56:39', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2343, 1, 154, '2026-01-31 17:56:39', '2026-01-31 17:56:39', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2344, 1, 155, '2026-01-31 17:56:39', '2026-01-31 17:56:39', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2345, 1, 156, '2026-01-31 17:56:39', '2026-01-31 17:56:39', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2346, 1, 146, '2026-01-31 17:56:39', '2026-01-31 17:56:39', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2347, 1, 147, '2026-01-31 17:56:39', '2026-01-31 17:56:39', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2348, 1, 148, '2026-01-31 17:56:39', '2026-01-31 17:56:39', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2349, 1, 149, '2026-01-31 17:56:39', '2026-01-31 17:56:39', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2350, 1, 150, '2026-01-31 17:56:39', '2026-01-31 17:56:39', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2351, 1, 151, '2026-01-31 17:56:39', '2026-01-31 17:56:39', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2352, 1, 142, '2026-01-31 17:56:39', '2026-01-31 17:56:39', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2353, 1, 143, '2026-01-31 17:56:39', '2026-01-31 17:56:39', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2354, 1, 144, '2026-01-31 17:56:39', '2026-01-31 17:56:39', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2355, 1, 145, '2026-01-31 17:56:39', '2026-01-31 17:56:39', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2356, 1, 50, '2026-01-31 17:56:39', '2026-01-31 17:56:39', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2357, 1, 67, '2026-01-31 17:56:39', '2026-01-31 17:56:39', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2358, 1, 55, '2026-01-31 17:56:39', '2026-01-31 17:56:39', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2359, 1, 56, '2026-01-31 17:56:39', '2026-01-31 17:56:39', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2360, 1, 57, '2026-01-31 17:56:39', '2026-01-31 17:56:39', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2361, 1, 89, '2026-01-31 17:56:39', '2026-01-31 17:56:39', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2362, 1, 94, '2026-01-31 17:56:39', '2026-01-31 17:56:39', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2363, 1, 95, '2026-01-31 17:56:39', '2026-01-31 17:56:39', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2364, 1, 96, '2026-01-31 17:56:39', '2026-01-31 17:56:39', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2365, 1, 88, '2026-01-31 17:56:39', '2026-01-31 17:56:39', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2366, 1, 68, '2026-01-31 17:56:39', '2026-01-31 17:56:39', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2367, 1, 58, '2026-01-31 17:56:39', '2026-01-31 17:56:39', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2368, 1, 59, '2026-01-31 17:56:39', '2026-01-31 17:56:39', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2369, 1, 60, '2026-01-31 17:56:39', '2026-01-31 17:56:39', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2370, 1, 69, '2026-01-31 17:56:39', '2026-01-31 17:56:39', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2371, 1, 61, '2026-01-31 17:56:39', '2026-01-31 17:56:39', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2372, 1, 62, '2026-01-31 17:56:39', '2026-01-31 17:56:39', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2373, 1, 63, '2026-01-31 17:56:39', '2026-01-31 17:56:39', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2374, 1, 70, '2026-01-31 17:56:39', '2026-01-31 17:56:39', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2375, 1, 64, '2026-01-31 17:56:39', '2026-01-31 17:56:39', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2376, 1, 65, '2026-01-31 17:56:39', '2026-01-31 17:56:39', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2377, 1, 66, '2026-01-31 17:56:39', '2026-01-31 17:56:39', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2378, 1, 3, '2026-01-31 17:56:39', '2026-01-31 17:56:39', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2379, 1, 4, '2026-01-31 17:56:39', '2026-01-31 17:56:39', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2380, 1, 16, '2026-01-31 17:56:39', '2026-01-31 17:56:39', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2381, 1, 17, '2026-01-31 17:56:39', '2026-01-31 17:56:39', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2382, 1, 18, '2026-01-31 17:56:39', '2026-01-31 17:56:39', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2383, 1, 19, '2026-01-31 17:56:39', '2026-01-31 17:56:39', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2384, 1, 87, '2026-01-31 17:56:39', '2026-01-31 17:56:39', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2385, 1, 124, '2026-01-31 17:56:39', '2026-01-31 17:56:39', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2386, 1, 5, '2026-01-31 17:56:39', '2026-01-31 17:56:39', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2387, 1, 37, '2026-01-31 17:56:39', '2026-01-31 17:56:39', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2388, 1, 38, '2026-01-31 17:56:39', '2026-01-31 17:56:39', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2389, 1, 39, '2026-01-31 17:56:39', '2026-01-31 17:56:39', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2390, 1, 40, '2026-01-31 17:56:40', '2026-01-31 17:56:40', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2391, 1, 6, '2026-01-31 17:56:40', '2026-01-31 17:56:40', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2392, 1, 41, '2026-01-31 17:56:40', '2026-01-31 17:56:40', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2393, 1, 42, '2026-01-31 17:56:40', '2026-01-31 17:56:40', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2394, 1, 43, '2026-01-31 17:56:40', '2026-01-31 17:56:40', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2395, 1, 15, '2026-01-31 17:56:40', '2026-01-31 17:56:40', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2396, 1, 44, '2026-01-31 17:56:40', '2026-01-31 17:56:40', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2397, 1, 45, '2026-01-31 17:56:40', '2026-01-31 17:56:40', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2398, 1, 46, '2026-01-31 17:56:40', '2026-01-31 17:56:40', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2399, 1, 47, '2026-01-31 17:56:40', '2026-01-31 17:56:40', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2400, 1, 48, '2026-01-31 17:56:40', '2026-01-31 17:56:40', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2401, 1, 49, '2026-01-31 17:56:40', '2026-01-31 17:56:40', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2402, 1, 7, '2026-01-31 17:56:40', '2026-01-31 17:56:40', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2403, 1, 83, '2026-01-31 17:56:40', '2026-01-31 17:56:40', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2404, 1, 84, '2026-01-31 17:56:40', '2026-01-31 17:56:40', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2405, 1, 85, '2026-01-31 17:56:40', '2026-01-31 17:56:40', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2406, 1, 86, '2026-01-31 17:56:40', '2026-01-31 17:56:40', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2407, 1, 8, '2026-01-31 17:56:40', '2026-01-31 17:56:40', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2408, 1, 9, '2026-01-31 17:56:40', '2026-01-31 17:56:40', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2409, 1, 10, '2026-01-31 17:56:40', '2026-01-31 17:56:40', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2410, 1, 11, '2026-01-31 17:56:40', '2026-01-31 17:56:40', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2411, 1, 12, '2026-01-31 17:56:40', '2026-01-31 17:56:40', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2412, 1, 13, '2026-01-31 17:56:40', '2026-01-31 17:56:40', 1, 1, 0);
-INSERT INTO `sys_role_menu` VALUES (2413, 1, 14, '2026-01-31 17:56:40', '2026-01-31 17:56:40', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2683, 1, 1, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2684, 1, 2, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2685, 1, 125, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2686, 1, 126, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2687, 1, 127, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2688, 1, 128, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2689, 1, 129, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2690, 1, 130, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2691, 1, 131, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2692, 1, 132, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2693, 1, 133, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2694, 1, 134, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2695, 1, 135, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2696, 1, 136, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2697, 1, 137, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2698, 1, 138, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2699, 1, 139, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2700, 1, 140, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2701, 1, 141, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2702, 1, 90, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2703, 1, 97, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2704, 1, 100, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2705, 1, 101, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2706, 1, 102, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2707, 1, 103, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2708, 1, 104, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2709, 1, 105, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2710, 1, 118, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2711, 1, 98, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2712, 1, 106, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2713, 1, 107, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2714, 1, 108, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2715, 1, 109, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2716, 1, 110, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2717, 1, 111, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2718, 1, 119, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2719, 1, 99, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2720, 1, 112, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2721, 1, 113, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2722, 1, 114, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2723, 1, 115, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2724, 1, 116, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2725, 1, 117, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2726, 1, 152, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2727, 1, 153, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2728, 1, 154, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2729, 1, 155, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2730, 1, 156, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2731, 1, 146, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2732, 1, 147, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2733, 1, 148, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2734, 1, 149, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2735, 1, 150, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2736, 1, 151, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2737, 1, 157, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2738, 1, 158, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2739, 1, 159, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2740, 1, 160, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2741, 1, 161, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2742, 1, 162, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2743, 1, 163, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2744, 1, 164, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2745, 1, 165, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2746, 1, 166, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2747, 1, 167, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2748, 1, 168, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2749, 1, 169, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2750, 1, 170, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2751, 1, 171, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2752, 1, 172, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2753, 1, 173, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2754, 1, 174, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2755, 1, 142, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2756, 1, 143, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2757, 1, 144, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2758, 1, 145, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2759, 1, 50, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2760, 1, 67, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2761, 1, 55, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2762, 1, 56, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2763, 1, 57, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2764, 1, 89, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2765, 1, 94, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2766, 1, 95, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2767, 1, 96, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2768, 1, 88, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2769, 1, 68, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2770, 1, 58, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2771, 1, 59, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2772, 1, 60, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2773, 1, 69, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2774, 1, 61, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2775, 1, 62, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2776, 1, 63, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2777, 1, 70, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2778, 1, 64, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2779, 1, 65, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2780, 1, 66, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2781, 1, 3, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2782, 1, 4, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2783, 1, 16, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2784, 1, 17, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2785, 1, 18, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2786, 1, 19, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2787, 1, 87, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2788, 1, 124, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2789, 1, 5, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2790, 1, 37, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2791, 1, 38, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2792, 1, 39, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2793, 1, 40, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2794, 1, 6, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2795, 1, 41, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2796, 1, 42, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2797, 1, 43, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2798, 1, 15, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2799, 1, 44, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2800, 1, 45, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2801, 1, 46, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2802, 1, 47, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2803, 1, 48, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2804, 1, 49, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2805, 1, 7, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2806, 1, 83, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2807, 1, 84, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2808, 1, 85, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2809, 1, 86, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2810, 1, 8, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2811, 1, 9, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2812, 1, 10, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2813, 1, 11, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2814, 1, 12, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2815, 1, 13, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2816, 1, 14, '2026-02-03 15:06:42', '2026-02-03 15:06:42', 1, 1, 1);
+INSERT INTO `sys_role_menu` VALUES (2817, 1, 1, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2818, 1, 2, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2819, 1, 125, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2820, 1, 130, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2821, 1, 131, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2822, 1, 132, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2823, 1, 133, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2824, 1, 134, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2825, 1, 135, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2826, 1, 136, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2827, 1, 137, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2828, 1, 138, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2829, 1, 139, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2830, 1, 140, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2831, 1, 141, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2832, 1, 126, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2833, 1, 177, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2834, 1, 127, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2835, 1, 128, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2836, 1, 129, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2837, 1, 90, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2838, 1, 97, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2839, 1, 100, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2840, 1, 101, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2841, 1, 102, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2842, 1, 103, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2843, 1, 104, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2844, 1, 105, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2845, 1, 118, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2846, 1, 98, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2847, 1, 106, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2848, 1, 107, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2849, 1, 108, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2850, 1, 109, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2851, 1, 110, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2852, 1, 111, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2853, 1, 119, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2854, 1, 99, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2855, 1, 112, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2856, 1, 113, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2857, 1, 114, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2858, 1, 115, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2859, 1, 116, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2860, 1, 117, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2861, 1, 152, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2862, 1, 153, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2863, 1, 154, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2864, 1, 155, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2865, 1, 156, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2866, 1, 157, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2867, 1, 158, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2868, 1, 159, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2869, 1, 160, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2870, 1, 161, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2871, 1, 162, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2872, 1, 163, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2873, 1, 164, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2874, 1, 165, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2875, 1, 166, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2876, 1, 167, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2877, 1, 168, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2878, 1, 169, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2879, 1, 170, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2880, 1, 171, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2881, 1, 172, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2882, 1, 173, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2883, 1, 174, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2884, 1, 146, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2885, 1, 147, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2886, 1, 148, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2887, 1, 149, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2888, 1, 150, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2889, 1, 151, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2890, 1, 142, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2891, 1, 143, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2892, 1, 144, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2893, 1, 145, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2894, 1, 50, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2895, 1, 67, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2896, 1, 55, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2897, 1, 56, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2898, 1, 57, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2899, 1, 89, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2900, 1, 94, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2901, 1, 95, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2902, 1, 96, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2903, 1, 88, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2904, 1, 68, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2905, 1, 58, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2906, 1, 59, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2907, 1, 60, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2908, 1, 69, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2909, 1, 61, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2910, 1, 62, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2911, 1, 63, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2912, 1, 70, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2913, 1, 64, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2914, 1, 65, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2915, 1, 66, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2916, 1, 3, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2917, 1, 4, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2918, 1, 16, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2919, 1, 17, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2920, 1, 18, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2921, 1, 19, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2922, 1, 87, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2923, 1, 124, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2924, 1, 5, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2925, 1, 37, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2926, 1, 38, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2927, 1, 39, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2928, 1, 40, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2929, 1, 6, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2930, 1, 41, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2931, 1, 42, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2932, 1, 43, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2933, 1, 15, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2934, 1, 44, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2935, 1, 45, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2936, 1, 46, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2937, 1, 47, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2938, 1, 48, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2939, 1, 49, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2940, 1, 7, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2941, 1, 83, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2942, 1, 84, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2943, 1, 85, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2944, 1, 86, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2945, 1, 8, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2946, 1, 9, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2947, 1, 10, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2948, 1, 11, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2949, 1, 12, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2950, 1, 13, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
+INSERT INTO `sys_role_menu` VALUES (2951, 1, 14, '2026-02-03 23:23:46', '2026-02-03 23:23:46', 1, 1, 0);
 
 -- ----------------------------
 -- Table structure for sys_room
@@ -1612,11 +1914,91 @@ CREATE TABLE `sys_room`  (
   INDEX `idx_floor_status`(`floor_id` ASC, `room_status` ASC) USING BTREE,
   INDEX `idx_campus_floor`(`campus_code` ASC, `floor_code` ASC) USING BTREE,
   INDEX `idx_room_type`(`room_type` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 76 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '房间表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 81 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '房间表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_room
 -- ----------------------------
+INSERT INTO `sys_room` VALUES (1, 'F1-0101', '0101', 1, 1, 'F1', 'CAMPUS001', 'standard', 6, 0, 6, 24.50, 1, 1, 1, 1, 1, 1, NULL, 0, '2026-02-03 21:38:39', 1, '2026-02-03 21:38:39', 1);
+INSERT INTO `sys_room` VALUES (2, 'F1-0102', '0102', 1, 1, 'F1', 'CAMPUS001', 'standard', 6, 0, 6, 24.50, 1, 1, 1, 1, 2, 1, NULL, 0, '2026-02-03 21:38:39', 1, '2026-02-03 21:38:39', 1);
+INSERT INTO `sys_room` VALUES (3, 'F1-0103', '0103', 1, 1, 'F1', 'CAMPUS001', 'standard', 6, 0, 6, 24.50, 1, 1, 1, 1, 3, 1, NULL, 0, '2026-02-03 21:38:39', 1, '2026-02-03 21:38:39', 1);
+INSERT INTO `sys_room` VALUES (4, 'F1-0104', '0104', 1, 1, 'F1', 'CAMPUS001', 'standard', 6, 0, 6, 24.50, 1, 1, 1, 1, 4, 1, NULL, 0, '2026-02-03 21:38:39', 1, '2026-02-03 21:38:39', 1);
+INSERT INTO `sys_room` VALUES (5, 'F1-0105', '0105', 1, 1, 'F1', 'CAMPUS001', 'standard', 6, 0, 6, 24.50, 1, 1, 1, 1, 5, 1, NULL, 0, '2026-02-03 21:38:39', 1, '2026-02-03 21:38:39', 1);
+INSERT INTO `sys_room` VALUES (6, 'F1-0201', '0201', 1, 2, 'F1', 'CAMPUS001', 'standard', 6, 0, 6, 24.50, 1, 1, 1, 1, 6, 1, NULL, 0, '2026-02-03 21:38:39', 1, '2026-02-03 21:38:39', 1);
+INSERT INTO `sys_room` VALUES (7, 'F1-0202', '0202', 1, 2, 'F1', 'CAMPUS001', 'standard', 6, 0, 6, 24.50, 1, 1, 1, 1, 7, 1, NULL, 0, '2026-02-03 21:38:39', 1, '2026-02-03 21:38:39', 1);
+INSERT INTO `sys_room` VALUES (8, 'F1-0203', '0203', 1, 2, 'F1', 'CAMPUS001', 'standard', 6, 0, 6, 24.50, 1, 1, 1, 1, 8, 1, NULL, 0, '2026-02-03 21:38:39', 1, '2026-02-03 21:38:39', 1);
+INSERT INTO `sys_room` VALUES (9, 'F1-0204', '0204', 1, 2, 'F1', 'CAMPUS001', 'standard', 6, 0, 6, 24.50, 1, 1, 1, 1, 9, 1, NULL, 0, '2026-02-03 21:38:39', 1, '2026-02-03 21:38:39', 1);
+INSERT INTO `sys_room` VALUES (10, 'F1-0205', '0205', 1, 2, 'F1', 'CAMPUS001', 'standard', 6, 0, 6, 24.50, 1, 1, 1, 1, 10, 1, NULL, 0, '2026-02-03 21:38:39', 1, '2026-02-03 21:38:39', 1);
+INSERT INTO `sys_room` VALUES (11, 'F1-0301', '0301', 1, 3, 'F1', 'CAMPUS001', 'standard', 6, 0, 6, 24.50, 1, 1, 1, 1, 11, 1, NULL, 0, '2026-02-03 21:38:39', 1, '2026-02-03 21:38:39', 1);
+INSERT INTO `sys_room` VALUES (12, 'F1-0302', '0302', 1, 3, 'F1', 'CAMPUS001', 'standard', 6, 0, 6, 24.50, 1, 1, 1, 1, 12, 1, NULL, 0, '2026-02-03 21:38:39', 1, '2026-02-03 21:38:39', 1);
+INSERT INTO `sys_room` VALUES (13, 'F1-0303', '0303', 1, 3, 'F1', 'CAMPUS001', 'standard', 6, 0, 6, 24.50, 1, 1, 1, 1, 13, 1, NULL, 0, '2026-02-03 21:38:39', 1, '2026-02-03 21:38:39', 1);
+INSERT INTO `sys_room` VALUES (14, 'F1-0304', '0304', 1, 3, 'F1', 'CAMPUS001', 'standard', 6, 0, 6, 24.50, 1, 1, 1, 1, 14, 1, NULL, 0, '2026-02-03 21:38:39', 1, '2026-02-03 21:38:39', 1);
+INSERT INTO `sys_room` VALUES (15, 'F1-0305', '0305', 1, 3, 'F1', 'CAMPUS001', 'standard', 6, 0, 6, 24.50, 1, 1, 1, 1, 15, 1, NULL, 0, '2026-02-03 21:38:39', 1, '2026-02-03 21:38:39', 1);
+INSERT INTO `sys_room` VALUES (16, 'F1-0401', '0401', 1, 4, 'F1', 'CAMPUS001', 'standard', 6, 0, 6, 24.50, 1, 1, 1, 1, 16, 1, NULL, 0, '2026-02-03 21:38:39', 1, '2026-02-03 21:38:39', 1);
+INSERT INTO `sys_room` VALUES (17, 'F1-0402', '0402', 1, 4, 'F1', 'CAMPUS001', 'standard', 6, 0, 6, 24.50, 1, 1, 1, 1, 17, 1, NULL, 0, '2026-02-03 21:38:39', 1, '2026-02-03 21:38:39', 1);
+INSERT INTO `sys_room` VALUES (18, 'F1-0403', '0403', 1, 4, 'F1', 'CAMPUS001', 'standard', 6, 0, 6, 24.50, 1, 1, 1, 1, 18, 1, NULL, 0, '2026-02-03 21:38:39', 1, '2026-02-03 21:38:39', 1);
+INSERT INTO `sys_room` VALUES (19, 'F1-0404', '0404', 1, 4, 'F1', 'CAMPUS001', 'standard', 6, 0, 6, 24.50, 1, 1, 1, 1, 19, 1, NULL, 0, '2026-02-03 21:38:39', 1, '2026-02-03 21:38:39', 1);
+INSERT INTO `sys_room` VALUES (20, 'F1-0405', '0405', 1, 4, 'F1', 'CAMPUS001', 'standard', 6, 0, 6, 24.50, 1, 1, 1, 1, 20, 1, NULL, 0, '2026-02-03 21:38:39', 1, '2026-02-03 21:38:39', 1);
+INSERT INTO `sys_room` VALUES (21, 'F1-0501', '0501', 1, 5, 'F1', 'CAMPUS001', 'standard', 6, 0, 6, 24.50, 1, 1, 1, 1, 21, 1, NULL, 0, '2026-02-03 21:38:39', 1, '2026-02-03 21:38:39', 1);
+INSERT INTO `sys_room` VALUES (22, 'F1-0502', '0502', 1, 5, 'F1', 'CAMPUS001', 'standard', 6, 0, 6, 24.50, 1, 1, 1, 1, 22, 1, NULL, 0, '2026-02-03 21:38:39', 1, '2026-02-03 21:38:39', 1);
+INSERT INTO `sys_room` VALUES (23, 'F1-0503', '0503', 1, 5, 'F1', 'CAMPUS001', 'standard', 6, 0, 6, 24.50, 1, 1, 1, 1, 23, 1, NULL, 0, '2026-02-03 21:38:39', 1, '2026-02-03 21:38:39', 1);
+INSERT INTO `sys_room` VALUES (24, 'F1-0504', '0504', 1, 5, 'F1', 'CAMPUS001', 'standard', 6, 0, 6, 24.50, 1, 1, 1, 1, 24, 1, NULL, 0, '2026-02-03 21:38:39', 1, '2026-02-03 21:38:39', 1);
+INSERT INTO `sys_room` VALUES (25, 'F1-0505', '0505', 1, 5, 'F1', 'CAMPUS001', 'standard', 6, 0, 6, 24.50, 1, 1, 1, 1, 25, 1, NULL, 0, '2026-02-03 21:38:39', 1, '2026-02-03 21:38:39', 1);
+INSERT INTO `sys_room` VALUES (26, 'F1-0601', '0601', 1, 6, 'F1', 'CAMPUS001', 'standard', 6, 0, 6, 24.50, 1, 1, 1, 1, 26, 1, NULL, 0, '2026-02-03 21:38:39', 1, '2026-02-03 21:38:39', 1);
+INSERT INTO `sys_room` VALUES (27, 'F1-0602', '0602', 1, 6, 'F1', 'CAMPUS001', 'standard', 6, 0, 6, 24.50, 1, 1, 1, 1, 27, 1, NULL, 0, '2026-02-03 21:38:39', 1, '2026-02-03 21:38:39', 1);
+INSERT INTO `sys_room` VALUES (28, 'F1-0603', '0603', 1, 6, 'F1', 'CAMPUS001', 'standard', 6, 0, 6, 24.50, 1, 1, 1, 1, 28, 1, NULL, 0, '2026-02-03 21:38:39', 1, '2026-02-03 21:38:39', 1);
+INSERT INTO `sys_room` VALUES (29, 'F1-0604', '0604', 1, 6, 'F1', 'CAMPUS001', 'standard', 6, 0, 6, 24.50, 1, 1, 1, 1, 29, 1, NULL, 0, '2026-02-03 21:38:39', 1, '2026-02-03 21:38:39', 1);
+INSERT INTO `sys_room` VALUES (30, 'F1-0605', '0605', 1, 6, 'F1', 'CAMPUS001', 'standard', 6, 0, 6, 24.50, 1, 1, 1, 1, 30, 1, NULL, 0, '2026-02-03 21:38:39', 1, '2026-02-03 21:38:39', 1);
+INSERT INTO `sys_room` VALUES (31, 'F2-0101', '0101', 2, 1, 'F2', 'CAMPUS001', 'standard', 4, 0, 4, 24.50, 1, 1, 1, 1, 1, 1, NULL, 0, '2026-02-03 21:38:56', 1, '2026-02-03 21:38:56', 1);
+INSERT INTO `sys_room` VALUES (32, 'F2-0102', '0102', 2, 1, 'F2', 'CAMPUS001', 'standard', 4, 0, 4, 24.50, 1, 1, 1, 1, 2, 1, NULL, 0, '2026-02-03 21:38:56', 1, '2026-02-03 21:38:56', 1);
+INSERT INTO `sys_room` VALUES (33, 'F2-0103', '0103', 2, 1, 'F2', 'CAMPUS001', 'standard', 4, 0, 4, 24.50, 1, 1, 1, 1, 3, 1, NULL, 0, '2026-02-03 21:38:56', 1, '2026-02-03 21:38:56', 1);
+INSERT INTO `sys_room` VALUES (34, 'F2-0104', '0104', 2, 1, 'F2', 'CAMPUS001', 'standard', 4, 0, 4, 24.50, 1, 1, 1, 1, 4, 1, NULL, 0, '2026-02-03 21:38:56', 1, '2026-02-03 21:38:56', 1);
+INSERT INTO `sys_room` VALUES (35, 'F2-0105', '0105', 2, 1, 'F2', 'CAMPUS001', 'standard', 4, 0, 4, 24.50, 1, 1, 1, 1, 5, 1, NULL, 0, '2026-02-03 21:38:56', 1, '2026-02-03 21:38:56', 1);
+INSERT INTO `sys_room` VALUES (36, 'F2-0201', '0201', 2, 2, 'F2', 'CAMPUS001', 'standard', 4, 0, 4, 24.50, 1, 1, 1, 1, 6, 1, NULL, 0, '2026-02-03 21:38:56', 1, '2026-02-03 21:38:56', 1);
+INSERT INTO `sys_room` VALUES (37, 'F2-0202', '0202', 2, 2, 'F2', 'CAMPUS001', 'standard', 4, 0, 4, 24.50, 1, 1, 1, 1, 7, 1, NULL, 0, '2026-02-03 21:38:56', 1, '2026-02-03 21:38:56', 1);
+INSERT INTO `sys_room` VALUES (38, 'F2-0203', '0203', 2, 2, 'F2', 'CAMPUS001', 'standard', 4, 0, 4, 24.50, 1, 1, 1, 1, 8, 1, NULL, 0, '2026-02-03 21:38:56', 1, '2026-02-03 21:38:56', 1);
+INSERT INTO `sys_room` VALUES (39, 'F2-0204', '0204', 2, 2, 'F2', 'CAMPUS001', 'standard', 4, 0, 4, 24.50, 1, 1, 1, 1, 9, 1, NULL, 0, '2026-02-03 21:38:56', 1, '2026-02-03 21:38:56', 1);
+INSERT INTO `sys_room` VALUES (40, 'F2-0205', '0205', 2, 2, 'F2', 'CAMPUS001', 'standard', 4, 0, 4, 24.50, 1, 1, 1, 1, 10, 1, NULL, 0, '2026-02-03 21:38:56', 1, '2026-02-03 21:38:56', 1);
+INSERT INTO `sys_room` VALUES (41, 'F2-0301', '0301', 2, 3, 'F2', 'CAMPUS001', 'standard', 4, 0, 4, 24.50, 1, 1, 1, 1, 11, 1, NULL, 0, '2026-02-03 21:38:56', 1, '2026-02-03 21:38:56', 1);
+INSERT INTO `sys_room` VALUES (42, 'F2-0302', '0302', 2, 3, 'F2', 'CAMPUS001', 'standard', 4, 0, 4, 24.50, 1, 1, 1, 1, 12, 1, NULL, 0, '2026-02-03 21:38:56', 1, '2026-02-03 21:38:56', 1);
+INSERT INTO `sys_room` VALUES (43, 'F2-0303', '0303', 2, 3, 'F2', 'CAMPUS001', 'standard', 4, 0, 4, 24.50, 1, 1, 1, 1, 13, 1, NULL, 0, '2026-02-03 21:38:56', 1, '2026-02-03 21:38:56', 1);
+INSERT INTO `sys_room` VALUES (44, 'F2-0304', '0304', 2, 3, 'F2', 'CAMPUS001', 'standard', 4, 0, 4, 24.50, 1, 1, 1, 1, 14, 1, NULL, 0, '2026-02-03 21:38:56', 1, '2026-02-03 21:38:56', 1);
+INSERT INTO `sys_room` VALUES (45, 'F2-0305', '0305', 2, 3, 'F2', 'CAMPUS001', 'standard', 4, 0, 4, 24.50, 1, 1, 1, 1, 15, 1, NULL, 0, '2026-02-03 21:38:56', 1, '2026-02-03 21:38:56', 1);
+INSERT INTO `sys_room` VALUES (46, 'F2-0401', '0401', 2, 4, 'F2', 'CAMPUS001', 'standard', 4, 0, 4, 24.50, 1, 1, 1, 1, 16, 1, NULL, 0, '2026-02-03 21:38:56', 1, '2026-02-03 21:38:56', 1);
+INSERT INTO `sys_room` VALUES (47, 'F2-0402', '0402', 2, 4, 'F2', 'CAMPUS001', 'standard', 4, 0, 4, 24.50, 1, 1, 1, 1, 17, 1, NULL, 0, '2026-02-03 21:38:56', 1, '2026-02-03 21:38:56', 1);
+INSERT INTO `sys_room` VALUES (48, 'F2-0403', '0403', 2, 4, 'F2', 'CAMPUS001', 'standard', 4, 0, 4, 24.50, 1, 1, 1, 1, 18, 1, NULL, 0, '2026-02-03 21:38:56', 1, '2026-02-03 21:38:56', 1);
+INSERT INTO `sys_room` VALUES (49, 'F2-0404', '0404', 2, 4, 'F2', 'CAMPUS001', 'standard', 4, 0, 4, 24.50, 1, 1, 1, 1, 19, 1, NULL, 0, '2026-02-03 21:38:56', 1, '2026-02-03 21:38:56', 1);
+INSERT INTO `sys_room` VALUES (50, 'F2-0405', '0405', 2, 4, 'F2', 'CAMPUS001', 'standard', 4, 0, 4, 24.50, 1, 1, 1, 1, 20, 1, NULL, 0, '2026-02-03 21:38:56', 1, '2026-02-03 21:38:56', 1);
+INSERT INTO `sys_room` VALUES (51, 'F2-0501', '0501', 2, 5, 'F2', 'CAMPUS001', 'standard', 4, 0, 4, 24.50, 1, 1, 1, 1, 21, 1, NULL, 0, '2026-02-03 21:38:56', 1, '2026-02-03 21:38:56', 1);
+INSERT INTO `sys_room` VALUES (52, 'F2-0502', '0502', 2, 5, 'F2', 'CAMPUS001', 'standard', 4, 0, 4, 24.50, 1, 1, 1, 1, 22, 1, NULL, 0, '2026-02-03 21:38:56', 1, '2026-02-03 21:38:56', 1);
+INSERT INTO `sys_room` VALUES (53, 'F2-0503', '0503', 2, 5, 'F2', 'CAMPUS001', 'standard', 4, 0, 4, 24.50, 1, 1, 1, 1, 23, 1, NULL, 0, '2026-02-03 21:38:56', 1, '2026-02-03 21:38:56', 1);
+INSERT INTO `sys_room` VALUES (54, 'F2-0504', '0504', 2, 5, 'F2', 'CAMPUS001', 'standard', 4, 0, 4, 24.50, 1, 1, 1, 1, 24, 1, NULL, 0, '2026-02-03 21:38:56', 1, '2026-02-03 21:38:56', 1);
+INSERT INTO `sys_room` VALUES (55, 'F2-0505', '0505', 2, 5, 'F2', 'CAMPUS001', 'standard', 4, 0, 4, 24.50, 1, 1, 1, 1, 25, 1, NULL, 0, '2026-02-03 21:38:56', 1, '2026-02-03 21:38:56', 1);
+INSERT INTO `sys_room` VALUES (56, 'F3-0101', '0101', 3, 1, 'F3', 'CAMPUS001', 'standard', 4, 0, 4, 24.50, 1, 1, 1, 1, 1, 1, NULL, 0, '2026-02-03 21:39:13', 1, '2026-02-03 21:39:13', 1);
+INSERT INTO `sys_room` VALUES (57, 'F3-0102', '0102', 3, 1, 'F3', 'CAMPUS001', 'standard', 4, 0, 4, 24.50, 1, 1, 1, 1, 2, 1, NULL, 0, '2026-02-03 21:39:13', 1, '2026-02-03 21:39:13', 1);
+INSERT INTO `sys_room` VALUES (58, 'F3-0103', '0103', 3, 1, 'F3', 'CAMPUS001', 'standard', 4, 0, 4, 24.50, 1, 1, 1, 1, 3, 1, NULL, 0, '2026-02-03 21:39:13', 1, '2026-02-03 21:39:13', 1);
+INSERT INTO `sys_room` VALUES (59, 'F3-0104', '0104', 3, 1, 'F3', 'CAMPUS001', 'standard', 4, 0, 4, 24.50, 1, 1, 1, 1, 4, 1, NULL, 0, '2026-02-03 21:39:13', 1, '2026-02-03 21:39:13', 1);
+INSERT INTO `sys_room` VALUES (60, 'F3-0105', '0105', 3, 1, 'F3', 'CAMPUS001', 'standard', 4, 0, 4, 24.50, 1, 1, 1, 1, 5, 1, NULL, 0, '2026-02-03 21:39:13', 1, '2026-02-03 21:39:13', 1);
+INSERT INTO `sys_room` VALUES (61, 'F3-0201', '0201', 3, 2, 'F3', 'CAMPUS001', 'standard', 4, 0, 4, 24.50, 1, 1, 1, 1, 6, 1, NULL, 0, '2026-02-03 21:39:13', 1, '2026-02-03 21:39:13', 1);
+INSERT INTO `sys_room` VALUES (62, 'F3-0202', '0202', 3, 2, 'F3', 'CAMPUS001', 'standard', 4, 0, 4, 24.50, 1, 1, 1, 1, 7, 1, NULL, 0, '2026-02-03 21:39:13', 1, '2026-02-03 21:39:13', 1);
+INSERT INTO `sys_room` VALUES (63, 'F3-0203', '0203', 3, 2, 'F3', 'CAMPUS001', 'standard', 4, 0, 4, 24.50, 1, 1, 1, 1, 8, 1, NULL, 0, '2026-02-03 21:39:13', 1, '2026-02-03 21:39:13', 1);
+INSERT INTO `sys_room` VALUES (64, 'F3-0204', '0204', 3, 2, 'F3', 'CAMPUS001', 'standard', 4, 0, 4, 24.50, 1, 1, 1, 1, 9, 1, NULL, 0, '2026-02-03 21:39:13', 1, '2026-02-03 21:39:13', 1);
+INSERT INTO `sys_room` VALUES (65, 'F3-0205', '0205', 3, 2, 'F3', 'CAMPUS001', 'standard', 4, 0, 4, 24.50, 1, 1, 1, 1, 10, 1, NULL, 0, '2026-02-03 21:39:13', 1, '2026-02-03 21:39:13', 1);
+INSERT INTO `sys_room` VALUES (66, 'F3-0301', '0301', 3, 3, 'F3', 'CAMPUS001', 'standard', 4, 0, 4, 24.50, 1, 1, 1, 1, 11, 1, NULL, 0, '2026-02-03 21:39:13', 1, '2026-02-03 21:39:13', 1);
+INSERT INTO `sys_room` VALUES (67, 'F3-0302', '0302', 3, 3, 'F3', 'CAMPUS001', 'standard', 4, 0, 4, 24.50, 1, 1, 1, 1, 12, 1, NULL, 0, '2026-02-03 21:39:13', 1, '2026-02-03 21:39:13', 1);
+INSERT INTO `sys_room` VALUES (68, 'F3-0303', '0303', 3, 3, 'F3', 'CAMPUS001', 'standard', 4, 0, 4, 24.50, 1, 1, 1, 1, 13, 1, NULL, 0, '2026-02-03 21:39:13', 1, '2026-02-03 21:39:13', 1);
+INSERT INTO `sys_room` VALUES (69, 'F3-0304', '0304', 3, 3, 'F3', 'CAMPUS001', 'standard', 4, 0, 4, 24.50, 1, 1, 1, 1, 14, 1, NULL, 0, '2026-02-03 21:39:13', 1, '2026-02-03 21:39:13', 1);
+INSERT INTO `sys_room` VALUES (70, 'F3-0305', '0305', 3, 3, 'F3', 'CAMPUS001', 'standard', 4, 0, 4, 24.50, 1, 1, 1, 1, 15, 1, NULL, 0, '2026-02-03 21:39:13', 1, '2026-02-03 21:39:13', 1);
+INSERT INTO `sys_room` VALUES (71, 'F3-0401', '0401', 3, 4, 'F3', 'CAMPUS001', 'standard', 4, 0, 4, 24.50, 1, 1, 1, 1, 16, 1, NULL, 0, '2026-02-03 21:39:13', 1, '2026-02-03 21:39:13', 1);
+INSERT INTO `sys_room` VALUES (72, 'F3-0402', '0402', 3, 4, 'F3', 'CAMPUS001', 'standard', 4, 0, 4, 24.50, 1, 1, 1, 1, 17, 1, NULL, 0, '2026-02-03 21:39:13', 1, '2026-02-03 21:39:13', 1);
+INSERT INTO `sys_room` VALUES (73, 'F3-0403', '0403', 3, 4, 'F3', 'CAMPUS001', 'standard', 4, 0, 4, 24.50, 1, 1, 1, 1, 18, 1, NULL, 0, '2026-02-03 21:39:13', 1, '2026-02-03 21:39:13', 1);
+INSERT INTO `sys_room` VALUES (74, 'F3-0404', '0404', 3, 4, 'F3', 'CAMPUS001', 'standard', 4, 0, 4, 24.50, 1, 1, 1, 1, 19, 1, NULL, 0, '2026-02-03 21:39:13', 1, '2026-02-03 21:39:13', 1);
+INSERT INTO `sys_room` VALUES (75, 'F3-0405', '0405', 3, 4, 'F3', 'CAMPUS001', 'standard', 4, 0, 4, 24.50, 1, 1, 1, 1, 20, 1, NULL, 0, '2026-02-03 21:39:13', 1, '2026-02-03 21:39:13', 1);
+INSERT INTO `sys_room` VALUES (76, 'F3-0501', '0501', 3, 5, 'F3', 'CAMPUS001', 'standard', 4, 0, 4, 24.50, 1, 1, 1, 1, 21, 1, NULL, 0, '2026-02-03 21:39:13', 1, '2026-02-03 21:39:13', 1);
+INSERT INTO `sys_room` VALUES (77, 'F3-0502', '0502', 3, 5, 'F3', 'CAMPUS001', 'standard', 4, 0, 4, 24.50, 1, 1, 1, 1, 22, 1, NULL, 0, '2026-02-03 21:39:13', 1, '2026-02-03 21:39:13', 1);
+INSERT INTO `sys_room` VALUES (78, 'F3-0503', '0503', 3, 5, 'F3', 'CAMPUS001', 'standard', 4, 0, 4, 24.50, 1, 1, 1, 1, 23, 1, NULL, 0, '2026-02-03 21:39:13', 1, '2026-02-03 21:39:13', 1);
+INSERT INTO `sys_room` VALUES (79, 'F3-0504', '0504', 3, 5, 'F3', 'CAMPUS001', 'standard', 4, 0, 4, 24.50, 1, 1, 1, 1, 24, 1, NULL, 0, '2026-02-03 21:39:13', 1, '2026-02-03 21:39:13', 1);
+INSERT INTO `sys_room` VALUES (80, 'F3-0505', '0505', 3, 5, 'F3', 'CAMPUS001', 'standard', 4, 0, 4, 24.50, 1, 1, 1, 1, 25, 1, NULL, 0, '2026-02-03 21:39:13', 1, '2026-02-03 21:39:13', 1);
 
 -- ----------------------------
 -- Table structure for sys_semester
@@ -1639,11 +2021,21 @@ CREATE TABLE `sys_semester`  (
   UNIQUE INDEX `uk_semester_code`(`semester_code` ASC, `deleted` ASC) USING BTREE,
   INDEX `idx_academic_year_id`(`academic_year_id` ASC) USING BTREE,
   CONSTRAINT `fk_semester_academic_year` FOREIGN KEY (`academic_year_id`) REFERENCES `sys_academic_year` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '学期表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 11 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '学期表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_semester
 -- ----------------------------
+INSERT INTO `sys_semester` VALUES (1, 11, '2021-2022-1', '2021-2022学年第一学期', '2021-09-01', '2022-01-31', '第一学期', '2026-02-03 20:51:44', NULL, '2026-02-03 20:51:44', NULL, 0);
+INSERT INTO `sys_semester` VALUES (2, 11, '2021-2022-2', '2021-2022学年第二学期', '2022-02-01', '2022-08-31', '第二学期', '2026-02-03 20:51:44', NULL, '2026-02-03 20:51:44', NULL, 0);
+INSERT INTO `sys_semester` VALUES (3, 12, '2022-2023-1', '2022-2023学年第一学期', '2022-09-01', '2023-01-31', '第一学期', '2026-02-03 20:51:44', NULL, '2026-02-03 20:51:44', NULL, 0);
+INSERT INTO `sys_semester` VALUES (4, 12, '2022-2023-2', '2022-2023学年第二学期', '2023-02-01', '2023-08-31', '第二学期', '2026-02-03 20:51:44', NULL, '2026-02-03 20:51:44', NULL, 0);
+INSERT INTO `sys_semester` VALUES (5, 13, '2023-2024-1', '2023-2024学年第一学期', '2023-09-01', '2024-01-31', '第一学期', '2026-02-03 20:51:44', NULL, '2026-02-03 20:51:44', NULL, 0);
+INSERT INTO `sys_semester` VALUES (6, 13, '2023-2024-2', '2023-2024学年第二学期', '2024-02-01', '2024-08-31', '第二学期', '2026-02-03 20:51:44', NULL, '2026-02-03 20:51:44', NULL, 0);
+INSERT INTO `sys_semester` VALUES (7, 14, '2024-2025-1', '2024-2025学年第一学期', '2024-09-01', '2025-01-31', '第一学期', '2026-02-03 20:51:44', NULL, '2026-02-03 20:51:44', NULL, 0);
+INSERT INTO `sys_semester` VALUES (8, 14, '2024-2025-2', '2024-2025学年第二学期', '2025-02-01', '2025-08-31', '第二学期', '2026-02-03 20:51:44', NULL, '2026-02-03 20:51:44', NULL, 0);
+INSERT INTO `sys_semester` VALUES (9, 15, '2025-2026-1', '2025-2026学年第一学期', '2025-09-01', '2026-01-31', '第一学期', '2026-02-03 20:51:44', NULL, '2026-02-03 20:51:44', NULL, 0);
+INSERT INTO `sys_semester` VALUES (10, 15, '2025-2026-2', '2025-2026学年第二学期', '2026-02-01', '2026-08-31', '第二学期', '2026-02-03 20:51:44', NULL, '2026-02-03 20:51:44', NULL, 0);
 
 -- ----------------------------
 -- Table structure for sys_stay
@@ -1692,7 +2084,7 @@ CREATE TABLE `sys_stay`  (
   INDEX `idx_student_status`(`student_id` ASC, `status` ASC) USING BTREE,
   INDEX `idx_stay_dates`(`stay_start_date` ASC, `stay_end_date` ASC) USING BTREE,
   INDEX `idx_bed`(`bed_id` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 11 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '留宿管理表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '留宿管理表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_stay
@@ -1774,7 +2166,7 @@ CREATE TABLE `sys_student`  (
   INDEX `idx_status_year`(`status` ASC, `enrollment_year` ASC) USING BTREE,
   INDEX `idx_class`(`class_id` ASC) USING BTREE,
   INDEX `idx_major`(`major_code` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 18 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '学生表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 32001 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '学生表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_student
@@ -1828,7 +2220,7 @@ CREATE TABLE `sys_transfer`  (
   INDEX `idx_apply_date`(`apply_date` ASC) USING BTREE,
   INDEX `idx_from_bed`(`original_bed_id` ASC) USING BTREE,
   INDEX `idx_to_bed`(`target_bed_id` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 7 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '调宿管理表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '调宿管理表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_transfer
@@ -1868,7 +2260,7 @@ CREATE TABLE `sys_user`  (
 -- ----------------------------
 -- Records of sys_user
 -- ----------------------------
-INSERT INTO `sys_user` VALUES (1, 'superAdmin', '$2a$10$LGpvVk9hFrfIIVRnWHoRVe.FkSVbqJ0CtyrY/WPLUva9e6xU7b/Ta', '超级管理员', NULL, 'superAdmin@example.com', '17876648229', '{\"campusIds\":[1],\"departmentIds\":[1],\"majorIds\":[1],\"classIds\":[2,1]}', 1, '2025-12-30 17:19:05', NULL, '2026-01-21 19:48:52', 2, '2026-02-02 14:40:18', 1, NULL, NULL, NULL, NULL, 0);
+INSERT INTO `sys_user` VALUES (1, 'superAdmin', '$2a$10$LGpvVk9hFrfIIVRnWHoRVe.FkSVbqJ0CtyrY/WPLUva9e6xU7b/Ta', '超级管理员', NULL, 'superAdmin@example.com', '17876648229', '{\"campusIds\":[1],\"departmentIds\":[1],\"majorIds\":[1],\"classIds\":[2,1]}', 1, '2025-12-30 17:19:05', NULL, '2026-01-21 19:48:52', 2, '2026-02-05 22:52:10', 1, NULL, NULL, NULL, NULL, 0);
 INSERT INTO `sys_user` VALUES (2, 'testuser', '$2a$10$LGpvVk9hFrfIIVRnWHoRVe.FkSVbqJ0CtyrY/WPLUva9e6xU7b/Ta', '测试用户', NULL, 'test@example.com', '13800138000', '', 1, '2025-12-31 11:41:22', NULL, '2026-01-03 16:43:14', 1, '2026-01-26 19:14:33', NULL, NULL, NULL, NULL, NULL, 0);
 INSERT INTO `sys_user` VALUES (3, 'testminuser', '$2a$10$UbN1rmnnbg/b5tybLDza0.8i0PGS4xNcVKEBHk7Fjp3USv88RdcFK', '测试小用户', NULL, '', '17877778888', NULL, 1, '2026-01-30 17:58:06', 1, '2026-01-30 17:58:15', 1, NULL, NULL, NULL, NULL, NULL, NULL, 1);
 
@@ -1894,7 +2286,7 @@ CREATE TABLE `sys_user_menu`  (
   INDEX `idx_deleted`(`deleted` ASC) USING BTREE,
   INDEX `idx_user_deleted`(`user_id` ASC, `deleted` ASC) USING BTREE,
   INDEX `idx_menu_deleted`(`menu_id` ASC, `deleted` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1436 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '用户菜单关联表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 2105 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '用户菜单关联表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_user_menu
@@ -2109,238 +2501,272 @@ INSERT INTO `sys_user_menu` VALUES (1200, 3, 142, '2026-01-30 17:58:06', '2026-0
 INSERT INTO `sys_user_menu` VALUES (1201, 3, 143, '2026-01-30 17:58:06', '2026-01-30 17:58:06', 1, 1, 1);
 INSERT INTO `sys_user_menu` VALUES (1202, 3, 144, '2026-01-30 17:58:06', '2026-01-30 17:58:06', 1, 1, 1);
 INSERT INTO `sys_user_menu` VALUES (1203, 3, 145, '2026-01-30 17:58:06', '2026-01-30 17:58:06', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1204, 1, 1, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1205, 1, 2, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1206, 1, 125, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1207, 1, 126, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1208, 1, 127, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1209, 1, 128, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1210, 1, 129, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1211, 1, 130, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1212, 1, 131, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1213, 1, 132, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1214, 1, 133, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1215, 1, 134, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1216, 1, 135, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1217, 1, 136, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1218, 1, 137, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1219, 1, 138, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1220, 1, 139, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1221, 1, 140, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1222, 1, 141, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1223, 1, 90, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1224, 1, 97, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1225, 1, 100, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1226, 1, 101, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1227, 1, 102, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1228, 1, 103, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1229, 1, 104, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1230, 1, 105, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1231, 1, 118, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1232, 1, 98, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1233, 1, 106, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1234, 1, 107, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1235, 1, 108, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1236, 1, 109, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1237, 1, 110, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1238, 1, 111, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1239, 1, 119, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1240, 1, 99, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1241, 1, 112, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1242, 1, 113, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1243, 1, 114, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1244, 1, 115, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1245, 1, 116, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1246, 1, 117, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1247, 1, 152, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1248, 1, 153, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1249, 1, 154, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1250, 1, 155, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1251, 1, 156, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1252, 1, 146, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1253, 1, 147, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1254, 1, 148, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1255, 1, 149, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1256, 1, 150, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1257, 1, 151, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1258, 1, 142, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1259, 1, 143, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1260, 1, 144, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1261, 1, 145, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1262, 1, 50, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1263, 1, 67, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1264, 1, 55, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1265, 1, 56, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1266, 1, 57, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1267, 1, 89, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1268, 1, 94, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1269, 1, 95, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1270, 1, 96, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1271, 1, 88, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1272, 1, 68, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1273, 1, 58, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1274, 1, 59, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1275, 1, 60, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1276, 1, 69, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1277, 1, 61, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1278, 1, 62, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1279, 1, 63, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1280, 1, 70, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1281, 1, 64, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1282, 1, 65, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1283, 1, 66, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1284, 1, 3, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1285, 1, 4, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1286, 1, 16, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1287, 1, 17, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1288, 1, 18, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1289, 1, 19, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1290, 1, 87, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1291, 1, 124, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1292, 1, 5, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1293, 1, 37, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1294, 1, 38, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1295, 1, 39, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1296, 1, 40, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1297, 1, 6, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1298, 1, 41, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1299, 1, 42, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1300, 1, 43, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1301, 1, 15, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1302, 1, 44, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1303, 1, 45, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1304, 1, 46, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1305, 1, 47, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1306, 1, 48, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1307, 1, 49, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1308, 1, 7, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1309, 1, 83, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1310, 1, 84, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1311, 1, 85, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1312, 1, 86, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1313, 1, 8, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1314, 1, 9, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1315, 1, 10, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1316, 1, 11, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1317, 1, 12, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1318, 1, 13, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1319, 1, 14, '2026-01-31 15:51:34', '2026-01-31 15:51:34', 1, 1, 1);
-INSERT INTO `sys_user_menu` VALUES (1320, 1, 1, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1321, 1, 2, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1322, 1, 125, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1323, 1, 126, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1324, 1, 127, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1325, 1, 128, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1326, 1, 129, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1327, 1, 130, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1328, 1, 131, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1329, 1, 132, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1330, 1, 133, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1331, 1, 134, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1332, 1, 135, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1333, 1, 136, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1334, 1, 137, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1335, 1, 138, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1336, 1, 139, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1337, 1, 140, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1338, 1, 141, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1339, 1, 90, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1340, 1, 97, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1341, 1, 100, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1342, 1, 101, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1343, 1, 102, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1344, 1, 103, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1345, 1, 104, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1346, 1, 105, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1347, 1, 118, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1348, 1, 98, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1349, 1, 106, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1350, 1, 107, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1351, 1, 108, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1352, 1, 109, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1353, 1, 110, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1354, 1, 111, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1355, 1, 119, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1356, 1, 99, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1357, 1, 112, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1358, 1, 113, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1359, 1, 114, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1360, 1, 115, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1361, 1, 116, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1362, 1, 117, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1363, 1, 152, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1364, 1, 153, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1365, 1, 154, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1366, 1, 155, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1367, 1, 156, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1368, 1, 146, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1369, 1, 147, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1370, 1, 148, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1371, 1, 149, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1372, 1, 150, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1373, 1, 151, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1374, 1, 142, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1375, 1, 143, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1376, 1, 144, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1377, 1, 145, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1378, 1, 50, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1379, 1, 67, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1380, 1, 55, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1381, 1, 56, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1382, 1, 57, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1383, 1, 89, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1384, 1, 94, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1385, 1, 95, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1386, 1, 96, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1387, 1, 88, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1388, 1, 68, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1389, 1, 58, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1390, 1, 59, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1391, 1, 60, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1392, 1, 69, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1393, 1, 61, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1394, 1, 62, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1395, 1, 63, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1396, 1, 70, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1397, 1, 64, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1398, 1, 65, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1399, 1, 66, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1400, 1, 3, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1401, 1, 4, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1402, 1, 16, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1403, 1, 17, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1404, 1, 18, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1405, 1, 19, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1406, 1, 87, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1407, 1, 124, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1408, 1, 5, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1409, 1, 37, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1410, 1, 38, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1411, 1, 39, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1412, 1, 40, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1413, 1, 6, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1414, 1, 41, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1415, 1, 42, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1416, 1, 43, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1417, 1, 15, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1418, 1, 44, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1419, 1, 45, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1420, 1, 46, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1421, 1, 47, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1422, 1, 48, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1423, 1, 49, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1424, 1, 7, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1425, 1, 83, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1426, 1, 84, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1427, 1, 85, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1428, 1, 86, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1429, 1, 8, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1430, 1, 9, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1431, 1, 10, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1432, 1, 11, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1433, 1, 12, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1434, 1, 13, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
-INSERT INTO `sys_user_menu` VALUES (1435, 1, 14, '2026-01-31 18:05:20', '2026-01-31 18:05:20', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (1839, 1, 1, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1840, 1, 2, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1841, 1, 125, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1842, 1, 130, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1843, 1, 131, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1844, 1, 132, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1845, 1, 133, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1846, 1, 134, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1847, 1, 135, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1848, 1, 136, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1849, 1, 137, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1850, 1, 138, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1851, 1, 139, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1852, 1, 140, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1853, 1, 141, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1854, 1, 126, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1855, 1, 90, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1856, 1, 97, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1857, 1, 100, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1858, 1, 101, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1859, 1, 102, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1860, 1, 103, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1861, 1, 104, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1862, 1, 105, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1863, 1, 118, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1864, 1, 98, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1865, 1, 106, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1866, 1, 107, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1867, 1, 108, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1868, 1, 109, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1869, 1, 110, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1870, 1, 111, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1871, 1, 119, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1872, 1, 99, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1873, 1, 112, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1874, 1, 113, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1875, 1, 114, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1876, 1, 115, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1877, 1, 116, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1878, 1, 117, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1879, 1, 152, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1880, 1, 153, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1881, 1, 154, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1882, 1, 155, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1883, 1, 156, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1884, 1, 157, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1885, 1, 158, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1886, 1, 159, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1887, 1, 160, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1888, 1, 161, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1889, 1, 162, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1890, 1, 163, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1891, 1, 164, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1892, 1, 165, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1893, 1, 166, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1894, 1, 167, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1895, 1, 168, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1896, 1, 169, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1897, 1, 170, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1898, 1, 171, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1899, 1, 172, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1900, 1, 173, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1901, 1, 174, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1902, 1, 146, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1903, 1, 147, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1904, 1, 148, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1905, 1, 149, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1906, 1, 150, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1907, 1, 151, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1908, 1, 142, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1909, 1, 143, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1910, 1, 144, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1911, 1, 145, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1912, 1, 50, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1913, 1, 67, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1914, 1, 55, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1915, 1, 56, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1916, 1, 57, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1917, 1, 89, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1918, 1, 94, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1919, 1, 95, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1920, 1, 96, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1921, 1, 88, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1922, 1, 68, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1923, 1, 58, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1924, 1, 59, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1925, 1, 60, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1926, 1, 69, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1927, 1, 61, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1928, 1, 62, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1929, 1, 63, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1930, 1, 70, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1931, 1, 64, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1932, 1, 65, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1933, 1, 66, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1934, 1, 3, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1935, 1, 4, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1936, 1, 16, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1937, 1, 17, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1938, 1, 18, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1939, 1, 19, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1940, 1, 87, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1941, 1, 124, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1942, 1, 5, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1943, 1, 37, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1944, 1, 38, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1945, 1, 39, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1946, 1, 40, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1947, 1, 6, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1948, 1, 41, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1949, 1, 42, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1950, 1, 43, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1951, 1, 15, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1952, 1, 44, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1953, 1, 45, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1954, 1, 46, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1955, 1, 47, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1956, 1, 48, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1957, 1, 49, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1958, 1, 7, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1959, 1, 83, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1960, 1, 84, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1961, 1, 85, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1962, 1, 86, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1963, 1, 8, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1964, 1, 9, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1965, 1, 10, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1966, 1, 11, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1967, 1, 12, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1968, 1, 13, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1969, 1, 14, '2026-02-03 23:23:27', '2026-02-03 23:23:27', 1, 1, 1);
+INSERT INTO `sys_user_menu` VALUES (1970, 1, 1, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (1971, 1, 2, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (1972, 1, 125, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (1973, 1, 130, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (1974, 1, 131, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (1975, 1, 132, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (1976, 1, 133, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (1977, 1, 134, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (1978, 1, 135, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (1979, 1, 136, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (1980, 1, 137, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (1981, 1, 138, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (1982, 1, 139, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (1983, 1, 140, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (1984, 1, 141, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (1985, 1, 126, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (1986, 1, 177, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (1987, 1, 127, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (1988, 1, 128, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (1989, 1, 129, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (1990, 1, 90, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (1991, 1, 97, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (1992, 1, 100, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (1993, 1, 101, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (1994, 1, 102, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (1995, 1, 103, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (1996, 1, 104, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (1997, 1, 105, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (1998, 1, 118, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (1999, 1, 98, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (2000, 1, 106, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (2001, 1, 107, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (2002, 1, 108, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (2003, 1, 109, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (2004, 1, 110, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (2005, 1, 111, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (2006, 1, 119, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (2007, 1, 99, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (2008, 1, 112, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (2009, 1, 113, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (2010, 1, 114, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (2011, 1, 115, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (2012, 1, 116, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (2013, 1, 117, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (2014, 1, 152, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (2015, 1, 153, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (2016, 1, 154, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (2017, 1, 155, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (2018, 1, 156, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (2019, 1, 157, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (2020, 1, 158, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (2021, 1, 159, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (2022, 1, 160, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (2023, 1, 161, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (2024, 1, 162, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (2025, 1, 163, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (2026, 1, 164, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (2027, 1, 165, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (2028, 1, 166, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (2029, 1, 167, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (2030, 1, 168, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (2031, 1, 169, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (2032, 1, 170, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (2033, 1, 171, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (2034, 1, 172, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (2035, 1, 173, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (2036, 1, 174, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (2037, 1, 146, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (2038, 1, 147, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (2039, 1, 148, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (2040, 1, 149, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (2041, 1, 150, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (2042, 1, 151, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (2043, 1, 142, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (2044, 1, 143, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (2045, 1, 144, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (2046, 1, 145, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (2047, 1, 50, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (2048, 1, 67, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (2049, 1, 55, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (2050, 1, 56, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (2051, 1, 57, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (2052, 1, 89, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (2053, 1, 94, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (2054, 1, 95, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (2055, 1, 96, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (2056, 1, 88, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (2057, 1, 68, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (2058, 1, 58, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (2059, 1, 59, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (2060, 1, 60, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (2061, 1, 69, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (2062, 1, 61, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (2063, 1, 62, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (2064, 1, 63, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (2065, 1, 70, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (2066, 1, 64, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (2067, 1, 65, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (2068, 1, 66, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (2069, 1, 3, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (2070, 1, 4, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (2071, 1, 16, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (2072, 1, 17, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (2073, 1, 18, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (2074, 1, 19, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (2075, 1, 87, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (2076, 1, 124, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (2077, 1, 5, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (2078, 1, 37, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (2079, 1, 38, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (2080, 1, 39, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (2081, 1, 40, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (2082, 1, 6, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (2083, 1, 41, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (2084, 1, 42, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (2085, 1, 43, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (2086, 1, 15, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (2087, 1, 44, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (2088, 1, 45, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (2089, 1, 46, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (2090, 1, 47, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (2091, 1, 48, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (2092, 1, 49, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (2093, 1, 7, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (2094, 1, 83, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (2095, 1, 84, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (2096, 1, 85, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (2097, 1, 86, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (2098, 1, 8, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (2099, 1, 9, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (2100, 1, 10, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (2101, 1, 11, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (2102, 1, 12, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (2103, 1, 13, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
+INSERT INTO `sys_user_menu` VALUES (2104, 1, 14, '2026-02-03 23:23:54', '2026-02-03 23:23:54', 1, 1, 0);
 
 -- ----------------------------
 -- Table structure for sys_user_role

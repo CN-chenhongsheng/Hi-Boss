@@ -114,28 +114,35 @@ class AdaptivePageSizeCalculator {
 
   /**
    * 匹配到最佳的标准 pageSize
-   * 策略：选择第一个大于或等于可见行数的标准值，确保表格铺满屏幕
+   * 策略：在标准 pageSize 列表中选择「最接近可见行数」的值
+   * - 避免在接近临界值时过早跳到更大的档位（例如 23 行直接跳到 30）
+   * - 可以让中等屏幕更倾向于 20 条/页，大屏自然匹配到 30/50/100
    */
   calculate(): number {
     const availableRows = this.calculateAvailableRows()
 
-    // 如果容器高度无效（返回 0），使用最小 pageSize
+    // 如果容器高度无效（返回 0），返回 0 交由上层决定兜底策略
+    // 上层 useTable 中会忽略 0（newSize > 0 才会生效），从而保留自己的 initialPageSize（默认 20），
+    // 等容器高度计算完成后再次触发，这样大屏可以得到 30/50 小屏可以得到 20，
+    // 同时避免首屏被错误地强制成 minPageSize(10)。
     if (availableRows === 0) {
-      return this.options.minPageSize
+      return 0
     }
 
-    // 新策略：直接查找第一个 ≥ 可见行数的标准 pageSize
-    // 这样可以确保表格数据总是铺满或超出屏幕（有滚动条），没有空白
+    // 新策略：选择与 availableRows 距离最近的标准 pageSize
+    // 例如 availableRows=23，则更倾向于 20（差值 3）而不是 30（差值 7）
     let matchedSize = this.options.minPageSize
+    let minDiff = Number.POSITIVE_INFINITY
 
     for (const size of this.options.pageSizeOptions) {
-      if (size >= availableRows) {
-        // 找到第一个不小于可见行数的标准值
+      const diff = Math.abs(size - availableRows)
+      if (diff < minDiff) {
+        minDiff = diff
         matchedSize = size
-        break
+      } else if (diff === minDiff && size > matchedSize) {
+        // 差值相同则取更大的一个，避免过小的 pageSize
+        matchedSize = size
       }
-      // 如果都小于可见行数，保留最大的那个
-      matchedSize = size
     }
 
     // 确保不超过最大值（如果 maxPageSize 未定义，则不限制）
@@ -173,7 +180,7 @@ class AdaptivePageSizeCalculator {
  * const { pageSize, pageSizes } = useAdaptivePageSize({
  *   container: containerRef,
  *   customRowHeight: 50,
- *   minPageSize: 5,
+ *   minPageSize: 10,
  *   maxPageSize: 200,
  *   debug: true
  * })

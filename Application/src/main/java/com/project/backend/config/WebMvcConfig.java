@@ -8,7 +8,7 @@ import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import java.nio.file.Paths;
+import com.project.core.util.FileUtils;
 
 /**
  * Web MVC 配置
@@ -51,7 +51,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         // 配置文件访问静态资源映射（使用绝对路径）
-        String absoluteUploadDir = Paths.get(uploadDir).toAbsolutePath().toString().replace("\\", "/");
+        String absoluteUploadDir = FileUtils.resolveUploadDir(uploadDir).toString().replace("\\", "/");
         registry.addResourceHandler(publicPath + "/**")
                 .addResourceLocations("file:" + absoluteUploadDir + "/");
     }

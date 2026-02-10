@@ -1,8 +1,10 @@
 <!-- 学生信息悬浮卡片组件 -->
 <template>
-  <div class="student-info-popover-content">
-    <div class="info-list">
+  <div class="student-info-popover-wrapper">
+    <div class="student-info-popover-content">
+      <div class="info-list">
       <!-- 基本信息 -->
+      <div v-if="hasBasicInfo" class="section-title">基本信息</div>
       <div v-if="student.studentNo" class="info-row">
         <div class="row-label">
           <ArtSvgIcon icon="ri:hashtag" class="label-icon" />
@@ -51,6 +53,7 @@
       </div>
 
       <!-- 学校信息 -->
+      <div v-if="hasSchoolInfo" class="section-title">学校信息</div>
       <div v-if="student.campusName" class="info-row">
         <div class="row-label">
           <ArtSvgIcon icon="ri:map-pin-line" class="label-icon" />
@@ -63,24 +66,25 @@
           <ArtSvgIcon icon="ri:building-line" class="label-icon" />
           <span>院系</span>
         </div>
-        <div class="row-value">{{ student.deptName }}</div>
+        <div class="row-value is-multiline">{{ student.deptName }}</div>
       </div>
       <div v-if="student.majorName" class="info-row">
         <div class="row-label">
           <ArtSvgIcon icon="ri:book-open-line" class="label-icon" />
           <span>专业</span>
         </div>
-        <div class="row-value">{{ student.majorName }}</div>
+        <div class="row-value is-multiline">{{ student.majorName }}</div>
       </div>
       <div v-if="student.className" class="info-row">
         <div class="row-label">
           <ArtSvgIcon icon="ri:group-line" class="label-icon" />
           <span>班级</span>
         </div>
-        <div class="row-value">{{ student.className }}</div>
+        <div class="row-value is-multiline">{{ student.className }}</div>
       </div>
 
       <!-- 住宿信息 -->
+      <div v-if="hasDormInfo" class="section-title">住宿信息</div>
       <div v-if="student.floorName" class="info-row">
         <div class="row-label">
           <ArtSvgIcon icon="ri:building-2-line" class="label-icon" />
@@ -104,6 +108,7 @@
       </div>
 
       <!-- 学籍信息 -->
+      <div v-if="hasAcademicInfo" class="section-title">学籍信息</div>
       <div v-if="student.academicStatusText" class="info-row">
         <div class="row-label">
           <ArtSvgIcon icon="ri:file-list-line" class="label-icon" />
@@ -128,11 +133,15 @@
         </div>
         <div class="row-value">{{ student.currentGrade }}</div>
       </div>
+      </div>
     </div>
+    <!-- 底部渐变遮罩，提示还有更多内容 -->
+    <div class="scroll-fade-bottom" />
   </div>
 </template>
 
 <script setup lang="ts">
+  import { computed } from 'vue'
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
 
   defineOptions({ name: 'StudentInfoPopover' })
@@ -142,8 +151,35 @@
     student: Partial<Api.Common.StudentBasicInfo>
   }
 
-  withDefaults(defineProps<Props>(), {
+  const props = withDefaults(defineProps<Props>(), {
     student: () => ({})
+  })
+
+  const hasBasicInfo = computed(() => {
+    const s = props.student || {}
+    return Boolean(
+      s.studentNo ||
+        s.studentName ||
+        s.genderText ||
+        s.phone ||
+        s.nation ||
+        s.politicalStatus
+    )
+  })
+
+  const hasSchoolInfo = computed(() => {
+    const s = props.student || {}
+    return Boolean(s.campusName || s.deptName || s.majorName || s.className)
+  })
+
+  const hasDormInfo = computed(() => {
+    const s = props.student || {}
+    return Boolean(s.floorName || s.roomName || s.bedName)
+  })
+
+  const hasAcademicInfo = computed(() => {
+    const s = props.student || {}
+    return Boolean(s.academicStatusText || s.enrollmentYear || s.currentGrade)
   })
 
   // 获取学籍状态样式类
@@ -157,33 +193,57 @@
 </script>
 
 <style lang="scss" scoped>
+  .student-info-popover-wrapper {
+    position: relative;
+  }
+
   .student-info-popover-content {
     max-height: 500px;
-    padding: 4px 0;
     overflow-y: auto;
-    scrollbar-width: none; // Firefox 隐藏滚动条
 
-    // WebKit 浏览器隐藏滚动条
+    /* 隐藏滚动条但保留滚动功能 */
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE/Edge */
+
     &::-webkit-scrollbar {
-      display: none;
-      width: 0;
+      display: none; /* Chrome/Safari/Opera */
     }
 
     .info-list {
       display: flex;
       flex-direction: column;
-      gap: 0;
+      gap: 2px;
+      padding-bottom: 10px; /* 为底部渐变遮罩预留空间 */
+    }
+
+    .section-title {
+      margin: 6px 0 2px;
+      padding: 0 0 2px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--el-text-color-secondary);
+      letter-spacing: 0.5px;
+    }
+
+    .section-title + .info-row {
+      margin-top: 2px;
     }
 
     .info-row {
       display: flex;
       align-items: flex-start;
       justify-content: space-between;
-      padding: 10px 0;
+      padding: 8px 8px;
       border-bottom: 1px solid var(--el-border-color-extra-light);
+      transition: background-color 0.15s ease;
 
       &:last-of-type {
         border-bottom: none;
+      }
+
+      &:hover {
+        border-radius: calc(var(--el-border-radius-base) - 1px);
+        background-color: var(--el-fill-color-light);
       }
 
       .row-label {
@@ -206,7 +266,7 @@
         flex-shrink: 1;
         gap: 6px;
         align-items: center;
-        max-width: 180px;
+        max-width: 220px;
         padding-left: 12px;
         overflow: hidden;
         font-size: 12px;
@@ -214,13 +274,15 @@
         color: var(--el-text-color-primary);
         text-overflow: ellipsis;
         white-space: nowrap;
+        cursor: var(--cursor-text);
 
         .value-dot {
           flex-shrink: 0;
-          width: 5px;
-          height: 5px;
+          width: 4px;
+          height: 4px;
           background: var(--el-text-color-placeholder);
           border-radius: 50%;
+          margin-right: 2px;
         }
 
         &.is-good {
@@ -249,6 +311,16 @@
 
         &.is-copyable {
           color: var(--el-color-primary);
+          cursor: var(--cursor-pointer);
+
+          &:hover {
+            text-decoration: underline;
+          }
+        }
+
+        &.is-multiline {
+          white-space: normal;
+          word-break: break-all;
         }
       }
     }
@@ -259,10 +331,43 @@
   // 全局样式，用于覆盖 ElPopover 的默认样式
   .student-info-popover {
     max-width: 320px !important;
-    padding: 12px 16px !important;
+    padding: 14px 16px !important;
+    border-radius: 8px !important;
+    border: 1px solid var(--el-border-color-light) !important;
+    background: var(--el-bg-color-overlay) !important;
+    box-shadow: var(--el-box-shadow-lighter) !important;
 
     .el-popover__title {
       display: none;
+    }
+
+    // 底部渐变遮罩
+    .scroll-fade-bottom {
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      height: 40px;
+      pointer-events: none;
+      background: linear-gradient(
+        to bottom,
+        transparent 0%,
+        rgba(255, 255, 255, 0.6) 50%,
+        rgba(255, 255, 255, 0.95) 100%
+      );
+      border-radius: 0 0 8px 8px;
+    }
+  }
+
+  // 暗色模式适配
+  .dark .student-info-popover {
+    .scroll-fade-bottom {
+      background: linear-gradient(
+        to bottom,
+        transparent 0%,
+        rgba(30, 30, 30, 0.6) 50%,
+        rgba(30, 30, 30, 0.95) 100%
+      );
     }
   }
 </style>

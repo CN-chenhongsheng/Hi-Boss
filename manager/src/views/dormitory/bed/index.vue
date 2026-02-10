@@ -131,7 +131,7 @@
     fetchGetRoomListWithBeds,
     fetchGetFloorList
   } from '@/api/dormitory-manage'
-  import { ElMessageBox, ElMessage, ElPopover } from 'element-plus'
+  import { ElPopover } from 'element-plus'
   import ArtSwitch from '@/components/core/forms/art-switch/index.vue'
   import StudentInfoPopover from '@/components/core/cards/art-student-info-popover/index.vue'
   import { enrichStudentInfo } from '@/utils/student/enrichStudentInfo'
@@ -184,6 +184,7 @@
   const formFilters = ref({
     bedCode: '',
     bedNumber: '',
+    locationCascader: [] as string[], // 级联选择器值 [校区, 楼层, 房间]
     roomCode: '',
     floorCode: '',
     campusCode: '',
@@ -392,6 +393,7 @@
     formFilters.value = {
       bedCode: '',
       bedNumber: '',
+      locationCascader: [],
       roomCode: '',
       floorCode: '',
       campusCode: '',

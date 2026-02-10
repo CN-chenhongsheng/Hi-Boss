@@ -1,6 +1,6 @@
 package com.project.app.service;
 
-import com.project.backend.accommodation.dto.student.StudentLifestyleDTO;
+import com.project.backend.student.dto.student.StudentLifestyleDTO;
 import com.project.backend.accommodation.vo.student.DormInfoVO;
 import com.project.backend.accommodation.vo.student.RoommateVO;
 

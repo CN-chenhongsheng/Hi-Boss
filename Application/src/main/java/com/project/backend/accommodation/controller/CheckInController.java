@@ -8,10 +8,13 @@ import com.project.core.result.PageResult;
 import com.project.core.result.R;
 import com.project.backend.controller.base.BaseCrudController;
 import com.project.backend.controller.base.BatchDeleteController;
+import com.project.core.annotation.Log;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -25,6 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/v1/system/check-in")
 @RequiredArgsConstructor
+@Tag(name = "入住管理", description = "入住申请增删改查")
 public class CheckInController extends BaseCrudController<CheckInVO, CheckInQueryDTO, CheckInSaveDTO> 
         implements BatchDeleteController {
 
@@ -64,7 +68,8 @@ public class CheckInController extends BaseCrudController<CheckInVO, CheckInQuer
      * 撤回入住申请
      */
     @Operation(summary = "撤回入住申请")
-    @PostMapping("/{id}/cancel")
+    @Log(title = "撤回入住申请", businessType = 2)
+    @PutMapping("/{id}/cancel")
     public R<Void> cancel(@PathVariable Long id) {
         boolean success = checkInService.cancelCheckIn(id);
         return success ? R.ok() : R.fail("撤回失败");
@@ -75,6 +80,7 @@ public class CheckInController extends BaseCrudController<CheckInVO, CheckInQuer
      * 用于可视化视图中管理员直接将学生分配到空床位
      */
     @Operation(summary = "管理员直接分配床位", description = "管理员直接将学生分配到空床位，跳过审批流程")
+    @Log(title = "管理员直接分配床位", businessType = 1)
     @PostMapping("/admin-assign")
     public R<Void> adminAssignBed(@RequestBody CheckInSaveDTO saveDTO) {
         boolean success = checkInService.adminAssignBed(saveDTO);

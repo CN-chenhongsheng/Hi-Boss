@@ -1,6 +1,6 @@
 package com.project.backend.system.vo;
 
-import com.project.backend.accommodation.vo.StudentVO;
+import com.project.backend.student.vo.StudentVO;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

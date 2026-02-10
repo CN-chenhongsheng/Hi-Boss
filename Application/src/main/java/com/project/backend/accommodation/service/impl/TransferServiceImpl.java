@@ -14,14 +14,11 @@ import com.project.backend.accommodation.vo.TransferVO;
 import com.project.core.exception.BusinessException;
 import com.project.core.result.PageResult;
 import com.project.core.vo.ApprovalProgress;
-import com.project.core.vo.ApprovalProgressNode;
-import com.project.backend.approval.vo.ApprovalInstanceVO;
-import com.project.backend.approval.vo.ApprovalNodeVO;
-import com.project.backend.approval.vo.ApprovalAssigneeVO;
-import com.project.backend.approval.vo.ApprovalRecordVO;
-import com.project.backend.accommodation.entity.Student;
-import com.project.backend.accommodation.mapper.StudentMapper;
+import com.project.backend.student.entity.Student;
+import com.project.backend.student.mapper.StudentMapper;
+import com.project.backend.common.service.ApprovalProgressBuilder;
 import com.project.backend.common.service.StudentInfoEnricher;
+import com.project.core.util.EntityUtils;
 import com.project.backend.organization.entity.Campus;
 import com.project.backend.organization.mapper.CampusMapper;
 import com.project.backend.room.entity.Floor;
@@ -43,10 +40,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -69,6 +63,7 @@ public class TransferServiceImpl extends ServiceImpl<TransferMapper, Transfer> i
     private final ApprovalService approvalService;
     private final ApprovalInstanceMapper approvalInstanceMapper;
     private final ApprovalRecordMapper approvalRecordMapper;
+    private final ApprovalProgressBuilder approvalProgressBuilder;
 
     @Override
     public PageResult<TransferVO> pageList(TransferQueryDTO queryDTO) {
@@ -95,10 +90,7 @@ public class TransferServiceImpl extends ServiceImpl<TransferMapper, Transfer> i
 
     @Override
     public TransferVO getDetailById(Long id) {
-        Transfer transfer = getById(id);
-        if (transfer == null) {
-            throw new BusinessException("调宿记录不存在");
-        }
+        Transfer transfer = EntityUtils.requireNonNull(getById(id), "调宿记录");
         return convertToVO(transfer);
     }
 
@@ -116,10 +108,7 @@ public class TransferServiceImpl extends ServiceImpl<TransferMapper, Transfer> i
         }
 
         // 检查学生是否存在
-        Student student = studentMapper.selectById(studentId);
-        if (student == null) {
-            throw new BusinessException("学生不存在");
-        }
+        Student student = EntityUtils.requireNonNull(studentMapper.selectById(studentId), "学生");
 
         Transfer transfer = new Transfer();
         BeanUtil.copyProperties(saveDTO, transfer);
@@ -202,10 +191,7 @@ public class TransferServiceImpl extends ServiceImpl<TransferMapper, Transfer> i
         }
 
         // 查询调宿记录
-        Transfer transfer = getById(id);
-        if (transfer == null) {
-            throw new BusinessException("调宿记录不存在");
-        }
+        Transfer transfer = EntityUtils.requireNonNull(getById(id), "调宿记录");
 
         // 如果存在审批实例，删除关联的审批记录和审批实例
         if (transfer.getApprovalInstanceId() != null) {
@@ -276,10 +262,7 @@ public class TransferServiceImpl extends ServiceImpl<TransferMapper, Transfer> i
             throw new BusinessException("调宿记录ID不能为空");
         }
 
-        Transfer transfer = getById(id);
-        if (transfer == null) {
-            throw new BusinessException("调宿记录不存在");
-        }
+        Transfer transfer = EntityUtils.requireNonNull(getById(id), "调宿记录");
 
         // 只有待审核状态才能撤回
         if (transfer.getStatus() != 1) {
@@ -382,7 +365,7 @@ public class TransferServiceImpl extends ServiceImpl<TransferMapper, Transfer> i
         // 填充审批进度信息
         if (transfer.getApprovalInstanceId() != null) {
             vo.setApprovalInstanceId(transfer.getApprovalInstanceId());
-            vo.setApprovalProgress(buildApprovalProgress(transfer.getApprovalInstanceId(), transfer.getStatus()));
+            vo.setApprovalProgress(approvalProgressBuilder.buildProgress(transfer.getApprovalInstanceId(), transfer.getStatus(), "transfer_status"));
         }
 
         return vo;
@@ -391,155 +374,4 @@ public class TransferServiceImpl extends ServiceImpl<TransferMapper, Transfer> i
     /**
      * 构建审批进度信息
      */
-    private ApprovalProgress buildApprovalProgress(Long approvalInstanceId, Integer status) {
-        ApprovalProgress progress = new ApprovalProgress();
-        progress.setStatus(status);
-        progress.setStatusText(DictUtils.getLabel("transfer_status", status, "未知"));
-
-        ApprovalInstanceVO instance = null;
-        try {
-            instance = approvalService.getInstanceDetail(approvalInstanceId);
-        } catch (Exception e) {
-            log.error("获取审批实例详情失败: {}", e.getMessage());
-        }
-
-        if (instance != null) {
-            progress.setApplicantName(instance.getApplicantName());
-            progress.setStartTime(instance.getStartTime());
-            progress.setCurrentNodeName(instance.getCurrentNodeName());
-
-            List<ApprovalProgressNode> nodeTimeline = buildNodeTimeline(instance);
-            progress.setNodeTimeline(nodeTimeline);
-            progress.setTotalNodes(nodeTimeline.size());
-            progress.setCompletedNodes((int) nodeTimeline.stream()
-                    .filter(node -> node.getStatus() != null && node.getStatus() == 2)
-                    .count());
-
-            if (status != null && status != 1) {
-                progress.setProgressPercent(100);
-            } else if (nodeTimeline.isEmpty()) {
-                progress.setProgressPercent(0);
-            } else {
-                int percent = (int) Math.round(progress.getCompletedNodes() * 100.0 / nodeTimeline.size());
-                progress.setProgressPercent(Math.min(100, Math.max(0, percent)));
-            }
-
-            if (status != null && status == 1) {
-                String nextApproverName = getNextApproverName(instance);
-                progress.setNextApproverName(nextApproverName);
-
-                String nodeName = instance.getCurrentNodeName() != null ? instance.getCurrentNodeName() : "待审批";
-                String approverName = nextApproverName != null ? nextApproverName : "未指定";
-                progress.setProgressText(String.format("%s(%s)", nodeName, approverName));
-            } else {
-                progress.setProgressText(DictUtils.getLabel("transfer_status", status, "未知进度"));
-            }
-        } else {
-            if (status != null && status != 1) {
-                progress.setProgressPercent(100);
-            } else {
-                progress.setProgressPercent(0);
-            }
-            progress.setProgressText("未知进度");
-        }
-
-        return progress;
-    }
-
-    /**
-     * 获取下一审批人姓名
-     */
-    private String getNextApproverName(ApprovalInstanceVO instance) {
-        if (instance.getNodes() == null || instance.getNodes().isEmpty()) {
-            return null;
-        }
-
-        // 查找当前节点
-        ApprovalNodeVO currentNode = instance.getNodes().stream()
-                .filter(node -> node.getId().equals(instance.getCurrentNodeId()))
-                .findFirst()
-                .orElse(null);
-
-        if (currentNode != null && currentNode.getAssignees() != null && !currentNode.getAssignees().isEmpty()) {
-            // 返回第一个审批人姓名（如果是多人会签，可以展示多个）
-            List<String> approverNames = currentNode.getAssignees().stream()
-                    .map(ApprovalAssigneeVO::getAssigneeName)
-                    .collect(Collectors.toList());
-            return String.join("、", approverNames);
-        }
-
-        return null;
-    }
-
-    private List<ApprovalProgressNode> buildNodeTimeline(ApprovalInstanceVO instance) {
-        if (instance.getNodes() == null || instance.getNodes().isEmpty()) {
-            return Collections.emptyList();
-        }
-
-        Map<Long, ApprovalRecordVO> recordMap = buildRecordMap(instance.getRecords());
-
-        return instance.getNodes().stream()
-                .sorted(Comparator.comparing(
-                        ApprovalNodeVO::getNodeOrder,
-                        Comparator.nullsLast(Integer::compareTo)
-                ))
-                .map(node -> {
-                    ApprovalProgressNode timelineNode = new ApprovalProgressNode();
-                    timelineNode.setNodeId(node.getId());
-                    timelineNode.setNodeName(node.getNodeName());
-                    timelineNode.setAssigneeNames(getNodeAssigneeNames(node));
-
-                    ApprovalRecordVO record = recordMap.get(node.getId());
-                    if (record != null) {
-                        if (record.getAction() != null && record.getAction() == 2) {
-                            timelineNode.setStatus(3);
-                            timelineNode.setStatusText(DictUtils.getLabel("approval_action", 2, "已拒绝"));
-                        } else {
-                            timelineNode.setStatus(2);
-                            timelineNode.setStatusText(DictUtils.getLabel("approval_action", 1, "已通过"));
-                        }
-                        timelineNode.setActionText(record.getActionText());
-                        timelineNode.setApproveTime(record.getApproveTime());
-                    } else {
-                        timelineNode.setStatus(1);
-                        timelineNode.setStatusText("待处理");
-                    }
-
-                    return timelineNode;
-                })
-                .collect(Collectors.toList());
-    }
-
-    private Map<Long, ApprovalRecordVO> buildRecordMap(List<ApprovalRecordVO> records) {
-        if (records == null || records.isEmpty()) {
-            return Collections.emptyMap();
-        }
-
-        return records.stream()
-                .filter(record -> record.getNodeId() != null)
-                .collect(Collectors.toMap(
-                        ApprovalRecordVO::getNodeId,
-                        record -> record,
-                        (first, second) -> {
-                            if (first.getApproveTime() == null) {
-                                return second;
-                            }
-                            if (second.getApproveTime() == null) {
-                                return first;
-                            }
-                            return second.getApproveTime().isAfter(first.getApproveTime()) ? second : first;
-                        }
-                ));
-    }
-
-    private String getNodeAssigneeNames(ApprovalNodeVO node) {
-        if (node.getAssignees() == null || node.getAssignees().isEmpty()) {
-            return "未指定";
-        }
-
-        return node.getAssignees().stream()
-                .map(ApprovalAssigneeVO::getAssigneeName)
-                .filter(StrUtil::isNotBlank)
-                .collect(Collectors.joining("、"));
-    }
 }

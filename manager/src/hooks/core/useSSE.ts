@@ -38,6 +38,7 @@
 
 import { ref, onMounted, onUnmounted } from 'vue'
 import { useUserStore } from '@/store/modules/user'
+import { fetchRefreshToken } from '@/api/auth'
 
 /**
  * SSE 事件处理器类型
@@ -81,7 +82,7 @@ export interface UseSSEReturn {
   /** 连接错误 */
   error: Readonly<Ref<Event | null>>
   /** 手动连接 */
-  connect: () => void
+  connect: () => Promise<void>
   /** 手动断开 */
   disconnect: () => void
   /** 重新连接 */
@@ -143,13 +144,32 @@ export function useSSE(options: UseSSEOptions): UseSSEReturn {
   /**
    * 连接 SSE
    */
-  const connect = () => {
+  const connect = async () => {
     // 如果已连接，先断开
     if (eventSource.value) {
       disconnect()
     }
 
     try {
+      // 如果需要 token，确保 token 已刷新
+      if (withToken) {
+        const userStore = useUserStore()
+        // 如果用户已登录但 token 为空（页面刷新导致），先刷新 token
+        if (userStore.isLogin && !userStore.accessToken) {
+          try {
+            console.log('[SSE] Token 为空，正在刷新...')
+            const newAccessToken = await fetchRefreshToken()
+            userStore.setToken(newAccessToken)
+            console.log('[SSE] Token 刷新成功')
+          } catch (err) {
+            console.error('[SSE] Token 刷新失败:', err)
+            error.value = err as Event
+            onError?.(err as Event)
+            return
+          }
+        }
+      }
+
       const sseUrl = buildUrl()
 
       eventSource.value = new EventSource(sseUrl)
@@ -202,7 +222,9 @@ export function useSSE(options: UseSSEOptions): UseSSEReturn {
           console.log(`[SSE] 尝试重新连接 (${reconnectAttempts}/${maxReconnectAttempts})...`)
           reconnectTimer = setTimeout(() => {
             disconnect()
-            connect()
+            connect().catch((connectErr) => {
+              console.error('[SSE] 重连失败:', connectErr)
+            })
           }, reconnectDelay)
         } else if (reconnectAttempts >= maxReconnectAttempts) {
           console.error('[SSE] 最大重连次数达到')
@@ -240,14 +262,18 @@ export function useSSE(options: UseSSEOptions): UseSSEReturn {
     disconnect()
     reconnectAttempts = 0
     setTimeout(() => {
-      connect()
+      connect().catch((err) => {
+        console.error('[SSE] 重新连接失败:', err)
+      })
     }, reconnectDelay)
   }
 
   // 自动连接
   if (autoConnect) {
     onMounted(() => {
-      connect()
+      connect().catch((err) => {
+        console.error('[SSE] 自动连接失败:', err)
+      })
     })
   }
 

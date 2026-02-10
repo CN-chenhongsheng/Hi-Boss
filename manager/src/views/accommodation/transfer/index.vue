@@ -75,7 +75,7 @@
     fetchDeleteTransfer,
     fetchBatchDeleteTransfer
   } from '@/api/accommodation-manage'
-  import { ElMessageBox, ElPopover } from 'element-plus'
+  import { ElPopover } from 'element-plus'
   import TransferSearch from './modules/transfer-search.vue'
   import TransferDrawer from './modules/transfer-drawer.vue'
   import ApprovalProgressTag from '@/components/core/approval/approval-progress-tag/index.vue'
@@ -206,11 +206,11 @@
         },
         { prop: 'phone', label: '手机号', width: 125 },
         { prop: 'originalCampusName', label: '原校区', width: 120 },
-        { prop: 'originalFloorName', label: '原楼栋', width: 120 },
+        { prop: 'originalFloorName', label: '原楼层', width: 120 },
         { prop: 'originalRoomCode', label: '原房间', width: 100 },
         { prop: 'originalBedCode', label: '原床位', width: 100 },
         { prop: 'targetCampusName', label: '目标校区', width: 120 },
-        { prop: 'targetFloorName', label: '目标楼栋', width: 120 },
+        { prop: 'targetFloorName', label: '目标楼层', width: 120 },
         { prop: 'targetRoomCode', label: '目标房间', width: 100 },
         { prop: 'targetBedCode', label: '目标床位', width: 100 },
         { prop: 'applyDate', label: '申请日期', width: 120, sortable: true },

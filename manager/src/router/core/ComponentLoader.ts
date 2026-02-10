@@ -13,8 +13,23 @@ export class ComponentLoader {
   private modules: Record<string, () => Promise<any>>
 
   constructor() {
-    // 动态导入 views 目录下所有 .vue 组件
+    // 使用相对路径 glob，Vite 返回的 key 为相对本文件的路径；别名 @ 在 glob key 中会被解析成其它格式导致匹配失败
     this.modules = import.meta.glob('../../views/**/*.vue')
+  }
+
+  /**
+   * 规范化后端返回的 component 路径：去掉首尾斜杠、去掉 /src/views 前缀
+   * 后端可能返回 "/student/manage" 或 "/src/views/student/manage" 或 "/index/index"
+   */
+  private normalizeComponentPath(componentPath: string): string {
+    let s = componentPath.trim().replace(/^\/+/, '').replace(/\/+$/, '')
+    const prefix = 'src/views/'
+    if (s.toLowerCase().startsWith(prefix)) {
+      s = s.slice(prefix.length)
+    } else if (s.startsWith('/src/views/')) {
+      s = s.replace(/^\/src\/views\/?/i, '')
+    }
+    return s
   }
 
   /**
@@ -25,11 +40,15 @@ export class ComponentLoader {
       return this.createEmptyComponent()
     }
 
-    // 构建可能的路径
-    const fullPath = `../../views${componentPath}.vue`
-    const fullPathWithIndex = `../../views${componentPath}/index.vue`
+    const normalized = this.normalizeComponentPath(componentPath)
+    if (!normalized) {
+      return this.createEmptyComponent()
+    }
 
-    // 先尝试直接路径，再尝试添加/index的路径
+    // 与 glob key 一致：相对路径 ../../views/xxx.vue 或 ../../views/xxx/index.vue
+    const fullPath = `../../views/${normalized}.vue`
+    const fullPathWithIndex = `../../views/${normalized}/index.vue`
+
     const module = this.modules[fullPath] || this.modules[fullPathWithIndex]
 
     if (!module) {

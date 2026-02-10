@@ -40,6 +40,7 @@ let unauthorizedTimer: NodeJS.Timeout | null = null
 
 /** Token 刷新相关状态 */
 let isRefreshing = false // 是否正在刷新 Token
+let refreshFailed = false // 刷新是否已失败（避免重复登出）
 let failedQueue: Array<{
   resolve: (value?: any) => void
   reject: (error?: any) => void
@@ -78,11 +79,61 @@ const axiosInstance = axios.create({
 
 /** 请求拦截器 */
 axiosInstance.interceptors.request.use(
-  (request: InternalAxiosRequestConfig) => {
-    const { accessToken } = useUserStore()
-    // 使用 Bearer 格式发送 Access Token
-    if (accessToken) {
-      request.headers.set('Authorization', `Bearer ${accessToken}`)
+  async (request: InternalAxiosRequestConfig) => {
+    const userStore = useUserStore()
+    const { accessToken, isLogin } = userStore
+
+    // 如果用户已登录但 accessToken 为空（页面刷新导致），且不是刷新/登录接口，主动刷新 token
+    if (isLogin && !accessToken && !request.url?.includes('/auth/refresh') && !request.url?.includes('/auth/login')) {
+      // 如果刷新已经失败过，不再尝试刷新，直接让请求失败
+      if (refreshFailed) {
+        throw createHttpError('会话已过期，请重新登录', ApiStatus.unauthorized)
+      }
+
+      // 如果已经在刷新中，等待刷新完成
+      if (isRefreshing) {
+        return new Promise((resolve, reject) => {
+          failedQueue.push({ resolve, reject })
+        }).then(() => {
+          // 刷新完成后，添加新的 token 到请求头
+          if (userStore.accessToken) {
+            request.headers.set('Authorization', `Bearer ${userStore.accessToken}`)
+          }
+          return request
+        }).catch((error) => {
+          // 刷新失败，抛出错误
+          throw error
+        })
+      } else {
+        // 开始刷新 token
+        isRefreshing = true
+        try {
+          const newAccessToken = await fetchRefreshToken()
+          userStore.setToken(newAccessToken)
+          // 刷新完成，处理队列中的请求
+          failedQueue.forEach((promise) => promise.resolve())
+          failedQueue = []
+          // 重置刷新失败标记
+          refreshFailed = false
+          // 添加新的 token 到当前请求头
+          request.headers.set('Authorization', `Bearer ${newAccessToken}`)
+        } catch (error) {
+          // 标记刷新失败
+          refreshFailed = true
+          // 拒绝队列中的所有请求
+          failedQueue.forEach((promise) => promise.reject(error))
+          failedQueue = []
+          // 抛出错误，让响应拦截器处理
+          throw error
+        } finally {
+          isRefreshing = false
+        }
+      }
+    } else {
+      // 使用 Bearer 格式发送 Access Token
+      if (userStore.accessToken) {
+        request.headers.set('Authorization', `Bearer ${userStore.accessToken}`)
+      }
     }
 
     if (request.data && !(request.data instanceof FormData) && !request.headers['Content-Type']) {

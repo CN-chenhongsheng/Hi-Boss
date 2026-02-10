@@ -3,7 +3,7 @@ package com.project.backend.common.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.project.backend.accommodation.entity.Student;
+import com.project.backend.student.entity.Student;
 import com.project.backend.common.service.StudentInfoEnricher;
 import com.project.backend.common.vo.StudentBasicInfoVO;
 import com.project.backend.organization.entity.Campus;

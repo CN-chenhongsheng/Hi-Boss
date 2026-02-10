@@ -164,6 +164,15 @@ export interface ActionButtonConfig {
     | 'reset'
     | 'share'
     | 'link'
+    | 'copy'
+    | 'play'
+    | 'pause'
+    | 'notify'
+    | 'refresh'
+    | 'export'
+    | 'import'
+    | 'print'
+    | 'cancel'
   // 点击事件
   onClick: () => void
   // 权限标识

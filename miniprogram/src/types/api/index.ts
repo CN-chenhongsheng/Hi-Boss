@@ -33,3 +33,6 @@ export * from './statistics';
 
 // 学生习惯相关
 export * from './student-habits';
+
+// 智能分配相关
+export * from './allocation';
